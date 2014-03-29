@@ -259,6 +259,14 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 	if bnpvbWJpZXM.Rounds.CurrentState == ROUND_INIT then
 		if bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites() then
 			table.Empty(plyColours)
+			if bnpvbWJpZXM.Config.AllowServerName then
+				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
+			end
+			if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
+				local pword = util.Base64Encode( CurTime() )
+				print("Server locked for round! Emergency Password is: "..pword)
+				RunConsoleCommand("sv_password", pword )
+			end
 			for k,v in pairs(player.GetAll()) do
 				if bnpvbWJpZXM.Rounds.PlayerSpawns != nil then
 					if #bnpvbWJpZXM.Rounds.PlayerSpawns >= #player.GetAll() then
@@ -266,14 +274,6 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 					else
 						print("Not enough player spawns! Not forcing player spawns.")
 					end
-				end
-				if bnpvbWJpZXM.Config.AllowServerName then
-					RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
-				end
-				if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
-					local pword = util.Base64Encode( CurTime() )
-					print("Server locked for round! Emergency Password is: "..pword)
-					RunConsoleCommand("sv_password", pword )
 				end
 				
 				v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints)
