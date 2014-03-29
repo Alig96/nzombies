@@ -1,0 +1,14 @@
+"nzombies"
+{
+	"base"		"base"
+    "title"  "nZombies"
+    "version"   "0.2"
+    "menusystem"	"1"
+
+    "author_name"   "Alig96"
+    "author_email"  ""
+
+    "icon"  ""
+    "info"  ""
+    "hide"  "0"
+}
