@@ -1,4 +1,4 @@
-nzombies
+nZombies
 ========
 
 A GM13 Nazi Zombies style (WIP) gamemode
