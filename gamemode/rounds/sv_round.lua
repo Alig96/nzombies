@@ -6,6 +6,7 @@ bnpvbWJpZXM.Rounds.ZombiesSpawned = 0
 bnpvbWJpZXM.Rounds.Curve = {}
 bnpvbWJpZXM.Rounds.Curve.SpawnRate = {}
 bnpvbWJpZXM.Rounds.Curve.Health = {}
+bnpvbWJpZXM.Rounds.Curve.Speed = {}
 bnpvbWJpZXM.Rounds.Functions = {}
 bnpvbWJpZXM.Rounds.Effects = {}
 bnpvbWJpZXM.Rounds.Effects["dp"] = false
@@ -23,6 +24,7 @@ function bnpvbWJpZXM.Rounds.Functions.GenerateCurve()
 	for i=1, 100 do
 		bnpvbWJpZXM.Rounds.Curve.SpawnRate[i-1] = math.Round(bnpvbWJpZXM.Config.BaseDifficultySpawnRateCurve*math.pow(i-1,bnpvbWJpZXM.Config.DifficultySpawnRateCurve))
 		bnpvbWJpZXM.Rounds.Curve.Health[i-1] = math.Round(bnpvbWJpZXM.Config.BaseDifficultyHealthCurve*math.pow(i-1,bnpvbWJpZXM.Config.DifficultyHealthCurve))
+		bnpvbWJpZXM.Rounds.Curve.Speed[i-1] = math.Round(bnpvbWJpZXM.Config.BaseDifficultySpeedCurve*math.pow(i-1,bnpvbWJpZXM.Config.DifficultySpeedCurve))
 	end
 end
 local ready = {}
@@ -259,6 +261,14 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 	if bnpvbWJpZXM.Rounds.CurrentState == ROUND_INIT then
 		if bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites() then
 			table.Empty(plyColours)
+			if bnpvbWJpZXM.Config.AllowServerName then
+				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
+			end
+			if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
+				local pword = util.Base64Encode( CurTime() )
+				print("Server locked for round! Emergency Password is: "..pword)
+				RunConsoleCommand("sv_password", pword )
+			end
 			for k,v in pairs(player.GetAll()) do
 				if bnpvbWJpZXM.Rounds.PlayerSpawns != nil then
 					if #bnpvbWJpZXM.Rounds.PlayerSpawns >= #player.GetAll() then
@@ -266,14 +276,6 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 					else
 						print("Not enough player spawns! Not forcing player spawns.")
 					end
-				end
-				if bnpvbWJpZXM.Config.AllowServerName then
-					RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
-				end
-				if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
-					local pword = util.Base64Encode( CurTime() )
-					print("Server locked for round! Emergency Password is: "..pword)
-					RunConsoleCommand("sv_password", pword )
 				end
 				
 				v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints)
@@ -397,7 +399,7 @@ function bnpvbWJpZXM.Rounds.Functions.ZombieSpawner()
 			local position = table.Random(bnpvbWJpZXM.Rounds.ZedSpawns)[1]
 			//local realPos = position + Vector(math.random(-256, 256), math.random(-256, 256), 75)
 			if CheckIfSuitable(position) then
-				local typ = "nut_slow_zombie"
+				local typ = "nut_zombie"
 				if bnpvbWJpZXM.Rounds.CurrentRound > 4 then
 					typ = "nut_zombie"
 				end

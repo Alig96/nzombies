@@ -53,9 +53,7 @@ function ENT:MoveAway( )
 	self.Moveing = true
 	local c = 0
 	timer.Create( "moveAway", 0.1, 300, function()
-		print("moving!")
 		if c == 30 then
-			print("finished moving!!")
 			local rand = table.Random(bnpvbWJpZXM.Rounds.RandomBoxSpawns)
 			self:SetPos( rand[1] )
 			self:SetAngles( rand[2] )
@@ -72,7 +70,6 @@ end
 if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
-
 	end
 	
 	hook.Add( "PostDrawOpaqueRenderables", "random_box_beam", function()

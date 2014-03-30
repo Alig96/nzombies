@@ -118,8 +118,11 @@ function ENT:RunBehaviour()
 
 				self:PlaySequenceAndWait("swing", 1)
 			else
-				self:StartActivity(ACT_RUN)
-
+				if bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound] >= 320 then
+					self:StartActivity(ACT_RUN)
+				else
+					self:StartActivity(ACT_WALK)
+				end
 				if (self.breathing) then
 					self.breathing:ChangePitch(80, 1)
 					self.breathing:ChangeVolume(1.25, 1)
@@ -130,7 +133,7 @@ function ENT:RunBehaviour()
 					self.nextYell = CurTime() + math.random(4, 8)
 				end
 
-				self.loco:SetDesiredSpeed(320)
+				self.loco:SetDesiredSpeed(bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound])
 				self:MoveToPos(target:GetPos(), {
 					maxage = 0.67
 				})

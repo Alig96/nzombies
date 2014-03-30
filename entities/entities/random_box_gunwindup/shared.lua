@@ -13,7 +13,9 @@ function ENT:Initialize()
 		self:PhysicsInit( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetSolid( SOLID_VPHYSICS )
-		self:SetModel(GenList()[1].WorldModel)
+		if SERVER then
+			self:SetModel(GenList()[1].WorldModel)
+		end
 		self:DrawShadow( false )
 		self.Winding = true
 		self.c = 0
@@ -36,18 +38,10 @@ function ENT:Use( activator, caller )
 	end
 end
 
-local blacklist = {"gmod_tool_wepbuy", "gmod_tool_playerspawns", 
-				"gmod_tool_zedspawns", "gmod_tool_doors", "gmod_tool_block", 
-				"gmod_tool_elec", "gmod_tool_randomboxspawns",
-				"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
-				"weapon_dod_sim_base_snip", "weapon_sim_admin",
-				"medikit", "weapon_sim_spade"
-				}
-
 function GenList( )
 	local guns = {}
 	for k,v in pairs( weapons.GetList() ) do 
-		if !table.HasValue(blacklist, v.ClassName) then
+		if !table.HasValue(bnpvbWJpZXM.Config.WeaponBlackList, v.ClassName) then
 			table.insert(guns, v)
 		end
 	end 
