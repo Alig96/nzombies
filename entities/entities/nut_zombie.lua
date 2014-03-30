@@ -233,7 +233,9 @@ function ENT:OnKilled(damageInfo)
 	
 	self:EmitSound(table.Random(deathSounds), 100, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
-	attacker:GivePoints(90)
+	if attacker:IsPlayer() then
+		attacker:GivePoints(90)
+	end
 	bnpvbWJpZXM.Rounds.CurrentZombies = bnpvbWJpZXM.Rounds.CurrentZombies - 1
 	bnpvbWJpZXM.Rounds.ZombiesSpawned = bnpvbWJpZXM.Rounds.ZombiesSpawned - 1
 	
@@ -261,7 +263,9 @@ local painSounds = {
 function ENT:OnInjured(damageInfo)
 	local attacker = damageInfo:GetAttacker()
 	local range = self:GetRangeTo(attacker)
-	attacker:GivePoints(10)
+	if attacker:IsPlayer() then
+		attacker:GivePoints(10)
+	end
 	self:EmitSound(table.Random(painSounds), 100, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
