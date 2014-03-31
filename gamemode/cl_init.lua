@@ -21,8 +21,8 @@ surface.CreateFont( "RoundFontSmall", {
 )
 
 surface.CreateFont( "ScoreFont", {
-	font = "28 Days Later",
-	size = 16
+	font = "Boycott",
+	size = 28
 	}
 )
 

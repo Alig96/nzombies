@@ -16,6 +16,16 @@ hook.Add("EntityTakeDamage", "dick", function( target, dmginfo )
     
 	return dmginfo
 end)
+
+hook.Add("PlayerInitialSpawn", "dick2", function( ply )
+	if (conv.GetRoundState() == ROUND_PROG or conv.GetRoundState() == ROUND_PREP) then
+		if bnpvbWJpZXM.Rounds.allowedPlayers[ply] == nil then
+			timer.Simple(0, function() ply:Kill() end)
+		end
+	end
+	
+	timer.Simple(1, function() bnpvbWJpZXM.Rounds.Functions.SyncClients() end)
+end)
  
  function GM:PlayerDeathThink( pl )
 

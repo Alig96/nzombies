@@ -17,8 +17,10 @@ bnpvbWJpZXM.Rounds.Blocks = {}
 bnpvbWJpZXM.Rounds.ElecButt = {}
 bnpvbWJpZXM.Rounds.Elec = false 
 bnpvbWJpZXM.Rounds.RandomBoxSpawns = {}
+bnpvbWJpZXM.Rounds.allowedPlayers = {}
 
 local plyColours = {}
+
 
 function bnpvbWJpZXM.Rounds.Functions.GenerateCurve()
 	for i=1, 100 do
@@ -163,7 +165,7 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	//wait 15 seconds or something
 	//Spawn all dead players
 	for k,v in pairs(player.GetAll()) do
-		if !v:Alive() then
+		if !v:Alive() and bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil then
 			v:UnSpectate() 
 			v:Spawn()
 			v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
@@ -261,6 +263,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 	if bnpvbWJpZXM.Rounds.CurrentState == ROUND_INIT then
 		if bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites() then
 			table.Empty(plyColours)
+			table.Empty(bnpvbWJpZXM.Rounds.allowedPlayers)
 			if bnpvbWJpZXM.Config.AllowServerName then
 				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
 			end
@@ -278,6 +281,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 					end
 				end
 				
+				bnpvbWJpZXM.Rounds.allowedPlayers[v] = true
 				v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints)
 				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
 				v:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)

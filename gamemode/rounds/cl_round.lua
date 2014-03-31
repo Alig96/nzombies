@@ -42,7 +42,9 @@ end)
 hook.Add( "HUDPaint", "scoreHUD", function()
 	if ROUND_STATE == ROUND_PREP or ROUND_STATE == ROUND_PROG then
 		for k,v in pairs(player.GetAll()) do
-			draw.SimpleText(v:Nick().." - "..v:GetPoints(), "ScoreFont", ScrW() * 0.9, ScrH() / 2 + (20*k), PLAYER_COLOURS[v], TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
+			if v:GetPoints() > 0 then
+				draw.SimpleText(v:Nick().." - "..v:GetPoints(), "ScoreFont", ScrW() * 0.9, ScrH() / 2 + (20*k), PLAYER_COLOURS[v], TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
+			end
 		end
 	end
 	if LocalPlayer():GetActiveWeapon():IsValid() and ROUND_STATE == ROUND_CREATE then
