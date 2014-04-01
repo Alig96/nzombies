@@ -286,6 +286,18 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
 				v:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
 				plyColours[v] = Color(math.random(0,255), math.random(0,255), math.random(0,255), 255)
+				if bnpvbWJpZXM.Config.PlayerModels[1] != nil then
+					if !bnpvbWJpZXM.Config.PlayerModelsSystem then
+						v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+					else
+						if bnpvbWJpZXM.Config.PlayerModels[k] != nil then
+							v:SetModel(bnpvbWJpZXM.Config.PlayerModels[k])
+						else
+							//Fall back if there's not enough models
+							v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+						end
+					end
+				end
 			end
 			
 			if bnpvbWJpZXM.Rounds.RandomBoxSpawns[1] != nil then

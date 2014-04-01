@@ -15,7 +15,7 @@ if SERVER then
 	resource.AddFile( "materials/models/toybox/zombie_treasure_fill_c.vmt" )
 	resource.AddFile( "materials/models/toybox/zombie_treasure_fill_c.vtf" )
 	resource.AddFile( "materials/models/toybox/zombie_treasure_fill_c.vtf" )
-	resource.AddFile( "resource/fonts/28_Days_Later.ttf" )
+	resource.AddFile( "resource/fonts/BOYCOTT_.ttf" )
 	
 	
 	
@@ -57,6 +57,17 @@ if SERVER then
 	//The Speed curve 
 	bnpvbWJpZXM.Config.BaseDifficultySpeedCurve = 60
 	bnpvbWJpZXM.Config.DifficultySpeedCurve = 0.55
+	
+	//Paths of player models that will be set as soon as a round starts. Leave empty if you want to keep it as sandbox models.
+	bnpvbWJpZXM.Config.PlayerModels = {
+	--"models/humans/Group03/male_02.mdl",
+	--"models/humans/Group03/male_02.mdl",
+	}
+	
+	//Should it choose the player models systematically(true) or randomly (false)
+	//Systematically would be:
+	//Player 1 gets the first model, Player 2 gets the second model and so on.
+	bnpvbWJpZXM.Config.PlayerModelsSystem = false
 	
 end
 
