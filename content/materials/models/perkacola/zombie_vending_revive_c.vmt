@@ -1,0 +1,6 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/perkacola/zombie_vending_revive_c"
+	"$normalmap" "models/perkacola/zombie_vending_revive_n"
+	"$surfaceprop" "Metal"
+}

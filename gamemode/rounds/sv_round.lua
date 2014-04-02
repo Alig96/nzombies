@@ -18,6 +18,7 @@ bnpvbWJpZXM.Rounds.ElecButt = {}
 bnpvbWJpZXM.Rounds.Elec = false 
 bnpvbWJpZXM.Rounds.RandomBoxSpawns = {}
 bnpvbWJpZXM.Rounds.allowedPlayers = {}
+bnpvbWJpZXM.Rounds.PerkMachines = {}
 
 local plyColours = {}
 
@@ -129,6 +130,14 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 		angle = v[2],
 		})
 	end
+	local perk_machinespawns = {}
+	for k,v in pairs(bnpvbWJpZXM.Rounds.PerkMachines) do
+		table.insert(perk_machinespawns, {
+		pos = v[1],
+		angle = v[2],
+		id = v[3],
+		})
+	end
 	main["WallBuys"] = wall_buys
 	main["ZedSpawns"] = zed_spawns
 	main["PlayerSpawns"] = player_spawns
@@ -136,6 +145,7 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 	main["BlockSpawns"] = block_spawns
 	main["ElecSpawns"] = elec_spawn
 	main["RandomBoxSpawns"] = randombox_spawn
+	main["PerkMachineSpawns"] = perk_machinespawns
 	file.Write( "nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/".."nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt" )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Rename the config to nz_"..game.GetMap( )..".txt and place in garrysmod/data/nz/" )
@@ -248,6 +258,7 @@ function bnpvbWJpZXM.Rounds.Functions.CreateMode()
 			v:StripWeapon("gmod_tool_block")
 			v:StripWeapon("gmod_tool_elec")
 			v:StripWeapon("gmod_tool_randomboxspawns")
+			v:StripWeapon("gmod_tool_perkmachinespawns")
 		end
 		bnpvbWJpZXM.Rounds.Functions.SyncClients()
 	else
@@ -357,6 +368,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_block")
 				v:Give("gmod_tool_elec")
 				v:Give("gmod_tool_randomboxspawns")
+				v:Give("gmod_tool_perkmachinespawns")
 			end
 			if v:IsSuperAdmin() then
 				v:Give("gmod_tool_wepbuy")
@@ -366,6 +378,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_block")
 				v:Give("gmod_tool_elec")
 				v:Give("gmod_tool_randomboxspawns")
+				v:Give("gmod_tool_perkmachinespawns")
 			end
 		end
 		return

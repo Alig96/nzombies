@@ -11,6 +11,8 @@ util.AddNetworkString( "tool_zombies_net" )
 
 net.Receive( "tool_zombies_net", function( length, client )
 	--validate
-	bnpvbWJpZXM.Rounds.ZedSpawns[net.ReadString()][3] = net.ReadString()
-	bnpvbWJpZXM.Rounds.Functions.SyncClients()
+	print("Feature is currently unavailable")
+	client:PrintMessage( HUD_PRINTTALK, "Feature is currently unavailable" )
+	--bnpvbWJpZXM.Rounds.ZedSpawns[net.ReadString()][3] = net.ReadString()
+	--bnpvbWJpZXM.Rounds.Functions.SyncClients()
 end )

@@ -77,8 +77,14 @@ function SpawnEntities()
 		for k,v in pairs(data.RandomBoxSpawns) do
 			RandomBoxSpawn(v.pos, v.angle)
 		end
+		if data.PerkMachineSpawns != nil then
+			for k,v in pairs(data.PerkMachineSpawns) do
+				PerkMachineSpawn(v.pos, v.angle, PerksColas[v.id])
+			end
+		end
 	else
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
+		PerkMachineSpawn(Vector(660, -396, -200), Angle(270,180,90), PerksColas["jug"])
 	end
 end
 hook.Add("InitPostEntity","SpawnTheProps",timer.Simple(1,SpawnEntities))
@@ -148,8 +154,19 @@ function BlockSpawn(pos,ang,model)
 	table.insert(bnpvbWJpZXM.Rounds.Blocks, block )
 end
 
+function PerkMachineSpawn(position, angle, data)
+	local perk = ents.Create( "perk_machine" )
+	perk:SetPos( position )
+	perk:SetAngles( angle )
+	perk:Spawn()
+	perk:SetSolid( SOLID_VPHYSICS )
+	perk:SetMoveType( MOVETYPE_NONE )
+	perk:SetTheMachine(data)
+	
+	table.insert(bnpvbWJpZXM.Rounds.PerkMachines, {position, angle, data.ID, perk})
+end
+
 hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
-	bnpvbWJpZXM.Rounds.Elec = true
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() then
 			if v.Elec != nil then
@@ -159,4 +176,11 @@ hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 			end
 		end
 	end
+end )
+
+util.AddNetworkString( "bnpvbWJpZXM_Elec_Sync" )
+hook.Add( "nzombies_elec_active", "activate_all_elec", function()
+	bnpvbWJpZXM.Rounds.Elec = true
+	net.Start( "bnpvbWJpZXM_Elec_Sync" )
+	net.Broadcast()
 end )

@@ -138,22 +138,28 @@ function SWEP:Reload()
 		//search for the entity spawn
 		for k,v in pairs(bnpvbWJpZXM.Rounds.ZedSpawns) do
 			if v[2] == trace.Entity then
-				if CLIENT then
-					if derm == nil or !derm:IsValid() then 
-						derm = Derma_StringRequest("Entity", "What link should be applied to this zombie?", "0", function(text)
-							if text != nil then
-								net.Start( "tool_zombies_net" )
-									net.WriteString( k )
-									net.WriteString( text )
-								net.SendToServer()
-							end
-						end)
-					end
-				end
+				net.Start( "tool_zombies_net" )
+					net.WriteString(k)
+				net.Send(self.Owner)
 			end
 		end
 	end
 end
+
+
+net.Receive( "tool_zombies_net", function( len )
+	local k = net.ReadString()
+	if derm == nil or !derm:IsValid() then 
+		derm = Derma_StringRequest("Entity", "What link should be applied to this zombie?", "0", function(text)
+			if text != nil then
+				net.Start( "tool_zombies_net" )
+					net.WriteString( k )
+					net.WriteString( text )
+				net.SendToServer()
+			end
+		end)
+	end
+end )
 
 
 --[[---------------------------------------------------------

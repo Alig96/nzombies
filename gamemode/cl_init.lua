@@ -4,9 +4,15 @@ include( "shared.lua" )
 include( "config.lua" )
 
 ROUND_STATE = 0
+ELEC = false
 EditedDoors = {}
 net.Receive( "bnpvbWJpZXM_Doors_Sync", function( length )
 	EditedDoors = net.ReadTable()
+end )
+
+
+net.Receive( "bnpvbWJpZXM_Elec_Sync", function( length )
+	ELEC = true
 end )
 
 surface.CreateFont( "RoundFont", {
@@ -40,6 +46,13 @@ function GM:HUDDrawTargetID()
 		text = trace.Entity:Nick()
 	elseif (trace.Entity:GetClass() == "wall_buy") then
 		text =  weapons.Get(trace.Entity:GetEntName()).PrintName.." Price: "..trace.Entity:GetPrice()
+	elseif (trace.Entity:GetClass() == "perk_machine") then
+		if !ELEC then
+			text = "You must turn the electric on first!"
+		else
+			local id = trace.Entity:GetPerkID()
+			text = "Press E to buy "..PerksColas[id].Name.." for "..PerksColas[id].Price.." points."
+		end
 	elseif (trace.Entity:IsDoor() and ROUND_STATE != ROUND_INIT) then
 		if EditedDoors[trace.Entity:DoorIndex()] != nil then
 			if EditedDoors[trace.Entity:DoorIndex()] != 0 then

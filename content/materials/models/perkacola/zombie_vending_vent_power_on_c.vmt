@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/perkacola/zombie_vending_vent_power_on_c"
+	"$surfaceprop" "Metal"
+}
