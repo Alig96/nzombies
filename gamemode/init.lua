@@ -8,6 +8,10 @@ include( "config.lua" )
 include( "rounds/sv_round.lua" )
 include( "points/sh_meta.lua" )
 
+function GM:PlayerSwitchFlashlight(ply, SwitchOn)
+     return true
+end
+
 hook.Add("EntityTakeDamage", "dick", function( target, dmginfo )
 
     if ( target:IsPlayer() and dmginfo:GetAttacker():IsPlayer() ) then
@@ -53,6 +57,11 @@ function SpawnEntities()
 		print("[NZ] MAP CONFIG FOUND!")
 		local data = util.JSONToTable( file.Read( "nz/nz_"..game.GetMap( )..".txt", "DATA" ) )
 		PrintTable(data)
+		if data.BuyableBlockSpawns != nil then
+			for k,v in pairs(data.BuyableBlockSpawns) do
+				BuyableBlockSpawn(v.pos, v.angle, v.model)
+			end
+		end
 		for k,v in pairs(data.WallBuys) do
 			WeaponBuySpawn(v.pos,v.wep, v.price, v.angle)
 		end
@@ -64,9 +73,6 @@ function SpawnEntities()
 		end
 		for k,v in pairs(data.DoorSetup) do
 			DoorSpawn(k, v.flags)
-		end
-		for k,v in pairs(data.BlockSpawns) do
-			BlockSpawn(v.pos, v.angle, v.model)
 		end
 		for k,v in pairs(data.BlockSpawns) do
 			BlockSpawn(v.pos, v.angle, v.model)
@@ -152,6 +158,17 @@ function BlockSpawn(pos,ang,model)
 	block:SetSolid( SOLID_VPHYSICS )
 	block:SetMoveType( MOVETYPE_NONE )
 	table.insert(bnpvbWJpZXM.Rounds.Blocks, block )
+end
+
+function BuyableBlockSpawn(pos,ang,model)
+	local block = ents.Create( "wall_block_buy" )
+	block:SetModel( model )
+	block:SetPos( pos )
+	block:SetAngles( ang )
+	block:Spawn()
+	block:SetSolid( SOLID_VPHYSICS )
+	block:SetMoveType( MOVETYPE_NONE )
+	table.insert(bnpvbWJpZXM.Rounds.BuyableBlocks, block )
 end
 
 function PerkMachineSpawn(position, angle, data)

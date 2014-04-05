@@ -20,6 +20,8 @@ bnpvbWJpZXM.Rounds.RandomBoxSpawns = {}
 bnpvbWJpZXM.Rounds.allowedPlayers = {}
 bnpvbWJpZXM.Rounds.PerkMachines = {}
 
+bnpvbWJpZXM.Rounds.BuyableBlocks = {}
+
 local plyColours = {}
 
 
@@ -138,11 +140,20 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 		id = v[3],
 		})
 	end
+	local buyableblock_spawns = {}
+	for k,v in pairs(bnpvbWJpZXM.Rounds.BuyableBlocks) do
+		table.insert(buyableblock_spawns, {
+		pos = v:GetPos(),
+		angle = v:GetAngles( ),
+		model = v:GetModel(),
+		})
+	end
 	main["WallBuys"] = wall_buys
 	main["ZedSpawns"] = zed_spawns
 	main["PlayerSpawns"] = player_spawns
 	main["DoorSetup"] = door_setup
 	main["BlockSpawns"] = block_spawns
+	main["BuyableBlockSpawns"] = buyableblock_spawns
 	main["ElecSpawns"] = elec_spawn
 	main["RandomBoxSpawns"] = randombox_spawn
 	main["PerkMachineSpawns"] = perk_machinespawns
@@ -259,6 +270,7 @@ function bnpvbWJpZXM.Rounds.Functions.CreateMode()
 			v:StripWeapon("gmod_tool_elec")
 			v:StripWeapon("gmod_tool_randomboxspawns")
 			v:StripWeapon("gmod_tool_perkmachinespawns")
+			v:StripWeapon("gmod_tool_buyabledebris")
 		end
 		bnpvbWJpZXM.Rounds.Functions.SyncClients()
 	else
@@ -369,6 +381,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_elec")
 				v:Give("gmod_tool_randomboxspawns")
 				v:Give("gmod_tool_perkmachinespawns")
+				v:Give("gmod_tool_buyabledebris")
 			end
 			if v:IsSuperAdmin() then
 				v:Give("gmod_tool_wepbuy")
@@ -379,6 +392,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_elec")
 				v:Give("gmod_tool_randomboxspawns")
 				v:Give("gmod_tool_perkmachinespawns")
+				v:Give("gmod_tool_buyabledebris")
 			end
 		end
 		return

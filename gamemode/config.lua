@@ -100,8 +100,8 @@ if SERVER then
 	
 	//Paths of player models that will be set as soon as a round starts. Leave empty if you want to keep it as sandbox models.
 	bnpvbWJpZXM.Config.PlayerModels = {
-	--"models/humans/Group03/male_02.mdl",
-	--"models/humans/Group03/male_02.mdl",
+	"models/player/Group01/Male_01.mdl",
+	--"models/player/Group01/Male_01.mdl",
 	}
 	
 	//Should it choose the player models systematically(true) or randomly (false)
@@ -146,11 +146,23 @@ PerksColas["pap"] = {
 	["Price"] = 100,
 	["Function"] = function(ply) 
 		local gun = ply:GetActiveWeapon()
-		gun.PaP = true
-		ply:PrintMessage( HUD_PRINTTALK, "This perk has not been configured. Please consult the server admin.") 
-		return true 
+		if gun.PaP == nil then
+			gun.PaP = true
+			ply:PrintMessage( HUD_PRINTTALK, "This perk is a WIP. Your weapon has been given extra damage, but there are no visual effects.") 
+			return true 
+		end
 	end
 }
+
+hook.Add("EntityFireBullets", "nzombies_pap_firebullets", function( ent, data )
+	local gun = ent:GetActiveWeapon()
+	if gun.PaP != nil then
+		if gun.PaP then
+			data.Damage = data.Damage * 100
+			return true
+		end
+	end
+end)
 
 if CLIENT then
 

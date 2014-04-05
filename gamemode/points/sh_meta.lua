@@ -43,7 +43,8 @@ function meta:IsDoor()
 	if class == "func_door" or
 		class == "func_door_rotating" or
 		class == "prop_door_rotating" or
-		class == "prop_dynamic" then
+		class == "prop_dynamic" or
+		class == "wall_block_buy" then
 		return true
 	end
 	return false
@@ -54,6 +55,10 @@ function meta:DoorIndex()
 end
 					
 function meta:DoorUnlock(open)
+	if self:GetClass() == "wall_block_buy" then
+		self:BlockUnlock()
+		return
+	end
 	self.Locked = false
 	self:Fire("unlock", "", 0)
 	self:Fire("open", "", 0)
@@ -62,6 +67,10 @@ function meta:DoorUnlock(open)
 end
 
 function meta:DoorLock()
+	if self:GetClass() == "wall_block_buy" then
+		self:BlockLock()
+		return
+	end
 	self.Locked = true
 	self:Fire("close", "", 0)
 	self:Fire("lock", "", 0)

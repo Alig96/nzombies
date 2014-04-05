@@ -56,7 +56,15 @@ function GM:HUDDrawTargetID()
 	elseif (trace.Entity:IsDoor() and ROUND_STATE != ROUND_INIT) then
 		if EditedDoors[trace.Entity:DoorIndex()] != nil then
 			if EditedDoors[trace.Entity:DoorIndex()] != 0 then
-				text = "Press E to open for "..EditedDoors[trace.Entity:DoorIndex()].." points."
+				if trace.Entity:GetClass() == "wall_block_buy" then
+					if trace.Entity:GetLocked() or ROUND_STATE == ROUND_CREATE then
+						text = "Press E to open for "..EditedDoors[trace.Entity:DoorIndex()].." points."
+					else
+						text = ""
+					end
+				else
+					text = "Press E to open for "..EditedDoors[trace.Entity:DoorIndex()].." points."
+				end
 			else
 				text = "This door is already open"
 			end
