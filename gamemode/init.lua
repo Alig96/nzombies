@@ -96,13 +96,17 @@ end
 hook.Add("InitPostEntity","SpawnTheProps",timer.Simple(1,SpawnEntities))
 
 function WeaponBuySpawn(position, gun, price, angle)
-	local ent1 = ents.Create("wall_buy") 
-	ent1:SetAngles(angle)
-	local pos = position
-	pos.z = pos.z - ent1:OBBMaxs().z
-	ent1:SetWeapon(gun, price)
-	ent1:SetPos( pos )
-	ent1:Spawn()
+	if weapons.Get(gun) != nil then
+		local ent1 = ents.Create("wall_buy") 
+		ent1:SetAngles(angle)
+		local pos = position
+		pos.z = pos.z - ent1:OBBMaxs().z
+		ent1:SetWeapon(gun, price)
+		ent1:SetPos( pos )
+		ent1:Spawn()
+	else
+		print("SKIPPED "..gun.. ". Are you sure you have it installed?")
+	end
 end
 
 function ZedSpawn(position)
