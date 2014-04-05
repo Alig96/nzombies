@@ -138,7 +138,7 @@ function SWEP:PrimaryAttack()
 									return
 								end
 							end
-							print("Invalid gun")
+							LocalPlayer():PrintMessage(HUD_PRINTTALK, "Invalid gun")
 						end
 					end)
 			   end)
