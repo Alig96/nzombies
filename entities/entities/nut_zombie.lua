@@ -62,9 +62,9 @@ function ENT:RunBehaviour()
 
 						if (entity.nut_BreakHealth <= 0) then
 							entity.nut_BreakHealth = 100
-							nut.util.BlastDoor(entity, self:GetForward() * 600)
+							--nut.util.BlastDoor(entity, self:GetForward() * 600)
 							entity:EmitSound("physics/wood/wood_furniture_break"..math.random(1, 2)..".wav", 140)
-							util.ScreenShake(entity:GetPos(), 8, 8, math.Rand(0.6, 0.8), 560)
+							--util.ScreenShake(entity:GetPos(), 8, 8, math.Rand(0.6, 0.8), 560)
 						end
 
 						local effect = EffectData()
@@ -82,7 +82,7 @@ function ENT:RunBehaviour()
 			end
 		end
 
-		if (IsValid(target) and target:Alive() and self:GetRangeTo(target) <= 1500) then
+		if (IsValid(target) and target:Alive()  ) then --and self:GetRangeTo(target) <= 1500
 			self.loco:FaceTowards(target:GetPos())
 
 			if (self:GetRangeTo(target) <= 42) then
@@ -159,11 +159,10 @@ function ENT:RunBehaviour()
 
 			if (!self.target) then
 				for k, v in pairs(player.GetAll()) do 
-					if (v:Alive() ) then--and self:GetRangeTo(v) <= 1400
+					if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
 						self:AlertNearby(v)
 						self.target = v
 						self:PlaySequenceAndWait("wave_smg1", 0.9)
-
 						break
 					end
 				end

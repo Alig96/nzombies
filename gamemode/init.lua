@@ -90,7 +90,6 @@ function SpawnEntities()
 		end
 	else
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
-		PerkMachineSpawn(Vector(660, -396, -200), Angle(270,180,90), PerksColas["jug"])
 	end
 end
 hook.Add("InitPostEntity","SpawnTheProps",timer.Simple(1,SpawnEntities))

@@ -109,6 +109,9 @@ if SERVER then
 	//Player 1 gets the first model, Player 2 gets the second model and so on.
 	bnpvbWJpZXM.Config.PlayerModelsSystem = false
 	
+	//The Percentage (out of a 100) of players that must be ready before the game will start
+	bnpvbWJpZXM.Config.ReadyupPerc = 0.68
+	
 end
 
 //Shared

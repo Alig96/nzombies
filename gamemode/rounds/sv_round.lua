@@ -35,10 +35,14 @@ end
 local ready = {}
 function bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites()		
 	if #player.GetAll() >= 1 then
+		local count = 0
 		for k,v in pairs(player.GetAll()) do
-			if v.Ready != 1 or !v:IsValid() or !v:Alive() then
-				return false
+			if v.Ready == 1 and v:IsValid() and v:Alive() then
+				count = count + 1
 			end
+		end
+		if count / #player.GetAll() < bnpvbWJpZXM.Config.ReadyupPerc then
+			return false
 		end
 	else
 		return false
@@ -52,7 +56,18 @@ function bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites()
 		end
 		return false
 	end
-
+	
+	if !weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon) then
+		for k,v in pairs(player.GetAll()) do
+			if v.Ready == 1 then
+				v.Ready = 0
+				v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready since the server owner has not set the starting weapon to a valid weapon." )
+				v:PrintMessage( HUD_PRINTTALK, "Please change bnpvbWJpZXM.Config.BaseStartingWeapon in the gamemode's config.lua" )
+			end
+		end
+		return false
+	end
+	
 	return true
 end
 

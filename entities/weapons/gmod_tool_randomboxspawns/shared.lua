@@ -19,6 +19,7 @@ util.PrecacheModel( SWEP.WorldModel )
 SWEP.ShootSound			= Sound( "Airboat.FireGunRevDown" )
 
 SWEP.Tool				= {}
+SWEP.Rot = 0
 
 SWEP.Primary = 
 {
@@ -120,8 +121,14 @@ function SWEP:PrimaryAttack()
 
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 	
+	if self.Rot then
+		i = 0
+	else
+		i = 1
+	end
+	
 	if SERVER then
-		RandomBoxSpawn(trace.HitPos, Angle(0,0,0))
+		RandomBoxSpawn(trace.HitPos, Angle(0,90*i,0))
 	end
 end
 
@@ -148,4 +155,119 @@ function SWEP:SecondaryAttack()
 		end
 		trace.Entity:Remove()
 	end
+end
+
+function SWEP:MakeGhostEntity( model, pos, angle )
+
+	util.PrecacheModel( model )
+
+	-- We do ghosting serverside in single player
+	-- It's done clientside in multiplayer
+	if (SERVER && !game.SinglePlayer()) then return end
+	if (CLIENT && game.SinglePlayer()) then return end
+
+	-- Release the old ghost entity
+	self:ReleaseGhostEntity()
+
+	-- Don't allow ragdolls/effects to be ghosts
+	if (!util.IsValidProp( model )) then return end
+
+	if ( CLIENT ) then
+		self.GhostEntity = ents.CreateClientProp( model )
+	else
+		self.GhostEntity = ents.Create( "prop_physics" )
+	end
+
+	-- If there's too many entities we might not spawn..
+	if (!self.GhostEntity:IsValid()) then
+		self.GhostEntity = nil
+		return
+	end
+
+	self.GhostEntity:SetModel( model )
+	self.GhostEntity:SetPos( pos )
+	self.GhostEntity:SetAngles( angle )
+	self.GhostEntity:Spawn()
+
+	self.GhostEntity:SetSolid( SOLID_VPHYSICS );
+	self.GhostEntity:SetMoveType( MOVETYPE_NONE )
+	self.GhostEntity:SetNotSolid( true );
+	self.GhostEntity:SetRenderMode( RENDERMODE_TRANSALPHA )
+	self.GhostEntity:SetColor( Color( 255, 255, 255, 150 ) )
+
+end
+
+--[[---------------------------------------------------------
+   Releases up the ghost entity
+-----------------------------------------------------------]]
+function SWEP:ReleaseGhostEntity()
+
+	if ( self.GhostEntity ) then
+		if (!self.GhostEntity:IsValid()) then self.GhostEntity = nil return end
+		self.GhostEntity:Remove()
+		self.GhostEntity = nil
+	end
+
+	if ( self.GhostEntities ) then
+
+		for k,v in pairs( self.GhostEntities ) do
+			if ( v:IsValid() ) then v:Remove() end
+			self.GhostEntities[k] = nil
+		end
+
+		self.GhostEntities = nil
+	end
+
+	if ( self.GhostOffset ) then
+
+		for k,v in pairs( self.GhostOffset ) do
+			self.GhostOffset[k] = nil
+		end
+
+	end
+
+end
+
+function SWEP:Think()
+
+	if ( !IsValid( self.GhostEntity ) ) then
+		self:MakeGhostEntity( "models/toybox.mdl", Vector( 0, 0, 0 ), Angle( 0, 0, 0 ) )
+	end
+
+	self:UpdateGhostEntity( self.GhostEntity, self:GetOwner() )
+
+end
+
+function SWEP:UpdateGhostEntity( ent, player )
+
+	if ( !IsValid( ent ) ) then return end
+
+	local tr	= util.GetPlayerTrace( player )
+	local pos = self.Owner:GetShootPos()
+	local ang = self.Owner:GetAimVector()
+	local trace	= util.TraceLine( tr )
+	if ( !trace.Hit ) then return end
+
+	if ( trace.Entity:IsPlayer() ) then
+
+		ent:SetNoDraw( true )
+		return
+
+	end
+	local vec = trace.HitPos + trace.HitNormal * 8
+	
+	ent:SetPos( vec )
+	if self.Rot then
+		i = 0
+	else
+		i = 1
+	end
+	ent:SetAngles( trace.HitNormal:Angle() - Angle( 90, 90*i, 0 )  )
+
+	ent:SetNoDraw( false )
+
+end
+
+function SWEP:Reload()
+	self.Rot = !self.Rot
 end
