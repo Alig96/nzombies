@@ -92,6 +92,7 @@ hook.Add( "PlayerUse", "player_buydoors", function( ply, ent )
 								end
 							end
 						end
+						table.insert(bnpvbWJpZXM.Rounds.OpenedLinks, ent.Link)
 					end
 				end
 				

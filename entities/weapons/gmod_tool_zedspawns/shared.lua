@@ -121,7 +121,7 @@ function SWEP:PrimaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 	
 	if SERVER then
-		ZedSpawn(trace.HitPos)
+		ZedSpawn(trace.HitPos, "0")
 	end
 end
 
@@ -136,24 +136,20 @@ function SWEP:Reload()
 
 	if trace.Entity:GetClass() == "zed_spawns" and SERVER then
 		//search for the entity spawn
-		for k,v in pairs(bnpvbWJpZXM.Rounds.ZedSpawns) do
-			if v[2] == trace.Entity then
-				net.Start( "tool_zombies_net" )
-					net.WriteString(k)
-				net.Send(self.Owner)
-			end
-		end
+		net.Start( "tool_zombies_net" )
+			net.WriteEntity(trace.Entity)
+		net.Send(self.Owner)
 	end
 end
 
 
 net.Receive( "tool_zombies_net", function( len )
-	local k = net.ReadString()
+	local ent = net.ReadEntity()
 	if derm == nil or !derm:IsValid() then 
-		derm = Derma_StringRequest("Entity", "What link should be applied to this zombie?", "0", function(text)
+		derm = Derma_StringRequest("Entity", "What link should be applied to this zombie spawn?", ent.Link, function(text)
 			if text != nil then
 				net.Start( "tool_zombies_net" )
-					net.WriteString( k )
+					net.WriteEntity( ent )
 					net.WriteString( text )
 				net.SendToServer()
 			end

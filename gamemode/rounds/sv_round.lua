@@ -22,6 +22,8 @@ bnpvbWJpZXM.Rounds.PerkMachines = {}
 
 bnpvbWJpZXM.Rounds.BuyableBlocks = {}
 
+bnpvbWJpZXM.Rounds.OpenedLinks = {}
+
 local plyColours = {}
 
 
@@ -110,6 +112,7 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 	for k,v in pairs(ents.FindByClass("zed_spawns")) do
 		table.insert(zed_spawns, {
 		pos = v:GetPos(),
+		link = v.Link
 		})
 	end
 	local player_spawns = {}
@@ -210,6 +213,20 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 		end
 	end
 	timer.Simple(10, function() bnpvbWJpZXM.Rounds.Functions.StartRound() end)
+	local function checkVer()
+		http.Fetch( "https://raw.githubusercontent.com/Alig96/nzombies/master/version.txt",
+			function( body, len, headers, code )
+				if tonumber(file.Read( "gamemodes/nzombies/version.txt", "GAME" )) < tonumber(body) then
+					print("Your version of nZombies is outdated. Please update via Github.")
+				end
+			end,
+			function( error )
+				print("Version Check Failed!")
+			end
+		)
+	end
+	checkVer()
+
 end
 
 function bnpvbWJpZXM.Rounds.Functions.StartRound()
@@ -302,6 +319,8 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 		if bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites() then
 			table.Empty(plyColours)
 			table.Empty(bnpvbWJpZXM.Rounds.allowedPlayers)
+			table.Empty(bnpvbWJpZXM.Rounds.OpenedLinks)
+			table.insert(bnpvbWJpZXM.Rounds.OpenedLinks, "0")
 			if bnpvbWJpZXM.Config.AllowServerName then
 				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
 			end
@@ -453,8 +472,14 @@ function bnpvbWJpZXM.Rounds.Functions.ZombieSpawner()
 				end
 				return false
 			end
-			
-			local position = table.Random(bnpvbWJpZXM.Rounds.ZedSpawns)[1]
+			local valids = {}
+			//make a table of valid spawns
+			for k,v in pairs(bnpvbWJpZXM.Rounds.ZedSpawns) do
+				if table.HasValue(bnpvbWJpZXM.Rounds.OpenedLinks, v[2].Link) then
+					table.insert(valids, v)
+				end
+			end
+			local position = table.Random(valids)[1]
 			//local realPos = position + Vector(math.random(-256, 256), math.random(-256, 256), 75)
 			if CheckIfSuitable(position) then
 				local typ = "nut_zombie"

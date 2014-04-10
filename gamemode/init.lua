@@ -66,7 +66,11 @@ function SpawnEntities()
 			WeaponBuySpawn(v.pos,v.wep, v.price, v.angle)
 		end
 		for k,v in pairs(data.ZedSpawns) do
-			ZedSpawn(v.pos)
+			if v.link == nil then
+				ZedSpawn(v.pos, "0")
+			else
+				ZedSpawn(v.pos, v.link)
+			end
 		end
 		for k,v in pairs(data.PlayerSpawns) do
 			PlayerSpawn(v.pos)
@@ -108,12 +112,13 @@ function WeaponBuySpawn(position, gun, price, angle)
 	end
 end
 
-function ZedSpawn(position)
+function ZedSpawn(position, link)
 	local ent1 = ents.Create("zed_spawns") 
 	local pos = position
 	pos.z = pos.z - ent1:OBBMaxs().z
 	ent1:SetPos( pos )
 	ent1:Spawn()
+	ent1.Link = link
 	table.insert(bnpvbWJpZXM.Rounds.ZedSpawns, {position, ent1})
 end
 
