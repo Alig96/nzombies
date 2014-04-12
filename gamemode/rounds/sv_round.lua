@@ -373,7 +373,12 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 					v:DoorLock()
 				end
 			end
-			
+			//Hotfix for autoclosing doors	
+			for k,v in pairs(ents.GetAll()) do
+				if v:IsDoor() then
+					v:SetKeyValue("wait",-1)
+				end
+			end
 			//Apply door settings
 			for k,v in pairs(bnpvbWJpZXM.Rounds.Doors) do
 				local door = ents.GetByIndex(k + game.MaxPlayers())
