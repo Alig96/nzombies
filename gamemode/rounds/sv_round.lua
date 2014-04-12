@@ -371,11 +371,6 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				if v:IsDoor() then
 					v:SetUseType( SIMPLE_USE )
 					v:DoorLock()
-				end
-			end
-			//Hotfix for autoclosing doors	
-			for k,v in pairs(ents.GetAll()) do
-				if v:IsDoor() then
 					v:SetKeyValue("wait",-1)
 				end
 			end
