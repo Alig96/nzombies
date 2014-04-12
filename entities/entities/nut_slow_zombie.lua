@@ -234,7 +234,11 @@ function ENT:OnKilled(damageInfo)
 	self:BecomeRagdoll(damageInfo)
 	local function createPowerup(pos)
 		local ent1 = ents.Create("drop_powerups") 
-		local rand = table.Random({"ammobuff", "dp"})
+		local powerups = {}
+		for k,_ in pairs(validPowerups) do
+			table.insert(powerups, k)
+		end
+		local rand = table.Random(powerups) or "dp"
 		ent1.Buff = rand
 		ent1:SetModel( validPowerups[rand][1] )
 		pos.z = pos.z - ent1:OBBMaxs().z
