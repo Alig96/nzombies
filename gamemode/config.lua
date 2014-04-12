@@ -115,6 +115,35 @@ if SERVER then
 end
 
 //Shared
+validPowerups = {}
+
+validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
+	if !bnpvbWJpZXM.Rounds.Effects["dp"] then
+		bnpvbWJpZXM.Rounds.Effects["dp"] = true
+		PrintMessage( HUD_PRINTTALK, "Double Points!" )
+		timer.Simple(30, function() 
+			bnpvbWJpZXM.Rounds.Effects["dp"] = false 		
+			PrintMessage( HUD_PRINTTALK, "Double Points has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
+validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
+	if !self.Used then
+		self.Used = true
+		for k,v in pairs(player.GetAll()) do
+			for k2,v2 in pairs(v:GetWeapons()) do
+				v:GiveAmmo( bnpvbWJpZXM.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
+			end
+		end
+		PrintMessage( HUD_PRINTTALK, "Ammo Buff!" )
+		timer.Destroy(self:EntIndex().."_deathtimer")
+		self:Remove()
+	end
+end}
+
 PerksColas = {}
 
 PerksColas["jug"] = {
