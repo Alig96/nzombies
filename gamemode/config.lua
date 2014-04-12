@@ -115,6 +115,40 @@ if SERVER then
 end
 
 //Shared
+validPowerups = {}
+// The second option is the scaling
+validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
+	if (!self.Used) then
+		self.Used = true
+		bnpvbWJpZXM.Rounds.Effects["dp"] = true
+		PrintMessage( HUD_PRINTTALK, "[NZ] Double Points!" )
+		if (timer.Exists("dp")) then //  This is so when you pickup another double points, you can get a reset like in COD
+			//Add time to the timer
+			timer.Destroy("dp")
+		end
+		timer.Create("dp", 30, 1, function() 
+			bnpvbWJpZXM.Rounds.Effects["dp"] = false 		
+			PrintMessage( HUD_PRINTTALK, "[NZ] Double Points has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
+validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
+	if (!self.Used) then
+		self.Used = true
+		for k,v in pairs(player.GetAll()) do
+			for k2,v2 in pairs(v:GetWeapons()) do
+				v:SetAmmo( bnpvbWJpZXM.Config.MaxAmmo, v2.Primary.Ammo)
+			end
+		end
+		PrintMessage( HUD_PRINTTALK, "[NZ] Max Ammo!" )
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
 PerksColas = {}
 
 PerksColas["jug"] = {
