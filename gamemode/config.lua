@@ -118,10 +118,14 @@ end
 validPowerups = {}
 
 validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
-	if !bnpvbWJpZXM.Rounds.Effects["dp"] then
+	if (!self.Used) then
+		self.Used = true
 		bnpvbWJpZXM.Rounds.Effects["dp"] = true
 		PrintMessage( HUD_PRINTTALK, "Double Points!" )
-		timer.Simple(30, function() 
+		if (timer.Exists("dp")) then // Restart countdown with new drop like COD functionality
+			timer.Destroy("dp")
+		end
+		timer.Create("dp", 30, 1, function() 
 			bnpvbWJpZXM.Rounds.Effects["dp"] = false 		
 			PrintMessage( HUD_PRINTTALK, "Double Points has ended!" )
 		end)
@@ -131,7 +135,7 @@ validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self
 end}
 
 validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
-	if !self.Used then
+	if (!self.Used) then
 		self.Used = true
 		for k,v in pairs(player.GetAll()) do
 			for k2,v2 in pairs(v:GetWeapons()) do
