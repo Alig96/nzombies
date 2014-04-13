@@ -9,8 +9,7 @@ ENT.Purpose			= ""
 ENT.Instructions	= ""
 
 function ENT:Initialize()
- 
-	
+	self.Buff = self.Buff or "dp"
 	self:SetModelScale( validPowerups[self.Buff][2], 0 )
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_NONE )
