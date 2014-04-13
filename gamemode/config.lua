@@ -157,6 +157,24 @@ validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
 	end
 end}
 
+validPowerups["instakill"] = {"models/Gibs/HGIBS.mdl", 1.5, function(self)
+	if (!self.Used) then
+		self.Used = true
+		bnpvbWJpZXM.Rounds.Effects["instakill"] = true
+		PrintMessage( HUD_PRINTTALK, "[NZ] Insta-Kill!" )
+		if (timer.Exists("instakill")) then
+			//Add time to the timer
+			timer.Destroy("instakill")
+		end
+		timer.Create("instakill", 30, 1, function() 
+			bnpvbWJpZXM.Rounds.Effects["instakill"] = false 		
+			PrintMessage( HUD_PRINTTALK, "[NZ] Insta-Kill has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
 PerksColas = {}
 
 PerksColas["jug"] = {
