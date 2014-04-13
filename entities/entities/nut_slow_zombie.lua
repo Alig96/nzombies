@@ -153,8 +153,13 @@ function ENT:RunBehaviour()
 					self:PlaySequenceAndWait("photo_react_startle")
 				end
 			end
-
-			while(!self.target) do
+			local bool = false
+			for k,v in pairs(player.GetAll()) do
+				if (v:Alive()) then
+					bool = true
+				end
+			end
+			while(!self.target&&bool) do
 				local v = table.Random(player.GetAll())
 				if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
 					self:AlertNearby(v)
