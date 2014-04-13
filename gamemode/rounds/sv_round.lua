@@ -203,16 +203,18 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..bnpvbWJpZXM.Rounds.CurrentRound.." preparing" )
 	//wait 15 seconds or something
 	//Spawn all dead players
-	for k,v in pairs(player.GetAll()) do
-		if !v:Alive() and bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil then
-			v:UnSpectate() 
-			v:Spawn()
-			v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
-			v:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
-			v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+	if (!bnpvbWJpZXM.Config.Hardcore) then
+		for k,v in pairs(player.GetAll()) do
+			if ((bnpvbWJpZXM.Config.AllowDropins||bnpvbWJpZXM.Rounds.allowedPlayers[v]!=nil)&&!v:Alive()) then
+				v:UnSpectate()
+				v:Spawn()
+				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
+				v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
+				v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+			end
 		end
 	end
-	timer.Simple(10, function() bnpvbWJpZXM.Rounds.Functions.StartRound() end)
+	timer.Simple(bnpvbWJpZXM.Config.PrepareTime, function() bnpvbWJpZXM.Rounds.Functions.StartRound() end)
 	local function checkVer()
 		http.Fetch( "https://raw.githubusercontent.com/Alig96/nzombies/master/version.txt",
 			function( body, len, headers, code )
