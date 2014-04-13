@@ -23,14 +23,14 @@ hook.Add("HUDPaint", "roundHUD", function()
 		else 
 			text = "1"
 		end
-		w = ScrW() * 0.1
+		w = ScrW() / 2
 	elseif ROUND_STATE == ROUND_PROG then
 		if ROUND_NUMBER != 0 then
 			text = ROUND_NUMBER
 		else
 			text = "1"
 		end
-		w = ScrW() * 0.1
+		w = ScrW() / 2
 	elseif ROUND_STATE == ROUND_CREATE then
 		text = "Creative Mode"
 	elseif ROUND_STATE == ROUND_GO then
