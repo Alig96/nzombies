@@ -61,6 +61,13 @@ if SERVER then
 	
 	//MAIN CONFIG
 	
+	//Disable player respawns?
+	bnpvbWJpZXM.Config.Hardcore = false
+	//Allow players to spawn in directly after round, before game is over?
+	bnpvbWJpZXM.Config.AllowDropins = true
+	//Time inbetween each round
+	bnpvbWJpZXM.Config.PrepareTime = 10
+	
 	//The first wave of zombies
 	bnpvbWJpZXM.Config.BaseDifficultySpawnRateCurve = 5
 	//Difficulty of the curve
