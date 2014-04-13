@@ -157,14 +157,13 @@ function ENT:RunBehaviour()
 				end
 			end
 
-			if (!self.target) then
-				for k, v in pairs(player.GetAll()) do 
-					if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
-						self:AlertNearby(v)
-						self.target = v
-						self:PlaySequenceAndWait("wave_smg1", 0.9)
-						break
-					end
+			while(!self.target) do
+				local v = table.Random(player.GetAll())
+				if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
+					self:AlertNearby(v)
+					self.target = v
+					self:PlaySequenceAndWait("wave_smg1", 0.9)
+					break
 				end
 			end
 		end
