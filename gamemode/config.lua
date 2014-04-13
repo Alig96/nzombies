@@ -61,6 +61,13 @@ if SERVER then
 	
 	//MAIN CONFIG
 	
+	//Disable player respawns?
+	bnpvbWJpZXM.Config.Hardcore = false
+	//Allow players to spawn in directly after round, before game is over?
+	bnpvbWJpZXM.Config.AllowDropins = true
+	//Time inbetween each round
+	bnpvbWJpZXM.Config.PrepareTime = 10
+	
 	//The first wave of zombies
 	bnpvbWJpZXM.Config.BaseDifficultySpawnRateCurve = 5
 	//Difficulty of the curve
@@ -72,9 +79,11 @@ if SERVER then
 	
 	//Max amount of zombies at the same time
 	bnpvbWJpZXM.Config.MaxZombiesSim = 100
+	bnpvbWJpZXM.Config.ZombieDropChance = 25
 	
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
+	bnpvbWJpZXM.Config.PerRoundPoints = 50//Points per round for drop-ins
 	bnpvbWJpZXM.Config.BaseStartingWeapon = "weapon_sim_colt1911"
 	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
 	

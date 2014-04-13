@@ -157,14 +157,13 @@ function ENT:RunBehaviour()
 				end
 			end
 
-			if (!self.target) then
-				for k, v in pairs(player.GetAll()) do 
-					if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
-						self:AlertNearby(v)
-						self.target = v
-						self:PlaySequenceAndWait("wave_smg1", 0.9)
-						break
-					end
+			while(!self.target) do
+				local v = table.Random(player.GetAll())
+				if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
+					self:AlertNearby(v)
+					self.target = v
+					self:PlaySequenceAndWait("wave_smg1", 0.9)
+					break
 				end
 			end
 		end
@@ -251,7 +250,7 @@ function ENT:OnKilled(damageInfo)
 		ent1:SetPos( pos )
 		ent1:Spawn()
 	end
-	if math.random(1,25) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
+	if math.random(1,bnpvbWJpZXM.Config.ZombieDropChance) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
 end
 
 local painSounds = {
