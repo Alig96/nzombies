@@ -36,7 +36,7 @@ function ENT:BlockUnlock()
 	if SERVER then
 		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
 	end
-	self:SetSolid( SOLID_VPHYSICS )
+	self:SetSolid( SOLID_NONE )
 	self:SetLocked(false)
 end
 
