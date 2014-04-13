@@ -285,6 +285,10 @@ function bnpvbWJpZXM.Rounds.Functions.EndRound()
 			v.Ready = 0
 			v:SetPoints(0)
 			v:Spawn()
+			v:SendLua('RunConsoleCommand("stopsound")')
+		end
+		for k,v in pairs(ents.FindByClass("easter_egg")) do
+			v.Used = false
 		end
 		for k,v in pairs(ents.FindByClass("nut_zombie")) do
 			v:Remove()
@@ -352,9 +356,6 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 			table.Empty(bnpvbWJpZXM.Rounds.allowedPlayers)
 			table.Empty(bnpvbWJpZXM.Rounds.OpenedLinks)
 			table.insert(bnpvbWJpZXM.Rounds.OpenedLinks, "0")
-			for k,v in pairs(ents.FindByClass("easter_eggs")) do
-				v.Used = false
-			end
 			bnpvbWJpZXM.Rounds.EggCount = 0
 			if bnpvbWJpZXM.Config.AllowServerName then
 				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
