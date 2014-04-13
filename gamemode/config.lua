@@ -61,6 +61,13 @@ if SERVER then
 	
 	//MAIN CONFIG
 	
+	//Disable player respawns?
+	bnpvbWJpZXM.Config.Hardcore = false
+	//Allow players to spawn in directly after round, before game is over?
+	bnpvbWJpZXM.Config.AllowDropins = true
+	//Time inbetween each round
+	bnpvbWJpZXM.Config.PrepareTime = 10
+	
 	//The first wave of zombies
 	bnpvbWJpZXM.Config.BaseDifficultySpawnRateCurve = 5
 	//Difficulty of the curve
@@ -72,9 +79,11 @@ if SERVER then
 	
 	//Max amount of zombies at the same time
 	bnpvbWJpZXM.Config.MaxZombiesSim = 100
+	bnpvbWJpZXM.Config.ZombieDropChance = 25
 	
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
+	bnpvbWJpZXM.Config.PerRoundPoints = 50//Points per round for drop-ins
 	bnpvbWJpZXM.Config.BaseStartingWeapon = "weapon_sim_colt1911"
 	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
 	
@@ -115,6 +124,57 @@ if SERVER then
 end
 
 //Shared
+validPowerups = {}
+
+validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
+	if (!self.Used) then
+		self.Used = true
+		bnpvbWJpZXM.Rounds.Effects["dp"] = true
+		PrintMessage( HUD_PRINTTALK, "Double Points!" )
+		if (timer.Exists("dp")) then // Restart countdown with new drop like COD functionality
+			timer.Destroy("dp")
+		end
+		timer.Create("dp", 30, 1, function() 
+			bnpvbWJpZXM.Rounds.Effects["dp"] = false 		
+			PrintMessage( HUD_PRINTTALK, "Double Points has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
+validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
+	if (!self.Used) then
+		self.Used = true
+		for k,v in pairs(player.GetAll()) do
+			for k2,v2 in pairs(v:GetWeapons()) do
+				v:GiveAmmo( bnpvbWJpZXM.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
+			end
+		end
+		PrintMessage( HUD_PRINTTALK, "Ammo Buff!" )
+		timer.Destroy(self:EntIndex().."_deathtimer")
+		self:Remove()
+	end
+end}
+
+validPowerups["instakill"] = {"models/Gibs/HGIBS.mdl", 1.5, function(self)
+	if (!self.Used) then
+		self.Used = true
+		bnpvbWJpZXM.Rounds.Effects["instakill"] = true
+		PrintMessage( HUD_PRINTTALK, "[NZ] Insta-Kill!" )
+		if (timer.Exists("instakill")) then
+			//Add time to the timer
+			timer.Destroy("instakill")
+		end
+		timer.Create("instakill", 30, 1, function() 
+			bnpvbWJpZXM.Rounds.Effects["instakill"] = false 		
+			PrintMessage( HUD_PRINTTALK, "[NZ] Insta-Kill has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
 PerksColas = {}
 
 PerksColas["jug"] = {

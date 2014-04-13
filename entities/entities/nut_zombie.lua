@@ -156,15 +156,19 @@ function ENT:RunBehaviour()
 					self:PlaySequenceAndWait("photo_react_startle")
 				end
 			end
-
-			if (!self.target) then
-				for k, v in pairs(player.GetAll()) do 
-					if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
-						self:AlertNearby(v)
-						self.target = v
-						self:PlaySequenceAndWait("wave_smg1", 0.9)
-						break
-					end
+			local bool = false
+			for k,v in pairs(player.GetAll()) do
+				if (v:Alive()) then
+					bool = true
+				end
+			end
+			while(!self.target&&bool) do
+				local v = table.Random(player.GetAll())
+				if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
+					self:AlertNearby(v)
+					self.target = v
+					self:PlaySequenceAndWait("wave_smg1", 0.9)
+					break
 				end
 			end
 		end
@@ -240,14 +244,18 @@ function ENT:OnKilled(damageInfo)
 	
 	local function createPowerup(pos)
 		local ent1 = ents.Create("drop_powerups") 
-		local rand = table.Random({"ammobuff", "dp"})
+		local powerups = {}
+		for k,_ in pairs(validPowerups) do
+			table.insert(powerups, k)
+		end
+		local rand = table.Random(powerups) or "dp"
 		ent1.Buff = rand
 		ent1:SetModel( validPowerups[rand][1] )
 		pos.z = pos.z - ent1:OBBMaxs().z
 		ent1:SetPos( pos )
 		ent1:Spawn()
 	end
-	if math.random(1,25) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
+	if math.random(1,bnpvbWJpZXM.Config.ZombieDropChance) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
 end
 
 local painSounds = {
