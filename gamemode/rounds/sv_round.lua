@@ -10,6 +10,7 @@ bnpvbWJpZXM.Rounds.Curve.Speed = {}
 bnpvbWJpZXM.Rounds.Functions = {}
 bnpvbWJpZXM.Rounds.Effects = {}
 bnpvbWJpZXM.Rounds.Effects["dp"] = false
+bnpvbWJpZXM.Rounds.Effects["instakill"] = false
 bnpvbWJpZXM.Rounds.ZedSpawns = {}
 bnpvbWJpZXM.Rounds.PlayerSpawns = {}
 bnpvbWJpZXM.Rounds.Doors = {}
