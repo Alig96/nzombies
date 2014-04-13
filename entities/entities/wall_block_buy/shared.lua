@@ -26,6 +26,7 @@ function ENT:Initialize()
 		if (phys:IsValid()) then
 			phys:Wake()
 		end
+		self.Collidegroup = self:GetCollisionGroup()
 	end
 	self:BlockLock()
 end
@@ -35,6 +36,7 @@ function ENT:BlockUnlock()
 	--self:SetNoDraw( true )
 	if SERVER then
 		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
+		self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 	end
 	self:SetSolid( SOLID_NONE )
 	self:SetLocked(false)
@@ -45,6 +47,7 @@ function ENT:BlockLock()
 	--self:SetNoDraw( false )
 	if SERVER then
 		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
+		self:SetCollisionGroup(self.Collidegroup)
 	end
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetLocked(true)
