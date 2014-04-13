@@ -30,7 +30,7 @@ if (SERVER) then
 
 	-- Takes away a certain amount by inverting the amount specified.
 	function _PLAYER:TakePoints(amount)
-		self:GivePoints(-amount)
+		self:SetPoints(self:GetPoints() - amount)
 	end
 end
 
