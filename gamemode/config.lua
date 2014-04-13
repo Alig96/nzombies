@@ -72,6 +72,7 @@ if SERVER then
 	
 	//Max amount of zombies at the same time
 	bnpvbWJpZXM.Config.MaxZombiesSim = 100
+	bnpvbWJpZXM.Config.ZombieDropChance = 25
 	
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
