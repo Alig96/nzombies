@@ -92,6 +92,11 @@ function SpawnEntities()
 				PerkMachineSpawn(v.pos, v.angle, PerksColas[v.id])
 			end
 		end
+		if data.EasterEggs != nil then
+			for k,v in pairs(data.EasterEggs) do
+				EasterEggSpawn(v.pos, v.angle, v.model)
+			end
+		end
 	else
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
 	end
@@ -191,6 +196,15 @@ function PerkMachineSpawn(position, angle, data)
 	table.insert(bnpvbWJpZXM.Rounds.PerkMachines, {position, angle, data.ID, perk})
 end
 
+function EasterEggSpawn(pos,ang,model)
+	local egg = ents.Create( "easter_egg" )
+	egg:SetModel( model )
+	egg:SetPos( pos )
+	egg:SetAngles( ang )
+	egg:Spawn()
+	table.insert(bnpvbWJpZXM.Rounds.EasterEggs, egg )
+end
+
 hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() then
@@ -202,6 +216,18 @@ hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 		end
 	end
 end )
+
+hook.Add("PlayerSpawn", "nzombies_DropInSpawn_Notify", function(ply)
+
+	if (bnpvbWJpZXM.Rounds.allowedPlayers[ply] == nil&&bnpvbWJpZXM.Rounds.Elec) then
+		bnpvbWJpZXM.Rounds.allowedPlayers[ply] = true
+		ply:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound * bnpvbWJpZXM.Config.PerRoundPoints))
+		net.Start( "bnpvbWJpZXM_Elec_Sync" )
+		net.Broadcast()
+		PrintMessage( HUD_PRINTTALK, ply:Nick().." has spawned with the new round!")
+	end
+	
+end)
 
 util.AddNetworkString( "bnpvbWJpZXM_Elec_Sync" )
 hook.Add( "nzombies_elec_active", "activate_all_elec", function()

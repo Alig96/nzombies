@@ -36,7 +36,7 @@ hook.Add("HUDPaint", "roundHUD", function()
 	elseif ROUND_STATE == ROUND_GO then
 		text = "Game Over"
 	end
-	draw.SimpleText(text, font, w, ScrH() - 70, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText(text, font, w, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end)
 
 hook.Add( "HUDPaint", "scoreHUD", function()

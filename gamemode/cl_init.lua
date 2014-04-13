@@ -48,7 +48,7 @@ function GM:HUDDrawTargetID()
 		text =  weapons.Get(trace.Entity:GetEntName()).PrintName.." Price: "..trace.Entity:GetPrice()
 	elseif (trace.Entity:GetClass() == "perk_machine") then
 		if !ELEC then
-			text = "You must turn the electric on first!"
+			text = "You must turn the electricity on first!"
 		else
 			local id = trace.Entity:GetPerkID()
 			text = "Press E to buy "..PerksColas[id].Name.." for "..PerksColas[id].Price.." points."

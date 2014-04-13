@@ -61,6 +61,13 @@ if SERVER then
 	
 	//MAIN CONFIG
 	
+	//Disable player respawns?
+	bnpvbWJpZXM.Config.Hardcore = false
+	//Allow players to spawn in directly after round, before game is over?
+	bnpvbWJpZXM.Config.AllowDropins = false
+	//Time inbetween each round
+	bnpvbWJpZXM.Config.PrepareTime = 10
+	
 	//The first wave of zombies
 	bnpvbWJpZXM.Config.BaseDifficultySpawnRateCurve = 5
 	//Difficulty of the curve
@@ -112,16 +119,57 @@ if SERVER then
 	//The Percentage (out of a 100) of players that must be ready before the game will start
 	bnpvbWJpZXM.Config.ReadyupPerc = 0.68
 	
+	//What to do when the easter eggs of the map has been found!
+	hook.Add("nzombies_ee_active", "nzombies_ee_MapActivate", function( )
+		local map = game.GetMap()
+		
+		print("Yay! All Easter Eggs found!")
+	end)
+	
 end
 
 //Shared
+
+validPowerups = {}
+
+validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
+	if (!self.Used) then
+		self.Used = true
+		bnpvbWJpZXM.Rounds.Effects["dp"] = true
+		PrintMessage( HUD_PRINTTALK, "Double Points!" )
+		if (timer.Exists("dp")) then // Restart countdown with new drop like COD functionality
+			timer.Destroy("dp")
+		end
+		timer.Create("dp", 30, 1, function() 
+			bnpvbWJpZXM.Rounds.Effects["dp"] = false 		
+			PrintMessage( HUD_PRINTTALK, "Double Points has ended!" )
+		end)
+	end
+	timer.Destroy(self:EntIndex().."_deathtimer")
+	self:Remove()
+end}
+
+validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
+	if (!self.Used) then
+		self.Used = true
+		for k,v in pairs(player.GetAll()) do
+			for k2,v2 in pairs(v:GetWeapons()) do
+				v:GiveAmmo( bnpvbWJpZXM.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
+			end
+		end
+		PrintMessage( HUD_PRINTTALK, "Ammo Buff!" )
+		timer.Destroy(self:EntIndex().."_deathtimer")
+		self:Remove()
+	end
+end}
+
 PerksColas = {}
 
 PerksColas["jug"] = {
 	["ID"] = "jug",
 	["Name"] = "Juggernog",
 	["Model"] = "models/perkacola/jug.mdl",
-	["Price"] = 100,
+	["Price"] = 2500,
 	["Function"] = function(ply) 
 		if ply:Health() < 200 then 
 			ply:SetHealth(200) 
@@ -136,7 +184,7 @@ PerksColas["dtap"] = {
 	["ID"] = "dtap",
 	["Name"] = "Double Tap",
 	["Model"] = "models/perkacola/dtap.mdl",
-	["Price"] = 1000,
+	["Price"] = 2000,
 	["Function"] = function(ply) 
 		ply:PrintMessage( HUD_PRINTTALK, "This perk has not been configured. Please consult the server admin.") 
 	end
@@ -146,7 +194,7 @@ PerksColas["pap"] = {
 	["ID"] = "pap",
 	["Name"] = "Pack-a-Punch",
 	["Model"] = "models/perkacola/packapunch.mdl",
-	["Price"] = 100,
+	["Price"] = 5000,
 	["Function"] = function(ply) 
 		local gun = ply:GetActiveWeapon()
 		if gun.PaP == nil then

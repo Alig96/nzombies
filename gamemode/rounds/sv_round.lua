@@ -24,6 +24,9 @@ bnpvbWJpZXM.Rounds.BuyableBlocks = {}
 
 bnpvbWJpZXM.Rounds.OpenedLinks = {}
 
+bnpvbWJpZXM.Rounds.EasterEggs = {}
+bnpvbWJpZXM.Rounds.EggCount = 0
+
 local plyColours = {}
 
 
@@ -92,6 +95,19 @@ function chatCommand( ply, text, public )
 			bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 		end
         return false 
+	elseif (string.sub(text, 1, 14) == "/forcegenerate") then	
+		if ply:IsSuperAdmin() then
+			local ent = ents.Create("info_player_start")
+			ent:SetPos(ply:GetPos())
+			ent:Spawn()
+			RunConsoleCommand("nav_generate")
+		end
+		return false 
+	elseif (string.sub(text, 1, 9) == "/generate") then	
+		if ply:IsSuperAdmin() then
+			RunConsoleCommand("nav_generate")
+		end
+		return false 
     end
 end
 hook.Add( "PlayerSay", "chatCommand", chatCommand )
@@ -143,24 +159,34 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 		model = v:GetModel(),
 		})
 	end
+	//Changed to allow for the physgun changes to apply to the save
 	local randombox_spawn = {}
-	for k,v in pairs(bnpvbWJpZXM.Rounds.RandomBoxSpawns) do
+	for k,v in pairs(ents.FindByClass("random_box_spawns")) do
 		table.insert(randombox_spawn, {
-		pos = v[1],
-		angle = v[2],
+		pos = v:GetPos(),
+		angle = v:GetAngles(),
 		})
 	end
 	local perk_machinespawns = {}
-	for k,v in pairs(bnpvbWJpZXM.Rounds.PerkMachines) do
+	for k,v in pairs(ents.FindByClass("perk_machine")) do
 		table.insert(perk_machinespawns, {
-		pos = v[1],
-		angle = v[2],
-		id = v[3],
+		pos = v:GetPos(),
+		angle = v:GetAngles( ),
+		id = v:GetPerkID(),
 		})
 	end
+	// End Change ////////////////////////////////
 	local buyableblock_spawns = {}
 	for k,v in pairs(bnpvbWJpZXM.Rounds.BuyableBlocks) do
 		table.insert(buyableblock_spawns, {
+		pos = v:GetPos(),
+		angle = v:GetAngles( ),
+		model = v:GetModel(),
+		})
+	end
+	local eggs = {}
+	for k,v in pairs(ents.FindByClass("easter_egg")) do
+		table.insert(eggs, {
 		pos = v:GetPos(),
 		angle = v:GetAngles( ),
 		model = v:GetModel(),
@@ -175,6 +201,7 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 	main["ElecSpawns"] = elec_spawn
 	main["RandomBoxSpawns"] = randombox_spawn
 	main["PerkMachineSpawns"] = perk_machinespawns
+	main["EasterEggs"] = eggs
 	file.Write( "nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/".."nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt" )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Rename the config to nz_"..game.GetMap( )..".txt and place in garrysmod/data/nz/" )
@@ -203,16 +230,18 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..bnpvbWJpZXM.Rounds.CurrentRound.." preparing" )
 	//wait 15 seconds or something
 	//Spawn all dead players
-	for k,v in pairs(player.GetAll()) do
-		if !v:Alive() and bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil then
-			v:UnSpectate() 
-			v:Spawn()
-			v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
-			v:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
-			v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+	if (!bnpvbWJpZXM.Config.Hardcore) then
+		for k,v in pairs(player.GetAll()) do
+			if ((bnpvbWJpZXM.Config.AllowDropins or bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil) and !v:Alive()) then
+				v:UnSpectate()
+				v:Spawn()
+				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
+				v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
+				v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+			end
 		end
 	end
-	timer.Simple(10, function() bnpvbWJpZXM.Rounds.Functions.StartRound() end)
+	timer.Simple(bnpvbWJpZXM.Config.PrepareTime, function() bnpvbWJpZXM.Rounds.Functions.StartRound() end)
 	local function checkVer()
 		http.Fetch( "https://raw.githubusercontent.com/Alig96/nzombies/master/version.txt",
 			function( body, len, headers, code )
@@ -294,6 +323,7 @@ function bnpvbWJpZXM.Rounds.Functions.CreateMode()
 		bnpvbWJpZXM.Rounds.CurrentState = ROUND_INIT
 		bnpvbWJpZXM.Rounds.CurrentZombies = 0
 		for k,v in pairs(player.GetAll()) do
+			v:StripWeapon("weapon_physgun")
 			v:StripWeapon("gmod_tool_wepbuy")
 			v:StripWeapon("gmod_tool_playerspawns")
 			v:StripWeapon("gmod_tool_zedspawns")
@@ -303,6 +333,7 @@ function bnpvbWJpZXM.Rounds.Functions.CreateMode()
 			v:StripWeapon("gmod_tool_randomboxspawns")
 			v:StripWeapon("gmod_tool_perkmachinespawns")
 			v:StripWeapon("gmod_tool_buyabledebris")
+			v:StripWeapon("gmod_tool_ee")
 		end
 		bnpvbWJpZXM.Rounds.Functions.SyncClients()
 	else
@@ -321,6 +352,10 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 			table.Empty(bnpvbWJpZXM.Rounds.allowedPlayers)
 			table.Empty(bnpvbWJpZXM.Rounds.OpenedLinks)
 			table.insert(bnpvbWJpZXM.Rounds.OpenedLinks, "0")
+			for k,v in pairs(ents.FindByClass("easter_eggs")) do
+				v.Used = false
+			end
+			bnpvbWJpZXM.Rounds.EggCount = 0
 			if bnpvbWJpZXM.Config.AllowServerName then
 				RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerNameProg..bnpvbWJpZXM.Config.ServerName)
 			end
@@ -371,9 +406,9 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				if v:IsDoor() then
 					v:SetUseType( SIMPLE_USE )
 					v:DoorLock()
+					v:SetKeyValue("wait",-1)
 				end
 			end
-			
 			//Apply door settings
 			for k,v in pairs(bnpvbWJpZXM.Rounds.Doors) do
 				local door = ents.GetByIndex(k + game.MaxPlayers())
@@ -407,6 +442,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 			if v.Ready == 1 then
 				v.Ready = 0
 				v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready since the game has been set to creative mode" )
+				v:Give("weapon_physgun")
 				v:Give("gmod_tool_wepbuy")
 				v:Give("gmod_tool_playerspawns")
 				v:Give("gmod_tool_zedspawns")
@@ -416,8 +452,10 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_randomboxspawns")
 				v:Give("gmod_tool_perkmachinespawns")
 				v:Give("gmod_tool_buyabledebris")
+				v:Give("gmod_tool_ee")
 			end
 			if v:IsSuperAdmin() then
+				v:Give("weapon_physgun")
 				v:Give("gmod_tool_wepbuy")
 				v:Give("gmod_tool_playerspawns")
 				v:Give("gmod_tool_zedspawns")
@@ -427,6 +465,7 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				v:Give("gmod_tool_randomboxspawns")
 				v:Give("gmod_tool_perkmachinespawns")
 				v:Give("gmod_tool_buyabledebris")
+				v:Give("gmod_tool_ee")
 			end
 		end
 		return

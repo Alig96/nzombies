@@ -1,3 +1,5 @@
+//This is no longer used, since it was replaced by the speed curve.
+
 AddCSLuaFile()
 
 ENT.Base = "base_nextbot"

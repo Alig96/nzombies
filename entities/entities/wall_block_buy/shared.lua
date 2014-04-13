@@ -20,6 +20,7 @@ function ENT:Initialize()
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetSolid( SOLID_VPHYSICS )
 		self:DrawShadow( false )
+		self.Boundone,self.Boundtwo = self:GetCollisionBounds()
 		self:SetCustomCollisionCheck( true )
 		local phys = self:GetPhysicsObject()
 		if (phys:IsValid()) then
@@ -32,6 +33,9 @@ end
 function ENT:BlockUnlock()
 	self.Locked = false
 	--self:SetNoDraw( true )
+	if SERVER then
+		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
+	end
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetLocked(false)
 end
@@ -39,6 +43,9 @@ end
 function ENT:BlockLock()
 	self.Locked = true
 	--self:SetNoDraw( false )
+	if SERVER then
+		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
+	end
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetLocked(true)
 end
@@ -59,17 +66,3 @@ if CLIENT then
 		end
 	end )
 end
-
-hook.Add( "ShouldCollide", "ShouldCollideTestHook", function(ent1, ent2)
-	if ( ent1:IsPlayer() and ent2:GetClass() == "wall_block_buy" ) then
-		if !ent2.Locked then
-			return false //Returning false stops the entities from colliding
-		end
-	end 
-	if ( ent2:IsPlayer() and ent1:GetClass() == "wall_block_buy" ) then
-		if !ent1.Locked then
-			return false //Returning false stops the entities from colliding
-		end
-	end
-	-- DO NOT RETURN FALSE HERE OR YOU WILL FORCE EVERY OTHER ENTITY NOT TO COLLIDE
-end )
