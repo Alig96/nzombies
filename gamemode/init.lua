@@ -14,11 +14,9 @@ end
 
 hook.Add("EntityTakeDamage", "dick", function( target, dmginfo )
 
-	if (target:IsPlayer() and dmginfo:GetAttacker():IsPlayer()) then
-		dmginfo:ScaleDamage(0)
-	elseif (bnpvbWJpZXM.Rounds.Effects["instakill"]) then
-		dmginfo:SetDamage(target:Health())
-	end
+    if ( target:IsPlayer() and dmginfo:GetAttacker():IsPlayer() ) then
+		dmginfo:ScaleDamage( 0 )
+    end
     
 	return dmginfo
 end)
