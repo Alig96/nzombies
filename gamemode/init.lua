@@ -30,6 +30,15 @@ hook.Add("PlayerInitialSpawn", "dick2", function( ply )
 	
 	timer.Simple(1, function() bnpvbWJpZXM.Rounds.Functions.SyncClients() end)
 end)
+
+hook.Add("PlayerSpawn", "fuckmyduck3", function(ply)
+	if (bnpvbWJpZXM.Rounds.allowedPlayers[ply] == nil&&bnpvbWJpZXM.Rounds.Elec) then
+		bnpvbWJpZXM.Rounds.allowedPlayers[ply] = true
+		ply:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound*bnpvbWJpZXM.Config.PerRoundPoints))
+		net.Start( "bnpvbWJpZXM_Elec_Sync" )
+		net.Broadcast()
+	end
+end)
  
  function GM:PlayerDeathThink( pl )
 
