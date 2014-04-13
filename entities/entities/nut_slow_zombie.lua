@@ -245,7 +245,7 @@ function ENT:OnKilled(damageInfo)
 		ent1:SetPos( pos )
 		ent1:Spawn()
 	end
-	if math.random(1,25) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
+	if math.random(1,bnpvbWJpZXM.Config.ZombieDropChance) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
 end
 
 local painSounds = {
