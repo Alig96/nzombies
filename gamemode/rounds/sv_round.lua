@@ -231,6 +231,9 @@ function bnpvbWJpZXM.Rounds.Functions.SyncClients()
 	net.Start( "bnpvbWJpZXM_Doors_Sync" )
 		net.WriteTable( bnpvbWJpZXM.Rounds.Doors )
 	net.Broadcast()
+	
+	net.Start( "bnpvbWJpZXM_Elec_Sync" )
+	net.Broadcast()
 end
 
 function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
@@ -244,6 +247,11 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	if (!bnpvbWJpZXM.Config.Hardcore) then
 		for k,v in pairs(player.GetAll()) do
 			if ((bnpvbWJpZXM.Config.AllowDropins or bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil) and !v:Alive()) then
+				if (bnpvbWJpZXM.Rounds.allowedPlayers[v]==nil) then
+					bnpvbWJpZXM.Rounds.allowedPlayers[v] = true
+					v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound*bnpvbWJpZXM.Config.PerRoundPoints))
+					plyColours[v] = Color(math.random(0,255), math.random(0,255), math.random(0,255), 255)
+				end
 				v:UnSpectate()
 				v:Spawn()
 				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
