@@ -73,6 +73,17 @@ function bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites()
 		return false
 	end
 	
+	if SinglePlayer() then
+		for k,v in pairs(player.GetAll()) do
+			if v.Ready == 1 then
+				v.Ready = 0
+				v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready the game is being run in Single Player." )
+				v:PrintMessage( HUD_PRINTTALK, "Please start this gamemode in multiplayer. Even if you're playing alone." )
+			end
+		end
+		return false
+	end
+	
 	return true
 end
 
