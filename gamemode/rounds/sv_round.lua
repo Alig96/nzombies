@@ -226,6 +226,7 @@ function bnpvbWJpZXM.Rounds.Functions.SyncClients()
 		net.WriteString( bnpvbWJpZXM.Rounds.CurrentState )
 		net.WriteString( bnpvbWJpZXM.Rounds.CurrentRound )
 		net.WriteTable( plyColours )
+		net.WriteTable( bnpvbWJpZXM.Rounds.allowedPlayers )
 	net.Broadcast()
 	
 	net.Start( "bnpvbWJpZXM_Doors_Sync" )
