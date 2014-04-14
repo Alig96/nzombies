@@ -329,8 +329,8 @@ function bnpvbWJpZXM.Rounds.Functions.EndRound()
 		if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
 			print("Server unlocked for the new round!")
 			RunConsoleCommand("sv_password", "" )
-			RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
 		end
+		RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
 	end)
 	//Start Spawning Zombies
 end
