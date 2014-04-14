@@ -226,10 +226,14 @@ function bnpvbWJpZXM.Rounds.Functions.SyncClients()
 		net.WriteString( bnpvbWJpZXM.Rounds.CurrentState )
 		net.WriteString( bnpvbWJpZXM.Rounds.CurrentRound )
 		net.WriteTable( plyColours )
+		net.WriteTable( bnpvbWJpZXM.Rounds.allowedPlayers )
 	net.Broadcast()
 	
 	net.Start( "bnpvbWJpZXM_Doors_Sync" )
 		net.WriteTable( bnpvbWJpZXM.Rounds.Doors )
+	net.Broadcast()
+	
+	net.Start( "bnpvbWJpZXM_Elec_Sync" )
 	net.Broadcast()
 end
 
@@ -244,6 +248,11 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	if (!bnpvbWJpZXM.Config.Hardcore) then
 		for k,v in pairs(player.GetAll()) do
 			if ((bnpvbWJpZXM.Config.AllowDropins or bnpvbWJpZXM.Rounds.allowedPlayers[v] != nil) and !v:Alive()) then
+				if (bnpvbWJpZXM.Rounds.allowedPlayers[v]==nil) then
+					bnpvbWJpZXM.Rounds.allowedPlayers[v] = true
+					v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound*bnpvbWJpZXM.Config.PerRoundPoints))
+					plyColours[v] = Color(math.random(0,255), math.random(0,255), math.random(0,255), 255)
+				end
 				v:UnSpectate()
 				v:Spawn()
 				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
@@ -321,8 +330,8 @@ function bnpvbWJpZXM.Rounds.Functions.EndRound()
 		if bnpvbWJpZXM.Config.AllowServerPasswordLocking then
 			print("Server unlocked for the new round!")
 			RunConsoleCommand("sv_password", "" )
-			RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
 		end
+		RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
 	end)
 	//Start Spawning Zombies
 end
