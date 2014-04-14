@@ -73,7 +73,7 @@ function bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites()
 		return false
 	end
 	
-	if SinglePlayer() then
+	if game.SinglePlayer() then
 		for k,v in pairs(player.GetAll()) do
 			if v.Ready == 1 then
 				v.Ready = 0
