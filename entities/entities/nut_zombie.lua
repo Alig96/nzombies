@@ -118,7 +118,7 @@ function ENT:RunBehaviour()
 
 				self:PlaySequenceAndWait("swing", 1)
 			else
-				if bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound] >= 320 then
+				if bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound] >= 160 then
 					self:StartActivity(ACT_RUN)
 				else
 					self:StartActivity(ACT_WALK)
