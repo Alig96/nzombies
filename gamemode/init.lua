@@ -217,18 +217,6 @@ hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 	end
 end )
 
-hook.Add("PlayerSpawn", "nzombies_DropInSpawn_Notify", function(ply)
-
-	if (bnpvbWJpZXM.Rounds.allowedPlayers[ply] == nil&&bnpvbWJpZXM.Rounds.Elec) then
-		bnpvbWJpZXM.Rounds.allowedPlayers[ply] = true
-		ply:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound * bnpvbWJpZXM.Config.PerRoundPoints))
-		net.Start( "bnpvbWJpZXM_Elec_Sync" )
-		net.Broadcast()
-		PrintMessage( HUD_PRINTTALK, ply:Nick().." has spawned with the new round!")
-	end
-	
-end)
-
 util.AddNetworkString( "bnpvbWJpZXM_Elec_Sync" )
 hook.Add( "nzombies_elec_active", "activate_all_elec", function()
 	bnpvbWJpZXM.Rounds.Elec = true
