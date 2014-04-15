@@ -17,7 +17,7 @@ end
 function ENT:Initialize()
 	if SERVER then
 		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_NONE )
+		self:SetSolid( SOLID_VPHYSICS )
 		self:DrawShadow( false )
 		self.Boundone,self.Boundtwo = self:GetCollisionBounds()
 	end
