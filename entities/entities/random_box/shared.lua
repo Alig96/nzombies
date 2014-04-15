@@ -10,20 +10,14 @@ ENT.Instructions	= ""
 
 
 function ENT:Initialize()
-	 
-		self:SetModel( "models/toybox.mdl" )
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:DrawShadow( false )
-		self.Uses = 0
-		if SERVER then
-			self:SetUseType( SIMPLE_USE )
-		end
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
+	self:SetModel( "models/toybox.mdl" )
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:DrawShadow( false )
+	self.Uses = 0
+	if SERVER then
+		self:SetUseType( SIMPLE_USE )
+	end
 end
 
 function ENT:Use( activator, caller )
