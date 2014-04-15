@@ -99,7 +99,7 @@ if SERVER then
 	"gmod_tool_elec", "gmod_tool_randomboxspawns", "gmod_tool_ee",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
 	"weapon_dod_sim_base_snip", "weapon_sim_admin",
-	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns"
+	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns", "gmod_tool_ee"
 	}
 	//The Speed curve 
 	bnpvbWJpZXM.Config.BaseDifficultySpeedCurve = 60
