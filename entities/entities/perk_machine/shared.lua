@@ -15,17 +15,12 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Initialize()
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:DrawShadow( false )
-		if SERVER then
-			self:SetUseType( SIMPLE_USE )
-		end
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:DrawShadow( false )
+	if SERVER then
+		self:SetUseType( SIMPLE_USE )
+	end
 end
 
 function ENT:Use( activator, caller )
