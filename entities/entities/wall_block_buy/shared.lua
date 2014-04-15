@@ -16,16 +16,10 @@ end
 
 function ENT:Initialize()
 	if SERVER then
-		self:PhysicsInit( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
+		self:SetSolid( SOLID_NONE )
 		self:DrawShadow( false )
 		self.Boundone,self.Boundtwo = self:GetCollisionBounds()
-		self:SetCustomCollisionCheck( true )
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
 	end
 	self:BlockLock()
 end
