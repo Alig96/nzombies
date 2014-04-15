@@ -10,7 +10,7 @@ ENT.Instructions	= ""
 
 function ENT:Initialize()
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_NONE )
+	self:SetSolid( SOLID_VPHYSICS )
 	self:DrawShadow( false )
 	self:SetColor(Color(255, 255, 255, 0))
 	self:SetRenderMode( RENDERMODE_TRANSCOLOR )
