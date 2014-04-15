@@ -96,7 +96,7 @@ if SERVER then
 	//Guns that are NOT allowed in the random box. You should add things such as weapon bases here.
 	bnpvbWJpZXM.Config.WeaponBlackList = {"gmod_tool_wepbuy", "gmod_tool_playerspawns", 
 	"gmod_tool_zedspawns", "gmod_tool_doors", "gmod_tool_block", 
-	"gmod_tool_elec", "gmod_tool_randomboxspawns",
+	"gmod_tool_elec", "gmod_tool_randomboxspawns", "gmod_tool_ee",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
 	"weapon_dod_sim_base_snip", "weapon_sim_admin",
 	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns"
