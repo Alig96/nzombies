@@ -10,24 +10,19 @@ ENT.Instructions	= ""
 
 
 function ENT:Initialize()
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		if SERVER then
-			self:SetModel(GenList()[1].WorldModel)
-		end
-		self:DrawShadow( false )
-		self.Winding = true
-		self.c = 0
-		self.s = -20
-		timer.Simple(7, function() self.Winding = false  end)
-		if SERVER then
-			timer.Simple(18, function() if self:IsValid() then self:Remove() end end)
-		end
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_NONE )
+	if SERVER then
+		self:SetModel(GenList()[1].WorldModel)
+	end
+	self:DrawShadow( false )
+	self.Winding = true
+	self.c = 0
+	self.s = -20
+	timer.Simple(7, function() self.Winding = false  end)
+	if SERVER then
+		timer.Simple(18, function() if self:IsValid() then self:Remove() end end)
+	end
 end
 
 function ENT:Use( activator, caller )

@@ -205,6 +205,37 @@ function EasterEggSpawn(pos,ang,model)
 	table.insert(bnpvbWJpZXM.Rounds.EasterEggs, egg )
 end
 
+function OnEnemyKilled( enemy, attacker )
+
+	if attacker:IsPlayer() then
+		attacker:GivePoints(90)
+	end
+	bnpvbWJpZXM.Rounds.CurrentZombies = bnpvbWJpZXM.Rounds.CurrentZombies - 1
+	bnpvbWJpZXM.Rounds.ZombiesSpawned = bnpvbWJpZXM.Rounds.ZombiesSpawned - 1
+	
+	local function createPowerup(pos)
+		local ent1 = ents.Create("drop_powerups") 
+		local powerups = {}
+		for k,_ in pairs(validPowerups) do
+			table.insert(powerups, k)
+		end
+		local rand = table.Random(powerups) or "dp"
+		ent1.Buff = rand
+		ent1:SetModel( validPowerups[rand][1] )
+		pos.z = pos.z - ent1:OBBMaxs().z
+		ent1:SetPos( pos )
+		ent1:Spawn()
+	end
+	if math.random(1,25) == 1 then createPowerup(enemy:GetPos()+Vector(0,0,50)) end
+	
+end
+
+function OnEnemyHurt( enemy, attacker )
+	if attacker:IsPlayer() then
+		attacker:GivePoints(10)
+	end
+end
+
 hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() then
@@ -216,18 +247,6 @@ hook.Add( "nzombies_elec_active", "open_all_elec_doors", function()
 		end
 	end
 end )
-
-hook.Add("PlayerSpawn", "nzombies_DropInSpawn_Notify", function(ply)
-
-	if (bnpvbWJpZXM.Rounds.allowedPlayers[ply] == nil&&bnpvbWJpZXM.Rounds.Elec) then
-		bnpvbWJpZXM.Rounds.allowedPlayers[ply] = true
-		ply:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints + (bnpvbWJpZXM.Rounds.CurrentRound * bnpvbWJpZXM.Config.PerRoundPoints))
-		net.Start( "bnpvbWJpZXM_Elec_Sync" )
-		net.Broadcast()
-		PrintMessage( HUD_PRINTTALK, ply:Nick().." has spawned with the new round!")
-	end
-	
-end)
 
 util.AddNetworkString( "bnpvbWJpZXM_Elec_Sync" )
 hook.Add( "nzombies_elec_active", "activate_all_elec", function()

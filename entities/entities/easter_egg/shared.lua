@@ -14,16 +14,11 @@ AddCSLuaFile()
 function ENT:Initialize()
 
 	self:SetModel( "models/props_lab/huladoll.mdl" )
-	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_VPHYSICS )
+	self:SetSolid( SOLID_NONE )
 	self.Used = false
 	if SERVER then
 		self:SetUseType(SIMPLE_USE)
-	end
-	local phys = self:GetPhysicsObject()
-	if (phys:IsValid()) then
-		phys:Wake()
 	end
 end
 	 

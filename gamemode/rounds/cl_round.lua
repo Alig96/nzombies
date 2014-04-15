@@ -2,6 +2,7 @@ net.Receive( "bnpvbWJpZXM_Round_Sync", function( length )
 	ROUND_STATE = tonumber(net.ReadString())
 	ROUND_NUMBER = tonumber(net.ReadString())
 	PLAYER_COLOURS = net.ReadTable()
+	ALLOWED_PLAYERS = net.ReadTable()
 end )
 
 //ROUND_INIT = 0
@@ -42,7 +43,7 @@ end)
 hook.Add( "HUDPaint", "scoreHUD", function()
 	if ROUND_STATE == ROUND_PREP or ROUND_STATE == ROUND_PROG then
 		for k,v in pairs(player.GetAll()) do
-			if v:GetPoints() > 0 then
+			if v:GetPoints() > 0 && ALLOWED_PLAYERS[v] then
 				draw.SimpleText(v:Nick().." - "..v:GetPoints(), "ScoreFont", ScrW() * 0.8, ScrH() / 2 + (20*k), PLAYER_COLOURS[v], TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
 			end
 		end

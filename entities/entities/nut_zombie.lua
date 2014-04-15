@@ -118,7 +118,7 @@ function ENT:RunBehaviour()
 
 				self:PlaySequenceAndWait("swing", 1)
 			else
-				if bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound] >= 320 then
+				if bnpvbWJpZXM.Rounds.Curve.Speed[bnpvbWJpZXM.Rounds.CurrentRound] >= 160 then
 					self:StartActivity(ACT_RUN)
 				else
 					self:StartActivity(ACT_WALK)
@@ -242,26 +242,9 @@ function ENT:OnKilled(damageInfo)
 	
 	self:EmitSound(table.Random(deathSounds), 100, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
-	if attacker:IsPlayer() then
-		attacker:GivePoints(90)
-	end
-	bnpvbWJpZXM.Rounds.CurrentZombies = bnpvbWJpZXM.Rounds.CurrentZombies - 1
-	bnpvbWJpZXM.Rounds.ZombiesSpawned = bnpvbWJpZXM.Rounds.ZombiesSpawned - 1
 	
-	local function createPowerup(pos)
-		local ent1 = ents.Create("drop_powerups") 
-		local powerups = {}
-		for k,_ in pairs(validPowerups) do
-			table.insert(powerups, k)
-		end
-		local rand = table.Random(powerups) or "dp"
-		ent1.Buff = rand
-		ent1:SetModel( validPowerups[rand][1] )
-		pos.z = pos.z - ent1:OBBMaxs().z
-		ent1:SetPos( pos )
-		ent1:Spawn()
-	end
-	if math.random(1,25) == 1 then createPowerup(self:GetPos()+Vector(0,0,50)) end
+	OnEnemyKilled( self, attacker)
+	
 end
 
 local painSounds = {
@@ -276,10 +259,9 @@ local painSounds = {
 function ENT:OnInjured(damageInfo)
 	local attacker = damageInfo:GetAttacker()
 	local range = self:GetRangeTo(attacker)
-	if attacker:IsPlayer() then
-		attacker:GivePoints(10)
-	end
 	self:EmitSound(table.Random(painSounds), 100, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
+	
+	OnEnemyHurt( self, attacker )
 end

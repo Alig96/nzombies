@@ -10,17 +10,12 @@ ENT.Instructions	= ""
 
 
 function ENT:Initialize()
-	 
-		self:SetModel( "models/player/odessa.mdl" )
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:SetColor(0, 255, 0, 255) 
-		self:DrawShadow( false )
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
+	self:SetModel( "models/player/odessa.mdl" )
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_NONE )
+	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	self:SetColor(0, 255, 0, 255) 
+	self:DrawShadow( false )
 end
 
 if CLIENT then

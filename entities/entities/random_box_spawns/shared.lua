@@ -10,17 +10,12 @@ ENT.Instructions	= ""
 
 
 function ENT:Initialize()
-	 
-		self:SetModel( "models/toybox.mdl" )
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetColor( 255, 255, 255 )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:DrawShadow( false )
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
+	self:SetModel( "models/toybox.mdl" )
+	self:SetColor( 255, 255, 255 )
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_NONE )
+	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	self:DrawShadow( false )
 end
 
 if CLIENT then

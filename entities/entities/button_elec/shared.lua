@@ -12,15 +12,10 @@ ENT.Instructions	= ""
 function ENT:Initialize()
 	if SERVER then
 		self:SetModel( "models/MaxOfS2D/button_01.mdl" )
-		self:PhysicsInit( SOLID_VPHYSICS )
 		self:SetSolid( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetUseType( ONOFF_USE )
 		self.On = false
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
 	else
 		self.PosePosition = 0
 	end

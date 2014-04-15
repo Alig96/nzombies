@@ -96,7 +96,7 @@ if SERVER then
 	//Guns that are NOT allowed in the random box. You should add things such as weapon bases here.
 	bnpvbWJpZXM.Config.WeaponBlackList = {"gmod_tool_wepbuy", "gmod_tool_playerspawns", 
 	"gmod_tool_zedspawns", "gmod_tool_doors", "gmod_tool_block", 
-	"gmod_tool_elec", "gmod_tool_randomboxspawns",
+	"gmod_tool_elec", "gmod_tool_randomboxspawns", "gmod_tool_ee",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
 	"weapon_dod_sim_base_snip", "weapon_sim_admin",
 	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns"
@@ -125,6 +125,23 @@ if SERVER then
 		
 		print("Yay! All Easter Eggs found!")
 	end)
+	
+	bnpvbWJpZXM.Config.ValidEnemies = {"nut_zombie"}
+	
+	bnpvbWJpZXM.Config.UseCustomEnemmies = true
+	
+	bnpvbWJpZXM.Config.EnemyTypes = {}
+	//Index is the round that it starts to spawn them
+	//The value is a table of all the zombie types that will spawn on that round
+	//The first value of the table is the name of the npc/next bot that will be used.
+	//The second is the weighting out of 100%
+	//Distribute it as you wish, but make sure it adds up to 100 
+	bnpvbWJpZXM.Config.EnemyTypes[1] = {["easy_npc"] = 100}
+	bnpvbWJpZXM.Config.EnemyTypes[4] = {["medium_npc"] = 40, ["easy_npc"] = 60}
+	bnpvbWJpZXM.Config.EnemyTypes[7] = {["medium_npc"] = 100}
+	bnpvbWJpZXM.Config.EnemyTypes[10] = {["dog_npcs"] = 100}
+	bnpvbWJpZXM.Config.EnemyTypes[11] = {["hard_npcs"] = 100}
+	bnpvbWJpZXM.Config.EnemyTypes[15] = {["hard_npcs"] =  100, ["dog_npcs"] = 100}
 	
 end
 
@@ -209,7 +226,7 @@ hook.Add("EntityFireBullets", "nzombies_pap_firebullets", function( ent, data )
 	local gun = ent:GetActiveWeapon()
 	if gun.PaP != nil then
 		if gun.PaP then
-			data.Damage = data.Damage * 100
+			data.Damage = data.Damage * 10
 			return true
 		end
 	end
