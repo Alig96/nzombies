@@ -13,6 +13,7 @@ function ENT:Initialize()
 	self:SetModel( "models/player/odessa.mdl" )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_NONE )
+	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 	self:SetColor(0, 255, 0, 255) 
 	self:DrawShadow( false )
 end
