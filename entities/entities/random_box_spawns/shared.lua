@@ -14,6 +14,7 @@ function ENT:Initialize()
 	self:SetColor( 255, 255, 255 )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_NONE )
+	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 	self:DrawShadow( false )
 end
 
