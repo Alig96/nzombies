@@ -8,22 +8,18 @@ ENT.Contact			= "Don't"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
-if SERVER then
-	function ENT:Initialize()
-		self:PhysicsInit( SOLID_VPHYSICS )
-		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
-		self:DrawShadow( false )
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
-	end
+function ENT:Initialize()
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_NONE )
+	self:DrawShadow( false )
+	self:SetColor(Color(255, 255, 255, 0))
+	self:SetRenderMode( RENDERMODE_TRANSCOLOR )
 end
 
 if CLIENT then
 	function ENT:Draw()
 		if ROUND_STATE == ROUND_CREATE then
+			self:SetColor(Color(255, 255, 255, 255))
 			self:DrawModel()
 		end
 	end
