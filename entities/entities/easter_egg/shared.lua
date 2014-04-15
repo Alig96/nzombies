@@ -15,7 +15,8 @@ function ENT:Initialize()
 
 	self:SetModel( "models/props_lab/huladoll.mdl" )
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_NONE )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 	self.Used = false
 	if SERVER then
 		self:SetUseType(SIMPLE_USE)

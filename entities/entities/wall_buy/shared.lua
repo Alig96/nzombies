@@ -18,7 +18,7 @@ if SERVER then
 	function ENT:Initialize()
 		--self:SetModel( "models/props_interiors/BathTub01a.mdl" )
 		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_NONE )
+		self:SetSolid( SOLID_VPHYSICS )
 		self:SetUseType(SIMPLE_USE)
 	end
 	
