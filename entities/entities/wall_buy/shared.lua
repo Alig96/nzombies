@@ -16,16 +16,10 @@ end
 
 if SERVER then
 	function ENT:Initialize()
-	 
 		--self:SetModel( "models/props_interiors/BathTub01a.mdl" )
-		self:PhysicsInit( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
+		self:SetSolid( SOLID_NONE )
 		self:SetUseType(SIMPLE_USE)
-		local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-		end
 	end
 	
 	function ENT:SetWeapon(weapon, price)
