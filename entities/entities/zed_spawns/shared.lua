@@ -12,8 +12,8 @@ ENT.Instructions	= ""
 function ENT:Initialize()
 	self:SetModel( "models/player/odessa.mdl" )
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_NONE )
-	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 	self:SetColor(255, 0, 0, 255) 
 	self:DrawShadow( false )
 end
