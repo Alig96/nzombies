@@ -128,7 +128,7 @@ if SERVER then
 	
 	bnpvbWJpZXM.Config.ValidEnemies = {"nut_zombie"}
 	
-	bnpvbWJpZXM.Config.UseCustomEnemies = true
+	bnpvbWJpZXM.Config.UseCustomEnemies = false
 	
 	bnpvbWJpZXM.Config.EnemyTypes = {}
 	//Index is the round that it starts to spawn them
