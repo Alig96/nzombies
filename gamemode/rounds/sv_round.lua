@@ -548,7 +548,7 @@ function bnpvbWJpZXM.Rounds.Functions.ZombieSpawner()
 			//local realPos = position + Vector(math.random(-256, 256), math.random(-256, 256), 75)
 			if CheckIfSuitable(position) then
 				local typ = "nut_zombie"
-				if bnpvbWJpZXM.Config.UseCustomEnemmies then
+				if bnpvbWJpZXM.Config.UseCustomEnemies then
 					for i = bnpvbWJpZXM.Rounds.CurrentRound, 0, -1 do 
 						if bnpvbWJpZXM.Config.EnemyTypes[i] != nil then
 							//http://snippets.luacode.org/snippets/Weighted_random_choice_104
