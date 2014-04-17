@@ -258,6 +258,18 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
 				v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
 				v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+				if (bnpvbWJpZXM.Config.PlayerModels&&bnpvbWJpZXM.Config.PlayerModels[1] != nil) then
+					if !bnpvbWJpZXM.Config.PlayerModelsSystem then
+						v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+					else
+						if bnpvbWJpZXM.Config.PlayerModels[k] != nil then
+							v:SetModel(bnpvbWJpZXM.Config.PlayerModels[k])
+						else
+							//Fall back if there's not enough models
+							v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+						end
+					end
+				end
 			end
 		end
 	end
