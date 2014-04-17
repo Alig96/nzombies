@@ -8,11 +8,38 @@ include( "config.lua" )
 include( "rounds/sv_round.lua" )
 include( "points/sh_meta.lua" )
 
+local META = FindMetaTable( "Player" )
+oldGive = META.Give
+function META:Give(weaponClass)
+	if ((table.Count(self:GetWeapons())>=bnpvbWJpZXM.Config.MaxWeapons)&&bnpvbWJpZXM.Config.MaxWeapons!=-1) then
+		self:GetActiveWeapon():Remove()
+	end
+	oldGive(self, weaponClass)
+end
+
+oldGiveAmmo = META.GiveAmmo
+function META:GiveAmmo(amount, ammoClass, hidePopup)
+	if ((self:GetAmmoCount(ammoClass)>=bnpvbWJpZXM.Config.MaxAmmo)&&bnpvbWJpZXM.Config.MaxAmmo!=-1) then
+		if (amount+self:GetAmmoCount(ammoClass)>bnpvbWJpZXM.Config.MaxAmmo) then
+			amount = amount+self:GetAmmoCount(ammoClass) - bnpvbWJpZXM.Config.MaxAmmo
+			if (amount<0) then
+				return false
+			end
+		end
+	end
+	oldGiveAmmo(self, amount, ammoClass, hidePopup)
+end
+local META = nil
+
 function GM:PlayerSwitchFlashlight(ply, SwitchOn)
      return true
 end
 
-hook.Add("EntityTakeDamage", "dick", function( target, dmginfo )
+hook.Add("ShutDown", "dick", function()
+	RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
+end)
+
+hook.Add("EntityTakeDamage", "dick1", function( target, dmginfo )
 
     if ( target:IsPlayer() and dmginfo:GetAttacker():IsPlayer() ) then
 		dmginfo:ScaleDamage( 0 )
