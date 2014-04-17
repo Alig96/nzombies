@@ -555,7 +555,10 @@ function bnpvbWJpZXM.Rounds.Functions.ZombieSpawner()
 					end
 				end
 			end					
-
+			if valids[1] == nil then
+				return
+				--Since we couldn't find a valid spawn, just back out for now.
+			end
 			local position = table.Random(valids)[1]
 			//local realPos = position + Vector(math.random(-256, 256), math.random(-256, 256), 75)
 			if CheckIfSuitable(position) then
