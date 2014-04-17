@@ -82,8 +82,11 @@ if SERVER then
 	
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
+	bnpvbWJpZXM.Config.PerRoundPoints = 50
 	bnpvbWJpZXM.Config.BaseStartingWeapon = "weapon_sim_colt1911"
 	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
+	bnpvbWJpZXM.Config.MaxAmmo = 120
+	bnpvbWJpZXM.Config.MaxWeapons = 2
 	
 	//Change name variables
 	//Setting this to true allows for the gamemode change the name to have a tag in front while its going on
