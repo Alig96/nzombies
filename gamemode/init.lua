@@ -11,8 +11,17 @@ include( "points/sh_meta.lua" )
 local META = FindMetaTable( "Player" )
 oldGive = META.Give
 function META:Give(weaponClass)
-	if ((table.Count(self:GetWeapons())>=bnpvbWJpZXM.Config.MaxWeapons)&&bnpvbWJpZXM.Config.MaxWeapons!=-1) then
-		self:GetActiveWeapon():Remove()
+	if (!bnpvbWJpZXM.Rounds.CurrentState == ROUND_CREATE) then
+		local cnt = 0
+		for k,v in pairs(self:GetWeapons()) do
+			cnt = cnt + 1
+			if (weaponClass == v:GetClass()) then
+				return false
+			end
+		end
+		if ((cnt>=bnpvbWJpZXM.Config.MaxWeapons)&&bnpvbWJpZXM.Config.MaxWeapons!=-1) then
+			self:GetActiveWeapon():Remove()
+		end
 	end
 	oldGive(self, weaponClass)
 end
