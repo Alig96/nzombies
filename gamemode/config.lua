@@ -83,7 +83,6 @@ if SERVER then
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
 	bnpvbWJpZXM.Config.PerRoundPoints = 50
-<<<<<<< HEAD
 
 	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
 	bnpvbWJpZXM.Config.MaxAmmo = 120
@@ -92,13 +91,6 @@ if SERVER then
 	bnpvbWJpZXM.Config.BaseStartingWeapons = {"weapon_sim_colt1911", "weapon_sim_luger"}
 	bnpvbWJpZXM.Config.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
 
-=======
-	bnpvbWJpZXM.Config.BaseStartingWeapon = "weapon_sim_colt1911"
-	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
-	bnpvbWJpZXM.Config.MaxAmmo = 120
-	bnpvbWJpZXM.Config.MaxWeapons = 2
->>>>>>> 647f166e3f9786bd773514d7dad9b393c6c88139
-	
 	//Change name variables
 	//Setting this to true allows for the gamemode change the name to have a tag in front while its going on
 	bnpvbWJpZXM.Config.AllowServerName = true
