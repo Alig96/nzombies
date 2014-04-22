@@ -62,15 +62,17 @@ function bnpvbWJpZXM.Rounds.Functions.CheckPrerequisites()
 		return false
 	end
 	
-	if !weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon) then
-		for k,v in pairs(player.GetAll()) do
-			if v.Ready == 1 then
-				v.Ready = 0
-				v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready since the server owner has not set the starting weapon to a valid weapon." )
-				v:PrintMessage( HUD_PRINTTALK, "Please change bnpvbWJpZXM.Config.BaseStartingWeapon in the gamemode's config.lua" )
+	for k2,v2 in pairs(bnpvbWJpZXM.Config.BaseStartingWeapons) do
+		if !weapons.Get(v2) then
+			for k,v in pairs(player.GetAll()) do
+				if v.Ready == 1 then
+					v.Ready = 0
+					v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready since the server owner has not set the starting weapon to a valid weapon." )
+					v:PrintMessage( HUD_PRINTTALK, "Please change bnpvbWJpZXM. Config. BaseStartingWeapons in the gamemode's config.lua" )
+				end
 			end
+			return false
 		end
-		return false
 	end
 	
 	if game.SinglePlayer() then
@@ -213,6 +215,7 @@ function bnpvbWJpZXM.Rounds.Functions.SaveConfig()
 	main["RandomBoxSpawns"] = randombox_spawn
 	main["PerkMachineSpawns"] = perk_machinespawns
 	main["EasterEggs"] = eggs
+	main["StartingWep"] = bnpvbWJpZXM.Config.BaseStartingWeapons
 	file.Write( "nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/".."nz_"..game.GetMap( ).."_"..os.date("%M_%H_%j")..".txt" )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Rename the config to nz_"..game.GetMap( )..".txt and place in garrysmod/data/nz/" )
@@ -242,6 +245,11 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 	bnpvbWJpZXM.Rounds.Functions.SyncClients()
 	bnpvbWJpZXM.Rounds.CurrentRound = bnpvbWJpZXM.Rounds.CurrentRound + 1
 	bnpvbWJpZXM.Rounds.CurrentZombies = bnpvbWJpZXM.Rounds.Curve.SpawnRate[bnpvbWJpZXM.Rounds.CurrentRound]
+	
+	for k, v in pairs(ents.FindByClass("prop_ragdoll")) do
+		v:Remove()
+	end
+	
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..bnpvbWJpZXM.Rounds.CurrentRound.." preparing" )
 	//wait 15 seconds or something
 	//Spawn all dead players
@@ -255,9 +263,23 @@ function bnpvbWJpZXM.Rounds.Functions.PrepareRound()
 				end
 				v:UnSpectate()
 				v:Spawn()
-				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
-				v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
+				for k2,v2 in pairs(bnpvbWJpZXM.Config.BaseStartingWeapons) do
+					v:Give(v2)
+					v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(v2).Primary.Ammo)
+				end
 				v:SetPos(bnpvbWJpZXM.Rounds.PlayerSpawns[k][1] + Vector(0,0,20))
+				if bnpvbWJpZXM.Config.PlayerModels[1] != nil then
+					if !bnpvbWJpZXM.Config.PlayerModelsSystem then
+						v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+					else
+						if bnpvbWJpZXM.Config.PlayerModels[k] != nil then
+							v:SetModel(bnpvbWJpZXM.Config.PlayerModels[k])
+						else
+							//Fall back if there's not enough models
+							v:SetModel(table.Random(bnpvbWJpZXM.Config.PlayerModels))
+						end
+					end
+				end
 			end
 		end
 	end
@@ -395,8 +417,10 @@ function bnpvbWJpZXM.Rounds.Functions.RoundHandler()
 				
 				bnpvbWJpZXM.Rounds.allowedPlayers[v] = true
 				v:SetPoints(bnpvbWJpZXM.Config.BaseStartingPoints)
-				v:Give(bnpvbWJpZXM.Config.BaseStartingWeapon)
-				v:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(bnpvbWJpZXM.Config.BaseStartingWeapon).Primary.Ammo)
+				for k2,v2 in pairs(bnpvbWJpZXM.Config.BaseStartingWeapons) do
+					v:Give(v2)
+					v:SetAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(v2).Primary.Ammo)
+				end
 				plyColours[v] = Color(math.random(0,255), math.random(0,255), math.random(0,255), 255)
 				if bnpvbWJpZXM.Config.PlayerModels[1] != nil then
 					if !bnpvbWJpZXM.Config.PlayerModelsSystem then
@@ -543,12 +567,15 @@ function bnpvbWJpZXM.Rounds.Functions.ZombieSpawner()
 					end
 				end
 			end					
-
+			if valids[1] == nil then
+				return
+				--Since we couldn't find a valid spawn, just back out for now.
+			end
 			local position = table.Random(valids)[1]
 			//local realPos = position + Vector(math.random(-256, 256), math.random(-256, 256), 75)
 			if CheckIfSuitable(position) then
 				local typ = "nut_zombie"
-				if bnpvbWJpZXM.Config.UseCustomEnemmies then
+				if bnpvbWJpZXM.Config.UseCustomEnemies then
 					for i = bnpvbWJpZXM.Rounds.CurrentRound, 0, -1 do 
 						if bnpvbWJpZXM.Config.EnemyTypes[i] != nil then
 							//http://snippets.luacode.org/snippets/Weighted_random_choice_104

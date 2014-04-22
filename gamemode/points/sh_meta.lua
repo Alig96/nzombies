@@ -64,6 +64,7 @@ function meta:DoorUnlock(open)
 	self:Fire("unlock", "", 0)
 	self:Fire("open", "", 0)
 	self:Fire("lock", "", 0)
+	self:SetKeyValue("wait",-1)
 	return
 end
 

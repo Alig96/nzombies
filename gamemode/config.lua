@@ -75,15 +75,22 @@ if SERVER then
 	//Base health at level 1
 	bnpvbWJpZXM.Config.BaseDifficultyHealthCurve = 75
 	//Difficulty of the curve
-	bnpvbWJpZXM.Config.DifficultyHealthCurve = 0.6
+	bnpvbWJpZXM.Config.DifficultyHealthCurve = 0.4
 	
 	//Max amount of zombies at the same time
 	bnpvbWJpZXM.Config.MaxZombiesSim = 100
 	
 	//Self Explanitory
 	bnpvbWJpZXM.Config.BaseStartingPoints = 500
-	bnpvbWJpZXM.Config.BaseStartingWeapon = "weapon_sim_colt1911"
+	bnpvbWJpZXM.Config.PerRoundPoints = 50
+
 	bnpvbWJpZXM.Config.BaseStartingAmmoAmount = 120
+	bnpvbWJpZXM.Config.MaxAmmo = 120
+	bnpvbWJpZXM.Config.MaxWeapons = 2
+	
+	bnpvbWJpZXM.Config.BaseStartingWeapons = {"weapon_sim_colt1911", "weapon_sim_luger"}
+	bnpvbWJpZXM.Config.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
+
 	
 	//Change name variables
 	//Setting this to true allows for the gamemode change the name to have a tag in front while its going on
@@ -128,7 +135,7 @@ if SERVER then
 	
 	bnpvbWJpZXM.Config.ValidEnemies = {"nut_zombie"}
 	
-	bnpvbWJpZXM.Config.UseCustomEnemmies = true
+	bnpvbWJpZXM.Config.UseCustomEnemies = false
 	
 	bnpvbWJpZXM.Config.EnemyTypes = {}
 	//Index is the round that it starts to spawn them

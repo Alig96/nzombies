@@ -13,8 +13,8 @@ function ENT:Initialize()
 	self:SetModel( "models/toybox.mdl" )
 	self:SetColor( 255, 255, 255 )
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_NONE )
-	self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 	self:DrawShadow( false )
 end
 

@@ -8,11 +8,47 @@ include( "config.lua" )
 include( "rounds/sv_round.lua" )
 include( "points/sh_meta.lua" )
 
+local META = FindMetaTable( "Player" )
+oldGive = META.Give
+function META:Give(weaponClass)
+	if (!bnpvbWJpZXM.Rounds.CurrentState == ROUND_CREATE) then
+		local cnt = 0
+		for k,v in pairs(self:GetWeapons()) do
+			cnt = cnt + 1
+			if (weaponClass == v:GetClass()) then
+				return false
+			end
+		end
+		if ((cnt>=bnpvbWJpZXM.Config.MaxWeapons)&&bnpvbWJpZXM.Config.MaxWeapons!=-1) then
+			self:GetActiveWeapon():Remove()
+		end
+	end
+	oldGive(self, weaponClass)
+end
+
+oldGiveAmmo = META.GiveAmmo
+function META:GiveAmmo(amount, ammoClass, hidePopup)
+	if ((self:GetAmmoCount(ammoClass)>=bnpvbWJpZXM.Config.MaxAmmo)&&bnpvbWJpZXM.Config.MaxAmmo!=-1) then
+		if (amount+self:GetAmmoCount(ammoClass)>bnpvbWJpZXM.Config.MaxAmmo) then
+			amount = amount+self:GetAmmoCount(ammoClass) - bnpvbWJpZXM.Config.MaxAmmo
+			if (amount<0) then
+				return false
+			end
+		end
+	end
+	oldGiveAmmo(self, amount, ammoClass, hidePopup)
+end
+local META = nil
+
 function GM:PlayerSwitchFlashlight(ply, SwitchOn)
      return true
 end
 
-hook.Add("EntityTakeDamage", "dick", function( target, dmginfo )
+hook.Add("ShutDown", "dick", function()
+	RunConsoleCommand("hostname", bnpvbWJpZXM.Config.ServerName)
+end)
+
+hook.Add("EntityTakeDamage", "dick1", function( target, dmginfo )
 
     if ( target:IsPlayer() and dmginfo:GetAttacker():IsPlayer() ) then
 		dmginfo:ScaleDamage( 0 )
@@ -96,6 +132,14 @@ function SpawnEntities()
 			for k,v in pairs(data.EasterEggs) do
 				EasterEggSpawn(v.pos, v.angle, v.model)
 			end
+		end
+		if data.StartingWep != nil then
+			print("CHANGING")
+			if bnpvbWJpZXM.Config.CustomConfigStartingWeps then
+				bnpvbWJpZXM.Config.BaseStartingWeapons = data.StartingWep
+			end
+		else
+			print("NOT CHANGING")
 		end
 	else
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
@@ -254,3 +298,11 @@ hook.Add( "nzombies_elec_active", "activate_all_elec", function()
 	net.Start( "bnpvbWJpZXM_Elec_Sync" )
 	net.Broadcast()
 end )
+
+hook.Add("ScaleNPCDamage","nz_npc_hurt", function( npc, hitgroup, dmginfo )
+	OnEnemyHurt( npc, dmginfo:GetAttacker())
+end)
+
+hook.Add("OnNPCKilled","nz_npc_kill", function( npc, attacker, inflictor )
+	OnEnemyKilled( npc, attacker)
+end)

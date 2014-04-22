@@ -40,6 +40,24 @@ function ENT:TimedEvent(time, callback)
 	end)
 end
 
+function ENT:GetPriorityEnemy()
+	local pos = self:GetPos()
+	
+	local min_dist, closest_target = -1, nil
+	
+	for _, target in pairs(player.GetAll()) do
+		if (IsValid(target)&&target:Alive()&&target:GetMoveType()==MOVETYPE_WALK) then
+			local dist = target:NearestPoint(pos):Distance(pos)
+			if ((dist < min_dist||min_dist==-1)) then
+				closest_target = target
+				min_dist = dist
+			end
+		end
+	end
+	
+	return closest_target
+end
+
 function ENT:RunBehaviour()
 	while (true) do
 		local target = self.target
@@ -156,31 +174,24 @@ function ENT:RunBehaviour()
 					self:PlaySequenceAndWait("photo_react_startle")
 				end
 			end
-
+			//New AI Stuffz
 			if (!self.target) then
-				//AI fix, thanks to MadKiller
-				local bool = false
-				for k,v in pairs(player.GetAll()) do
-					if (v:Alive()) then
-						bool = true
-					end
-				end
-				
-				while(bool) do
-					local v = table.Random(player.GetAll())
-					if ( v:Alive() ) then--and self:GetRangeTo(v) <= 1400
-						self:AlertNearby(v)
-						self.target = v
-						self:PlaySequenceAndWait("wave_smg1", 0.9)
-						break
-					end
-				end
-				
+				local v = self:GetPriorityEnemy()
+				self.target = v
+				self:AlertNearby(v)
+				self.target = v
+				self:PlaySequenceAndWait("wave_smg1", 0.9)
 			end
 		end
 
 		coroutine.yield()
 	end
+end
+
+function ENT:Think()
+	//Retarget closest players. Don't put this in the function above or else mass lag due to constant rethinking of target
+	self.target = self:GetPriorityEnemy()
+	self:NextThink(4)
 end
 
 function ENT:AlertNearby(target, range, noNoise)
