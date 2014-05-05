@@ -1,5 +1,6 @@
 //    nZombies - Zombie Survival Garry's Mod 13 Gamemode
 //    Copyright (C) 2014  Ali Aslam (Alig96)
+//    Contact Information: aliaslam191919@gmail.com
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
