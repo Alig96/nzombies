@@ -20,13 +20,8 @@ end
 
 if CLIENT then
 	function ENT:Draw()
-		if ROUND_STATE == ROUND_CREATE then
+		if nz.Rounds.CurrentState == ROUND_CREATE then
 			self:DrawModel()
 		end
 	end
-	hook.Add( "PreDrawHalos", "zed_spawns_halos", function()
-		if ROUND_STATE == ROUND_CREATE then
-			halo.Add( ents.FindByClass( "zed_spawns" ), Color( 255, 0, 0 ), 0, 0, 0.1, 0, 1 )
-		end
-	end )
 end

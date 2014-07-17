@@ -15,7 +15,7 @@ function ENT:Initialize()
 		self:SetSolid( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetUseType( ONOFF_USE )
-		self.On = false
+		//self.On = false
 	else
 		self.PosePosition = 0
 	end
@@ -24,10 +24,9 @@ end
 function ENT:Use( activator )
 
 	if ( !activator:IsPlayer() ) then return end
-	if !self.On and (conv.GetRoundState() == ROUND_PREP or conv.GetRoundState() == ROUND_PROG) then
-		self.On = true
-		PrintMessage( HUD_PRINTTALK, "[NZ] Electricity is now on!" )
-		hook.Call( "nzombies_elec_active" )
+	if !nz.Rounds.Elec and (nz.Rounds.CurrentState == ROUND_PREP or nz.Rounds.CurrentState == ROUND_PROG) then
+		//self.On = true
+		hook.Call( "nz_elec_active" )
 	end
 
 end
@@ -35,29 +34,25 @@ end
 		if SERVER then
 			--print(self.On)
 		else
-			self:UpdateLever()
+			//self:UpdateLever()
 		end
 	end
 if CLIENT then
 
-	function ENT:UpdateLever()
+	-- function ENT:UpdateLever()
 
-		local TargetPos = 0.0;
+		-- local TargetPos = 0.0;
 		
-		if ( self.On ) then TargetPos = 1.0; end
+		-- if ( self.On ) then TargetPos = 1.0; end
 		
-		self.PosePosition = math.Approach( self.PosePosition, TargetPos, FrameTime() * 5.0 )	
+		-- self.PosePosition = math.Approach( self.PosePosition, TargetPos, FrameTime() * 5.0 )	
 		
-		self:SetPoseParameter( "switch", self.PosePosition )
-		self:InvalidateBoneCache()
+		-- self:SetPoseParameter( "switch", self.PosePosition )
+		-- self:InvalidateBoneCache()
 
-	end
+	-- end
 	
 	function ENT:Draw()
 		self:DrawModel()
 	end
-	
-	hook.Add( "PreDrawHalos", "button_elec_halos", function()
-		halo.Add( ents.FindByClass( "button_elec" ), Color( 255, 0, 255 ), 0, 0, 0.1 )
-	end )
 end

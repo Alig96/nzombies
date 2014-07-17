@@ -66,6 +66,7 @@ function SWEP:Initialize()
 		Automatic = false,
 		Ammo = "none"
 	}
+	self.ReloadingTime = CurTime()
 	
 end
 
@@ -135,28 +136,12 @@ function SWEP:Reload()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "zed_spawns" and SERVER then
+		if self.ReloadingTime and CurTime() <= self.ReloadingTime then return end
 		//search for the entity spawn
-		net.Start( "tool_zombies_net" )
-			net.WriteEntity(trace.Entity)
-		net.Send(self.Owner)
+		nz.Interface.ReqZombieLink( self.Owner , trace.Entity )
+		self.ReloadingTime = CurTime() + 2
 	end
 end
-
-
-net.Receive( "tool_zombies_net", function( len )
-	local ent = net.ReadEntity()
-	if derm == nil or !derm:IsValid() then 
-		derm = Derma_StringRequest("Entity", "What link should be applied to this zombie spawn?", ent.Link, function(text)
-			if text != nil then
-				net.Start( "tool_zombies_net" )
-					net.WriteEntity( ent )
-					net.WriteString( text )
-				net.SendToServer()
-			end
-		end)
-	end
-end )
-
 
 --[[---------------------------------------------------------
 	SecondaryAttack - Reset everything to how it was
@@ -171,13 +156,6 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "zed_spawns" and SERVER then
-		//search for the entity spawn
-		for k,v in pairs(bnpvbWJpZXM.Rounds.ZedSpawns) do
-			if v[2] == trace.Entity then
-				table.remove(bnpvbWJpZXM.Rounds.ZedSpawns, k)
-				break
-			end
-		end
 		trace.Entity:Remove()
 	end
 end

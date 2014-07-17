@@ -41,6 +41,7 @@ SWEP.CanHolster			= true
 SWEP.CanDeploy			= true
 
 SWEP.SwitchModel = PerksColas[SWEP.PerkID].Model
+SWEP.ReloadingTime = CurTime()
 
 --[[---------------------------------------------------------
 	Initialize
@@ -142,47 +143,15 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "perk_machine" and SERVER then
-		//search for the entity spawn
-		for k,v in pairs(bnpvbWJpZXM.Rounds.PerkMachines) do
-			if v[4] == trace.Entity then
-				table.remove(bnpvbWJpZXM.Rounds.PerkMachines, k)
-				break
-			end
-		end
 		trace.Entity:Remove()
 	end
 end
 
 function SWEP:Reload()
-	if CLIENT then
-		if derm == nil or !derm:IsValid() then 
-			local w,h = 110,55
-			local x,y = ScrW()/2 - w/2, ScrH()/2 - h/2
-			derm = vgui.Create( "DFrame" ) -- Creates the frame itself
-			derm:SetPos( x,y ) -- Position on the players screen
-			derm:SetSize( w,h ) -- Size of the frame
-			derm:SetTitle( "" ) -- Title of the frame
-			derm:SetVisible( true )
-			derm:SetDraggable( false ) -- Draggable by mouse?
-			derm:ShowCloseButton( true ) -- Show the close button?
-			derm:MakePopup() -- Show the frame
-			
-			local choices = vgui.Create( "DComboBox", derm )
-			choices:SetPos( 5, 30 )
-			choices:SetSize( 100, 20 )
-			for k,v in pairs(PerksColas) do
-				choices:AddChoice( v.ID )
-			end
-			choices.OnSelect = function( panel, index, value, data )
-				self.SwitchModel = PerksColas[value].Model
-				self:ReleaseGhostEntity()
-				net.Start( "tool_perk_net" )
-					net.WriteString( value )
-				net.SendToServer()
-				derm:Close()
-			end
-		end
-
+	if SERVER then
+		if self.ReloadingTime and CurTime() <= self.ReloadingTime then return end
+		nz.Interface.ReqPerks( self.Owner )
+		self.ReloadingTime = CurTime() + 2
 	end
 end
 

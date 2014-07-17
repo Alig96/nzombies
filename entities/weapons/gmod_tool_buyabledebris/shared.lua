@@ -19,7 +19,6 @@ util.PrecacheModel( SWEP.WorldModel )
 SWEP.ShootSound			= Sound( "Airboat.FireGunRevDown" )
 
 SWEP.Tool				= {}
-SWEP.Rot = 0
 
 SWEP.Primary = 
 {
@@ -123,15 +122,9 @@ function SWEP:PrimaryAttack()
 		tr.endpos = pos+(ang*200)
 		local trace	= util.TraceLine( tr )
 		
-		if self.Rot then
-			i = 0
-		else
-			i = 1
-		end
-		
 		local vec = trace.HitPos + trace.HitNormal * 8
-		self.Owner:PrintMessage(HUD_PRINTTALK, "You must save & reload the map config before applying a door tool flag to this entity. Otherwise the flag will be lost. It is recommended to place all the debris first, save, then reload and apply the door flags.")
-		BuyableBlockSpawn(vec, trace.HitNormal:Angle() - Angle( 90, 90*i, 0 ), self.BlockModel)
+		
+		BuyableBlockSpawn(vec, trace.HitNormal:Angle() - Angle( 90, 90, 0 ), self.BlockModel)
 		self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	end
@@ -151,10 +144,8 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "wall_block_buy" and SERVER then
-		if table.HasValue(bnpvbWJpZXM.Rounds.BuyableBlocks, trace.Entity) then
-			table.remove(bnpvbWJpZXM.Rounds.BuyableBlocks, table.KeyFromValue(bnpvbWJpZXM.Rounds.BuyableBlocks, trace.Entity))
-			trace.Entity:Remove()
-		end
+		nz.Doors.Functions.RemoveLinkSpec( trace.Entity )
+		trace.Entity:Remove()
 	end
 end
 
@@ -260,17 +251,9 @@ function SWEP:UpdateGhostEntity( ent, player )
 	local vec = trace.HitPos + trace.HitNormal * 8
 	
 	ent:SetPos( vec )
-	if self.Rot then
-		i = 0
-	else
-		i = 1
-	end
-	ent:SetAngles( trace.HitNormal:Angle() - Angle( 90, 90*i, 0 )  )
+
+	ent:SetAngles( trace.HitNormal:Angle() - Angle( 90, 90, 0 )  )
 
 	ent:SetNoDraw( false )
 
-end
-
-function SWEP:Reload()
-	self.Rot = !self.Rot
 end

@@ -146,13 +146,6 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "random_box_spawns" and SERVER then
-		//search for the entity spawn
-		for k,v in pairs(bnpvbWJpZXM.Rounds.RandomBoxSpawns) do
-			if v[3] == trace.Entity then
-				table.remove(bnpvbWJpZXM.Rounds.RandomBoxSpawns, k)
-				break
-			end
-		end
 		trace.Entity:Remove()
 	end
 end

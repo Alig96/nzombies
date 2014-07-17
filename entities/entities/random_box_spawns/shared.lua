@@ -20,7 +20,7 @@ end
 
 if CLIENT then
 	function ENT:Draw()
-		if ROUND_STATE == ROUND_CREATE then
+		if nz.Rounds.CurrentState == ROUND_CREATE then
 			self:DrawModel()
 		end
 	end

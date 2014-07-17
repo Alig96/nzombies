@@ -24,11 +24,11 @@ function ENT:Initialize()
 end
 	 
 function ENT:Use( activator, caller )
-	if !self.Used and (conv.GetRoundState() == ROUND_PROG or conv.GetRoundState() == ROUND_PREP) then
+	if !self.Used and (nz.Rounds.CurrentState == ROUND_PROG or nz.Rounds.CurrentState == ROUND_PREP) then
 		self.Used = true
 		self:EmitSound("WeaponDissolve.Dissolve", 100, 100)
-		bnpvbWJpZXM.Rounds.EggCount = bnpvbWJpZXM.Rounds.EggCount + 1
-		if bnpvbWJpZXM.Rounds.EggCount == table.Count(bnpvbWJpZXM.Rounds.EasterEggs) then
+		nz.Rounds.EggCount = nz.Rounds.EggCount + 1
+		if nz.Rounds.EggCount == #ents.FindByClass("easter_egg") then
 			hook.Call( "nzombies_ee_active" )
 		end
 	end

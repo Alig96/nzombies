@@ -13,6 +13,7 @@ end
 
 function ENT:Initialize()
 	self:SetModel("models/zed/malezed_0"..(math.random(2, 4) * 2)..".mdl")
+	self:SetModelScale( 1.25, 0 )
 	self.breathing = CreateSound(self, "npc/zombie_poison/pz_breathe_loop1.wav")
 	self.breathing:Play()
 	self.breathing:ChangePitch(60, 0)
@@ -30,6 +31,33 @@ function ENT:Initialize()
 			self.breathing = nil
 		end
 	end)
+	//Lets show we're special by setting ourselves on fire
+	local fire = ents.Create("env_fire")
+	if IsValid(fire) then 
+		fire:SetParent(self, 2)
+		fire:SetOwner(self)
+		fire:SetPos(self:GetPos())
+		--no glow + delete when out + start on + last forever
+		fire:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
+		fire:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
+		fire:SetKeyValue("fireattack", 0)
+		fire:SetKeyValue("health", 0)
+		fire:SetKeyValue("damagescale", "-10") -- only neg. value prevents dmg
+	   
+		fire:Spawn()
+		fire:Activate()
+	end
+end
+
+//Lets go with a bang
+function ENT:Explode()
+	local ex = ents.Create("env_explosion")
+	ex:SetPos(self:GetPos())
+	ex:SetKeyValue( "iMagnitude", "50" )
+	ex:SetOwner(self)	
+	ex:Spawn()
+	ex:Fire("Explode",0,0)
+	ex:Fire("Kill",0,0)
 end
 
 function ENT:TimedEvent(time, callback)
@@ -77,7 +105,7 @@ function ENT:RunBehaviour()
 			self.loco:FaceTowards(target:GetPos())
 
 			if (self:GetRangeTo(target) <= 42) then
-				self:EmitSound("npc/zombie_poison/pz_throw2.wav", 50, math.random(75, 125))
+				self:EmitSound("npc/zombie_poison/pz_throw2.wav", 100, math.random(75, 125))
 
 				self:TimedEvent(0.3, function()
 					self:EmitSound("npc/vort/claw_swing"..math.random(1, 2)..".wav")
@@ -85,19 +113,7 @@ function ENT:RunBehaviour()
 
 				self:TimedEvent(0.4, function()
 					if (IsValid(target) and self:GetRangeTo(target) <= 50) then
-						local damageInfo = DamageInfo()
-							damageInfo:SetAttacker(self)
-							damageInfo:SetDamage(math.random(5, 10))
-							damageInfo:SetDamageType(DMG_CLUB)
-
-							local force = target:GetAimVector() * -300
-							force.z = 16
-
-							damageInfo:SetDamageForce(force)
-						target:TakeDamageInfo(damageInfo)
-						target:EmitSound("npc/zombie/zombie_hit.wav", 50, math.random(80, 160))
-						target:ViewPunch(VectorRand():Angle() * 0.1)
-						target:SetVelocity(force)
+						self:Explode()
 					end
 				end)
 
@@ -120,7 +136,7 @@ function ENT:RunBehaviour()
 				end
 
 				if (math.random(1, 2) == 2 and (self.nextYell or 0) < CurTime()) then
-					self:EmitSound("npc/zombie_poison/pz_pain"..math.random(1, 3)..".wav", 40, math.random(30, 50))
+					self:EmitSound("npc/zombie_poison/pz_pain"..math.random(1, 3)..".wav", 80, math.random(30, 50))
 					self.nextYell = CurTime() + math.random(4, 8)
 				end
 
@@ -139,7 +155,7 @@ function ENT:RunBehaviour()
 			})
 
 			if (math.random(1, 8) == 2) then
-				self:EmitSound("npc/zombie/zombie_voice_idle"..math.random(2, 7)..".wav", 50, 60)
+				self:EmitSound("npc/zombie/zombie_voice_idle"..math.random(2, 7)..".wav", 100, 60)
 
 				if (math.random(1, 2) == 2) then
 					self:PlaySequenceAndWait("scaredidle")
@@ -182,7 +198,7 @@ function ENT:AlertNearby(target, range, noNoise)
 				end
 
 				v.target = target
-				v:EmitSound("npc/zombie/zombie_alert"..math.random(1, 3)..".wav", 50, math.random(60, 120))
+				v:EmitSound("npc/zombie/zombie_alert"..math.random(1, 3)..".wav", 100, math.random(60, 120))
 				v:AlertNearby(target, range + 640)
 			end)
 
@@ -191,7 +207,7 @@ function ENT:AlertNearby(target, range, noNoise)
 	end
 
 	if (!noNoise) then
-		self:EmitSound("npc/zombie_poison/pz_call1.wav", 50, 120)
+		self:EmitSound("npc/zombie_poison/pz_call1.wav", 100, 120)
 	end
 end
 
@@ -207,6 +223,7 @@ local deathSounds = {
 }
 
 function ENT:OnKilled(damageInfo)
+	self:Explode()
 	local attacker = damageInfo:GetAttacker()
 
 	if (IsValid(attacker) and self:GetRangeTo(attacker) <= 4800) then
@@ -223,7 +240,7 @@ function ENT:OnKilled(damageInfo)
 		end
 	end
 	
-	self:EmitSound(table.Random(deathSounds), 50, math.random(75, 130))
+	self:EmitSound(table.Random(deathSounds), 100, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
 	
 	OnEnemyKilled( self, attacker)
@@ -251,7 +268,7 @@ function ENT:OnInjured(damageInfo)
 		self:TakePhysicsDamage( headshot )
 		print("Headshot! ", damageInfo:GetDamage( ))
 	end
-	self:EmitSound(table.Random(painSounds), 50, math.random(50, 130))
+	self:EmitSound(table.Random(painSounds), 100, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
 	

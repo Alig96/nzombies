@@ -119,31 +119,8 @@ function SWEP:PrimaryAttack()
 	if (!trace.Hit) then return end
 
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
-	if CLIENT then
-		if trace.HitWorld then
-			if derm == nil or !derm:IsValid() then 
-				derm = Derma_StringRequest("Entity", "What weapon entity would you like to place here?", "weapon_sim_colt1911", function(text) Derma_StringRequest("Price", "How many points should it cost?", "500", 
-					function(text2) 
-						if text != nil or text2 != nil then
-							local validvalues = weapons.GetList()
-							PrintTable(validvalues)
-							for k,v in pairs( validvalues ) do
-								if v.ClassName == text then
-									net.Start( "tool_wepbuy_net" )
-										net.WriteVector( trace.HitPos + trace.HitNormal * 8 )
-										net.WriteString( text )
-										net.WriteString( text2 )
-										net.WriteAngle( self.Owner:GetForward():Angle()+Angle(0,180,0) )
-									net.SendToServer()
-									return
-								end
-							end
-							LocalPlayer():PrintMessage(HUD_PRINTTALK, "Invalid gun")
-						end
-					end)
-			   end)
-		   end
-		end
+	if SERVER then
+		nz.Interface.ReqWepBuy( self.Owner, trace.HitPos, Angle(0,0,0)	)
 	end
 end
 

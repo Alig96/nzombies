@@ -141,10 +141,7 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if trace.Entity:GetClass() == "easter_egg" and SERVER then
-		if table.HasValue(bnpvbWJpZXM.Rounds.EasterEggs, trace.Entity) then
-			table.remove(bnpvbWJpZXM.Rounds.EasterEggs, table.KeyFromValue(bnpvbWJpZXM.Rounds.EasterEggs, trace.Entity))
-			trace.Entity:Remove()
-		end
+		trace.Entity:Remove()
 	end
 end
 

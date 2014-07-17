@@ -122,19 +122,11 @@ function SWEP:PrimaryAttack()
 	
 	
 	if trace.Entity:IsDoor() then
-		if CLIENT then
-			if derm == nil or !derm:IsValid() then 
-				derm = Derma_StringRequest("Entity", "What flags should be applied to this door?", "price=100,elec=0", function(text)
-					if text != nil then
-						net.Start( "tool_door_net" )
-							net.WriteString( trace.Entity:DoorIndex() )
-							net.WriteString( text )
-						net.SendToServer()
-					end
-				end)
-			end
+		if SERVER then
+			nz.Interface.ReqDoors( self.Owner, trace.Entity )
 		end
 	end
+	
 end
 
 --[[---------------------------------------------------------
@@ -150,20 +142,11 @@ function SWEP:SecondaryAttack()
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 	if trace.Entity:IsDoor() then
 		if SERVER then
-			//search for the entity spawn
-			print(trace.Entity:DoorIndex())
-			bnpvbWJpZXM.Rounds.Doors[tonumber(trace.Entity:DoorIndex())] = nil
-			bnpvbWJpZXM.Rounds.Functions.SyncClients()
+			if trace.Entity:GetClass() == "wall_block_buy" then
+				nz.Doors.Functions.RemoveLinkSpec( trace.Entity )
+			else
+				nz.Doors.Functions.RemoveLink( trace.Entity:doorIndex() )
+			end
 		end
 	end
 end
-
-hook.Add( "PreDrawHalos", "door_spawns_halos", function()
-	local doors = {}
-	for k,v in pairs(EditedDoors) do
-		table.insert(doors, ents.GetByIndex(k + game.MaxPlayers()))
-	end
-	if ROUND_STATE == ROUND_CREATE then
-		halo.Add( doors, Color( 0, 0, 255 ), 0, 0, 0.1, 0, 1 )
-	end
-end )

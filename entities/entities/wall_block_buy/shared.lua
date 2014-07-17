@@ -46,17 +46,12 @@ end
 
 if CLIENT then
 	function ENT:Draw()
-		if ROUND_STATE == ROUND_CREATE then 
+		if nz.Rounds.CurrentState == ROUND_CREATE then 
 			self:DrawModel()
-		elseif (ROUND_STATE == ROUND_PROG or ROUND_STATE == ROUND_PREP) then
+		elseif (nz.Rounds.CurrentState == ROUND_PROG or nz.Rounds.CurrentState == ROUND_PREP) then
 			if self:GetLocked() then
 				self:DrawModel()
 			end
 		end
 	end
-	hook.Add( "PreDrawHalos", "wall_block_buy_halos", function()
-		if ROUND_STATE == ROUND_CREATE then
-			halo.Add( ents.FindByClass( "wall_block_buy" ), Color( 255, 230, 255 ), 0, 0, 0.1 )
-		end
-	end )
 end
