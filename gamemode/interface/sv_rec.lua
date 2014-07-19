@@ -63,6 +63,23 @@ net.Receive( "nz_int_mapconfig", function( len )
 	nz.Mapping.Functions.LoadConfig( Sep[1] )
 end )
 
+util.AddNetworkString( "nz_int_mapconfigold" )
+
+//Server to client
+function nz.Interface.ReqMapConfig( ply )
+	local files = file.Find( "nz/nz_"..game.GetMap( ).."*", "DATA" )
+	net.Start( "nz_int_mapconfigold" )
+		net.WriteTable(files)
+	net.Send( ply )
+end
+
+//Client to Server
+net.Receive( "nz_int_mapconfigold", function( len )
+	local selected = net.ReadString()
+	local Sep = string.Explode(".", selected)
+	nz.Mapping.Functions.LoadConfigOld( Sep[1] )
+end )
+
 // END Load Map Interface //
 
 //Zombie Tool
