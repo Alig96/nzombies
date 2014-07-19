@@ -1,9 +1,8 @@
 //HUD
+//HUDDrawTargetID is only for looking at players/bots(read http://wiki.garrysmod.com/page/GM/HUDDrawTargetID)
+hook.Add("HUDPaint", "nz_Draw_Text", function()
 
-function GM:HUDDrawTargetID()
-
-	local tr = util.GetPlayerTrace( LocalPlayer() )
-	local trace = util.TraceLine( tr )
+	local trace = LocalPlayer():GetEyeTrace()
 	if (!trace.Hit) then return end
 	if (!trace.HitNonWorld) then return end
 
@@ -65,7 +64,7 @@ function GM:HUDDrawTargetID()
 	-- The fonts internal drop shadow looks lousy with AA on
 	draw.SimpleText( text, font, x+1, y+1, Color(0,0,0,120) )
 	draw.SimpleText( text, font, x+2, y+2, Color(0,0,0,50) )
-	draw.SimpleText( text, font, x, y, self:GetTeamColor( trace.Entity ) )
+	draw.SimpleText( text, font, x, y, GAMEMODE:GetTeamColor( trace.Entity ) )
 
 	if (trace.Entity:IsPlayer()) then
 		y = y + h + 5
@@ -79,9 +78,9 @@ function GM:HUDDrawTargetID()
 
 		draw.SimpleText( text, font, x+1, y+1, Color(0,0,0,120) )
 		draw.SimpleText( text, font, x+2, y+2, Color(0,0,0,50) )
-		draw.SimpleText( text, font, x, y, self:GetTeamColor( trace.Entity ) )
+		draw.SimpleText( text, font, x, y, GAMEMODE:GetTeamColor( trace.Entity ) )
 	end
-end
+end)
 
 concommand.Add( "PrintWeapons", function(player, command, arguments )
 	for k,v in pairs( weapons.GetList() ) do 
