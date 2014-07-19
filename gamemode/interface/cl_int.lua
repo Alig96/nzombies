@@ -197,6 +197,53 @@ end
 net.Receive( "nz_int_mapconfig", function( len )
 	nz.Interface.MapConfig( net.ReadTable() )
 end )
+
+function nz.Interface.MapConfigOld( maps )
+
+	local DermaPanel = vgui.Create( "DFrame" )
+	DermaPanel:SetPos( 100, 100 )
+	DermaPanel:SetSize( 300, 180 )
+	DermaPanel:SetTitle( "Load a config" )
+	DermaPanel:SetVisible( true )
+	DermaPanel:SetDraggable( true )
+	DermaPanel:ShowCloseButton( true )
+	DermaPanel:MakePopup()
+	DermaPanel:Center()
+	
+	local DermaListView = vgui.Create("DListView")
+	DermaListView:SetParent(DermaPanel)
+	DermaListView:SetPos(10, 30)
+	DermaListView:SetSize(280, 100)
+	DermaListView:SetMultiSelect(false)
+	DermaListView:AddColumn("Name")
+	//Populate
+	for k,v in pairs(maps) do
+		DermaListView:AddLine(v)
+	end
+	
+	local DermaButton = vgui.Create( "DButton" )
+	DermaButton:SetParent( DermaPanel )
+	DermaButton:SetText( "Submit" )
+	DermaButton:SetPos( 10, 140 )
+	DermaButton:SetSize( 280, 30 )
+	DermaButton.DoClick = function()
+		if DermaListView:GetSelectedLine() != nil then
+			local str = DermaListView:GetLine(DermaListView:GetSelectedLine()):GetValue(1)
+			if str != nil then
+				net.Start( "nz_int_mapconfigold" )
+					net.WriteString(str)
+				net.SendToServer( )
+				DermaPanel:Close()
+			end
+		end
+	end
+
+	
+end
+
+net.Receive( "nz_int_mapconfigold", function( len )
+	nz.Interface.MapConfigOld( net.ReadTable() )
+end )
 //End Map Config//
 
 

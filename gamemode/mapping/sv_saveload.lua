@@ -231,3 +231,74 @@ function nz.Mapping.Functions.LoadConfig( name )
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
 	end
 end
+
+function nz.Mapping.Functions.LoadConfigOld( name )
+	local filepath = "nz/"..name..".txt"
+	if file.Exists( filepath, "DATA" ) then
+		nz.Mapping.LastSave = filepath
+		print("[NZ] MAP CONFIG FOUND!")
+		
+		nz.Mapping.Functions.ClearConfig()
+		
+		local data = util.JSONToTable( file.Read( filepath, "DATA" ) )
+		//Start sorting the data
+		for k,v in pairs(data.BuyableBlockSpawns) do
+			BuyableBlockSpawn(v.pos, v.angle, v.model, v.flags)
+		end
+		
+		for k,v in pairs(data.WallBuys) do
+			WeaponBuySpawn(v.pos,v.wep, v.price, v.angle)
+		end
+		
+		for k,v in pairs(data.ZedSpawns) do
+			if v.link == nil then
+				ZedSpawn(v.pos, "0")
+			else
+				ZedSpawn(v.pos, v.link)
+			end
+		end
+		
+		for k,v in pairs(data.PlayerSpawns) do
+			PlayerSpawn(v.pos)
+		end
+		
+		for k,v in pairs(data.DoorSetup) do
+			nz.Doors.Functions.CreateOldLink(k, v.flags)
+		end
+		
+		for k,v in pairs(data.BlockSpawns) do
+			BlockSpawn(v.pos, v.angle, v.model)
+		end
+		
+		for k,v in pairs(data.ElecSpawns) do
+			ElecSpawn(v.pos, v.angle, v.model)
+		end
+		
+		for k,v in pairs(data.RandomBoxSpawns) do
+			RandomBoxSpawn(v.pos, v.angle)
+		end
+
+		for k,v in pairs(data.PerkMachineSpawns) do
+			PerkMachineSpawn(v.pos, v.angle, PerksColas[v.id])
+		end
+		
+		for k,v in pairs(data.EasterEggs) do
+			EasterEggSpawn(v.pos, v.angle, v.model)
+		end
+		
+		if data.StartingWep != nil then
+			print("CHANGING")
+			if nz.Config.CustomConfigStartingWeps then
+				nz.Config.BaseStartingWeapons = data.StartingWep
+			end
+		else
+			print("NOT CHANGING")
+		end
+		
+		nz.Rounds.Functions.SyncClients()
+		nz.Doors.Functions.SyncClients()
+		
+	else
+		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
+	end
+end

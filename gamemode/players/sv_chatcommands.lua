@@ -73,6 +73,16 @@ NewChatCommand("/load", function(ply, text)
 	end
 end)
 
+NewChatCommand("/loadold", function(ply, text) 
+	if ply:IsSuperAdmin() then
+		if nz.Rounds.CurrentState == ROUND_CREATE or nz.Rounds.CurrentState == ROUND_INIT then 
+			nz.Interface.ReqMapConfigOld( ply )
+		else
+			ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't load while playing!" )
+		end
+	end
+end)
+
 NewChatCommand("/config", function(ply, text) 
 	if ply:IsSuperAdmin() then
 		if nz.Rounds.CurrentState == ROUND_CREATE or nz.Rounds.CurrentState == ROUND_INIT then 
