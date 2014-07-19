@@ -68,7 +68,7 @@ if SERVER then
 		if ent:IsDoor() then
 			if ent.price != nil then
 				if ply:CanAfford(ent.price) and ent.Locked == true then
-					if ent.elec == 1 and nz.Rounds.Elec then
+					if (ent.elec == 0||(ent.elec == 1 and nz.Rounds.Elec)) then
 						ply:TakePoints(ent.price)
 						//Open the door and any other door with the same link
 						ent:DoorUnlock()
