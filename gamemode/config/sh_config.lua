@@ -125,7 +125,7 @@ nz.PowerUps.Add({
 	model = "models/props_c17/gravestone003a.mdl",
 	scale = 0.5,
 	chance = 30,
-	effect = {time = 30, material = "mkservers/nz/powerups/dp.png"}
+	effect = {time = 30},
 	snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
 	func = (function(self, ply)
 	end),
