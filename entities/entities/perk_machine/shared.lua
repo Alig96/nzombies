@@ -13,16 +13,17 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Initialize()
-	self:SetModel(self.model or "models/perkacola/jug.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS);
 	self:SetMoveType(MOVETYPE_VPHYSICS);
 	self:SetSolid(SOLID_VPHYSICS);
-	self:SetUseType(SIMPLE_USE)
+	if (SERVER) then
+		self:SetUseType(SIMPLE_USE)
+	end
 	
-	phy = self:GetPhysicsObject();
-	if phy and phy:IsValid() then
-		phy:EnableGravity(false);
-		phy:EnableMotion(false);
+	local phys = self:GetPhysicsObject();
+	if phys and phys:IsValid() then
+		phys:EnableGravity(false);
+		phys:EnableMotion(false);
 	end
 	self:DrawShadow(false)
 end
