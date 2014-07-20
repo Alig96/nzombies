@@ -18,6 +18,7 @@ if SERVER then
 	end
 	
 	function playerMeta:RemovePerks()
+		if (!self:GetPerks()) then return end
 		for id, data in pairs(self:GetPerks()) do
 			self.Perks[id] = {}
 		end
