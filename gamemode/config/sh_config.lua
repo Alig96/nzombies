@@ -64,9 +64,7 @@ if SERVER then
 	"gmod_tool_elec", "gmod_tool_randomboxspawns", "gmod_tool_ee",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
 	"weapon_dod_sim_base_snip", "weapon_sim_admin",
-	"weapon_medkit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns",
-	"fas2_base", "fas2_ammobox", "weapon_base", "weapon_fists", "flechette_gun", "fas2_ifak",
-	"fas2_base_shotgun"
+	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns"
 	}
 	//The Speed curve 
 	nz.Config.BaseDifficultySpeedCurve = 60

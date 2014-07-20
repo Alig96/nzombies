@@ -15,19 +15,15 @@ function ENT:Initialize()
 	self:SetSolid( SOLID_VPHYSICS )
 	self:DrawShadow( false )
 	self.Uses = 0
-	
 	if SERVER then
 		self:SetUseType( SIMPLE_USE )
 	end
 end
 
 function ENT:Use( activator, caller )
-	//Work ateleast once before moving
-	if self.Uses > 0 then	
-		//Ensure there is actually another place to move to
-		if math.random(self.Uses, 10) == 10 and #ents.FindByClass( "random_box_spawns" ) > 1 then
-			self:MoveAway()
-		end
+
+	if math.random(self.Uses, 10) == 10 then
+		self:MoveAway()
 	end
 	
 	if !self.Moveing then
@@ -36,11 +32,10 @@ function ENT:Use( activator, caller )
 				activator:TakePoints(950)
 				local gun = ents.Create( "random_box_gunwindup" )
 				gun:SetPos( self:GetPos() + Vector(0,0,30) )
-				gun:SetAngles( self:GetAngles() + Angle(0,90,0) )
+				gun:SetAngles( Angle(0,0,0) )
 				gun:Spawn()
 				gun:SetSolid( SOLID_VPHYSICS )
 				gun:SetMoveType( MOVETYPE_NONE )
-				gun.Buyer = activator
 				
 				self.Uses = self.Uses + 1
 			end
@@ -53,13 +48,9 @@ function ENT:MoveAway( )
 	local c = 0
 	timer.Create( "moveAway", 0.1, 300, function()
 		if c == 30 then
-			local all = ents.FindByClass("random_box_spawns")
-			//Remove the old spot
-			table.RemoveByValue( all, self.BoxEnt )
-			local rand = table.Random(all)
+			local rand = table.Random(ents.FindByClass("random_box_spawns"))
 			self:SetPos( rand:GetPos() )
 			self:SetAngles( rand:GetAngles() )
-			self.BoxEnt = rand
 			self.Uses = 0
 			self.Moveing = false
 			timer.Destroy("moveAway")

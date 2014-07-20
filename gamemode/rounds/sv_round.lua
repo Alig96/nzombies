@@ -212,12 +212,6 @@ function nz.Rounds.Functions.ResetGame()
 		v.Used = false
 	end
 	nz.Rounds.EggCount = 0 
-	//Remove the random box
-	if #ents.FindByClass("random_box") > 0 then
-		for k,v in pairs(ents.FindByClass("random_box")) do
-			v:Remove()
-		end
-	end
 end
 
 function nz.Rounds.Functions.EndRound()
@@ -277,7 +271,7 @@ function nz.Rounds.Functions.SetupGame()
 		box:Spawn()
 		box:SetSolid( SOLID_VPHYSICS )
 		box:SetMoveType( MOVETYPE_NONE )
-		box.BoxEnt = rand 
+		
 	end
 	
 
