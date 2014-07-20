@@ -57,7 +57,7 @@ nz.Perks.Add({
 nz.Perks.Add({
 	id = "pap",
 	name = "Pack A Punch",
-	model = "models/perkacola/pap.mdl",
+	model = "models/perkacola/packapunch.mdl",
 	scale = 1,
 	price = 2000,
 	snd = {"nz_juggernog", 1},
