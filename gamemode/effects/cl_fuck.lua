@@ -1,4 +1,5 @@
 // RAWR!
+nz.Rounds.Effects = nz.Rounds.Effects or {}
 net.Receive("nz_Effects_Sound", function()
 	nz.Rounds.Effects.Sound(net.ReadString())
 end)
