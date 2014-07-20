@@ -26,13 +26,13 @@ end
 util.AddNetworkString("nz_PowerUps_Sync")
 util.AddNetworkString("nz_PowerUps_Sound")
 function nz.PowerUps.Set(id, bool, time, name, material)
-	local data = nz.PowerUps.Get(id) or {}
+	local data = nz.PowerUps.GetBuffer(id) or {}
 	data.id = id
 	data.bool = bool
 	data.time = time or data.time or -1
 	data.name = name or data.name or "*UNKNOWN*"
-	data.material = material or data.material or ""
-	nz.PowerUps.buffer[id] = data
+	data.material = material or data.material or false
+	nz.PowerUps.data[id] = data
 	net.Start("nz_PowerUps_Sync")
 		net.WriteString(name)
 		net.WriteTable(data)
