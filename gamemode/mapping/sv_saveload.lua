@@ -71,9 +71,9 @@ function nz.Mapping.Functions.SaveConfig()
 	local perk_machinespawns = {}
 	for k,v in pairs(ents.FindByClass("perk_machine")) do
 		table.insert(perk_machinespawns, {
-		pos = v:GetPos(),
-		angle = v:GetAngles( ),
-		id = v:GetPerkID(),
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+			id = v:GetPerkID(),
 		})
 	end
 	
@@ -208,7 +208,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 		end
 
 		for k,v in pairs(data.PerkMachineSpawns) do
-			PerkMachineSpawn(v.pos, v.angle, PerksColas[v.id])
+			PerkMachineSpawn(v.pos, v.angle, v.id)
 		end
 		
 		for k,v in pairs(data.EasterEggs) do
@@ -228,6 +228,13 @@ function nz.Mapping.Functions.LoadConfig( name )
 		nz.Doors.Functions.SyncClients()
 		
 	else
+		print(filepath)
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
 	end
 end
+
+hook.Add("Initialize", "nz_Loadmaps", function()
+	timer.Simple(5, function()
+		nz.Mapping.Functions.LoadConfig("nz_"..game.GetMap())
+	end)
+end)
