@@ -125,10 +125,10 @@ nz.PowerUps.Add({
 	model = "models/props_c17/gravestone003a.mdl",
 	scale = 0.5,
 	chance = 30,
-	effect = {time = 30, material = "mkservers/nz/powerups/dp.png"}
+	effect = {time = 30},
 	snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
-	func = function(self, ply)
-	end,
+	func = (function(self, ply)
+	end),
 })
 nz.PowerUps.Add({
 	id = "maxammo",
@@ -137,13 +137,13 @@ nz.PowerUps.Add({
 	scale = 1.5,
 	chance = 30,
 	snd = {"mkservers/nz/powerups/maxammo.mp3", 0.5},
-	func = function(self, ply)
+	func = (function(self, ply)
 		for k,v in pairs(player.GetAll()) do
 			for k2,v2 in pairs(v:GetWeapons()) do
 				v:GiveAmmo(nz.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
 			end
 		end
-	end,
+	end),
 })
 
 //Perks
@@ -155,10 +155,10 @@ nz.Perks.Add({
 	scale = 1,
 	price = 2000,
 	snd = {"nz_juggernog", 1},
-	func = function(self, ply)
+	func = (function(self, ply)
 		ply:SetHealth(200)
 		return false
-	end,
+	end),
 })
 nz.Perks.Add({
 	id = "dtap",
@@ -168,9 +168,9 @@ nz.Perks.Add({
 	scale = 1,
 	price = 1500,
 	snd = {"nz_juggernog", 1},
-	func = function(self, ply)
+	func = (function(self, ply)
 		return false
-	end,
+	end),
 })
 nz.Perks.Add({
 	id = "speedcola",
@@ -191,9 +191,9 @@ nz.Perks.Add({
 	scale = 1,
 	price = 2000,
 	snd = {"nz_juggernog", 1},
-	func = function(self, ply)
+	func = (function(self, ply)
 		return false
-	end,
+	end),
 })
 nz.Perks.Add({
 	id = "revive",
@@ -203,9 +203,9 @@ nz.Perks.Add({
 	scale = 1,
 	price = 2000,
 	snd = {"nz_juggernog", 1},
-	func = function(self, ply)
+	func = (function(self, ply)
 		return false
-	end,
+	end),
 })
 
 hook.Add("EntityFireBullets", "nzombies_pap_firebullets", function( ent, data )
@@ -217,7 +217,3 @@ hook.Add("EntityFireBullets", "nzombies_pap_firebullets", function( ent, data )
 		end
 	end
 end)
-
-if CLIENT then
-
-end
