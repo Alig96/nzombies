@@ -17,7 +17,9 @@ function ENT:Initialize()
 	self:PhysicsInit(SOLID_VPHYSICS);
 	self:SetMoveType(MOVETYPE_VPHYSICS);
 	self:SetSolid(SOLID_VPHYSICS);
-	self:SetUseType(SIMPLE_USE)
+	if (SERVER) then
+		self:SetUseType(SIMPLE_USE)
+	end
 	
 	phy = self:GetPhysicsObject();
 	if phy and phy:IsValid() then
