@@ -19,7 +19,7 @@ function GM:HUDDrawTargetID()
 			text = "You must turn the electricity on first!"
 		else
 			local id = trace.Entity:GetPerkID()
-			text = "Press E to buy "..PerksColas[id].Name.." for "..PerksColas[id].Price.." points."
+			text = "Press E to buy "..nz.Perks.Get(id).name.." for "..nz.Perks.Get(id).price.." points."
 		end
 	elseif (trace.Entity:IsDoor() and nz.Rounds.CurrentState != ROUND_INIT) then
 		//Normal Doors
