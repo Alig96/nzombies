@@ -90,7 +90,7 @@ end
 function PerkMachineSpawn(position, angle, id)
 	local perk = ents.Create("perk_machine")
 	perk:SetPerkID(id)
-	perk:SetModel(nz.Perk.Get(id).model)
+	perk:SetModel(nz.Perks.Get(id).model)
 	perk:SetPos(position)
 	perk:SetAngles(angle)
 	perk:Spawn()
