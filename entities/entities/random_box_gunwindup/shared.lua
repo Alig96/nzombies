@@ -13,7 +13,7 @@ function ENT:Initialize()
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_NONE )
 	if SERVER then
-		self:SetModel(GenList()[1].WorldModel)
+		self:SetModel(self:GenList()[1].WorldModel)
 	end
 	self:DrawShadow( false )
 	self.Winding = true
@@ -33,10 +33,16 @@ function ENT:Use( activator, caller )
 	end
 end
 
-function GenList( )
+function ENT:GenList( )
 	local guns = {}
+	local blacklist = nz.Config.WeaponBlackList
+	if IsValid(self.Buyer) then
+		for k,v in pairs( self.Buyer:GetWeapons() ) do 
+			table.insert(blacklist, v.ClassName)
+		end
+	end
 	for k,v in pairs( weapons.GetList() ) do 
-		if !table.HasValue(nz.Config.WeaponBlackList, v.ClassName) then
+		if !table.HasValue(blacklist, v.ClassName) then
 			table.insert(guns, v)
 		end
 	end 
@@ -44,7 +50,7 @@ function GenList( )
 end
 
 function ENT:WindUp( )
-	local gun = table.Random(GenList())
+	local gun = table.Random(self:GenList())
 	if gun.WorldModel != nil then
 		self.Gun = gun
 	end
