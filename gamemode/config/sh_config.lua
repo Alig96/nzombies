@@ -64,7 +64,9 @@ if SERVER then
 	"gmod_tool_elec", "gmod_tool_randomboxspawns", "gmod_tool_ee",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot",
 	"weapon_dod_sim_base_snip", "weapon_sim_admin",
-	"medikit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns"
+	"weapon_medkit", "weapon_sim_spade", "gmod_tool_buyabledebris", "gmod_tool_perkmachinespawns",
+	"fas2_base", "fas2_ammobox", "weapon_base", "weapon_fists", "flechette_gun", "fas2_ifak",
+	"fas2_base_shotgun"
 	}
 	//The Speed curve 
 	nz.Config.BaseDifficultySpeedCurve = 60
@@ -117,82 +119,94 @@ end
 //Shared
 
 //Power Ups
-validPowerups = {}
-
-validPowerups["dp"] = {"models/props_c17/gravestone003a.mdl", 0.5, function(self)
-	if (!self.Used) then
-		self.Used = true
-		nz.Rounds.Effects["dp"] = true
-		PrintMessage( HUD_PRINTTALK, "Double Points!" )
-		if (timer.Exists("dp")) then // Restart countdown with new drop like COD functionality
-			timer.Destroy("dp")
-		end
-		timer.Create("dp", 30, 1, function() 
-			nz.Rounds.Effects["dp"] = false 		
-			PrintMessage( HUD_PRINTTALK, "Double Points has ended!" )
-		end)
-	end
-	timer.Destroy(self:EntIndex().."_deathtimer")
-	self:Remove()
-end}
-
-validPowerups["ammobuff"] = {"models/Items/BoxSRounds.mdl", 0.7, function(self)
-	if (!self.Used) then
-		self.Used = true
+nz.PowerUps.Add({
+	id = "dp",
+	name = "Double Points",
+	model = "models/props_c17/gravestone003a.mdl",
+	scale = 0.5,
+	chance = 30,
+	effect = {time = 30, material = "mkservers/nz/powerups/dp.png"}
+	snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
+	func = function(self, ply)
+	end,
+})
+nz.PowerUps.Add({
+	id = "maxammo",
+	name = "Max Ammo",
+	model = "models/Items/BoxSRounds.mdl",
+	scale = 1.5,
+	chance = 30,
+	snd = {"mkservers/nz/powerups/maxammo.mp3", 0.5},
+	func = function(self, ply)
 		for k,v in pairs(player.GetAll()) do
 			for k2,v2 in pairs(v:GetWeapons()) do
-				v:GiveAmmo( nz.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
+				v:GiveAmmo(nz.Config.BaseStartingAmmoAmount, v2.Primary.Ammo)
 			end
 		end
-		PrintMessage( HUD_PRINTTALK, "Ammo Buff!" )
-		timer.Destroy(self:EntIndex().."_deathtimer")
-		self:Remove()
-	end
-end}
-
+	end,
+})
 
 //Perks
-PerksColas = {}
-
-PerksColas["jug"] = {
-	["ID"] = "jug",
-	["Name"] = "Juggernog",
-	["Model"] = "models/perkacola/jug.mdl",
-	["Price"] = 2500,
-	["Function"] = function(ply) 
-		if ply:Health() < 200 then 
-			ply:SetHealth(200) 
-			return true 
-		else 
-			ply:PrintMessage( HUD_PRINTTALK, "[NZ] You already have 200 health!") 
-		end 
-	end
-}
-
-PerksColas["dtap"] = {
-	["ID"] = "dtap",
-	["Name"] = "Double Tap",
-	["Model"] = "models/perkacola/dtap.mdl",
-	["Price"] = 2000,
-	["Function"] = function(ply) 
-		ply:PrintMessage( HUD_PRINTTALK, "This perk has not been configured. Please consult the server admin.") 
-	end
-}
-
-PerksColas["pap"] = {
-	["ID"] = "pap",
-	["Name"] = "Pack-a-Punch",
-	["Model"] = "models/perkacola/packapunch.mdl",
-	["Price"] = 5000,
-	["Function"] = function(ply) 
-		local gun = ply:GetActiveWeapon()
-		if gun.PaP == nil then
-			gun.PaP = true
-			ply:PrintMessage( HUD_PRINTTALK, "This perk is a WIP. Your weapon has been given extra damage, but there are no visual effects.") 
-			return true 
-		end
-	end
-}
+nz.Perks.Add({
+	id = "jug",
+	name = "Juggernog",
+	model = "models/perkacola/jug.mdl",
+	material = "mkservers/nz/perks/juggernog.png",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		ply:SetHealth(200)
+		return false
+	end,
+})
+nz.Perks.Add({
+	id = "dtap",
+	name = "Double Tap",
+	model = "models/perkacola/dtap.mdl",
+	material = "mkservers/nz/perks/doubletap.png",
+	scale = 1,
+	price = 1500,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		return false
+	end,
+})
+nz.Perks.Add({
+	id = "speedcola",
+	name = "Speed Cola",
+	model = "models/perkacola/sleight.mdl",
+	material = "mkservers/nz/perks/speedcola.png",
+	scale = 1,
+	price = 3000,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		return false
+	end,
+})
+nz.Perks.Add({
+	id = "pap",
+	name = "Pack A Punch",
+	model = "models/perkacola/pap.mdl",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		return false
+	end,
+})
+nz.Perks.Add({
+	id = "revive",
+	name = "Quick Revive",
+	model = "models/perkacola/revive.mdl",
+	material = "mkservers/nz/perks/quickrevive.png",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		return false
+	end,
+})
 
 hook.Add("EntityFireBullets", "nzombies_pap_firebullets", function( ent, data )
 	local gun = ent:GetActiveWeapon()

@@ -38,6 +38,15 @@ function RandomBoxSpawn(position, angle)
 	gun:SetMoveType( MOVETYPE_NONE )
 end
 
+function MysteryBoxSpawn(position, angle)
+	local gun = ents.Create( "random_box" )
+	gun:SetPos( position )
+	gun:SetAngles( angle )
+	gun:Spawn()
+	gun:SetSolid( SOLID_VPHYSICS )
+	gun:SetMoveType( MOVETYPE_NONE )
+end
+
 function ElecSpawn(pos, ang)
 	//THERE CAN ONLY BE ONE TRUE HERO
 	local prevs = ents.FindByClass("button_elec")
@@ -78,14 +87,15 @@ function BuyableBlockSpawn(pos,ang,model,flagsStr)
 	timer.Simple(1, function() nz.Doors.Functions.CreateLinkSpec(block, flagsStr) end)
 end
 
-function PerkMachineSpawn(position, angle, data)
-	local perk = ents.Create( "perk_machine" )
-	perk:SetPos( position )
-	perk:SetAngles( angle )
+function PerkMachineSpawn(position, angle, id)
+	local perk = ents.Create("perk_machine")
+	perk:SetPerkID(id)
+	perk:SetModel(nz.Perk.Get(id).model)
+	perk:SetPos(position)
+	perk:SetAngles(angle)
 	perk:Spawn()
-	perk:SetSolid( SOLID_VPHYSICS )
-	perk:SetMoveType( MOVETYPE_NONE )
-	perk:SetTheMachine(data)
+	perk:SetSolid(SOLID_VPHYSICS)
+	perk:SetMoveType(MOVETYPE_NONE)
 end
 
 function EasterEggSpawn(pos,ang,model)

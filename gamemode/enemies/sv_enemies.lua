@@ -9,12 +9,12 @@ function OnEnemyKilled( enemy, attacker )
 	local function createPowerup(pos)
 		local ent1 = ents.Create("drop_powerups") 
 		local powerups = {}
-		for k,_ in pairs(validPowerups) do
+		for k,_ in pairs(nz.PowerUps.GetBufferAll()) do
 			table.insert(powerups, k)
 		end
 		local rand = table.Random(powerups) or "dp"
 		ent1.Buff = rand
-		ent1:SetModel( validPowerups[rand][1] )
+		ent1:SetModel( nz.PowerUps.GetBuffer(rand).model )
 		pos.z = pos.z - ent1:OBBMaxs().z
 		ent1:SetPos( pos )
 		ent1:Spawn()
