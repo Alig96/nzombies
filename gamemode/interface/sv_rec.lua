@@ -130,7 +130,7 @@ net.Receive( "nz_int_perks", function( len, client )
 	local id = net.ReadString()
 	local gun = client:GetWeapon("gmod_tool_perkmachinespawns")
 	gun.PerkID = id
-	gun.SwitchModel = PerksColas[id].Model
+	gun.SwitchModel = nz.Perks.Get(id).model
 	gun:ReleaseGhostEntity()
 end )
 
