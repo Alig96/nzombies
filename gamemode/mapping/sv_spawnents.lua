@@ -88,9 +88,16 @@ function BuyableBlockSpawn(pos,ang,model,flagsStr)
 end
 
 function PerkMachineSpawn(position, angle, id)
+	local perkData = nz.Perks.Get(id)
+	if (!perkData.model) then
+		print("No perk model set!")
+		return
+	end
+	print(perkData.model)
 	local perk = ents.Create("perk_machine")
+	perk.model = perkData.model
 	perk:SetPerkID(id)
-	perk:SetModel(nz.Perks.Get(id).model)
+	perk:SetModel(perkData.model)
 	perk:SetPos(position)
 	perk:SetAngles(angle)
 	perk:Spawn()
