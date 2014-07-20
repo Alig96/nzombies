@@ -40,7 +40,7 @@ SWEP.Secondary =
 SWEP.CanHolster			= true
 SWEP.CanDeploy			= true
 
-SWEP.SwitchModel = PerksColas[SWEP.PerkID].Model
+SWEP.SwitchModel = nz.Perks.Get(SWEP.PerkID).model
 SWEP.ReloadingTime = CurTime()
 
 --[[---------------------------------------------------------

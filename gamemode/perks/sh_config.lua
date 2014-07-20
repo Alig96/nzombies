@@ -1,0 +1,60 @@
+nz.Perks.Add({
+	id = "jug",
+	name = "Juggernog",
+	model = "models/perkacola/jug.mdl",
+	material = "mkservers/nz/perks/juggernog.png",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = (function(self, ply)
+		ply:SetHealth(200)
+		return false
+	end),
+})
+nz.Perks.Add({
+	id = "dtap",
+	name = "Double Tap",
+	model = "models/perkacola/dtap.mdl",
+	material = "mkservers/nz/perks/doubletap.png",
+	scale = 1,
+	price = 1500,
+	snd = {"nz_juggernog", 1},
+	func = (function(self, ply)
+		return false
+	end),
+})
+nz.Perks.Add({
+	id = "speedcola",
+	name = "Speed Cola",
+	model = "models/perkacola/sleight.mdl",
+	material = "mkservers/nz/perks/speedcola.png",
+	scale = 1,
+	price = 3000,
+	snd = {"nz_juggernog", 1},
+	func = function(self, ply)
+		return false
+	end,
+})
+nz.Perks.Add({
+	id = "pap",
+	name = "Pack A Punch",
+	model = "models/perkacola/pap.mdl",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = (function(self, ply)
+		return false
+	end),
+})
+nz.Perks.Add({
+	id = "revive",
+	name = "Quick Revive",
+	model = "models/perkacola/revive.mdl",
+	material = "mkservers/nz/perks/quickrevive.png",
+	scale = 1,
+	price = 2000,
+	snd = {"nz_juggernog", 1},
+	func = (function(self, ply)
+		return false
+	end),
+})
