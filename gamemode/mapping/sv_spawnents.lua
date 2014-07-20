@@ -94,8 +94,7 @@ function PerkMachineSpawn(position, angle, id)
 	perk:SetPos(position)
 	perk:SetAngles(angle)
 	perk:Spawn()
-	perk:SetSolid(SOLID_VPHYSICS)
-	perk:SetMoveType(MOVETYPE_NONE)
+	perk:Activate()
 end
 
 function EasterEggSpawn(pos,ang,model)
