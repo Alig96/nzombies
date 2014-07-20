@@ -13,7 +13,6 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Initialize()
-	self:SetModel(self.model or "models/perkacola/jug.mdl")
 	self:PhysicsInit(SOLID_VPHYSICS);
 	self:SetMoveType(MOVETYPE_VPHYSICS);
 	self:SetSolid(SOLID_VPHYSICS);
