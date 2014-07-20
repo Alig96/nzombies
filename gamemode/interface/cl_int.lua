@@ -343,10 +343,10 @@ function nz.Interface.Perks( )
 	end
 	choices.OnSelect = function( panel, index, value, data )
 		local gun = LocalPlayer():GetActiveWeapon( )
-		gun.SwitchModel = nz.Perks.Get(value).model
+		gun.SwitchModel = nz.Perks.Get(data).model
 		gun:ReleaseGhostEntity()
 		net.Start( "nz_int_perks" )
-			net.WriteString( value )
+			net.WriteString( data )
 		net.SendToServer()
 		DermaPanel:Close()
 	end
