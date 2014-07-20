@@ -1,3 +1,5 @@
+AddCSLuaFile()
+
 ENT.Type			= "anim"
 
 ENT.PrintName		= "perk_machine"
