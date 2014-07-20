@@ -20,7 +20,7 @@ if SERVER then
 	function playerMeta:RemovePerks()
 		if (!self:GetPerks()) then return end
 		for id, data in pairs(self:GetPerks()) do
-			self.Perks[id] = {}
+			self.Perks[id] = nil
 		end
 		net.Start("nz_Perks_Sync")
 			net.WriteTable(self.Perks)
@@ -51,8 +51,5 @@ function playerMeta:GetPerk(id)
 end
 
 function playerMeta:GetPerks(id)
-	if (self.Perks) then
-		return self.Perks
-	end
-	return false
+	return self.Perks or false
 end

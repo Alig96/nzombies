@@ -6,7 +6,7 @@ function nz.Perks.Activate(id, ent, ply)
 			if (!ply:HasPerk(id)) then
 				if (perkData.func(ent, ply)) then
 					ply:SetPerk(id, perkData.material)
-					ply:TakePoints(tonumber(self.Price))
+					ply:TakePoints(tonumber(perkData.price))
 					ply:PrintMessage(HUD_PRINTTALK, "[NZ] You have used the "..perkData.name.."!")
 				else
 					ply:PrintMessage(HUD_PRINTTALK, "[NZ] This perk does not seem currently setup, contact someone about it.")
@@ -19,7 +19,7 @@ function nz.Perks.Activate(id, ent, ply)
 			end
 		else
 			if (perkData.func(ent, ply)) then
-				ply:TakePoints(tonumber(self.Price))
+				ply:TakePoints(tonumber(perkData.price))
 				ply:PrintMessage(HUD_PRINTTALK, "[NZ] You have used the "..perkData.name.."!")
 			else
 				ply:PrintMessage(HUD_PRINTTALK, "[NZ] This perk does not seem currently setup, contact someone about it.")
