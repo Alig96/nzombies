@@ -93,14 +93,15 @@ function PerkMachineSpawn(position, angle, id)
 		print("No perk model set!")
 		return
 	end
+	print(perkData.model)
 	local perk = ents.Create("perk_machine")
+	perk.model = perkData.model
 	perk:SetPerkID(id)
 	perk:SetModel(perkData.model)
 	perk:SetPos(position)
 	perk:SetAngles(angle)
 	perk:Spawn()
 	perk:Activate()
-	perk:SetModel(perkData.model)
 end
 
 function EasterEggSpawn(pos,ang,model)
