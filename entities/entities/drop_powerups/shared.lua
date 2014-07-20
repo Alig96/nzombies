@@ -1,5 +1,3 @@
-AddCSLuaFile( )
-
 ENT.Type = "anim"
  
 ENT.PrintName		= "drop_powerups"
@@ -10,11 +8,10 @@ ENT.Instructions	= ""
 
 function ENT:Initialize()
 	self.Buff = self.Buff or "dp"
-	self:SetModelScale( validPowerups[self.Buff][2], 0 )
-	self:PhysicsInit( SOLID_VPHYSICS )
-	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_VPHYSICS )
-	self.Used = false
+	self:SetModelScale(validPowerups[self.Buff][2], 0)
+	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetMoveType(MOVETYPE_NONE)
+	self:SetSolid(SOLID_VPHYSICS)
 	self.DeathTimer = 30
 	if SERVER then
 		self:SetUseType(SIMPLE_USE)
@@ -36,13 +33,11 @@ function ENT:Initialize()
 		end
 	end)
 end
-		
+
 if SERVER then	
-	function ENT:Touch( hitEnt )
-		if ( hitEnt:IsValid() and hitEnt:IsPlayer() ) then
-			if !self.Used then
-				validPowerups[self.Buff][3](self)
-			end
+	function ENT:StartTouch(hitEnt)
+		if (hitEnt:IsValid() and hitEnt:IsPlayer()) then
+			nz.PowerUps.Activate(self.Buff, self, hitEnt)
 		end
 	end
 end
