@@ -48,9 +48,9 @@ function ENT:MoveAway( )
 	local c = 0
 	timer.Create( "moveAway", 0.1, 300, function()
 		if c == 30 then
-			local rand = table.Random(bnpvbWJpZXM.Rounds.RandomBoxSpawns)
-			self:SetPos( rand[1] )
-			self:SetAngles( rand[2] )
+			local rand = table.Random(ents.FindByClass("random_box_spawns"))
+			self:SetPos( rand:GetPos() )
+			self:SetAngles( rand:GetAngles() )
 			self.Uses = 0
 			self.Moveing = false
 			timer.Destroy("moveAway")

@@ -93,7 +93,7 @@ end )
 //End Doors//
 
 //Wep Buy//
-function nz.Interface.WepBuyProps( vec, angle )
+function nz.Interface.WepBuyProps( vec, ang )
 	local valz = {}
 	valz["Row1"] = "weapon_class"
 	valz["Row2"] = 500

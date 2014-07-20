@@ -125,6 +125,7 @@ function nz.Rounds.Functions.PrepareRound()
 	end)
 	
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.CurrentRound.." preparing" )
+	hook.Run("nz_Round_Prep", nz.Rounds.CurrentRound)
 	//Spawn all dead players
 	if (!nz.Config.Hardcore) then
 		for k,v in pairs(player.GetAll()) do
@@ -163,7 +164,7 @@ function nz.Rounds.Functions.StartRound()
 		nz.Rounds.Functions.SyncClients()
 		nz.Rounds.ZombiesSpawned = 0
 		PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.CurrentRound.." started" )
-		//Add a hook or something
+		hook.Run("nz_Round_Start", nz.Rounds.CurrentRound)
 	end
 end
 
@@ -221,6 +222,7 @@ function nz.Rounds.Functions.EndRound()
 		
 		PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
 		PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
+		hook.Run("nz_Round_GO")
 		timer.Simple(10, function()
 			nz.Rounds.Functions.ResetGame()
 		end)
@@ -263,7 +265,13 @@ function nz.Rounds.Functions.SetupGame()
 	//Spawn a random box
 	if #ents.FindByClass("random_box") == 0 and #ents.FindByClass("random_box_spawns") > 0 then
 		local rand = table.Random(ents.FindByClass("random_box_spawns"))
-		RandomBoxSpawn(rand:GetPos(), rand:GetAngles())
+		local box = ents.Create( "random_box" )
+		box:SetPos( rand:GetPos() )
+		box:SetAngles( rand:GetAngles() )
+		box:Spawn()
+		box:SetSolid( SOLID_VPHYSICS )
+		box:SetMoveType( MOVETYPE_NONE )
+		
 	end
 	
 

@@ -28,7 +28,7 @@ end
 function ENT:Use( activator, caller )
 	if !self.Winding then
 		activator:Give(self.Gun.ClassName)
-		activator:GiveAmmo(bnpvbWJpZXM.Config.BaseStartingAmmoAmount, weapons.Get(self.Gun.ClassName).Primary.Ammo)
+		activator:GiveAmmo(nz.Config.BaseStartingAmmoAmount, weapons.Get(self.Gun.ClassName).Primary.Ammo)
 		self:Remove()
 	end
 end
@@ -36,7 +36,7 @@ end
 function GenList( )
 	local guns = {}
 	for k,v in pairs( weapons.GetList() ) do 
-		if !table.HasValue(bnpvbWJpZXM.Config.WeaponBlackList, v.ClassName) then
+		if !table.HasValue(nz.Config.WeaponBlackList, v.ClassName) then
 			table.insert(guns, v)
 		end
 	end 
