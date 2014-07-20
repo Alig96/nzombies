@@ -3,6 +3,8 @@ nz = {}
 nz.Config = {}
 nz.Doors = {}
 nz.Rounds = {}
+nz.Perks = {}
+nz.PowerUps = {}
 
 //End Tables
 
