@@ -338,12 +338,12 @@ function nz.Interface.Perks( )
 	local choices = vgui.Create( "DComboBox", DermaPanel )
 	choices:SetPos( 10, 30 )
 	choices:SetSize( 280, 30 )
-	for k,v in pairs(PerksColas) do
-		choices:AddChoice( v.ID )
+	for k,v in pairs(nz.Perks.GetAll()) do
+		choices:AddChoice( v.name, v.id )
 	end
 	choices.OnSelect = function( panel, index, value, data )
 		local gun = LocalPlayer():GetActiveWeapon( )
-		gun.SwitchModel = PerksColas[value].Model
+		gun.SwitchModel = nz.Perks.Get(value).model
 		gun:ReleaseGhostEntity()
 		net.Start( "nz_int_perks" )
 			net.WriteString( value )
