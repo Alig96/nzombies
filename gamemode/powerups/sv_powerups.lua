@@ -16,7 +16,7 @@ function nz.PowerUps.Activate(id, ent, ply)
 		if (timer.Exists(id)) then
 			timer.Destroy(id)
 		end
-		timer.Create(id, 0, powerData.time, function()
+		timer.Create(id, powerData.time, 1, function()
 			nz.PowerUps.Set(id, false)
 			PrintMessage(HUD_PRINTTALK, "[NZ] "..powerData.name.." has ended!")
 		end)
