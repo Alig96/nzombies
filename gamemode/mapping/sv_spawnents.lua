@@ -1,4 +1,4 @@
-function WeaponBuySpawn(position, gun, price, angle)
+function WeaponBuySpawn(position, gun, price, angle
 	if weapons.Get(gun) != nil then
 		local ent1 = ents.Create("wall_buy") 
 		ent1:SetAngles(angle)
