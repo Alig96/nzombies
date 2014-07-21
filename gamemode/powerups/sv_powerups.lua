@@ -32,10 +32,8 @@ function nz.PowerUps.Set(id, bool, time, name, material)
 	data.time = time or data.time or -1
 	data.name = name or data.name or "*UNKNOWN*"
 	data.material = material or data.material or ""
-	if (CLIENT) then
-		data.func = nil
-	end
 	nz.PowerUps.buffer[id] = data
+	data.func = nil
 	net.Start("nz_PowerUps_Sync")
 		net.WriteString(id)
 		net.WriteTable(data)
