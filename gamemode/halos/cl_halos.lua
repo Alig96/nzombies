@@ -20,7 +20,7 @@ hook.Add( "PreDrawHalos", "door_spawns_halos", function()
 			table.insert(doors, ents.GetByIndex(k))
 		end
 		for k,v in pairs(nz.Doors.Data.BuyableBlocks) do
-			table.insert(doors, k)
+			table.insert(doors, ents.GetByIndex(k))
 		end
 		halo.Add( doors, Color( 0, 0, 255 ), 0, 0, 0.1, 0, 1 )
 	end
@@ -30,7 +30,7 @@ hook.Add( "PreDrawHalos", "wall_block_buy_halos", function()
 	if nz.Rounds.CurrentState == ROUND_CREATE then
 		local doors = ents.FindByClass( "wall_block_buy" )
 		for k,v in pairs(nz.Doors.Data.BuyableBlocks) do
-			table.RemoveByValue(doors, k)
+			table.RemoveByValue(doors, ents.GetByIndex(k))
 		end
 		halo.Add( doors, Color( 255, 230, 255 ), 0, 0, 0.1 )
 	end

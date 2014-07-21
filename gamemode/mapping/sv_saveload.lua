@@ -226,7 +226,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 		
 		nz.Rounds.Functions.SyncClients()
 		nz.Doors.Functions.SyncClients()
-		
+		timer.Simple(20, function() print("SENDING DELAYED SYNC") nz.Rounds.Functions.SyncClients() nz.Doors.Functions.SyncClients() end)
 	else
 		print(filepath)
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")

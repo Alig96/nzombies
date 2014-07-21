@@ -84,7 +84,7 @@ function BuyableBlockSpawn(pos,ang,model,flagsStr)
 	block:SetSolid( SOLID_VPHYSICS )
 	block:SetMoveType( MOVETYPE_NONE )
 	//Delay before setting flags
-	timer.Simple(1, function() nz.Doors.Functions.CreateLinkSpec(block, flagsStr) end)
+	timer.Simple(3, function() nz.Doors.Functions.CreateLinkSpec(block, flagsStr) end)
 end
 
 function PerkMachineSpawn(position, angle, id)

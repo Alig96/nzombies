@@ -129,8 +129,20 @@ end
 util.AddNetworkString( "nz_Doors_Sync" )
 
 function nz.Doors.Functions.SyncClients()
+	local data = table.Copy(nz.Doors.Data)
+	for k,v in pairs(data.BuyableBlocks) do
+		if type(k) == "Entity" then
+			data.BuyableBlocks[k:EntIndex()] = v
+		end
+	end
+	for k,v in pairs(data.BuyableBlocks) do
+		if type(k) == "Entity" then
+			//Sanitise
+			data.BuyableBlocks[k] = nil
+		end
+	end
 	net.Start( "nz_Doors_Sync" )
-		net.WriteTable( nz.Doors.Data )
+		net.WriteTable( data )
 	net.Broadcast()
 end
 

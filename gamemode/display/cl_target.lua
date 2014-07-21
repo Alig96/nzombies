@@ -29,12 +29,12 @@ function GM:HUDDrawTargetID()
 			else
 				text = "Press E to open for "..nz.Doors.Data.LinkFlags[trace.Entity:doorIndex()].price.." points."
 			end
-		elseif nz.Doors.Data.BuyableBlocks[trace.Entity] != nil then
+		elseif nz.Doors.Data.BuyableBlocks[trace.Entity:EntIndex()] != nil then
 			//Buyable Blocks
-			if tonumber(nz.Doors.Data.BuyableBlocks[trace.Entity].elec) == 1 and nz.Rounds.Elec == false then
+			if tonumber(nz.Doors.Data.BuyableBlocks[trace.Entity:EntIndex()].elec) == 1 and nz.Rounds.Elec == false then
 				text = "You must turn on the electricity first!"
 			else
-				text = "Press E to open for "..nz.Doors.Data.BuyableBlocks[trace.Entity].price.." points."
+				text = "Press E to open for "..nz.Doors.Data.BuyableBlocks[trace.Entity:EntIndex()].price.." points."
 			end
 		else
 			text = "You can't open this door."

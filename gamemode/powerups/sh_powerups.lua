@@ -22,7 +22,7 @@ function nz.PowerUps.Add(powerData)
 	powerData.effect.time = powerData.effect.time or 0
 	powerData.effect.material = powerData.effect.material or false
 	nz.PowerUps.buffer[powerData.id] = powerData
-	if (SERVER) then
+	if (SERVER) and powerData.effect.time > 0 then
 		nz.PowerUps.Set(powerData.id, false, powerData.effect.time, powerData.name, powerData.effect.material)
 	end
 end
@@ -48,7 +48,7 @@ nz.PowerUps.Add({
 	name = "Double Points",
 	model = "models/props_c17/gravestone003a.mdl",
 	scale = 0.5,
-	chance = 30,
+	chance = 10,
 	effect = {time = 30},
 	snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
 	func = (function(self, ply)
@@ -59,7 +59,7 @@ nz.PowerUps.Add({
 	name = "Max Ammo",
 	model = "models/Items/BoxSRounds.mdl",
 	scale = 1.5,
-	chance = 30,
+	chance = 10,
 	snd = {"mkservers/nz/powerups/maxammo.mp3", 0.5},
 	func = (function(self, ply)
 		for k,v in pairs(player.GetAll()) do
