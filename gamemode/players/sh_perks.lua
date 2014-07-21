@@ -51,5 +51,8 @@ function playerMeta:GetPerk(id)
 end
 
 function playerMeta:GetPerks(id)
-	return self.Perks or false
+	if (self.Perks) then
+		return self.Perks
+	end
+	return false
 end

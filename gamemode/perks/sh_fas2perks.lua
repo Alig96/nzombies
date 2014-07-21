@@ -12,15 +12,15 @@ function FAS2_PlayAnim(wep, anim, speed, cyc, time)
 	if IsValid(owner) then
 		anim = string.lower(anim)
 		//print(anim)
-		//if owner:HasPerk("speed") then
+		if owner:HasPerk("speedcola") then
 			if string.find(anim, "reload") != nil or string.find(anim, "insert") != nil then
 				speed = 2
 			end
-		//elseif owner:HasPerk("dtap") then
+		elseif owner:HasPerk("dtap") then
 			if string.find(anim, "fire") != nil or string.find(anim, "cock") != nil or string.find(anim, "pump") != nil then
 				speed = 1.25
 			end
-		//end
+		end
 	end	
 	
 	if game.SinglePlayer() then
@@ -83,6 +83,14 @@ function FAS2_PlayAnim(wep, anim, speed, cyc, time)
 end
 //Sync the speed
 if SERVER then
+	//Syncing
+	local playerMeta = FindMetaTable( "Player" )
+	oldGive = playerMeta.Give
+	function playerMeta:Give(weaponClass)
+		oldGive(self, weaponClass)
+		//Sync the weps 
+		timer.Simple(1, function() UpdatePerkWeps(self) end)
+	end
 	util.AddNetworkString( "nz_sync_speedweps" )
 	util.AddNetworkString( "nz_sync_dtapweps" )
 	//Call this function when the player buys a new gun or gets a new gun
@@ -93,7 +101,7 @@ if SERVER then
 	
 	function FAS2_SPEEDCOLA( ply )
 		//Check if they have the perk
-		//if ply:HasPerk("speed") then
+		if ply:HasPerk("speedcola") then
 			for _,gun in pairs(ply:GetWeapons()) do	
 				local sep = string.Explode("_", gun:GetClass())
 				//Add a special check for FAS weps
@@ -116,12 +124,12 @@ if SERVER then
 			//Send a sync to the client
 			net.Start( "nz_sync_speedweps" )
 			net.Send( ply )
-		//end
+		end
 	end
 	
 	function FAS2_DTAPCOLA( ply )
 		//Check if they have the perk
-		//if ply:HasPerk("dtap") then
+		if ply:HasPerk("dtap") then
 			for _,gun in pairs(ply:GetWeapons()) do	
 				local sep = string.Explode("_", gun:GetClass())
 				//Add a special check for FAS weps
@@ -135,7 +143,7 @@ if SERVER then
 			//Send a sync to the client
 			net.Start( "nz_sync_dtapweps" )
 			net.Send( ply )
-		//end
+		end
 	end
 else
 	net.Receive( "nz_sync_speedweps", function( len )

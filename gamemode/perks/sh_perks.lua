@@ -27,7 +27,7 @@ nz.Perks.Add({
 	snd = {"nz_juggernog", 1},
 	func = (function(self, ply)
 		ply:SetHealth(200)
-		return false
+		return true
 	end),
 })
 nz.Perks.Add({
@@ -39,7 +39,9 @@ nz.Perks.Add({
 	price = 1500,
 	snd = {"nz_juggernog", 1},
 	func = (function(self, ply)
-		return false
+		//Check if they're holding any FAS2 weps
+		timer.Simple(1, function() FAS2_DTAPCOLA( ply ) end )
+		return true
 	end),
 })
 nz.Perks.Add({
@@ -51,7 +53,8 @@ nz.Perks.Add({
 	price = 3000,
 	snd = {"nz_juggernog", 1},
 	func = function(self, ply)
-		return false
+		timer.Simple(1, function() FAS2_SPEEDCOLA( ply ) end )
+		return true
 	end,
 })
 nz.Perks.Add({

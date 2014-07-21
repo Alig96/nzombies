@@ -19,7 +19,7 @@ function nz.Perks.Activate(id, ent, ply)
 			end
 		else
 			if (perkData.func(ent, ply)) then
-				ply:TakePoints(tonumber(perkData.price))
+				ply:TakePoints(tonumber(ent.Price))
 				ply:PrintMessage(HUD_PRINTTALK, "[NZ] You have used the "..perkData.name.."!")
 			else
 				ply:PrintMessage(HUD_PRINTTALK, "[NZ] This perk does not seem currently setup, contact someone about it.")
