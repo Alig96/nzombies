@@ -24,20 +24,7 @@ function nz.PowerUps.Activate(id, ent, ply)
 	ent:Remove()
 end
 
-util.AddNetworkString("nz_PowerUps_Sync")
 util.AddNetworkString("nz_PowerUps_Sound")
-function nz.PowerUps.Set(id, bool, time)
-	local data = table.Copy(nz.PowerUps.Get(id) or {})
-	data.id = id
-	data.bool = bool
-	data.time = time or data.time or -1
-	nz.PowerUps.data[id] = data
-	net.Start("nz_PowerUps_Sync")
-		net.WriteString(id)
-		net.WriteTable(data)
-	net.Broadcast()
-end
-
 function nz.PowerUps.Sound(path)
 	net.Start("nz_PowerUps_Sound")
 		net.WriteString(path)
