@@ -10,7 +10,7 @@ if (SERVER) then
 		data.time = time or data.time or -1
 		nz.PowerUps.data[id] = data
 		net.Start("nz_PowerUps_Sync")
-			net.WriteString(name)
+			net.WriteString(id)
 			net.WriteTable(data)
 		net.Broadcast()
 	end
