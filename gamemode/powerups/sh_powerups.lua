@@ -11,6 +11,7 @@ if (SERVER) then
 		data.name = name or data.name or "*UNKNOWN*"
 		data.material = material or data.material or false
 		nz.PowerUps.data[id] = data
+		data.func = nil
 		net.Start("nz_PowerUps_Sync")
 			net.WriteString(name)
 			net.WriteTable(data)
