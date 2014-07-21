@@ -34,7 +34,7 @@ function nz.PowerUps.Set(id, bool, time, name, material)
 	data.material = material or data.material or false
 	nz.PowerUps.data[id] = data
 	net.Start("nz_PowerUps_Sync")
-		net.WriteString(name)
+		net.WriteString(id)
 		net.WriteTable(data)
 	net.Broadcast()
 end
