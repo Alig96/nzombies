@@ -4,7 +4,7 @@ nz.PowerUps.data = nz.PowerUps.data or {}
 if (SERVER) then
 	util.AddNetworkString("nz_PowerUps_Sync")
 	function nz.PowerUps.Set(id, bool, time)
-		local data = nz.PowerUps.Get(id) or {}
+		local data = table.Copy(nz.PowerUps.Get(id) or {})
 		data.id = id
 		data.bool = bool
 		data.time = time or data.time or -1
