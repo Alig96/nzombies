@@ -21,19 +21,17 @@ function nz.PowerUps.Activate(id, ent, ply)
 			PrintMessage(HUD_PRINTTALK, "[NZ] "..powerData.name.." has ended!")
 		end)
 	end
+	ent:Remove()
 end
 
 util.AddNetworkString("nz_PowerUps_Sync")
 util.AddNetworkString("nz_PowerUps_Sound")
-function nz.PowerUps.Set(id, bool, time, name, material)
-	local data = nz.PowerUps.GetBuffer(id) or {}
+function nz.PowerUps.Set(id, bool, time)
+	local data = nz.PowerUps.Get(id) or {}
 	data.id = id
 	data.bool = bool
 	data.time = time or data.time or -1
-	data.name = name or data.name or "*UNKNOWN*"
-	data.material = material or data.material or false
 	nz.PowerUps.data[id] = data
-	data.func = nil
 	net.Start("nz_PowerUps_Sync")
 		net.WriteString(name)
 		net.WriteTable(data)
