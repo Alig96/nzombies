@@ -5,7 +5,10 @@ nz.Mapping.LastSave = "Unsaved"
 
 function nz.Mapping.Functions.SaveConfig()
 	local main = {}
-
+	//Check if the nz folder exists
+	if !file.Exists( "nz/", "DATA" ) then
+		file.CreateDir( "nz" )
+	end
 	local wall_buys = {}
 	for k,v in pairs(ents.FindByClass("wall_buy")) do
 		table.insert(wall_buys, {
