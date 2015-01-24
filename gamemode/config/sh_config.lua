@@ -1,4 +1,4 @@
-//    nZombies - Zombie Survival Garry's Mod 13 Gamemode
+//    nZombies - Zombie Survival Garrys Mod 13 Gamemode
 //    Copyright (C) 2014  Ali Aslam (Alig96)
 //    Contact Information: aliaslam191919@gmail.com
 //
