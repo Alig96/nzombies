@@ -1,0 +1,25 @@
+SWEP.PrintName	= "Door Locker Tool"	
+SWEP.Author		= "Alig96"		
+SWEP.Slot		= 3	
+SWEP.SlotPos	= 10
+SWEP.Base 		= "nz_tool_base"
+
+if SERVER then
+	function SWEP:OnPrimaryAttack( trace )
+		if trace.Entity:IsDoor() or trace.Entity:IsBuyableProp() then
+			//nz.Doors.Functions.CreateLink( trace.Entity, "price=500,elec=0,link=1" )
+			nz.Interfaces.Functions.SendInterface("DoorProps", {door = trace.Entity})
+		else
+			print("Not a door.")
+		end
+	end
+
+	function SWEP:OnSecondaryAttack( trace )
+		if trace.Entity:IsDoor() or trace.Entity:IsBuyableProp() then
+			nz.Doors.Functions.RemoveLink( trace.Entity )
+		else
+			print("Not a door.")
+		end
+	end
+
+end
