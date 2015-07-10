@@ -1,6 +1,0 @@
-"VertexlitGeneric"
-{
-	"$basetexture" "models/perkacola/zombie_vending_doubletap_c"
-	"$normalmap" "models/perkacola/zombie_vending_doubletap_n"
-	"$surfaceprop" "Metal"
-}
