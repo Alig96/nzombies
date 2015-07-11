@@ -6,7 +6,7 @@ function nz.Enemies.Functions.CheckIfSuitable(pos)
 	local Blockers = 0
 	if Ents == nil then return true end
 	for k, v in pairs( Ents ) do
-		if ( IsValid( v ) and (v:GetClass() == "player" or v:GetClass() == "nut_zombie") ) then //table.HasValue(nz.Config.ValidEnemies, v:GetClass())
+		if ( IsValid( v ) and (v:GetClass() == "player" or table.HasValue(nz.Config.ValidEnemies, v:GetClass()) ) ) then 
 			Blockers = Blockers + 1
 		end
 	end
@@ -49,7 +49,17 @@ end
 
 function nz.Enemies.Functions.SpawnZombie(pos)
 	if nz.Rounds.Data.ZombiesSpawned < 100 then
-		local zombie = ents.Create("nut_zombie")
+		local ent = "nut_zombie"
+		
+		//Get the latest round number from the table
+		for i = nz.Rounds.Data.CurrentRound, 0, -1 do 
+			if nz.Config.EnemyTypes[i] != nil then
+				ent = nz.Misc.Functions.WeightedRandom(nz.Config.EnemyTypes[i])
+				break
+			end
+		end
+	
+		local zombie = ents.Create(ent)
 		zombie:SetPos(pos)
 		zombie:Spawn()
 		zombie:Activate()

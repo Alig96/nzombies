@@ -42,6 +42,21 @@ function nz.Display.Functions.ScoreHud()
 	end	
 end
 
+function nz.Display.Functions.PowerUpsHud()
+	local font = "nz.display.hud.main"
+	local w = ScrW() / 2
+	local offset = 20
+	local c = 0
+	for k,v in pairs(nz.PowerUps.Data.ActivePowerUps) do
+		if nz.PowerUps.Functions.IsPowerupActive(k) then
+			local powerupData = nz.PowerUps.Functions.Get(k)
+			draw.SimpleText(powerupData.name .. " - " .. math.Round(v - CurTime()), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			c = c + 1
+		end
+	end
+end
+
 //Hooks
-hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud)
+hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud )
 hook.Add("HUDPaint", "scoreHUD", nz.Display.Functions.ScoreHud )
+hook.Add("HUDPaint", "powerupHUD", nz.Display.Functions.PowerUpsHud )

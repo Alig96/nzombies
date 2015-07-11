@@ -37,14 +37,32 @@ if SERVER then
 	end
 	 
 	function ENT:Use( activator, caller )
-		if activator:CanAfford(self.Price) then
-			activator:TakePoints(self.Price)
-			activator:Give(self.WeaponGive)
-			//Just for display, since we're setting their ammo anyway
-			activator:GiveAmmo(nz.Misc.Functions.CalculateMaxAmmo(self.WeaponGive), weapons.Get(self.WeaponGive).Primary.Ammo)
-			nz.Misc.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
-		else
-			print("Can't afford!")
+		local price = self.Price
+		local ammo_type = weapons.Get(self.WeaponGive).Primary.Ammo
+		local ammo_price = math.Round((price - (price % 10))/2)
+		local curr_ammo = activator:GetAmmoCount( ammo_type )
+		local give_ammo = nz.Misc.Functions.CalculateMaxAmmo(self.WeaponGive) - curr_ammo
+		
+		
+		if !activator:HasWeapon( self.WeaponGive ) then
+			if activator:CanAfford(price) then
+				activator:TakePoints(price)
+				activator:Give(self.WeaponGive)
+				nz.Misc.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+			else
+				print("Can't afford!")
+			end
+		else // Refill ammo
+			if activator:CanAfford(ammo_price) then
+				if give_ammo != 0 then
+					activator:TakePoints(ammo_price)
+					nz.Misc.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+				else
+					print("Max Clip!")
+				end
+			else
+				print("Can't afford!")
+			end
 		end
 		return
 	end

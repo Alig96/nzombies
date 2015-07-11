@@ -12,7 +12,7 @@ if SERVER then
 
 	//Generate Curve
 	function nz.Curves.Functions.GenerateCurve()
-		for i=1, 100 do
+		for i=1, nz.Config.MaxRounds do
 			nz.Curves.Data.SpawnRate[i-1] = math.Round(nz.Config.BaseDifficultySpawnRateCurve*math.pow(i-1,nz.Config.DifficultySpawnRateCurve))
 			nz.Curves.Data.Health[i-1] = math.Round(nz.Config.BaseDifficultyHealthCurve*math.pow(i-1,nz.Config.DifficultyHealthCurve))
 			nz.Curves.Data.Speed[i-1] = math.Round(nz.Config.BaseDifficultySpeedCurve*math.pow(i-1,nz.Config.DifficultySpeedCurve))

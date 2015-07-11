@@ -11,6 +11,9 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker)
 	nz.Rounds.Data.CurrentZombies = nz.Rounds.Data.CurrentZombies - 1
 	nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned - 1
 	
+	//Chance a powerup spawning
+	nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
+	
 end
 
 function nz.Enemies.Functions.OnEnemyHurt(enemy, attacker)

@@ -71,6 +71,21 @@ function ENT:RunBehaviour()
 				data.maxs = self:OBBMaxs() * 0.65
 			local trace = util.TraceHull(data)
 			local entity = trace.Entity
+			
+			//Barricades
+			if (IsValid(entity) and entity:GetClass() == "breakable_entry" ) then
+				if entity:Health() != 0 then
+					timer.Simple(0.3, function()
+						
+						entity:EmitSound("physics/wood/wood_plank_break"..math.random(1, 4)..".wav", 100, math.random(90, 130))
+						
+						entity:RemovePlank()
+						
+					end)
+
+					self:PlaySequenceAndWait("swing", 1)
+				end
+			end
 		end
 
 		if (IsValid(target) and target:Alive()  ) then --and self:GetRangeTo(target) <= 1500

@@ -88,8 +88,10 @@ function nz.Rounds.Functions.ResetGame()
 		v.Ready = 0
 	end
 	//Remove all enemies
-	for k,v in pairs(ents.FindByClass("nut_zombie")) do
-		v:Remove()
+	for k,v in pairs(nz.Config.ValidEnemies) do
+		for k2,v2 in pairs(ents.FindByClass(v)) do
+			v2:Remove()
+		end
 	end
 	//Empty the table of stored players
 	table.Empty(nz.Rounds.StartingPlayers)

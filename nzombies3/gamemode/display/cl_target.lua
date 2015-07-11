@@ -21,12 +21,13 @@ function nz.Display.Functions.GetText( ent )
 	if class == "wall_buys" then
 		local wepclass = ent:GetEntName()
 		local price = ent:GetPrice()
-		local name = weapons.Get(wepclass).PrintName
-		
+		local wep = weapons.Get(wepclass)
+		local name = wep.PrintName
+		local ammo_price = math.Round((price - (price % 10))/2)
 		if !LocalPlayer():HasWeapon( wepclass ) then
 			text = "Press E to buy " .. name .." for " .. price .. " points."
 		else
-			text = "You already own this weapon." // In future give more ammo
+			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points." // In future give more ammo
 		end
 	end
 	

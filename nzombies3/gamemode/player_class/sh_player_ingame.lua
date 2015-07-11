@@ -16,14 +16,17 @@ function PLAYER:Init()
 end
 
 function PLAYER:Loadout()
-	self.Player:Give( "weapon_pistol" )
-	self.Player:GiveAmmo( 255, "Pistol", true )
+	//Give ammo and guns
+	for k,v in pairs(nz.Config.BaseStartingWeapons) do
+		self.Player:Give( v )
+	end
+	nz.Misc.Functions.GiveMaxAmmo(self.Player)
 end
 function PLAYER:Spawn()
 
-	if !self.Player:CanAfford(500) then
+	if !self.Player:CanAfford(nz.Config.BaseStartingPoints) then //Has less than 500 points
 		//Poor guy has no money, lets start him off
-		self.Player:SetPoints(500)
+		self.Player:SetPoints(nz.Config.BaseStartingPoints)
 	end
 	
 	local spawns = ents.FindByClass("player_spawns")

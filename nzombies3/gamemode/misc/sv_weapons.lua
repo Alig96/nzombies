@@ -9,6 +9,7 @@ end
 function nz.Misc.Functions.GiveMaxAmmoWep(ply, class)
 
 	local wep = weapons.Get(class)
+	if wep == nil then return end
 	local ammo_type = wep.Primary.Ammo
 	local max_ammo = nz.Misc.Functions.CalculateMaxAmmo(class)
 	
@@ -26,6 +27,17 @@ function nz.Misc.Functions.GiveMaxAmmoWep(ply, class)
 
 	max_ammo = max_ammo * multi
 	
-	ply:SetAmmo(max_ammo * multi, ammo_type)
+	local curr_ammo = ply:GetAmmoCount( ammo_type )
+	local give_ammo = max_ammo - curr_ammo
 	
+	//Just for display, since we're setting their ammo anyway
+	ply:GiveAmmo(give_ammo, ammo_type)
+	ply:SetAmmo(max_ammo, ammo_type)
+	
+end
+
+function nz.Misc.Functions.GiveMaxAmmo(ply)
+	for k,v in pairs(ply:GetWeapons()) do
+		nz.Misc.Functions.GiveMaxAmmoWep(ply, v:GetClass())
+	end
 end
