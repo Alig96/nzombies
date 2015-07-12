@@ -45,7 +45,7 @@ end
 function nz.Display.Functions.PowerUpsHud()
 	local font = "nz.display.hud.main"
 	local w = ScrW() / 2
-	local offset = 20
+	local offset = 40
 	local c = 0
 	for k,v in pairs(nz.PowerUps.Data.ActivePowerUps) do
 		if nz.PowerUps.Functions.IsPowerupActive(k) then

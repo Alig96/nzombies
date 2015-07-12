@@ -14,7 +14,8 @@ nz.Rounds.Elec = false
 if SERVER then
 
 	//Round Variables
-	nz.Rounds.Data.CurrentZombies = 0
+	nz.Rounds.Data.KilledZombies = 0
 	nz.Rounds.Data.ZombiesSpawned = 0
-	
+	nz.Rounds.Data.MaxZombies = 0
+	nz.Rounds.Data.StartTime = CurTime()
 end

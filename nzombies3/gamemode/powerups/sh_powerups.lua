@@ -96,9 +96,8 @@ nz.PowerUps.Functions.NewPowerUp("dp", {
 	scale = 0.5,
 	chance = 5,
 	duration = 30,
-	//snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
 	func = (function(self, ply)
-	
+		nz.Notifications.Functions.PlaySound("nz/powerups/double_points.mp3", 1)
 	end),
 })
 
@@ -109,11 +108,36 @@ nz.PowerUps.Functions.NewPowerUp("maxammo", {
 	scale = 1.5,
 	chance = 5,
 	duration = 0,
-	//snd = {"mkservers/nz/powerups/dp.mp3", 0.5},
 	func = (function(self, ply)
+		nz.Notifications.Functions.PlaySound("nz/powerups/max_ammo.mp3", 2)
 		//Give everyone ammo
 		for k,v in pairs(player.GetAll()) do
 			nz.Misc.Functions.GiveMaxAmmo(v)
 		end
+	end),
+})
+
+//Insta Kill
+nz.PowerUps.Functions.NewPowerUp("insta", {
+	name = "Insta Kill",
+	model = "models/Gibs/HGIBS.mdl",
+	scale = 3,
+	chance = 5,
+	duration = 30,
+	func = (function(self, ply)
+		nz.Notifications.Functions.PlaySound("nz/powerups/insta_kill.mp3", 1)
+	end),
+})
+
+//Nuke
+nz.PowerUps.Functions.NewPowerUp("nuke", {
+	name = "Nuke",
+	model = "models/props_junk/watermelon01.mdl",
+	scale = 1.5,
+	chance = 5,
+	duration = 0,
+	func = (function(self, ply)
+		nz.Notifications.Functions.PlaySound("nz/powerups/nuke.mp3", 1)
+		nz.PowerUps.Functions.Nuke()
 	end),
 })

@@ -22,15 +22,14 @@ function nz.Rounds.Functions.UnReady(ply)
 end
 
 function nz.Rounds.Functions.ReSpawn(ply)
-
-	//Setup a player
-	ply:SetTeam( TEAM_PLAYERS )
-	player_manager.SetPlayerClass( ply, "player_ingame" )
-	if !ply:Alive() then
-		ply:Spawn()
+	if ply:IsValid() then
+		//Setup a player
+		ply:SetTeam( TEAM_PLAYERS )
+		player_manager.SetPlayerClass( ply, "player_ingame" )
+		if !ply:Alive() then
+			ply:Spawn()
+		end
 	end
-	//SetPos
-	
 end
 
 function nz.Rounds.Functions.Create(ply)

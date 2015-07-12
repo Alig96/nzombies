@@ -47,8 +47,21 @@ function nz.Enemies.Functions.ValidSpawns()
 	return valids
 end
 
+function nz.Enemies.Functions.TotalCurrentEnemies()
+	local c = 0
+	
+	//Count
+	for k,v in pairs(nz.Config.ValidEnemies) do
+		for k2,v2 in pairs(ents.FindByClass(v)) do
+			c = c + 1
+		end	
+	end
+	
+	return c
+end
+
 function nz.Enemies.Functions.SpawnZombie(pos)
-	if nz.Rounds.Data.ZombiesSpawned < 100 then
+	if nz.Enemies.Functions.TotalCurrentEnemies() < 100 then
 		local ent = "nut_zombie"
 		
 		//Get the latest round number from the table
@@ -64,7 +77,7 @@ function nz.Enemies.Functions.SpawnZombie(pos)
 		zombie:Spawn()
 		zombie:Activate()
 		nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned + 1
-		print("Spawning Enemy: " .. nz.Rounds.Data.ZombiesSpawned .. "/" .. nz.Rounds.Data.CurrentZombies )
+		print("Spawning Enemy: " .. nz.Rounds.Data.ZombiesSpawned .. "/" .. nz.Rounds.Data.MaxZombies )
 	else
 		print("Limit of Zombies Reached!")
 	end
@@ -73,7 +86,7 @@ end
 
 function nz.Enemies.Functions.ZombieSpawner()	
 	//Not enough Zombies
-	if nz.Rounds.Data.ZombiesSpawned < nz.Rounds.Data.CurrentZombies then
+	if nz.Rounds.Data.ZombiesSpawned < nz.Rounds.Data.MaxZombies then
 		if nz.Rounds.Data.CurrentState == ROUND_PROG then
 		
 			local valids = nz.Enemies.Functions.ValidSpawns()
