@@ -3,6 +3,9 @@
 if SERVER then
 	function nz.Interfaces.Functions.ZombLinkHandler( data )
 		data.ent.link = data.link
+		//For the link displayer
+		print("setting")
+		data.ent:SetLink(data.link)
 	end
 end
 

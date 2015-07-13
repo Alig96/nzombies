@@ -4,25 +4,21 @@ function nz.Rounds.Functions.CheckPrerequisites()
 
 	//If there is there is less than one player
 	if #player.GetAll() < 1 then
-		nz.Rounds.Data.StartTime = nil
 		return "Not enough players to start a game."
 	end
 	
 	//Check if zed/player spawns have been setup
 	if nz.Mapping.Functions.CheckSpawns() == false then
-		nz.Rounds.Data.StartTime = nil
 		return "No Zombie/Player spawns have been set."
 	end
 	
 	//Check if we have enough player spawns
 	if nz.Mapping.Functions.CheckEnoughPlayerSpawns() == false then
-		nz.Rounds.Data.StartTime = nil
 		return "Not enough player spawns have been set. We need " .. #player.GetAll() .. " but only have " .. #ents.FindByClass("player_spawns") .. "."
 	end
 	
 	//If enough players are ready
 	if nz.Rounds.Functions.CheckReady() == false then
-		nz.Rounds.Data.StartTime = nil
 		return "Not enough players have readied up."
 	end
 	
@@ -229,6 +225,8 @@ function nz.Rounds.Functions.RoundHandler()
 				nz.Rounds.Functions.PrepareRound()
 			end
 		else
+			//Reset the start timer
+			nz.Rounds.Data.StartTime = nil
 			// notify why, just print for now
 			print(pre)
 			return //Don't process any further than here

@@ -14,18 +14,12 @@ function ENT:SetupDataTables()
 end
 
 function ENT:Initialize()
-	self:PhysicsInit(SOLID_VPHYSICS)
-	self:SetMoveType(MOVETYPE_VPHYSICS)
-	self:SetSolid(SOLID_VPHYSICS)
 	if SERVER then
-		self:SetUseType(SIMPLE_USE)
+		self:SetMoveType( MOVETYPE_NONE )
+		self:SetSolid( SOLID_VPHYSICS )
+		self:DrawShadow( false )
+		self:SetUseType( SIMPLE_USE )
 	end
-	local phy = self:GetPhysicsObject()
-	if phy and phy:IsValid() then
-		phy:EnableGravity(false)
-		phy:EnableMotion(false)
-	end
-	self:DrawShadow(false)
 end
 
 function ENT:TurnOn()

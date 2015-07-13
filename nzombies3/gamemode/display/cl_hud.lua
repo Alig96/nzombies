@@ -56,6 +56,41 @@ function nz.Display.Functions.PowerUpsHud()
 	end
 end
 
+local Laser = Material( "cable/redlaser" )
+function nz.Display.Functions.DrawLinks( ent, link )
+
+	local tbl = {}
+	//Check for zombie spawns
+	for k, v in pairs(ents.GetAll()) do
+		if v:IsBuyableProp()  then
+			if nz.Doors.Data.BuyableProps[k] != nil then
+				if v.link == link then
+					table.insert(tbl, Entity(k))
+				end
+			end
+		elseif v:IsDoor() then
+			if nz.Doors.Data.LinkFlags[v:doorIndex()] != nil then
+				if nz.Doors.Data.LinkFlags[v:doorIndex()].link == link then
+					table.insert(tbl, v)
+				end
+			end
+		elseif v:GetClass() == "zed_spawns" then
+			if v:GetLink() == link then
+				table.insert(tbl, v)
+			end
+		end
+	end
+	
+	
+	// Draw
+	if tbl[1] != nil then
+		for k,v in pairs(tbl) do
+			render.SetMaterial( Laser )
+			render.DrawBeam( ent:GetPos(), v:GetPos(), 20, 1, 1, Color( 255, 255, 255, 255 ) )
+		end		
+	end
+end
+
 //Hooks
 hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud )
 hook.Add("HUDPaint", "scoreHUD", nz.Display.Functions.ScoreHud )

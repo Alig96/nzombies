@@ -16,9 +16,4 @@ if SERVER then
 			trace.Entity:Remove()
 		end
 	end
-	function SWEP:OnReload( trace )
-		if trace.Entity:GetClass() == "prop_buys" then
-			trace.Entity:SetAngles(trace.Entity:GetAngles()+Angle(0,90,0))
-		end
-	end
 end

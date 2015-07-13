@@ -125,3 +125,14 @@ function nz.Doors.Functions.RemovePropDoorLink( ent )
 		//print("Error: " .. doorID .. " is not a door. ")
 	end
 end
+
+function nz.Doors.Functions.DisplayDoorLinks( ent )
+	if ent.link == nil then nz.Doors.Data.DisplayLinks[ent] = nil return end
+	
+	if nz.Doors.Data.DisplayLinks[ent] == nil then
+		nz.Doors.Data.DisplayLinks[ent] = ent.link
+	else
+		nz.Doors.Data.DisplayLinks[ent] = nil
+	end
+	nz.Doors.Functions.SendSync()
+end

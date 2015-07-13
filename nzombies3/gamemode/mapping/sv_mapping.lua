@@ -7,7 +7,10 @@ function nz.Mapping.Functions.ZedSpawn(pos, link)
 	ent:SetPos( pos )
 	ent:Spawn()
 	ent.link = link
-	
+	//For the link displayer
+	if link != nil then
+		ent:SetLink(link)	
+	end
 end
 
 function nz.Mapping.Functions.PlayerSpawn(pos)
@@ -42,8 +45,7 @@ function nz.Mapping.Functions.PropBuy(pos,ang,model,flags)
 	prop:SetPos( pos )
 	prop:SetAngles( ang )
 	prop:Spawn()
-	prop:SetSolid( SOLID_VPHYSICS )
-	prop:SetMoveType( MOVETYPE_NONE )
+	prop:PhysicsInit( SOLID_VPHYSICS )
 	
 	//REMINDER APPY FLAGS
 	if flags != nil then
@@ -70,8 +72,7 @@ function nz.Mapping.Functions.BlockSpawn(pos,ang,model)
 	block:SetPos( pos )
 	block:SetAngles( ang )
 	block:Spawn()
-	block:SetSolid( SOLID_VPHYSICS )
-	block:SetMoveType( MOVETYPE_NONE )
+	block:PhysicsInit( SOLID_VPHYSICS )
 end
 
 function nz.Mapping.Functions.BoxSpawn(pos,ang)
@@ -79,6 +80,7 @@ function nz.Mapping.Functions.BoxSpawn(pos,ang)
 	box:SetPos( pos )
 	box:SetAngles( ang )
 	box:Spawn()
+	box:PhysicsInit( SOLID_VPHYSICS )
 end
 
 function nz.Mapping.Functions.PerkMachine(pos, ang, id)
@@ -91,5 +93,32 @@ function nz.Mapping.Functions.PerkMachine(pos, ang, id)
 	perk:SetAngles(ang)
 	perk:Spawn()
 	perk:Activate()
+	perk:PhysicsInit( SOLID_VPHYSICS )
 	
 end
+
+
+
+//Physgun Hooks
+function nz.Mapping.Functions.OnPhysgunPickup( ply, ent )
+
+	if ( ent:GetClass() == "prop_buys" or ent:GetClass() == "wall_block"  ) then 
+		//Ghost the entity so we can put them in walls.
+		local phys = ent:GetPhysicsObject()
+		phys:EnableCollisions(false)
+	end
+	
+end
+
+function nz.Mapping.Functions.OnPhysgunDrop( ply, ent )
+
+	if ( ent:GetClass() == "prop_buys" or ent:GetClass() == "wall_block" ) then 
+		//Unghost the entity so we can put them in walls.
+		local phys = ent:GetPhysicsObject()
+		phys:EnableCollisions(true)
+	end
+	
+end
+
+hook.Add( "PhysgunPickup", "nz.OnPhysPick", nz.Mapping.Functions.OnPhysgunPickup )
+hook.Add( "PhysgunDrop", "nz.OnDrop", nz.Mapping.Functions.OnPhysgunDrop )

@@ -8,6 +8,11 @@ ENT.Contact			= "Don't"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
+function ENT:SetupDataTables()
+
+	self:NetworkVar( "String", 0, "Link" )
+	
+end
 
 function ENT:Initialize()
 	self:SetModel( "models/player/odessa.mdl" )

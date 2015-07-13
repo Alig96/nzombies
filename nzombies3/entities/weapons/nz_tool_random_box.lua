@@ -13,12 +13,5 @@ if SERVER then
 		if trace.Entity:GetClass() == "random_box_spawns" then
 			trace.Entity:Remove()
 		end
-	end
-	
-	function SWEP:OnReload( trace )
-		if trace.Entity:GetClass() == "random_box_spawns" then
-			trace.Entity:SetAngles(trace.Entity:GetAngles()+Angle(0,90,0))
-		end
-	end
-	
+	end	
 end

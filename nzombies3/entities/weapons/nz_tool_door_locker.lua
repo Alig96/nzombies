@@ -21,5 +21,10 @@ if SERVER then
 			print("Not a door.")
 		end
 	end
-
+	//Display Links
+	function SWEP:OnReload( trace )
+		if trace.Entity:IsDoor() or trace.Entity:IsBuyableProp() then
+			nz.Doors.Functions.DisplayDoorLinks( trace.Entity )
+		end
+	end
 end

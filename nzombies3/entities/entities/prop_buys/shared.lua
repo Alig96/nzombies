@@ -54,5 +54,10 @@ if CLIENT then
 		else
 			self:DrawModel()
 		end
+		if nz.Rounds.Data.CurrentState == ROUND_CREATE then
+			if nz.Doors.Data.DisplayLinks[self] != nil then
+				nz.Display.Functions.DrawLinks(self, nz.Doors.Data.BuyableProps[self:EntIndex()].link)
+			end
+		end
 	end
 end
