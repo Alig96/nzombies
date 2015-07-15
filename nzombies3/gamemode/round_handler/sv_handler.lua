@@ -67,12 +67,12 @@ function nz.Rounds.Functions.PrepareRound()
 	//Spawn all players
 	//Check config for dropins
 	//For now, only allow the players who started the game to spawn
-	for k,v in pairs(nz.Rounds.StartingPlayers) do
+	for k,v in pairs(nz.Rounds.Data.CurrentPlayers) do
 		nz.Rounds.Functions.ReSpawn(v)
 	end
 	
 	//Heal
-	for k,v in pairs(nz.Rounds.StartingPlayers) do
+	for k,v in pairs(nz.Rounds.Data.CurrentPlayers) do
 		v:SetHealth(v:GetMaxHealth())
 	end
 	
@@ -109,7 +109,7 @@ function nz.Rounds.Functions.ResetGame()
 	
 	//Reset all player ready states
 	for k,v in pairs(player.GetAll()) do
-		v.Ready = 0
+		nz.Rounds.Functions.UnReady(v)
 	end
 	//Remove all enemies
 	for k,v in pairs(nz.Config.ValidEnemies) do
@@ -118,7 +118,7 @@ function nz.Rounds.Functions.ResetGame()
 		end
 	end
 	//Empty the table of stored players
-	table.Empty(nz.Rounds.StartingPlayers)
+	table.Empty(nz.Rounds.Data.CurrentPlayers)
 	//Reset the electricity
 	nz.Elec.Functions.Reset()
 	//Remove the random box
@@ -185,9 +185,10 @@ function nz.Rounds.Functions.SetupGame()
 	
 	//Store a session of all our players
 	for k,v in pairs(player.GetAll()) do
-		if v.Ready == 1 and v:IsValid() and !v:IsPermSpec() then
-			table.insert(nz.Rounds.StartingPlayers, v)
+		if v:IsValid() and !v:IsPermSpec() then
+			nz.Rounds.Functions.AddPlayer(v)
 		end
+		v.Ready = 0
 	end
 	
 	nz.Doors.Functions.LockAllDoors()
@@ -235,10 +236,7 @@ function nz.Rounds.Functions.RoundHandler()
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		//Un-ready all players
 		for k,v in pairs(player.GetAll()) do
-			if v.Ready == 1 then
-				v.Ready = 0
-				v:PrintMessage( HUD_PRINTTALK, "You have been set to un-ready since the game has been set to creative mode" )
-			end
+			nz.Rounds.Functions.UnReady(v, "You have been set to un-ready since the game has been set to creative mode")
 		end
 		return //Don't process any further than here
 	end

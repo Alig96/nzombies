@@ -33,6 +33,8 @@ if SERVER then
 	//nz.Config.EnemyTypes[4] = {["hellhounds"] = 100}
 	//nz.Config.EnemyTypes[4] = {["nut_zombie"] = 80, ["hellhounds"] = 20}
 	
+	//Max amount of zombies at the same time
+	nz.Config.MaxZombiesSim = 100
 	
 	//Interfaces
 	
@@ -70,14 +72,10 @@ if SERVER then
 	
 	//Time Between rounds
 	nz.Config.PrepareTime = 10
-
-	
-	//Max amount of zombies at the same time
-	nz.Config.MaxZombiesSim = 100
 	
 	//Spectator
 	
-	
+	nz.Config.AllowDropins = true
 	
 	//MAIN CONFIG
 	

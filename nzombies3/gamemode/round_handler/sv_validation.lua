@@ -13,8 +13,10 @@ function nz.Rounds.Functions.CheckReady()
 	end
 	//Get the total of ready players
 	for k,v in pairs(player.GetAll()) do
-		if v.Ready == 1 and v:IsValid() then
+		if v.Ready == 1 and v:IsValid() and !v:IsPermSpec() then
 			count = count + 1
+		else
+			v.Ready = 0
 		end
 	end
 	print("Waiting for players: " .. count .. " / " .. total)

@@ -32,6 +32,14 @@ NewChatCommand("/unready", function(ply, text)
 	nz.Rounds.Functions.UnReady(ply)
 end)
 
+NewChatCommand("/dropin", function(ply, text) 
+	nz.Rounds.Functions.DropIn(ply)
+end)
+
+NewChatCommand("/dropout", function(ply, text) 
+	nz.Rounds.Functions.DropOut(ply)
+end)
+
 NewChatCommand("/create", function(ply, text) 
 	if ply:IsSuperAdmin() then
 		nz.Rounds.Functions.CreateMode()

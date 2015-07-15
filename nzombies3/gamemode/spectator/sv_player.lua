@@ -20,7 +20,6 @@ function nz.Spectator.Functions.SetAsSpec(ply)
 	if ply:Alive() then
 		ply:KillSilent()
 	end
-	ply.Ready = 0
 	
 end
 
@@ -35,10 +34,12 @@ end
 function nz.Spectator.Functions.PermSpec(ply)
 	if !ply:IsPermSpec() then
 		ply.specFlag = true
+		nz.Rounds.Functions.RemovePlayer(ply)
 		//Notify
-		print(ply:Nick() .. " has been set to permanent spectator")
+		PrintMessage( HUD_PRINTTALK, ply:Nick() .. " has been set to permanent spectator")
 		ply:SetAsSpec()
 	else
+		PrintMessage( HUD_PRINTTALK, ply:Nick() .. " is no longer a permanent spectator")
 		ply.specFlag = false
 	end
 end

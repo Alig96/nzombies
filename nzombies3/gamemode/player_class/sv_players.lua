@@ -34,6 +34,8 @@ function nz.Players.Functions.FriendlyFire( ply, ent )
 	end
 end
 
-GM.PlayerNoClip = nz.Players.Functions.PlayerNoClip
+function GM:PlayerNoClip( ply, desiredState )
+	return nz.Players.Functions.PlayerNoClip(ply, desiredState)
+end
 hook.Add( "PlayerInitialSpawn", "nz.PlayerInitialSpawn", nz.Players.Functions.PlayerInitialSpawn )
 hook.Add( "PlayerShouldTakeDamage", "nz.FriendlyFire", nz.Players.Functions.FriendlyFire )

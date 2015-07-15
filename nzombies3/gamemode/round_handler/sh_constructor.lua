@@ -8,7 +8,7 @@ nz.Rounds.Data.CurrentState = ROUND_INIT
 nz.Rounds.Data.CurrentRound = 0
 
 //Misc
-nz.Rounds.StartingPlayers = {} //No reason to be shared, but maybe in the future we will show the players clientside for scoreboard or smth
+nz.Rounds.Data.CurrentPlayers = {} //No reason to be shared, but maybe in the future we will show the players clientside for scoreboard or smth
 nz.Rounds.Elec = false
 
 if SERVER then

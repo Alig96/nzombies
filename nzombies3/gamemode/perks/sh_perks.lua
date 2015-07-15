@@ -42,7 +42,7 @@ nz.Perks.Functions.NewPerk("dtap", {
 	price = 100,
 	func = function(self, ply)
 			print(self)
-			print("This perk doesn't have any functionality yet.")
+			ply:PrintMessage( HUD_PRINTTALK, "This perk doesn't have any functionality yet.")
 			return false
 	end,
 })
@@ -54,7 +54,7 @@ nz.Perks.Functions.NewPerk("revive", {
 	price = 100,
 	func = function(self, ply)
 			print(self)
-			print("This perk doesn't have any functionality yet.")
+			ply:PrintMessage( HUD_PRINTTALK, "This perk doesn't have any functionality yet.")
 			return false
 	end,
 })
@@ -66,19 +66,19 @@ nz.Perks.Functions.NewPerk("sleight", {
 	price = 100,
 	func = function(self, ply)
 			print(self)
-			print("This perk doesn't have any functionality yet.")
+			ply:PrintMessage( HUD_PRINTTALK, "This perk doesn't have any functionality yet.")
 			return false
 	end,
 })
 
 nz.Perks.Functions.NewPerk("pap", {
 	name = "Pack-a-Punch",
-	off_model = "models/alig96/perks/sleight/sleight_off.mdl", //Find a new model.
-	on_model = "models/alig96/perks/sleight/sleight_on.mdl",
+	off_model = "models/alig96/perks/packapunch/packapunch.mdl", //Find a new model.
+	on_model = "models/alig96/perks/packapunch/packapunch.mdl",
 	price = 100,
 	func = function(self, ply)
 			print(self)
-			print("This perk doesn't have any functionality yet.")
+			ply:PrintMessage( HUD_PRINTTALK, "This perk doesn't have any functionality yet.")
 			return false
 	end,
 })
