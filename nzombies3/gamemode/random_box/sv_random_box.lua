@@ -10,6 +10,12 @@ function nz.RandomBox.Functions.SpawnBox()
 		box:SetPos( rand:GetPos() )
 		box:SetAngles( rand:GetAngles() )
 		box:Spawn()
+		box:PhysicsInit( SOLID_VPHYSICS )
+		
+		local phys = box:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
 	else
 		print("No random box spawns have been set.")
 	end

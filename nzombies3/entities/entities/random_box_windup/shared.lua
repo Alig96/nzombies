@@ -37,12 +37,16 @@ end
 
 function ENT:Use( activator, caller )
 	if !self:GetWinding() then
-		activator:Give(self.Gun.ClassName)
-		//Just for display, since we're setting their ammo anyway
-		activator:GiveAmmo(nz.Misc.Functions.CalculateMaxAmmo(self.Gun.ClassName), weapons.Get(self.Gun.ClassName).Primary.Ammo)
-		nz.Misc.Functions.GiveMaxAmmoWep(activator, self.Gun.ClassName)
-		self:GetParent():Close()
-		self:Remove()
+		if activator == self.Buyer then
+			activator:Give(self.Gun.ClassName)
+			nz.Misc.Functions.GiveMaxAmmoWep(activator, self.Gun.ClassName)
+			self:GetParent():Close()
+			self:Remove()
+		else
+			if self.Buyer:IsValid() then
+				activator:PrintMessage( HUD_PRINTTALK, "This is " .. self.Buyer:Nick() .. "'s gun. You cannot take it." )
+			end
+		end
 	end
 end
 

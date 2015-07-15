@@ -20,29 +20,30 @@ function nz.Enemies.Functions.CheckIfSuitable(pos)
 end
 
 function nz.Enemies.Functions.ValidSpawns()
+
 	local valids = {}
+	local spawns = {}
 	
-	//make a table of valid spawns
-	for k,v in pairs(ents.FindByClass("zed_spawns")) do
-		local link = v.link
-		if link != nil then
-			if nz.Doors.Data.OpenedLinks[tonumber(v.link)] then //Zombie Links
-				for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1000)) do
-					if v2:IsPlayer() then
-						table.insert(valids, v:GetPos())
-						break
-					end
-				end
-			end
-		else
-			for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1000)) do
-				if v2:IsPlayer() then
-					table.insert(valids, v:GetPos())
-					break
-				end
+	//Make a table of spawns
+	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
+		//Get all spawns in the range
+		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1200)) do
+			if v2:GetClass() == "zed_spawns" then
+				table.insert(spawns, v2)
 			end
 		end
-	end	
+		//Remove all spawns that are too close
+		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 200)) do
+			if table.HasValue(spawns, v2) then
+				table.RemoveByValue(spawns, v2)
+			end
+		end
+	end
+	
+	//Get positions
+	for k,v in pairs(spawns) do
+		table.insert(valids, v:GetPos())
+	end
 	
 	return valids
 end

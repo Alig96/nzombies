@@ -235,6 +235,6 @@ end
 
 hook.Add("Initialize", "nz_Loadmaps", function()
 	timer.Simple(5, function()
-		nz.Mapping.Functions.LoadConfig("nz_"..game.GetMap())
+		nz.Mapping.Functions.LoadConfig("nz_"..game.GetMap()..".txt")
 	end)
 end)

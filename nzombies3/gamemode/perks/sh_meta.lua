@@ -30,10 +30,7 @@ if SERVER then
 	end
 	
 	function playerMeta:RemovePerks()
-		if nz.Perks.Data.Players[self] == nil then nz.Perks.Data.Players[self] = {} end
-		for k,v in pairs(nz.Perks.Data.Players[self]) do
-			self:RemovePerk(id)
-		end
+		table.Empty(nz.Perks.Data.Players[self])
 		nz.Perks.Functions.SendSync()
 	end
 	

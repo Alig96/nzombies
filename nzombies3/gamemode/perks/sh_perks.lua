@@ -25,8 +25,8 @@ end
 
 nz.Perks.Functions.NewPerk("jugg", {
 	name = "Juggernog",
-	off_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/jugg_off.mdl",
-	on_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/jugg_on.mdl",
+	off_model = "models/alig96/perks/jugg/jugg_off.mdl",
+	on_model = "models/alig96/perks/jugg/jugg_on.mdl",
 	price = 100,
 	func = function(self, ply)
 			ply:SetMaxHealth(200)
@@ -37,8 +37,8 @@ nz.Perks.Functions.NewPerk("jugg", {
 
 nz.Perks.Functions.NewPerk("dtap", {
 	name = "Double Tap",
-	off_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/doubletapoff.mdl",
-	on_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/doubletapon.mdl",
+	off_model = "models/alig96/perks/doubletap/doubletap_off.mdl",
+	on_model = "models/alig96/perks/doubletap/doubletap_on.mdl",
 	price = 100,
 	func = function(self, ply)
 			print(self)
@@ -49,8 +49,8 @@ nz.Perks.Functions.NewPerk("dtap", {
 
 nz.Perks.Functions.NewPerk("revive", {
 	name = "Quick Revive",
-	off_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/revive_off.mdl",
-	on_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/revive_on.mdl",
+	off_model = "models/alig96/perks/revive/revive_off.mdl",
+	on_model = "models/alig96/perks/revive/revive_on.mdl",
 	price = 100,
 	func = function(self, ply)
 			print(self)
@@ -61,8 +61,8 @@ nz.Perks.Functions.NewPerk("revive", {
 
 nz.Perks.Functions.NewPerk("sleight", {
 	name = "Sleight of Hand",
-	off_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/sleight_off.mdl",
-	on_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/sleight_on.mdl",
+	off_model = "models/alig96/perks/sleight/sleight_off.mdl",
+	on_model = "models/alig96/perks/sleight/sleight_on.mdl",
 	price = 100,
 	func = function(self, ply)
 			print(self)
@@ -73,8 +73,8 @@ nz.Perks.Functions.NewPerk("sleight", {
 
 nz.Perks.Functions.NewPerk("pap", {
 	name = "Pack-a-Punch",
-	off_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/sleight_off.mdl", //Find a new model.
-	on_model = "models/CoDWaW/Beat the Zombie/Perk A Cola Machines/sleight_off.mdl",
+	off_model = "models/alig96/perks/sleight/sleight_off.mdl", //Find a new model.
+	on_model = "models/alig96/perks/sleight/sleight_on.mdl",
 	price = 100,
 	func = function(self, ply)
 			print(self)

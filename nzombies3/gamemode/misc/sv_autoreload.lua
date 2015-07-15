@@ -1,4 +1,5 @@
 function GM:OnReloaded( )
+	print("Reloading Data!")
 	//Reload the data from the entities back into the tables
 	//Door data
 	for k,v in pairs(ents.GetAll()) do
@@ -10,7 +11,7 @@ function GM:OnReloaded( )
 		end
 	end
 	
-	nz.Rounds.Functions.SendSync()
-	nz.Doors.Functions.SendSync()
+	
+	nz.Players.Functions.FullSync( ply )
 	
 end

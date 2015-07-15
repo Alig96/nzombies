@@ -15,7 +15,7 @@ function nz.Display.Functions.GetText( ent )
 	local text = ""
 	
 	if ent:IsPlayer() then
-		text = ent:Nick()
+		text = ent:Nick() .. " - " .. ent:Health() .. " HP"
 	end
 	
 	if class == "wall_buys" then

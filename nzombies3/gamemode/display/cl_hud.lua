@@ -33,7 +33,7 @@ function nz.Display.Functions.ScoreHud()
 	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG then
 		for k,v in pairs(player.GetAll()) do
 			if v:GetPoints() >= 0 then
-				draw.SimpleText(v:Nick().." - "..v:GetPoints(), "nz.display.hud.small", ScrW() * 0.8, ScrH() / 2 + (20*k), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
+				draw.SimpleText(v:Nick().."(" .. v:Health() .." HP) - "..v:GetPoints(), "nz.display.hud.small", ScrW() * 0.8, ScrH() / 2 + (20*k), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
 			end
 		end
 	end

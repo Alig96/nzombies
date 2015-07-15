@@ -26,12 +26,18 @@ function nz.Mapping.Functions.WallBuy(pos, gun, price, angle)
 
 	if weapons.Get(gun) != nil then
 	
-		local ent1 = ents.Create("wall_buys") 
-		ent1:SetAngles(angle)
-		pos.z = pos.z - ent1:OBBMaxs().z
-		ent1:SetWeapon(gun, price)
-		ent1:SetPos( pos )
-		ent1:Spawn()
+		local ent = ents.Create("wall_buys") 
+		ent:SetAngles(angle)
+		pos.z = pos.z - ent:OBBMaxs().z
+		ent:SetWeapon(gun, price)
+		ent:SetPos( pos )
+		ent:Spawn()
+		ent:PhysicsInit( SOLID_VPHYSICS )
+		
+		local phys = ent:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
 		
 	else
 		print("SKIPPED: " .. gun .. ". Are you sure you have it installed?")
@@ -51,6 +57,11 @@ function nz.Mapping.Functions.PropBuy(pos,ang,model,flags)
 	if flags != nil then
 		nz.Doors.Functions.CreateLink( prop, flags )
 	end
+	
+	local phys = prop:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
 end
 
 function nz.Mapping.Functions.Electric(pos,ang,model)
@@ -64,6 +75,12 @@ function nz.Mapping.Functions.Electric(pos,ang,model)
 	ent:SetPos( pos )
 	ent:SetAngles( ang )
 	ent:Spawn()
+	ent:PhysicsInit( SOLID_VPHYSICS )
+		
+	local phys = ent:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
 end
 
 function nz.Mapping.Functions.BlockSpawn(pos,ang,model)
@@ -73,6 +90,11 @@ function nz.Mapping.Functions.BlockSpawn(pos,ang,model)
 	block:SetAngles( ang )
 	block:Spawn()
 	block:PhysicsInit( SOLID_VPHYSICS )
+	
+	local phys = block:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
 end
 
 function nz.Mapping.Functions.BoxSpawn(pos,ang)
@@ -95,6 +117,10 @@ function nz.Mapping.Functions.PerkMachine(pos, ang, id)
 	perk:Activate()
 	perk:PhysicsInit( SOLID_VPHYSICS )
 	
+	local phys = perk:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
 end
 
 
