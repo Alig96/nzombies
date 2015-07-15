@@ -40,6 +40,15 @@ function nz.Enemies.Functions.ValidSpawns()
 		end
 	end
 	
+	//Removed unopened linked doors
+	for k,v in pairs(spawns) do
+		if v.link != nil then
+			if nz.Doors.Data.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
+				spawns[k] = nil
+			end
+		end
+	end
+	
 	//Get positions
 	for k,v in pairs(spawns) do
 		table.insert(valids, v:GetPos())
