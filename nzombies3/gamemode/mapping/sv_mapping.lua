@@ -140,8 +140,8 @@ end
 
 //Physgun Hooks
 function nz.Mapping.Functions.OnPhysgunPickup( ply, ent )
-
-	if ( ent:GetClass() == "prop_buys" or ent:GetClass() == "wall_block"  ) then 
+	local class = ent:GetClass()
+	if ( class == "prop_buys" or class == "wall_block" or class == "breakable_entry" ) then 
 		//Ghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(false)
@@ -150,8 +150,8 @@ function nz.Mapping.Functions.OnPhysgunPickup( ply, ent )
 end
 
 function nz.Mapping.Functions.OnPhysgunDrop( ply, ent )
-
-	if ( ent:GetClass() == "prop_buys" or ent:GetClass() == "wall_block" ) then 
+	local class = ent:GetClass()
+	if ( class == "prop_buys" or class == "wall_block" or class == "breakable_entry" ) then 
 		//Unghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(true)

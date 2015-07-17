@@ -73,12 +73,10 @@ end
 
 function ENT:SpawnPlank()
 	//Spawn
-	
 	local angs = {-60,-70,60,70}
-
 	local plank = ents.Create("breakable_entry_plank")
 	plank:SetPos( self:GetPos()+Vector(0,0, math.random( -45, 45 )) )
-	plank:SetAngles( Angle(0,0, table.Random(angs)) )
+	plank:SetAngles( Angle(0,self:GetAngles().y, table.Random(angs)) )
 	plank:Spawn()
 	plank:SetParent(self)
 	table.insert(self.Planks, plank)
