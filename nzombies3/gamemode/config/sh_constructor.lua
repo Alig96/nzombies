@@ -77,16 +77,12 @@ if SERVER then
 	
 	nz.Config.AllowDropins = true
 	
-	//MAIN CONFIG
 	
-	
-	
-	//Curves
-	
-
-
 
 	
 end
 
 //Shared
+
+//Barricades
+nz.Config.MaxPlanks = 6

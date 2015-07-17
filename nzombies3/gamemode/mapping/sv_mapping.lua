@@ -123,6 +123,19 @@ function nz.Mapping.Functions.PerkMachine(pos, ang, id)
 	end
 end
 
+function nz.Mapping.Functions.BreakEntry(pos,ang)
+	local entry = ents.Create( "breakable_entry" )
+	entry:SetPos( pos )
+	entry:SetAngles( ang )
+	entry:Spawn()
+	entry:PhysicsInit( SOLID_VPHYSICS )
+	
+	local phys = entry:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
+end
+
 
 
 //Physgun Hooks

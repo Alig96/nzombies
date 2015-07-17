@@ -35,6 +35,12 @@ function nz.Display.Functions.GetText( ent )
 		text = "Health: " .. ent:Health()
 	end
 	
+	if class == "breakable_entry" then
+		if ent:Health() < nz.Config.MaxPlanks * 10 then
+			text = "Hold E to rebuild the barricade."
+		end
+	end
+	
 	if class == "random_box" then
 		if !ent:GetOpen() then
 			text = "Press E to buy a random weapon for 950 points."

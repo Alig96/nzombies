@@ -1,6 +1,6 @@
 //
 
-nz.Mapping.Data.Version = 300 //Note to Ali; Any time you make an update to the way this is saved, increment this.
+nz.Mapping.Data.Version = 350 //Note to Ali; Any time you make an update to the way this is saved, increment this.
 
 function nz.Mapping.Functions.SaveConfig()
 
@@ -94,6 +94,15 @@ function nz.Mapping.Functions.SaveConfig()
 		end
 	end
 	
+	//barricades
+	local break_entry = {}
+	for k,v in pairs(ents.FindByClass("breakable_entry")) do
+		table.insert(break_entry, {
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+		})
+	end
+	
 	main["ZedSpawns"] = zed_spawns
 	main["PlayerSpawns"] = player_spawns
 	main["WallBuys"] = wall_buys
@@ -103,6 +112,7 @@ function nz.Mapping.Functions.SaveConfig()
 	main["RandomBoxSpawns"] = randombox_spawn
 	main["PerkMachineSpawns"] = perk_machinespawns
 	main["DoorSetup"] = door_setup
+	main["BreakEntry"] = break_entry
 	
 	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
@@ -149,6 +159,10 @@ function nz.Mapping.Functions.ClearConfig()
 		nz.Doors.Functions.RemoveMapDoorLink( k )
 	end
 	
+	for k,v in pairs(ents.FindByClass("breakable_entry")) do
+		v:Remove()
+	end
+	
 	//Sync
 	nz.Rounds.Functions.SendSync()
 	nz.Doors.Functions.SendSync()
@@ -179,6 +193,10 @@ function nz.Mapping.Functions.LoadConfig( name )
 		
 		if version < 300 then
 			print("Warning: Inital Version: No changes have been made.")
+		end
+		
+		if version < 350 then
+			print("Warning: This map config does not contain any set barricades.")
 		end
 
 		nz.Mapping.Functions.ClearConfig()
@@ -223,6 +241,13 @@ function nz.Mapping.Functions.LoadConfig( name )
 		//Normal Map doors
 		for k,v in pairs(data.DoorSetup) do
 			nz.Doors.Functions.CreateMapDoorLink(k, v.flags)
+		end
+		
+		if version >= 350 then
+			//Barricades
+			for k,v in pairs(data.BreakEntry) do
+				nz.Mapping.Functions.BreakEntry(v.pos, v.angle)
+			end
 		end
 		
 		print("[NZ] Finished loading map config.")

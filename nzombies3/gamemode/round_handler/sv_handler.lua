@@ -199,6 +199,10 @@ function nz.Rounds.Functions.SetupGame()
 				nz.Doors.Functions.OpenDoor( v )
 			end
 		end
+		//Setup barricades
+		if v:GetClass() == "breakable_entry" then
+			v:ResetPlanks()
+		end
 	end
 	
 	//Empty the link table
@@ -212,6 +216,8 @@ function nz.Rounds.Functions.SetupGame()
 	nz.RandomBox.Functions.SpawnBox()
 	//Clear the start time
 	nz.Rounds.Data.StartTime = nil
+	
+	
 end
 
 function nz.Rounds.Functions.RoundHandler()
