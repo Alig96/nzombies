@@ -30,7 +30,7 @@ if SERVER then
 	end
 	
 	function playerMeta:RemovePerks()
-		table.Empty(nz.Perks.Data.Players[self])
+		nz.Perks.Data.Players[self] = {}
 		nz.Perks.Functions.SendSync()
 	end
 	

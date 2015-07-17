@@ -32,3 +32,12 @@ function nz.Enemies.Functions.OnEnemyHurt(enemy, attacker)
 		end
 	end
 end
+
+
+function nz.Enemies.Functions.OnEntityCreated( ent )
+	if ( ent:GetClass() == "prop_ragdoll" ) then
+		ent:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+	end
+end
+
+hook.Add("OnEntityCreated", "nz.Enemies.OnEntityCreated", nz.Enemies.Functions.OnEntityCreated)

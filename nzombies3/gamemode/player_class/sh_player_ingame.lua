@@ -29,6 +29,9 @@ function PLAYER:Spawn()
 		self.Player:SetPoints(nz.Config.BaseStartingPoints)
 	end
 	
+	//Reset their perks
+	self.Player:RemovePerks()
+	
 	local spawns = ents.FindByClass("player_spawns")
 	//Get player number
 	for k,v in pairs(player.GetAll()) do

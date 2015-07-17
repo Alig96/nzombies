@@ -128,14 +128,13 @@ function nz.Rounds.Functions.ResetGame()
 	for k,v in pairs(ents.FindByClass("perk_machine")) do
 		v:TurnOff()
 	end
-	//Remove all players perks
+	
 	for k,v in pairs(player.GetAll()) do
-		v:RemovePerks()
+		v:SetPoints(0) //Reset all player points
+		v:SetFrags(0) //Reset all player kills
+		v:RemovePerks() //Remove all players perks
 	end
-	//Reset all player points
-	for k,v in pairs(player.GetAll()) do
-		v:SetPoints(0)
-	end
+	
 	//Clean up powerups
 	nz.PowerUps.Functions.CleanUp()
 	

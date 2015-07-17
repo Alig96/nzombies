@@ -32,8 +32,10 @@ end
 function nz.Display.Functions.ScoreHud()
 	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG then
 		for k,v in pairs(player.GetAll()) do
+			local hp = v:Health()
+			if hp == 0 then hp = "Dead" else hp = hp .. " HP"  end
 			if v:GetPoints() >= 0 then
-				draw.SimpleText(v:Nick().."(" .. v:Health() .." HP) - "..v:GetPoints(), "nz.display.hud.small", ScrW() * 0.8, ScrH() / 2 + (20*k), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
+				draw.SimpleText(v:Nick().."(" .. hp ..  ") - "..v:GetPoints(), "nz.display.hud.small", ScrW() * 0.8, ScrH() / 2 + (20*k), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
 			end
 		end
 	end
@@ -43,15 +45,17 @@ function nz.Display.Functions.ScoreHud()
 end
 
 function nz.Display.Functions.PowerUpsHud()
-	local font = "nz.display.hud.main"
-	local w = ScrW() / 2
-	local offset = 40
-	local c = 0
-	for k,v in pairs(nz.PowerUps.Data.ActivePowerUps) do
-		if nz.PowerUps.Functions.IsPowerupActive(k) then
-			local powerupData = nz.PowerUps.Functions.Get(k)
-			draw.SimpleText(powerupData.name .. " - " .. math.Round(v - CurTime()), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			c = c + 1
+	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG then
+		local font = "nz.display.hud.main"
+		local w = ScrW() / 2
+		local offset = 40
+		local c = 0
+		for k,v in pairs(nz.PowerUps.Data.ActivePowerUps) do
+			if nz.PowerUps.Functions.IsPowerupActive(k) then
+				local powerupData = nz.PowerUps.Functions.Get(k)
+				draw.SimpleText(powerupData.name .. " - " .. math.Round(v - CurTime()), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				c = c + 1
+			end
 		end
 	end
 end
