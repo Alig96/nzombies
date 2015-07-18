@@ -48,6 +48,8 @@ function ENT:RemovePlank()
 			 entphys:Wake()
 		end
 		
+		plank:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
+		
 		//Remove
 		timer.Simple(2, function() plank:Remove() end)
 	end
@@ -79,6 +81,7 @@ function ENT:SpawnPlank()
 	plank:SetAngles( Angle(0,self:GetAngles().y, table.Random(angs)) )
 	plank:Spawn()
 	plank:SetParent(self)
+	plank:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
 	table.insert(self.Planks, plank)
 end
 
