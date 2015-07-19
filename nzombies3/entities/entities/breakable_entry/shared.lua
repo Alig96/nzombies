@@ -47,9 +47,7 @@ function ENT:RemovePlank()
 			 entphys:EnableGravity(true)
 			 entphys:Wake()
 		end
-
 		plank:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
-
 		//Remove
 		timer.Simple(2, function() plank:Remove() end)
 	end
