@@ -1,7 +1,7 @@
 AddCSLuaFile( )
 
 ENT.Type = "anim"
- 
+
 ENT.PrintName		= "random_box"
 ENT.Author			= "Alig96"
 ENT.Contact			= "Don't"
@@ -11,7 +11,7 @@ ENT.Instructions	= ""
 function ENT:SetupDataTables()
 
 	self:NetworkVar( "Bool", 0, "Open" )
-	
+
 end
 
 function ENT:Initialize()
@@ -20,13 +20,13 @@ function ENT:Initialize()
 	self:PhysicsInit( SOLID_VPHYSICS )
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
-	
+
 	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:Wake()
 	end
-	
-	self:DrawShadow( false )	
+
+	self:DrawShadow( false )
 	self:AddEffects( EF_ITEM_BLINK )
 	self:SetOpen(false)
 	self.Moving = false
@@ -44,11 +44,16 @@ end
 
 function ENT:BuyWeapon(ply)
 	if ply:CanAfford(950) then
-		ply:TakePoints(950)
-		self:Open()
-		local wep = self:SpawnWeapon( ply )
+            local class = nz.RandomBox.Functions.DecideWep(ply)
+            if class != nil then
+      		ply:TakePoints(950)
+      		self:Open()
+      		local wep = self:SpawnWeapon( ply, class )
+            else
+                  ply:PrintMessage( HUD_PRINTTALK, "No available weapons left!")
+            end
 	else
-		print("can't afford")
+		ply:PrintMessage( HUD_PRINTTALK, "You can't afford this!")
 	end
 end
 
@@ -57,7 +62,7 @@ function ENT:Open()
 	local sequence = self:LookupSequence("Close")
 	self:ResetSequence(sequence)
 	self:RemoveEffects( EF_ITEM_BLINK )
-	
+
 	self:SetOpen(true)
 end
 
@@ -65,24 +70,25 @@ function ENT:Close()
 	local sequence = self:LookupSequence("Open")
 	self:ResetSequence(sequence)
 	self:AddEffects( EF_ITEM_BLINK )
-	
+
 	self:SetOpen(false)
 end
 
-function ENT:SpawnWeapon(activator)
+function ENT:SpawnWeapon(activator, class)
 	local wep = ents.Create("random_box_windup")
 	wep:Spawn()
 	wep:SetPos( self:GetPos( ) - Vector(0,0,-10) )
 	wep.Buyer = activator
 	wep:SetParent( self )
-	
+	wep:SetWepClass(class)
+
 	return wep
 end
 
 function ENT:Think()
 	self:NextThink(CurTime())
 	return true
-end	
+end
 
 function ENT:MoveAway()
 	self.Moving = true
@@ -91,11 +97,11 @@ function ENT:MoveAway()
 	timer.Create( "shake", 0.1, 300, function()
 		if s < 30 then
 			if s % 2 == 0 then
-				if self:IsValid() then	
+				if self:IsValid() then
 					self:SetAngles(Angle(10, 0, 0))
 				end
 			else
-				if self:IsValid() then	
+				if self:IsValid() then
 					self:SetAngles(Angle(-10, 0, 0))
 				end
 			end
@@ -104,7 +110,7 @@ function ENT:MoveAway()
 		end
 		s = s + 1
 	end)
-	
+
 	//Move Up
 	timer.Simple( 1, function()
 			local c = 0
@@ -113,7 +119,7 @@ function ENT:MoveAway()
 					self.Moveing = false
 					timer.Destroy("moveAway")
 					timer.Destroy("shake")
-					
+
 					self:Remove()
 				else
 					if c < 30 then
@@ -125,22 +131,22 @@ function ENT:MoveAway()
 				end
 			end )
 		end)
-	
-	
+
+
 end
 
 if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 	end
-	
+
 	hook.Add( "PostDrawOpaqueRenderables", "random_box_beam", function()
 		for k,v in pairs(ents.FindByClass("random_box")) do
 			if ( LocalPlayer():GetPos():Distance( v:GetPos() ) ) > 750 then
 				local Vector1 = v:LocalToWorld( Vector( 0, 0, -200 ) )
 				local Vector2 = v:LocalToWorld( Vector( 0, 0, 5000 ) )
 				render.SetMaterial( Material( "cable/redlaser" ) )
-				render.DrawBeam( Vector1, Vector2, 300, 1, 1, Color( 255, 255, 255, 255 ) ) 
+				render.DrawBeam( Vector1, Vector2, 300, 1, 1, Color( 255, 255, 255, 255 ) )
 			end
 		end
 	end )

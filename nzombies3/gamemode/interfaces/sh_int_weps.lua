@@ -1,14 +1,16 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.WepBuyHandler( data )
-		nz.Mapping.Functions.WallBuy(data.vec, data.class, tonumber(data.price), data.ang)
+	function nz.Interfaces.Functions.WepBuyHandler( ply, data )
+		if ply:IsSuperAdmin() then
+			nz.Mapping.Functions.WallBuy(data.vec, data.class, tonumber(data.price), data.ang)
+		end
 	end
 end
 
 if CLIENT then
 	function nz.Interfaces.Functions.WepBuy( data )
-	
+
 		local valz = {}
 		valz["Row1"] = "weapon_class"
 		valz["Row2"] = 500
@@ -22,11 +24,11 @@ if CLIENT then
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
-		
+
 		local DProperties = vgui.Create( "DProperties", DermaPanel )
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 30 )
-		
+
 		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
 		Row1:Setup( "Generic" )
 		Row1:SetValue( valz["Row1"] )
@@ -42,17 +44,17 @@ if CLIENT then
 		DermaButton:SetPos( 10, 140 )
 		DermaButton:SetSize( 280, 30 )
 		DermaButton.DoClick = function()
-			
+
 			//Check the weapon class is fine first
 			if weapons.Get( valz["Row1"] ) != nil then
 				data.class = valz["Row1"]
 				data.price = tostring(valz["Row2"])
 				PrintTable(data)
 				nz.Interfaces.Functions.SendRequests( "WepBuy", data )
-				
+
 				DermaPanel:Close()
 			end
-			
+
 		end
 	end
 end

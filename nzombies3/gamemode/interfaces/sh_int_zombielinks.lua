@@ -1,11 +1,12 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.ZombLinkHandler( data )
-		data.ent.link = data.link
-		//For the link displayer
-		print("setting")
-		data.ent:SetLink(data.link)
+	function nz.Interfaces.Functions.ZombLinkHandler( ply, data )
+		if ply:IsSuperAdmin() then
+			data.ent.link = data.link
+			//For the link displayer
+			data.ent:SetLink(data.link)
+		end
 	end
 end
 
@@ -22,7 +23,7 @@ if CLIENT then
 			valz["Row2"] = data.link
 			name = "Modifying Zombie Link"
 		end
-		
+
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
 		DermaPanel:SetSize( 300, 180 )
@@ -32,11 +33,11 @@ if CLIENT then
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
-		
+
 		local DProperties = vgui.Create( "DProperties", DermaPanel )
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 30 )
-		
+
 		local Row1 = DProperties:CreateRow( "Zombie Spawn", "Enable Flag?" )
 		Row1:Setup( "Boolean" )
 		Row1:SetValue( valz["Row1"] )
@@ -45,7 +46,7 @@ if CLIENT then
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val end
-		
+
 		local DermaButton = vgui.Create( "DButton" )
 		DermaButton:SetParent( DermaPanel )
 		DermaButton:SetText( "Submit" )
@@ -60,7 +61,7 @@ if CLIENT then
 			end
 			data.link = str
 			nz.Interfaces.Functions.SendRequests( "ZombLink", data )
-			
+
 			DermaPanel:Close()
 		end
 	end

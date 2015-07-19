@@ -22,6 +22,3 @@ PropMenuAddModel("Gates", "models/props_c17/fence03a.mdl")
 
 PropMenuAddCat("Scenery")
 PropMenuAddModel("Scenery", "models/props_borealis/bluebarrel001.mdl")
-
-PropMenuAddCat("Dicks")
-PropMenuAddModel("Dicks", "models/props_c17/fence03a.mdl")

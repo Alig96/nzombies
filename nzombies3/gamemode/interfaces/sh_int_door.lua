@@ -1,8 +1,10 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.DoorPropsHandler( data )
-		nz.Doors.Functions.CreateLink( data.ent, data.flags )
+	function nz.Interfaces.Functions.DoorPropsHandler( ply, data )
+		if ply:IsSuperAdmin() then
+			nz.Doors.Functions.CreateLink( data.ent, data.flags )
+		end
 	end
 end
 
@@ -15,9 +17,9 @@ if CLIENT then
 		valz["Row2"] = 1
 		valz["Row3"] = 1000
 		valz["Row4"] = 0
-		
+
 		local door_data = nil
-		
+
 		//Check if the ent has flags already
 		if ent:IsDoor() then
 			door_data = nz.Doors.Data.LinkFlags[ent:doorIndex()]
@@ -43,11 +45,11 @@ if CLIENT then
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
-		
+
 		local DProperties = vgui.Create( "DProperties", DermaPanel )
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 30 )
-		
+
 		local Row1 = DProperties:CreateRow( "Door Settings", "Enable Flag?" )
 		Row1:Setup( "Boolean" )
 		Row1:SetValue( valz["Row1"] )
@@ -64,7 +66,7 @@ if CLIENT then
 		Row4:Setup( "Boolean" )
 		Row4:SetValue( valz["Row4"] )
 		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
-		
+
 		local DermaButton = vgui.Create( "DButton" )
 		DermaButton:SetParent( DermaPanel )
 		DermaButton:SetText( "Submit" )
@@ -85,10 +87,10 @@ if CLIENT then
 			DermaPanel:SetTitle( "Modifying Door Flag" )
 			local flagString = compileString(valz["Row3"], valz["Row4"], flag)
 			print(flagString)
-			
+
 			//Send the data
 			nz.Interfaces.Functions.SendRequests( "DoorProps", {flags = flagString, ent = ent} )
-			
+
 		end
 	end
 

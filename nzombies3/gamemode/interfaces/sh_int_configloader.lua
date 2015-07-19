@@ -1,8 +1,10 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.ConfigLoaderHandler( data )
-		nz.Mapping.Functions.LoadConfig( data.config )
+	function nz.Interfaces.Functions.ConfigLoaderHandler( ply, data )
+		if ply:IsSuperAdmin() then
+			nz.Mapping.Functions.LoadConfig( data.config )
+		end
 	end
 end
 
@@ -17,7 +19,7 @@ if CLIENT then
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
-		
+
 		local DermaListView = vgui.Create("DListView")
 		DermaListView:SetParent(DermaPanel)
 		DermaListView:SetPos(10, 30)
@@ -28,7 +30,7 @@ if CLIENT then
 		for k,v in pairs(data.configs) do
 			DermaListView:AddLine(v)
 		end
-		
+
 		local DermaButton = vgui.Create( "DButton" )
 		DermaButton:SetParent( DermaPanel )
 		DermaButton:SetText( "Submit" )

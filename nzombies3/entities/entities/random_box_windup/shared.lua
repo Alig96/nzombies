@@ -1,7 +1,7 @@
 AddCSLuaFile( )
 
 ENT.Type = "anim"
- 
+
 ENT.PrintName		= "random_box_windup"
 ENT.Author			= "Alig96"
 ENT.Contact			= "Don't"
@@ -12,25 +12,24 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar( "Bool", 0, "Winding" )
 	self:NetworkVar( "String", 0, "WepClass")
-	
+
 end
 
 function ENT:Initialize()
+
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
-	if SERVER then
-		self:SetModel(table.Random(self:GenList()).WorldModel)
-	end
 	self:DrawShadow( false )
-	//self.Winding = true
+
 	self:SetWinding(true)
-	self:SetWepClass("zzz")
 	self.c = 0
 	self.s = -20
-	timer.Simple(7, function() 
-	//self.Winding = false 
-	self:SetWinding(false)  end)
+	self:SetModel("models/weapons/w_rif_ak47.mdl")
+
 	if SERVER then
+		//Stop winding up
+		timer.Simple(7, function() self:SetWinding(false) self:SetModel(weapons.Get(self:GetWepClass()).WorldModel) end)
+		//If we time out, remove the object
 		timer.Simple(18, function() if self:IsValid() then self:GetParent():Close() self:Remove() end end)
 	end
 end
@@ -38,8 +37,9 @@ end
 function ENT:Use( activator, caller )
 	if !self:GetWinding() then
 		if activator == self.Buyer then
-			activator:Give(self.Gun.ClassName)
-			nz.Misc.Functions.GiveMaxAmmoWep(activator, self.Gun.ClassName)
+			local class = self:GetWepClass()
+			activator:Give(class)
+			nz.Misc.Functions.GiveMaxAmmoWep(activator, class)
 			self:GetParent():Close()
 			self:Remove()
 		else
@@ -50,29 +50,10 @@ function ENT:Use( activator, caller )
 	end
 end
 
-function ENT:GenList( )
-	local guns = {}
-	local blacklist = nz.Config.WeaponBlackList
-	if IsValid(self.Buyer) then
-		for k,v in pairs( self.Buyer:GetWeapons() ) do 
-			table.insert(blacklist, v.ClassName)
-		end
-	end
-	for k,v in pairs( weapons.GetList() ) do 
-		if !table.HasValue(blacklist, v.ClassName) then
-			if v.WorldModel != nil then
-				table.insert(guns, v)
-				print(v.ClassName)
-			end
-		end
-	end 
-	return guns
-end
-
 function ENT:WindUp( )
-	local gun = table.Random(self:GenList())
+	local gun = table.Random(weapons.GetList())
 	if gun.WorldModel != nil then
-		self.Gun = gun
+		self:SetModel(gun.WorldModel)
 	end
 	self.c = self.c + 1
 	if self.c > 7 then
@@ -82,7 +63,6 @@ function ENT:WindUp( )
 end
 
 function ENT:WindDown( )
-	if self:GetWepClass() == "zzz" then self:SetWepClass(self.Gun.ClassName) end
 	self.s = self.s + 1
 	if self.s > 7 then
 		self.s = 7
@@ -99,7 +79,6 @@ function ENT:Think()
 		else
 			self:WindDown()
 		end
-		self:SetModel(self.Gun.WorldModel)
 	end
 end
 

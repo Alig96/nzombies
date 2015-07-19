@@ -1,9 +1,11 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.PerkMachineHandler( data )
-		data.ent:SetPerkID(data.id)
-		data.ent:TurnOff() //Quickly update the model
+	function nz.Interfaces.Functions.PerkMachineHandler( ply, data )
+		if ply:IsSuperAdmin() then
+			data.ent:SetPerkID(data.id)
+			data.ent:TurnOff() //Quickly update the model
+		end
 	end
 end
 
@@ -18,7 +20,7 @@ if CLIENT then
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
-		
+
 		local choices = vgui.Create( "DComboBox", DermaPanel )
 		choices:SetPos( 10, 30 )
 		choices:SetSize( 280, 30 )
