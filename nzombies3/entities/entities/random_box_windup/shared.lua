@@ -39,7 +39,7 @@ function ENT:Use( activator, caller )
 		if activator == self.Buyer then
 			local class = self:GetWepClass()
 			activator:Give(class)
-			nz.Misc.Functions.GiveMaxAmmoWep(activator, class)
+			nz.Weps.Functions.GiveMaxAmmoWep(activator, class)
 			self:GetParent():Close()
 			self:Remove()
 		else

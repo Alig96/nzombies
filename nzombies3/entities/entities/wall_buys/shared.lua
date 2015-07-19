@@ -1,7 +1,7 @@
 AddCSLuaFile( )
 
 ENT.Type = "anim"
- 
+
 ENT.PrintName		= "buy_gun_area"
 ENT.Author			= "Alig96"
 ENT.Contact			= "Don't"
@@ -20,7 +20,7 @@ if SERVER then
 		self:SetSolid( SOLID_VPHYSICS )
 		self:SetUseType(SIMPLE_USE)
 	end
-	
+
 	function ENT:SetWeapon(weapon, price)
 		//Add a special check for FAS weps
 		if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
@@ -35,20 +35,20 @@ if SERVER then
 		self:SetEntName(weapon)
 		self:SetPrice(price)
 	end
-	 
+
 	function ENT:Use( activator, caller )
 		local price = self.Price
 		local ammo_type = weapons.Get(self.WeaponGive).Primary.Ammo
 		local ammo_price = math.Round((price - (price % 10))/2)
 		local curr_ammo = activator:GetAmmoCount( ammo_type )
-		local give_ammo = nz.Misc.Functions.CalculateMaxAmmo(self.WeaponGive) - curr_ammo
-		
-		
+		local give_ammo = nz.Weps.Functions.CalculateMaxAmmo(self.WeaponGive) - curr_ammo
+
+
 		if !activator:HasWeapon( self.WeaponGive ) then
 			if activator:CanAfford(price) then
 				activator:TakePoints(price)
 				activator:Give(self.WeaponGive)
-				nz.Misc.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+				nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
 			else
 				print("Can't afford!")
 			end
@@ -56,7 +56,7 @@ if SERVER then
 			if activator:CanAfford(ammo_price) then
 				if give_ammo != 0 then
 					activator:TakePoints(ammo_price)
-					nz.Misc.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+					nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
 				else
 					print("Max Clip!")
 				end

@@ -42,9 +42,9 @@ end
 
 function ENT:GetPriorityEnemy()
 	local pos = self:GetPos()
-	
+
 	local min_dist, closest_target = -1, nil
-	
+
 	for _, target in pairs(player.GetAll()) do
 		if (IsValid(target)&&target:Alive()&&target:GetMoveType()==MOVETYPE_WALK) then
 			local dist = target:NearestPoint(pos):Distance(pos)
@@ -54,7 +54,7 @@ function ENT:GetPriorityEnemy()
 			end
 		end
 	end
-	
+
 	return closest_target
 end
 
@@ -71,16 +71,16 @@ function ENT:RunBehaviour()
 				data.maxs = self:OBBMaxs() * 0.65
 			local trace = util.TraceHull(data)
 			local entity = trace.Entity
-			
+
 			//Barricades
 			if (IsValid(entity) and entity:GetClass() == "breakable_entry" ) then
 				if entity:Health() != 0 then
 					timer.Simple(0.3, function()
-						
+
 						entity:EmitSound("physics/wood/wood_plank_break"..math.random(1, 4)..".wav", 100, math.random(90, 130))
-						
+
 						entity:RemovePlank()
-						
+
 					end)
 
 					self:PlaySequenceAndWait("swing", 1)
@@ -237,12 +237,12 @@ function ENT:OnKilled(damageInfo)
 			end
 		end
 	end
-	
+
 	self:EmitSound(table.Random(deathSounds), 50, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
-	
+
 	nz.Enemies.Functions.OnEnemyKilled( self, attacker )
-	
+
 end
 
 local painSounds = {
@@ -273,6 +273,6 @@ function ENT:OnInjured(damageInfo)
 	self:EmitSound(table.Random(painSounds), 50, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
-	
+
 	nz.Enemies.Functions.OnEnemyHurt( self, attacker, hitgroup )
 end

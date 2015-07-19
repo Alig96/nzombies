@@ -1,6 +1,6 @@
 DEFINE_BASECLASS( "player_default" )
 
-local PLAYER = {} 
+local PLAYER = {}
 
 --
 -- See gamemodes/base/player_class/player_default.lua for all overridable variables
@@ -12,7 +12,7 @@ PLAYER.CanUseFlashlight     = true
 function PLAYER:Init()
 	//Don't forget Colours
 	//This runs when the player is first brought into the game and when they die during a round and are brought back
-	
+
 end
 
 function PLAYER:Loadout()
@@ -20,7 +20,14 @@ function PLAYER:Loadout()
 	for k,v in pairs(nz.Config.BaseStartingWeapons) do
 		self.Player:Give( v )
 	end
-	nz.Misc.Functions.GiveMaxAmmo(self.Player)
+	nz.Weps.Functions.GiveMaxAmmo(self.Player)
+
+	if FAS2_Attachments != nil then
+		for k,v in pairs(FAS2_Attachments) do
+			self.Player:FAS2_PickUpAttachment(v.key)
+		end
+	end
+	
 end
 function PLAYER:Spawn()
 
@@ -28,10 +35,10 @@ function PLAYER:Spawn()
 		//Poor guy has no money, lets start him off
 		self.Player:SetPoints(nz.Config.BaseStartingPoints)
 	end
-	
+
 	//Reset their perks
 	self.Player:RemovePerks()
-	
+
 	local spawns = ents.FindByClass("player_spawns")
 	//Get player number
 	for k,v in pairs(player.GetAll()) do

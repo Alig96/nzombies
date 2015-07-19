@@ -7,15 +7,15 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker)
 		attacker:GivePoints(90)
 		attacker:AddFrags(1)
 	end
-	
+
 	nz.Rounds.Data.KilledZombies = nz.Rounds.Data.KilledZombies + 1
 	//nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned - 1
-	
+
 	//Chance a powerup spawning
 	if nz.PowerUps.Functions.IsPowerupActive("insta") == false then //Don't spawn powerups during instakill
 		nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
 	end
-	
+
 	print("Killed Enemy: " .. nz.Rounds.Data.KilledZombies .. "/" .. nz.Rounds.Data.MaxZombies )
 end
 
