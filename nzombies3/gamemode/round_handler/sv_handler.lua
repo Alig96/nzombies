@@ -180,6 +180,27 @@ function nz.Rounds.Functions.CreateMode()
 	nz.Rounds.Functions.SendSync()
 end
 
+function nz.Rounds.Functions.CreateAllMode()
+
+	if nz.Rounds.Data.CurrentState == ROUND_INIT then
+		PrintMessage( HUD_PRINTTALK, "The mode has been set to creative mode!" )
+		nz.Rounds.Data.CurrentState = ROUND_CREATE
+		//We are in create
+		for k,v in pairs(player.GetAll()) do
+				nz.Rounds.Functions.Create(v)
+		end
+		nz.Doors.Functions.LockAllDoors()
+	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
+		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
+		nz.Rounds.Data.CurrentState = ROUND_INIT
+		//We are in play mode
+		for k,v in pairs(player.GetAll()) do
+			v:SetAsSpec()
+		end
+	end
+	nz.Rounds.Functions.SendSync()
+end
+
 function nz.Rounds.Functions.SetupGame()
 	
 	//Store a session of all our players

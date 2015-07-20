@@ -103,3 +103,99 @@ NewChatCommand("/soundcheck", function(ply, text)
 		nz.Notifications.Functions.PlaySound("nz/round/game_over_4.mp3", 21)
 	end
 end)
+
+//puts all players into creative mode regardless of rank.
+NewChatCommand("/createall", function(ply, text)
+	if ply:IsSuperAdmin() then
+		nz.Rounds.Functions.CreateAllMode()
+	end
+end)
+
+//Either readies up all players or drops them in the following round.
+NewChatCommand("/readyall", function(ply, text)
+	for k,v in pairs(player.GetAll()) do
+			nz.Rounds.Functions.DropIn(v)
+	end
+	PrintMessage( HUD_PRINTTALK, "All players will drop in next round!" )
+end)
+
+//Gives all super admins 100000 points.
+NewChatCommand("/givepoints", function(ply, text)
+if ply:IsSuperAdmin() then
+for k,v in pairs(player.GetAll()) do
+		if v:IsSuperAdmin() then
+			v:GivePoints(100000)
+
+		end
+		PrintMessage( HUD_PRINTTALK, "Superadmins have been given 100000 points." )
+	end
+end)
+
+//Forces the round to end by killing all enemies on the map and forcing a new round. Untested, use at your own risk
+NewChatCommand("/endround", function(ply, text)
+if ply:IsSuperAdmin() or ply:IsAdmin() then
+for k,v in pairs(nz.Config.ValidEnemies) do
+		for k2,enemy in pairs(ents.FindByClass(v)) do
+			if enemy:IsValid() then
+				local insta = DamageInfo()
+				insta:SetDamage(enemy:Health())
+				insta:SetAttacker(Entity(0))
+				insta:SetDamageType(DMG_DISSOLVE)
+				//Delay so it doesnt "die" twice
+				timer.Simple(0.1, function() if enemy:IsValid() then enemy:TakeDamageInfo( insta ) end 
+
+end)
+			end
+		end	
+	end
+nz.Rounds.Functions.PrepareRound()
+end)
+
+//gives super admins all perks (Will only work they you have a compatible weapon, otherwise is buggy) Does give quick revive despite it not being programmed at the time of writing, for future proofing.
+NewChatCommand("/allperks", function(ply, text)
+if ply:IsSuperAdmin() then
+	for k,v in pairs(player.GetAll()) do
+		if v:IsSuperAdmin() then
+		v:GivePerk("jugg")
+		v:GivePerk("dtap")
+		v:GivePerk("sleight")
+		v:GivePerk("pap")
+		v:GivePerk("revive")
+		end
+	end
+end)
+
+//Removes your perks
+NewChatCommand("/removeperks", function(ply, text)
+ply:RemovePerks()
+end)
+
+//Removes all players perks.
+NewChatCommand("/removeperksall", function(ply, text)
+if ply:IsSuperAdmin() or ply:IsAdmin() then
+for k,v in pairs(player.GetAll()) do
+		v:RemovePerks()
+	end
+end)
+
+//Respawns random box. Included for debug reasons
+NewChatCommand("/respawn", function(ply, text)
+	if ply:IsSuperAdmin() or ply:IsAdmin() then
+nz.RandomBox.Functions.RemoveBox()
+nz.RandomBox.Functions.SpawnBox()
+	end
+end)
+
+//Respawns the user. Not tested, use with caution.
+NewChatCommand("/respawn", function(ply, text)
+if ply:IsSuperAdmin() or ply:IsAdmin() then
+nz.Rounds.Functions.ReSpawn(ply)
+	end
+end)
+
+//total reset of game
+NewChatCommand("/resetgame", function(ply, text)
+	if ply:IsSuperAdmin() then
+		nz.Rounds.Functions.ResetGame()
+	end
+end)
