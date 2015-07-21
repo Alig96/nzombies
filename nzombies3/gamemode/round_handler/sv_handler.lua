@@ -1,35 +1,35 @@
 //
 
-function nz.Rounds.Functions.CheckPrerequisites()	
+function nz.Rounds.Functions.CheckPrerequisites()
 
 	//If there is there is less than one player
 	if #player.GetAll() < 1 then
-		return "Not enough players to start a game."
+		return //"Not enough players to start a game."
 	end
-	
+
 	//Check if zed/player spawns have been setup
 	if nz.Mapping.Functions.CheckSpawns() == false then
 		return "No Zombie/Player spawns have been set."
 	end
-	
+
 	//Check if we have enough player spawns
 	if nz.Mapping.Functions.CheckEnoughPlayerSpawns() == false then
 		return "Not enough player spawns have been set. We need " .. #player.GetAll() .. " but only have " .. #ents.FindByClass("player_spawns") .. "."
 	end
-	
+
 	//If enough players are ready
 	if nz.Rounds.Functions.CheckReady() == false then
 		return "Not enough players have readied up."
 	end
-	
-	
+
+
 	//All Checks have passed, lets go!
 	if nz.Rounds.Data.StartTime == nil then
 		nz.Rounds.Data.StartTime = CurTime() + 5
 		print("All checks passed, starting in 5 seconds.")
 		PrintMessage( HUD_PRINTTALK, "5 seconds till start time." )
 	end
-	
+
 	local str = ""
 	//Get the players that are playing
 	for k,v in pairs(player.GetAll()) do
@@ -38,22 +38,22 @@ function nz.Rounds.Functions.CheckPrerequisites()
 		end
 	end
 	PrintMessage( HUD_PRINTTALK, "Players that will be playing: " .. str )
-	
+
 	return true
-	
+
 end
 
 function nz.Rounds.Functions.PrepareRound()
-	
+
 	//Main Behaviour
 	nz.Rounds.Data.CurrentState = ROUND_PREP
 	nz.Rounds.Functions.SendSync()
 	nz.Rounds.Data.CurrentRound = nz.Rounds.Data.CurrentRound + 1
-	
+
 	nz.Rounds.Data.MaxZombies = nz.Curves.Data.SpawnRate[nz.Rounds.Data.CurrentRound]
 	nz.Rounds.Data.KilledZombies = 0
 	nz.Rounds.Data.ZombiesSpawned = 0
-	
+
 	//Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.Data.CurrentRound.." preparing" )
 	hook.Run("nz.Round.Prep", nz.Rounds.Data.CurrentRound)
@@ -63,22 +63,22 @@ function nz.Rounds.Functions.PrepareRound()
 	else
 		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
 	end
-	
+
 	//Spawn all players
 	//Check config for dropins
 	//For now, only allow the players who started the game to spawn
 	for k,v in pairs(nz.Rounds.Data.CurrentPlayers) do
 		nz.Rounds.Functions.ReSpawn(v)
 	end
-	
+
 	//Heal
 	for k,v in pairs(nz.Rounds.Data.CurrentPlayers) do
 		v:SetHealth(v:GetMaxHealth())
 	end
-	
+
 	//Start the next round
 	timer.Simple(nz.Config.PrepareTime, function() nz.Rounds.Functions.StartRound() end)
-	
+
 end
 
 function nz.Rounds.Functions.StartRound()
@@ -91,7 +91,7 @@ function nz.Rounds.Functions.StartRound()
 		PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.Data.CurrentRound.." started" )
 		hook.Run("nz.Round.Start", nz.Rounds.Data.CurrentRound)
 	end
-	
+
 end
 
 function nz.Rounds.Functions.ResetGame()
@@ -102,11 +102,11 @@ function nz.Rounds.Functions.ResetGame()
 	PrintMessage( HUD_PRINTTALK, "GAME READY!" )
 	//Reset variables
 	nz.Rounds.Data.CurrentRound = 0
-	
+
 	nz.Rounds.Data.KilledZombies = 0
 	nz.Rounds.Data.ZombiesSpawned = 0
 	nz.Rounds.Data.MaxZombies = 0
-	
+
 	//Reset all player ready states
 	for k,v in pairs(player.GetAll()) do
 		nz.Rounds.Functions.UnReady(v)
@@ -123,21 +123,20 @@ function nz.Rounds.Functions.ResetGame()
 	nz.Elec.Functions.Reset()
 	//Remove the random box
 	nz.RandomBox.Functions.RemoveBox()
-	
+
 	//Reset all perk machines
 	for k,v in pairs(ents.FindByClass("perk_machine")) do
 		v:TurnOff()
 	end
-	
+
 	for k,v in pairs(player.GetAll()) do
 		v:SetPoints(0) //Reset all player points
-		v:SetFrags(0) //Reset all player kills
 		v:RemovePerks() //Remove all players perks
 	end
-	
+
 	//Clean up powerups
 	nz.PowerUps.Functions.CleanUp()
-	
+
 end
 
 function nz.Rounds.Functions.EndRound()
@@ -153,7 +152,7 @@ function nz.Rounds.Functions.EndRound()
 			nz.Rounds.Functions.ResetGame()
 		end)
 	else
-		//This if statement is to prevent the game from ending twice if all players die during preparing 
+		//This if statement is to prevent the game from ending twice if all players die during preparing
 	end
 end
 
@@ -181,21 +180,22 @@ function nz.Rounds.Functions.CreateMode()
 end
 
 function nz.Rounds.Functions.SetupGame()
-	
+
 	//Store a session of all our players
 	for k,v in pairs(player.GetAll()) do
 		if v:IsValid() and !v:IsPermSpec() then
 			nz.Rounds.Functions.AddPlayer(v)
 		end
 		v.Ready = 0
+		v:SetFrags(0) //Reset all player kills
 	end
-	
+
 	nz.Doors.Functions.LockAllDoors()
 
 	//Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() or v:IsBuyableProp() then
-			if v.price == 0 and v.elec == 0 then 
+			if v.price == 0 and v.elec == 0 then
 				nz.Doors.Functions.OpenDoor( v )
 			end
 		end
@@ -204,20 +204,20 @@ function nz.Rounds.Functions.SetupGame()
 			v:ResetPlanks()
 		end
 	end
-	
+
 	//Empty the link table
 	table.Empty(nz.Doors.Data.OpenedLinks)
-	
+
 	//All doors with Link 0 (No Link)
 	nz.Doors.Data.OpenedLinks[0] = true
 	nz.Doors.Functions.SendSync()
-	
+
 	//Spawn a random box
 	nz.RandomBox.Functions.SpawnBox()
 	//Clear the start time
 	nz.Rounds.Data.StartTime = nil
-	
-	
+
+
 end
 
 function nz.Rounds.Functions.RoundHandler()
@@ -237,7 +237,7 @@ function nz.Rounds.Functions.RoundHandler()
 			print(pre)
 			return //Don't process any further than here
 		end
-		
+
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		//Un-ready all players
 		for k,v in pairs(player.GetAll()) do
@@ -245,17 +245,17 @@ function nz.Rounds.Functions.RoundHandler()
 		end
 		return //Don't process any further than here
 	end
-	
+
 	//If all players are dead, then end the game.
 	if !nz.Rounds.Functions.CheckAlive() and (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP) then
 		nz.Rounds.Functions.EndRound()
 	end
-	
+
 	//If we've killed all the zombies, then progress to the next level.
 	if (nz.Rounds.Data.KilledZombies == nz.Rounds.Data.MaxZombies) and nz.Rounds.Data.CurrentState == ROUND_PROG then
 		nz.Rounds.Functions.PrepareRound()
 	end
-	
+
 end
 
 timer.Create("nz.Rounds.Handler", 1, 0, nz.Rounds.Functions.RoundHandler)
