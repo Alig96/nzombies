@@ -1,6 +1,8 @@
-//Fonts
+//Fonts (Since they don't work with workshop)
 resource.AddFile( "resource/fonts/DK Umbilical Noose.ttf" )
 
-//Sounds
+//Content Pack
+resource.AddWorkshop( "485777655" )
 
-//Auto generate this list
+//FAS2 Base Weapons
+resource.AddWorkshop( "180507408" )
