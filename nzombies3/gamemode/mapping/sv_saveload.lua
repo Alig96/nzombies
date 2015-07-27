@@ -2,7 +2,7 @@
 
 nz.Mapping.Data.Version = 350 //Note to Ali; Any time you make an update to the way this is saved, increment this.
 
-function nz.Mapping.Functions.SaveConfig()
+function nz.Mapping.Functions.SaveConfig(cleanup)
 
 	local main = {}
 	
@@ -202,10 +202,8 @@ function nz.Mapping.Functions.LoadConfig( name )
 
 	local filepath = "nz/"..name
 	
-	if file.Exists( filepath, "DATA" ) then
+	if file.Exists( filepath, "DATA" )then
 		print("[NZ] MAP CONFIG FOUND!")
-		
-		
 		
 		local data = util.JSONToTable( file.Read( filepath, "DATA" ) )
 		
@@ -294,6 +292,36 @@ function nz.Mapping.Functions.LoadConfig( name )
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
 	end
 	
+end
+
+function nz.Mapping.Functions.CleanUpMap()
+	game.CleanUpMap(true, {
+		"breakable_entry",
+		"breakable_entry_plank",
+		"button_elec",
+		"perk_machine",
+		"player_handler",
+		"player_spawns",
+		"prop_buys",
+		"random_box_spawns",
+		"random_box_handler",
+		"wall_block",
+		"wall_buys",
+		"zed_spawns"
+	})
+	//Gotta reset the doors and other entites' values!
+	for k,v in pairs(nz.Doors.Data.LinkFlags) do
+		local door = nz.Doors.Functions.doorIndexToEnt(k)
+		door.elec = tonumber(v.elec)
+		door.price = tonumber(v.price)
+		door.link = tonumber(v.link)
+		door.locked = true
+		if door:IsDoor() then
+			door:DoorLock()
+		elseif door:IsButton() then
+			door:ButtonLock()
+		end
+	end
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()

@@ -59,6 +59,7 @@ function nz.Rounds.Functions.PrepareRound()
 	hook.Run("nz.Round.Prep", nz.Rounds.Data.CurrentRound)
 	//Play the sound
 	if nz.Rounds.Data.CurrentRound == 1 then
+		--nz.Mapping.Functions.CleanUpMap()
 		--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 	else
 		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
@@ -195,6 +196,7 @@ function nz.Rounds.Functions.SetupGame()
 		v:SetFrags(0) //Reset all player kills
 	end
 
+	nz.Mapping.Functions.CleanUpMap()
 	nz.Doors.Functions.LockAllDoors()
 
 	//Open all doors with no price and electricity requirement

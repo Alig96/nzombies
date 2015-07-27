@@ -40,12 +40,12 @@ function nz.Doors.Functions.LockAllDoors()
 				//Unlocked doors get an output which forces it to stay open once you open it
 				v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
 				v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
+				print("added output to", v)
 			end
 		//Allow locking buttons
 		elseif v:IsButton() and nz.Doors.Data.LinkFlags[v:doorIndex()] then
 			v:ButtonLock()
 			v:SetUseType( SIMPLE_USE )
-			print("LOCKED!", v)
 		end
 	end
 	nz.Doors.Data.OpenedLinks = {}
@@ -56,6 +56,7 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 	local price = ent.price
 	local req_elec = ent.elec
 	local link = ent.link
+	print("Entity info buying ", ent, link, req_elec, price)
 	//If it has a price
 	if price != nil then
 		if ply:CanAfford(price) and ent.Locked == true then
@@ -78,7 +79,6 @@ end
 function nz.Doors.Functions.OnUseDoor( ply, ent )
 	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
 		nz.Doors.Functions.BuyDoor( ply, ent )
-		if ent:IsButton() then return true end
 	end
 end
 hook.Add( "PlayerUse", "player_buydoors", nz.Doors.Functions.OnUseDoor )

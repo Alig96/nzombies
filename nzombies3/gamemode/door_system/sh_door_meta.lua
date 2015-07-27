@@ -46,6 +46,7 @@ function meta:DoorUnlock()
 	//Delay opening the door by a second to stop the door from accidentally opening then closing forever.
 	//timer.Simple(1, function() 
 		if self:IsDoor() then
+			print("Unlocking ", self)
 			self.Locked = false
 			self:Fire("unlock", "", 0)
 			self:Fire("Unlock", "", 0)
