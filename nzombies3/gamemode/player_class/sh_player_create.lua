@@ -30,7 +30,7 @@ function PLAYER:Loadout()
 	self.Player:Give( "nz_tool_perk_machine" )
 	self.Player:Give( "nz_tool_barricades" )
 	self.Player:Give( "nz_tool_ee" )
-
+		
 end
 
 player_manager.RegisterClass( "player_create", PLAYER, "player_default" )
