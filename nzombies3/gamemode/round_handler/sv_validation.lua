@@ -4,7 +4,7 @@ function nz.Rounds.Functions.CheckReady()
 
 	local count = 0
 	local total = 0
-	
+
 	//Get the total number of players that are willing
 	for k,v in pairs(player.GetAll()) do
 		if !v:IsPermSpec() then
@@ -23,9 +23,9 @@ function nz.Rounds.Functions.CheckReady()
 	if count / total < 0.66 then
 		return false
 	end
-	
+
 	return true
-	
+
 end
 
 function nz.Rounds.Functions.CheckAlive()
@@ -36,6 +36,10 @@ function nz.Rounds.Functions.CheckAlive()
 			return true
 		end
 	end
-	
+
 	return false
+end
+
+function nz.Rounds.Functions.IsInGame()
+	return (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP)
 end

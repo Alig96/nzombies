@@ -88,13 +88,23 @@ end
 
 function nz.Weps.Functions.OnWepCreated( ent )
 	if ent:IsWeapon() and (nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG) then
-		timer.Simple(1, function()
+		timer.Simple(0.1, function()
 			local ply = ent.Owner
 			if ply:HasPerk("sleight") then
 				nz.Weps.Functions.ApplySleight( ply, ent )
 			end
 			if ply:HasPerk("dtap") then
 				nz.Weps.Functions.ApplyDTap( ply, ent )
+			end
+			if nz.Rounds.Functions.IsInGame() then
+				//Check if we should replace the players weapon.
+				if #ply:GetWeapons() > nz.Config.MaxWeps then
+					local active_wep = ply:GetActiveWeapon():GetClass()
+					timer.Simple(1, function() ply:StripWeapon(active_wep) end)
+				end
+				//Damn it FAS2 weps
+				timer.Simple(0.5, function() ply:SelectWeapon(ent:GetClass()) end)
+				timer.Simple(1, function() ply:SelectWeapon(ent:GetClass()) end)
 			end
 		end)
 	end

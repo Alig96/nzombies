@@ -1,6 +1,6 @@
 DEFINE_BASECLASS( "player_default" )
 
-local PLAYER = {} 
+local PLAYER = {}
 
 --
 -- See gamemodes/base/player_class/player_default.lua for all overridable variables
@@ -29,7 +29,8 @@ function PLAYER:Loadout()
 	self.Player:Give( "nz_tool_random_box" )
 	self.Player:Give( "nz_tool_perk_machine" )
 	self.Player:Give( "nz_tool_barricades" )
-	
+	self.Player:Give( "nz_tool_ee" )
+
 end
 
 player_manager.RegisterClass( "player_create", PLAYER, "player_default" )
