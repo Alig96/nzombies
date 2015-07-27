@@ -46,3 +46,4 @@ This is an edited version featuring these changes:
 		Set the prices of the perks to what they are in the real zombies game
 		Enabled the Start Round sound on every round, like in the real game
 		Random Box weapons float up with the right angle to match the box
+		Randmo Box Weapons can now be picked up even with wierd models
