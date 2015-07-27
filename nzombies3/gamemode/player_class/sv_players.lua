@@ -19,6 +19,8 @@ function nz.Players.Functions.FullSync( ply )
 	nz.Rounds.Functions.SendSync()
 	//Revival System
 	nz.Revive.Functions.SendSync()
+	//Fog
+	nz.Fog.Functions.SendSync()
 end
 
 function nz.Players.Functions.PlayerInitialSpawn( ply )

@@ -1,6 +1,6 @@
 //
 
-nz.Mapping.Data.Version = 350 //Note to Ali; Any time you make an update to the way this is saved, increment this.
+nz.Mapping.Data.Version = 381 //Note to Ali; Any time you make an update to the way this is saved, increment this.
 
 function nz.Mapping.Functions.SaveConfig(cleanup)
 
