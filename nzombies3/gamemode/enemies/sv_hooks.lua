@@ -12,7 +12,7 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker)
 	//nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned - 1
 
 	//Chance a powerup spawning
-	if nz.PowerUps.Functions.IsPowerupActive("insta") == false then //Don't spawn powerups during instakill
+	if nz.PowerUps.Functions.IsPowerupActive("insta") == false and enemy:IsValid() then //Don't spawn powerups during instakill
 		nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
 	end
 

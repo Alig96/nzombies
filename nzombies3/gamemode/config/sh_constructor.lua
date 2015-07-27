@@ -27,9 +27,14 @@ if SERVER then
 	//Electricity
 
 	//Enemies
-	nz.Config.ValidEnemies = {"nut_zombie"}
+	nz.Config.ValidEnemies = {"nut_zombie", "nut_zombie_ex"}
 	nz.Config.EnemyTypes = {}
 	nz.Config.EnemyTypes[1] = {["nut_zombie"] = 100}
+	nz.Config.EnemyTypes[6] = {["nut_zombie_ex"] = 100}
+	nz.Config.EnemyTypes[7] = {["nut_zombie"] = 100}
+	nz.Config.EnemyTypes[13] = {["nut_zombie"] = 80, ["nut_zombie_ex"] = 20}
+	nz.Config.EnemyTypes[18] = {["nut_zombie_ex"] = 100}
+	nz.Config.EnemyTypes[19] = {["nut_zombie"] = 70, ["nut_zombie_ex"] = 30}
 	//nz.Config.EnemyTypes[4] = {["hellhounds"] = 100}
 	//nz.Config.EnemyTypes[4] = {["nut_zombie"] = 80, ["hellhounds"] = 20}
 

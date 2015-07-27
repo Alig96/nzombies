@@ -17,6 +17,8 @@ function nz.Players.Functions.FullSync( ply )
 	nz.Perks.Functions.SendSync()
 	//Rounds
 	nz.Rounds.Functions.SendSync()
+	//Fog
+	nz.Fog.Functions.SendSync()
 end
 
 function nz.Players.Functions.PlayerInitialSpawn( ply )
