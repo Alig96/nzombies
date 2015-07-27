@@ -74,7 +74,8 @@ if SERVER then
 
 	nz.Config.AllowDropins = true
 
-
+	//Weapons
+	nz.Config.MaxWeps = 2
 
 
 end

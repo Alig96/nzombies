@@ -15,6 +15,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "String", 0, "StartWep" )
 	self:NetworkVar( "Int", 0, "StartPoints" )
 	self:NetworkVar( "Int", 1, "NumWeps" )
+	self:NetworkVar( "String", 1, "EEURL" )
 	
 end
 
@@ -29,13 +30,19 @@ function ENT:Initialize()
 	
 end
 
-function ENT:SetData(points, weapon, numweps)
+function ENT:SetData(points, weapon, numweps, eeurl)
 
 	self:SetStartPoints(points)
 	self:SetStartWep(weapon)
 	self:SetNumWeps(numweps)
+	self:SetEEURL(eeurl)
 
 end
+
+hook.Add("nz.EE.EasterEgg", "PlayEESong", function()
+	net.Start("EasterEggSong")
+	net.Broadcast()
+end)
 
 if CLIENT then
 	function ENT:Draw()
@@ -43,4 +50,9 @@ if CLIENT then
 			self:DrawModel()
 		end
 	end
+	net.Receive("EasterEggSong", function()
+		if self:GetEEURL() != "" and string.Left(self:GetEEURL(), 4) == "http" then
+			sound.PlayURL( self:GetEEURL(), "", function() end)
+		end
+	end)
 end

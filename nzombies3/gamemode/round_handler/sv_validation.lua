@@ -39,3 +39,7 @@ function nz.Rounds.Functions.CheckAlive()
 	
 	return false
 end
+
+function nz.Rounds.Functions.IsInGame()
+	return (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP)
+end

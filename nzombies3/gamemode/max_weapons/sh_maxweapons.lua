@@ -1,29 +1,4 @@
 //
-function nz.MaxWeapons.Functions.OnWeaponAdded( weapon )
-
-	//0 seconds timer for the next tick, where the weapon's owner will be valid
-	timer.Simple(0, function()
-		local ply = weapon:GetOwner()
-		if nz.Rounds.Data.CurrentState != ROUND_CREATE then
-			//If no Player Handler exists, players will be allowed infinite weapons again
-			if IsValid(ents.FindByClass("player_handler")[1]) then
-				local numweps = ents.FindByClass("player_handler")[1]:GetNumWeps()
-				
-				if #ply:GetWeapons() >= numweps then
-					//He is at max capacity, swap the weapons
-					ply:StripWeapon( ply:GetActiveWeapon():GetClass() )
-				end
-			end
-			
-			ply:SelectWeapon( weapon:GetClass() )
-			
-		end
-	end)
-	
-end
-
-//Hooks
-hook.Add("WeaponEquip", "OnWeaponAdded", nz.MaxWeapons.Functions.OnWeaponAdded)
 
 --[[ Stuff Added
 

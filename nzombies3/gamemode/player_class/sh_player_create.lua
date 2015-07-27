@@ -31,6 +31,7 @@ function PLAYER:Loadout()
 	self.Player:Give( "nz_tool_player_handler" )
 	self.Player:Give( "nz_tool_perk_machine" )
 	self.Player:Give( "nz_tool_barricades" )
+	self.Player:Give( "nz_tool_ee" )
 	
 end
 

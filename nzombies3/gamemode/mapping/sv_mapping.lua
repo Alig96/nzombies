@@ -22,6 +22,19 @@ function nz.Mapping.Functions.PlayerSpawn(pos)
 	
 end
 
+function nz.Mapping.Functions.EasterEgg(pos,ang,model)
+	local egg = ents.Create( "easter_egg" )
+	egg:SetModel( model )
+	egg:SetPos( pos )
+	egg:SetAngles( ang )
+	egg:Spawn()
+
+	local phys = egg:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
+	end
+end
+
 function nz.Mapping.Functions.WallBuy(pos, gun, price, angle)
 
 	if weapons.Get(gun) != nil then
@@ -76,7 +89,7 @@ function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
 	
 end
 
-function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, numweps, keep)
+function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, numweps, eeurl, keep)
 
 	local ent
 	
@@ -100,7 +113,7 @@ function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, n
 		end
 	end
 		
-	ent:SetData(startpoints, startwep, numweps)
+	ent:SetData(startpoints, startwep, numweps, eeurl)
 	
 end
 

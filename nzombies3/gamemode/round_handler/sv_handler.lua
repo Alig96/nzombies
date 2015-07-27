@@ -143,6 +143,9 @@ function nz.Rounds.Functions.ResetGame()
 
 	//Clean up powerups
 	nz.PowerUps.Functions.CleanUp()
+	
+	//Reset easter eggs
+	nz.EE.Functions.Reset()
 
 end
 
@@ -241,7 +244,7 @@ function nz.Rounds.Functions.RoundHandler()
 			//Reset the start timer
 			nz.Rounds.Data.StartTime = nil
 			// notify why, just print for now
-			print(pre)
+			if pre != nil then print(pre) end
 			return //Don't process any further than here
 		end
 
@@ -254,7 +257,7 @@ function nz.Rounds.Functions.RoundHandler()
 	end
 
 	//If all players are dead, then end the game.
-	if !nz.Rounds.Functions.CheckAlive() and (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP) then
+	if !nz.Rounds.Functions.CheckAlive() and nz.Rounds.Functions.IsInGame() then
 		nz.Rounds.Functions.EndRound()
 	end
 

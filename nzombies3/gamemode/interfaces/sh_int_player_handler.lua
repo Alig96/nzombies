@@ -3,7 +3,7 @@
 if SERVER then
 	function nz.Interfaces.Functions.PlayerHandlerHandler( ply, data )
 		if ply:IsSuperAdmin() then
-			nz.Mapping.Functions.PlayerHandler(data.vec, data.ang, data.startwep, data.startpoints, data.numweps, data.keep)
+			nz.Mapping.Functions.PlayerHandler(data.vec, data.ang, data.startwep, data.startpoints, data.numweps, data.eeurl, data.keep)
 		end
 	end
 end
@@ -15,6 +15,7 @@ if CLIENT then
 		valz["Row1"] = "weapon_class"
 		valz["Row2"] = 500
 		valz["Row3"] = 2
+		valz["Row4"] = "URL"
 		
 		//If we already have on and we reload on it
 		if data.keep and IsValid(ents.FindByClass("player_handler")[1]) then
@@ -22,6 +23,7 @@ if CLIENT then
 			valz["Row1"] = phandler:GetStartWep()
 			valz["Row2"] = phandler:GetStartPoints()
 			valz["Row3"] = phandler:GetNumWeps()
+			valz["Row4"] = phandler:GetEEURL()
 		end
 
 		local DermaPanel = vgui.Create( "DFrame" )
@@ -56,10 +58,15 @@ if CLIENT then
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val end
 		
-		local Row2 = DProperties:CreateRow( "Weapon Settings", "Max Weapons" )
-		Row2:Setup( "Integer" )
-		Row2:SetValue( valz["Row3"] )
-		Row2.DataChanged = function( _, val ) valz["Row3"] = val end
+		local Row3 = DProperties:CreateRow( "Weapon Settings", "Max Weapons" )
+		Row3:Setup( "Integer" )
+		Row3:SetValue( valz["Row3"] )
+		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
+		
+		local Row4 = DProperties:CreateRow( "Weapon Settings", "Max Weapons" )
+		Row4:Setup( "Generic" )
+		Row4:SetValue( valz["Row4"] )
+		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
 
 		local DermaButton = vgui.Create( "DButton" )
 		DermaButton:SetParent( DermaPanel )
@@ -73,6 +80,7 @@ if CLIENT then
 				data.startwep = valz["Row1"]
 				data.startpoints = valz["Row2"]
 				data.numweps = valz["Row3"]
+				data.eeurl = valz["Row4"]
 				PrintTable(data)
 				nz.Interfaces.Functions.SendRequests( "PlayerHandler", data )
 

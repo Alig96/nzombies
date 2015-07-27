@@ -13,6 +13,15 @@ function nz.Mapping.Functions.SaveConfig(cleanup)
 	
 	main.version = nz.Mapping.Data.Version
 	
+	local easter_eggs = {}
+	for k,v in pairs(ents.FindByClass("easter_egg")) do
+		table.insert(easter_eggs, {
+		pos = v:GetPos(),
+		angle = v:GetAngles(),
+		model = v:GetModel(),
+		})
+	end
+	
 	local player_handler = {}
 	for k,v in pairs(ents.FindByClass("player_handler")) do
 		table.insert(player_handler, {
@@ -135,6 +144,7 @@ function nz.Mapping.Functions.SaveConfig(cleanup)
 	main["BreakEntry"] = break_entry
 	main["RBoxHandler"] = random_box_handler
 	main["PlayerHandler"] = player_handler
+	main["EasterEggs"] = easter_eggs
 	
 	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
@@ -181,6 +191,10 @@ function nz.Mapping.Functions.ClearConfig()
 	end
 	
 	for k,v in pairs(ents.FindByClass("random_box_handler")) do
+		v:Remove()
+	end
+	
+	for k,v in pairs(ents.FindByClass("easter_egg")) do
 		v:Remove()
 	end
 	
@@ -272,6 +286,10 @@ function nz.Mapping.Functions.LoadConfig( name )
 		
 		for k,v in pairs(data.PlayerHandler) do
 			nz.Mapping.Functions.PlayerHandler(v.pos, v.angle, v.startwep, v.startpoints, v.numweps)
+		end
+		
+		for k,v in pairs(data.EasterEggs) do
+			nz.Mapping.Functions.EasterEgg(v.pos, v.angle, v.model)
 		end
 		
 		//Normal Map doors
