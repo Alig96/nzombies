@@ -45,6 +45,65 @@ function nz.Mapping.Functions.WallBuy(pos, gun, price, angle)
 	
 end
 
+function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
+
+	if keep then
+		local ent = ents.FindByClass("random_box_handler")[1]
+		ent:ClearWeapons()
+	else
+		if !IsValid( ent ) then ent = ents.Create("random_box_handler") end
+		ent:SetAngles(angle)
+		ent:SetPos( pos )
+		ent:Spawn()
+		ent:PhysicsInit( SOLID_VPHYSICS )
+		ent:SetColor( Color(0, 255, 255) )
+		
+		local phys = ent:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
+		//Just to be sure
+		ent:ClearWeapons()
+	end
+		
+	for k,v in pairs(guns) do
+		if weapons.Get(v) != nil then
+			ent:AddWeapon(v)
+		else
+			print("SKIPPED: " .. gun .. ". Are you sure you have it installed?")
+		end
+	end
+	
+end
+
+function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, numweps, keep)
+
+	local ent
+	
+	if keep then
+		ent = ents.FindByClass("player_handler")[1]
+	else
+		for k,v in pairs(ents.FindByClass("player_handler")) do
+			//WE CAN ONLY HAVE 1!
+			v:Remove()
+		end
+		ent = ents.Create("player_handler")
+		ent:SetAngles(angle)
+		ent:SetPos( pos )
+		ent:Spawn()
+		ent:PhysicsInit( SOLID_VPHYSICS )
+		ent:SetColor( Color(0, 255, 255) )
+		
+		local phys = ent:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
+	end
+		
+	ent:SetData(startpoints, startwep, numweps)
+	
+end
+
 function nz.Mapping.Functions.PropBuy(pos,ang,model,flags)
 	local prop = ents.Create( "prop_buys" )
 	prop:SetModel( model )

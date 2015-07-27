@@ -44,14 +44,14 @@ end
 
 function ENT:BuyWeapon(ply)
 	if ply:CanAfford(950) then
-            local class = nz.RandomBox.Functions.DecideWep(ply)
-            if class != nil then
+        local class = nz.RandomBox.Functions.DecideWep(ply)
+        if class != nil then
       		ply:TakePoints(950)
       		self:Open()
       		local wep = self:SpawnWeapon( ply, class )
-            else
-                  ply:PrintMessage( HUD_PRINTTALK, "No available weapons left!")
-            end
+        else
+            ply:PrintMessage( HUD_PRINTTALK, "No available weapons left!")
+        end
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "You can't afford this!")
 	end
@@ -80,6 +80,7 @@ function ENT:SpawnWeapon(activator, class)
 	wep:SetPos( self:GetPos( ) - Vector(0,0,-10) )
 	wep.Buyer = activator
 	wep:SetParent( self )
+	wep:SetAngles( self:GetAngles() )
 	wep:SetWepClass(class)
 
 	return wep

@@ -29,10 +29,18 @@ if CLIENT then
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 30 )
 
-		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
+		--[[local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
 		Row1:Setup( "Generic" )
 		Row1:SetValue( valz["Row1"] )
+		Row1.DataChanged = function( _, val ) valz["Row1"] = val end]]
+		
+		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
+		Row1:Setup( "Combo" )
+		for k,v in pairs(weapons.GetList()) do
+			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+		end
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
+		
 		local Row2 = DProperties:CreateRow( "Weapon Settings", "Price" )
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )

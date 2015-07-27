@@ -13,6 +13,26 @@ function nz.Mapping.Functions.SaveConfig()
 	
 	main.version = nz.Mapping.Data.Version
 	
+	local player_handler = {}
+	for k,v in pairs(ents.FindByClass("player_handler")) do
+		table.insert(player_handler, {
+		pos = v:GetPos(),
+		startwep = v:GetStartWep(),
+		startpoints = v:GetStartPoints(),
+		numweps = v:GetNumWeps(),
+		angle = v:GetAngles( ),
+		})
+	end
+	
+	local random_box_handler = {}
+	for k,v in pairs(ents.FindByClass("random_box_handler")) do
+		table.insert(random_box_handler, {
+		pos = v:GetPos(),
+		guns = v:GetWeaponsList(),
+		angle = v:GetAngles( ),
+		})
+	end
+	
 	local zed_spawns = {}
 	for k,v in pairs(ents.FindByClass("zed_spawns")) do
 		table.insert(zed_spawns, {
@@ -113,6 +133,8 @@ function nz.Mapping.Functions.SaveConfig()
 	main["PerkMachineSpawns"] = perk_machinespawns
 	main["DoorSetup"] = door_setup
 	main["BreakEntry"] = break_entry
+	main["RBoxHandler"] = random_box_handler
+	main["PlayerHandler"] = player_handler
 	
 	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
@@ -151,6 +173,14 @@ function nz.Mapping.Functions.ClearConfig()
 	end
 	
 	for k,v in pairs(ents.FindByClass("perk_machine")) do
+		v:Remove()
+	end
+	
+	for k,v in pairs(ents.FindByClass("player_handler")) do
+		v:Remove()
+	end
+	
+	for k,v in pairs(ents.FindByClass("random_box_handler")) do
 		v:Remove()
 	end
 	
@@ -236,6 +266,14 @@ function nz.Mapping.Functions.LoadConfig( name )
 		
 		for k,v in pairs(data.PerkMachineSpawns) do
 			nz.Mapping.Functions.PerkMachine(v.pos, v.angle, v.id)
+		end
+		
+		for k,v in pairs(data.RBoxHandler) do
+			nz.Mapping.Functions.RBoxHandler(v.pos, v.guns, v.angle)
+		end
+		
+		for k,v in pairs(data.PlayerHandler) do
+			nz.Mapping.Functions.PlayerHandler(v.pos, v.angle, v.startwep, v.startpoints, v.numweps)
 		end
 		
 		//Normal Map doors

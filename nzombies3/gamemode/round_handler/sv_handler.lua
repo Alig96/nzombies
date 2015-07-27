@@ -59,7 +59,7 @@ function nz.Rounds.Functions.PrepareRound()
 	hook.Run("nz.Round.Prep", nz.Rounds.Data.CurrentRound)
 	//Play the sound
 	if nz.Rounds.Data.CurrentRound == 1 then
-		nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
+		--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 	else
 		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
 	end
@@ -90,6 +90,7 @@ function nz.Rounds.Functions.StartRound()
 		//Notify
 		PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.Data.CurrentRound.." started" )
 		hook.Run("nz.Round.Start", nz.Rounds.Data.CurrentRound)
+		nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 	end
 
 end
@@ -111,6 +112,11 @@ function nz.Rounds.Functions.ResetGame()
 	for k,v in pairs(player.GetAll()) do
 		nz.Rounds.Functions.UnReady(v)
 	end
+	//Reset all downed players' downed status
+	for k,v in pairs(nz.Revive.Data.Players) do
+		k:KillDownedPlayer(true, true) 	//We set nosync on because we only need to sync once.
+	end
+	nz.Revive.Functions.SendSync()
 	//Remove all enemies
 	for k,v in pairs(nz.Config.ValidEnemies) do
 		for k2,v2 in pairs(ents.FindByClass(v)) do
@@ -167,7 +173,6 @@ function nz.Rounds.Functions.CreateMode()
 				nz.Rounds.Functions.Create(v)
 			end
 		end
-		nz.Doors.Functions.LockAllDoors()
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
 		nz.Rounds.Data.CurrentState = ROUND_INIT

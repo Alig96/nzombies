@@ -1,11 +1,23 @@
 //
 
+local traceents = {
+	["wall_buys"] = true,
+	["nut_zombie"] = true,
+	["breakable_entry"] = true,
+	["random_box"] = true,
+	["random_box_windup"] = true,
+	["perk_machine"] = true,
+	["player_spawns"] = true,
+	["zed_spawns"] = true,
+}
+
 function nz.Display.Functions.GetTarget()
 	local tr = util.GetPlayerTrace( LocalPlayer() )
 	local trace = util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	if (!trace.HitNonWorld) then return end
 	
+	--print(trace.Entity:GetClass())
 	return trace.Entity
 end
 
@@ -76,7 +88,7 @@ function nz.Display.Functions.GetText( ent )
 	
 	local door_data = nil
 	
-	if ent:IsDoor() then
+	if ent:IsDoor() or ent:IsButton() or ent:GetClass() == "class C_BaseEntity" then
 		//Normal Doors
 		door_data = nz.Doors.Data.LinkFlags[ent:doorIndex()]
 	end
@@ -91,11 +103,13 @@ function nz.Display.Functions.GetText( ent )
 		local price = door_data.price
 		local req_elec = door_data.elec
 		local link = door_data.link
+		--PrintTable(door_data)
 		if req_elec == "1" and !IsElec() then
 			text = "You must turn on the electricity first!"
 		else
-			if !nz.Doors.Data.OpenedLinks[link] == true then
+			if !nz.Doors.Data.OpenedLinks[tonumber(link)] == true then
 				if price != "0" then
+					--print("Still here", nz.Doors.Data.OpenedLinks[tonumber(link)])
 					text = "Press E to open for " .. price .. " points."
 				end
 			end
@@ -106,6 +120,14 @@ function nz.Display.Functions.GetText( ent )
 	if nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		if class == "player_spawns" then
 			text = "Player Spawn"
+		end
+		
+		if class == "player_handler" then
+			text = "Player Handler"
+		end
+		
+		if class == "random_box_handler" then
+			text = "Random Box Weapons Handler"
 		end
 		
 		if class == "zed_spawns" then

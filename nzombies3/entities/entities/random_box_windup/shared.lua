@@ -18,13 +18,14 @@ end
 function ENT:Initialize()
 
 	self:SetMoveType( MOVETYPE_NONE )
-	self:SetSolid( SOLID_VPHYSICS )
+	self:SetSolid( SOLID_OBB )
 	self:DrawShadow( false )
 
 	self:SetWinding(true)
 	self.c = 0
 	self.s = -20
 	self:SetModel("models/weapons/w_rif_ak47.mdl")
+	--self:SetAngles(self:GetParent():GetAngles())
 
 	if SERVER then
 		//Stop winding up

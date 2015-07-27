@@ -11,14 +11,14 @@ if SERVER then
 	nz.Config.MaxRounds = 100 // How much round data should we load?
 
 	//Spawn Rate Curve
-	nz.Config.BaseDifficultySpawnRateCurve = 5
-	nz.Config.DifficultySpawnRateCurve = 1.01
+	nz.Config.BaseDifficultySpawnRateCurve = 3
+	nz.Config.DifficultySpawnRateCurve = 1.005
 	//Health Curve
 	nz.Config.BaseDifficultyHealthCurve = 75
-	nz.Config.DifficultyHealthCurve = 0.4
+	nz.Config.DifficultyHealthCurve = 0.3
 	//Speed curve
 	nz.Config.BaseDifficultySpeedCurve = 60
-	nz.Config.DifficultySpeedCurve = 0.55
+	nz.Config.DifficultySpeedCurve = 0.4
 
 	//Display
 

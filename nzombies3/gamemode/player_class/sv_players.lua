@@ -17,6 +17,8 @@ function nz.Players.Functions.FullSync( ply )
 	nz.Perks.Functions.SendSync()
 	//Rounds
 	nz.Rounds.Functions.SendSync()
+	//Revival System
+	nz.Revive.Functions.SendSync()
 end
 
 function nz.Players.Functions.PlayerInitialSpawn( ply )
@@ -31,6 +33,7 @@ function nz.Players.Functions.PlayerDisconnected( ply )
 end
 
 function nz.Players.Functions.FriendlyFire( ply, ent )
+	if !ply:GetNotDowned() then return false end
 	if ent:IsPlayer() then
 		if ply:Team() == ent:Team() then
 			return false

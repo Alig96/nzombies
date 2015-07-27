@@ -46,7 +46,7 @@ function ENT:GetPriorityEnemy()
 	local min_dist, closest_target = -1, nil
 
 	for _, target in pairs(player.GetAll()) do
-		if (IsValid(target)&&target:Alive()&&target:GetMoveType()==MOVETYPE_WALK) then
+		if (IsValid(target)&&target:Alive()&&target:GetNotDowned()) then
 			local dist = target:NearestPoint(pos):Distance(pos)
 			if ((dist < min_dist||min_dist==-1)) then
 				closest_target = target
@@ -111,7 +111,7 @@ function ENT:RunBehaviour()
 							damageInfo:SetDamageForce(force)
 						target:TakeDamageInfo(damageInfo)
 						target:EmitSound("npc/zombie/zombie_hit.wav", 50, math.random(80, 160))
-						target:ViewPunch(VectorRand():Angle() * 0.1)
+						target:ViewPunch(VectorRand():Angle() * 0.05)
 						target:SetVelocity(force)
 					end
 				end)

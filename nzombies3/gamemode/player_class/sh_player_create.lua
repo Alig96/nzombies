@@ -27,6 +27,8 @@ function PLAYER:Loadout()
 	self.Player:Give( "nz_tool_elec" )
 	self.Player:Give( "nz_tool_block_spawns" )
 	self.Player:Give( "nz_tool_random_box" )
+	self.Player:Give( "nz_tool_random_box_handler" )
+	self.Player:Give( "nz_tool_player_handler" )
 	self.Player:Give( "nz_tool_perk_machine" )
 	self.Player:Give( "nz_tool_barricades" )
 	

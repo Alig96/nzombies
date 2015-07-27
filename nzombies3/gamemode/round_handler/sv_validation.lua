@@ -32,7 +32,7 @@ function nz.Rounds.Functions.CheckAlive()
 
 	//Check alive players!
 	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
-		if v:Alive() then
+		if v:Alive() and v:GetNotDowned() then
 			return true
 		end
 	end

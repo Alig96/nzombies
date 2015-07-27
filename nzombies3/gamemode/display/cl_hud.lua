@@ -33,7 +33,7 @@ function nz.Display.Functions.ScoreHud()
 	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG then
 		for k,v in pairs(player.GetAll()) do
 			local hp = v:Health()
-			if hp == 0 then hp = "Dead" else hp = hp .. " HP"  end
+			if hp == 0 then hp = "Dead" elseif nz.Revive.Data.Players[v] then hp = "Downed" else hp = hp .. " HP"  end
 			if v:GetPoints() >= 0 then
 				draw.SimpleText(v:Nick().."(" .. hp ..  ") - "..v:GetPoints(), "nz.display.hud.small", ScrW() * 0.8, ScrH() / 2 + (20*k), Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)			
 			end

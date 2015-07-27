@@ -50,11 +50,20 @@ function nz.RandomBox.Functions.DecideWep(ply)
 			end
 		end
 	end
-
-	//Add all guns to the guns table
-	for k,v in pairs( weapons.GetList() ) do
-		if !table.HasValue(blacklist, v.ClassName) then
-			table.insert(guns, v.ClassName)
+	
+	if IsValid(ents.FindByClass("random_box_handler")[1]) then
+		//Only add guns found in the Random Box Handler
+		for k,v in pairs( ents.FindByClass("random_box_handler")[1]:GetWeaponsList() ) do
+			if !table.HasValue(blacklist, v) then
+				table.insert(guns, v)
+			end
+		end
+	else
+		//It doesn't exist, add all guns
+		for k,v in pairs( weapons.GetList() ) do
+			if !table.HasValue(blacklist, v.ClassName) then
+				table.insert(guns, v.ClassName)
+			end
 		end
 	end
 

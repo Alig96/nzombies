@@ -29,7 +29,7 @@ end
 function ENT:AddPlank()
 	self:SpawnPlank()
 	self:SetHealth(self:Health()+10)
-	print("Health: " .. self:Health())
+	print("Barricade Health: " .. self:Health())
 end
 
 function ENT:RemovePlank()

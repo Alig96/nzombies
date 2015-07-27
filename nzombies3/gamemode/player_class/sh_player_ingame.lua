@@ -5,8 +5,8 @@ local PLAYER = {}
 --
 -- See gamemodes/base/player_class/player_default.lua for all overridable variables
 --
-PLAYER.WalkSpeed 			= 100
-PLAYER.RunSpeed				= 200
+PLAYER.WalkSpeed 			= 150
+PLAYER.RunSpeed				= 300
 PLAYER.CanUseFlashlight     = true
 
 function PLAYER:Init()
@@ -17,8 +17,16 @@ end
 
 function PLAYER:Loadout()
 	//Give ammo and guns
-	for k,v in pairs(nz.Config.BaseStartingWeapons) do
-		self.Player:Give( v )
+	
+	if IsValid(ents.FindByClass("player_handler")[1]) then
+		//A player handler exists, give those starting weapons
+		local ent = ents.FindByClass("player_handler")[1]
+		self.Player:Give( ent:GetStartWep() )
+	else
+		//A handler does not exist, give default starting weapons
+		for k,v in pairs(nz.Config.BaseStartingWeapons) do
+			self.Player:Give( v )
+		end
 	end
 	nz.Weps.Functions.GiveMaxAmmo(self.Player)
 
@@ -31,9 +39,16 @@ function PLAYER:Loadout()
 end
 function PLAYER:Spawn()
 
-	if !self.Player:CanAfford(nz.Config.BaseStartingPoints) then //Has less than 500 points
-		//Poor guy has no money, lets start him off
-		self.Player:SetPoints(nz.Config.BaseStartingPoints)
+	if IsValid(ents.FindByClass("player_handler")[1]) then
+		local ent = ents.FindByClass("player_handler")[1]
+		if !self.Player:CanAfford(ent:GetStartPoints()) then
+			self.Player:SetPoints(ent:GetStartPoints())
+		end
+	else
+		if !self.Player:CanAfford(nz.Config.BaseStartingPoints) then //Has less than 500 points
+			//Poor guy has no money, lets start him off
+			self.Player:SetPoints(nz.Config.BaseStartingPoints)
+		end
 	end
 
 	//Reset their perks

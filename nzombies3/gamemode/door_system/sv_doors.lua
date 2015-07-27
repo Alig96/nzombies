@@ -23,7 +23,7 @@ end
 function nz.Doors.Functions.CreateLink( ent, flagsStr )
 	//First remove all links
 	nz.Doors.Functions.RemoveLink( ent )
-	if ent:IsDoor() then
+	if ent:IsDoor() or ent:IsButton() then
 		nz.Doors.Functions.CreateMapDoorLink( ent:doorIndex(), flagsStr )
 	elseif ent:IsBuyableProp() then
 		nz.Doors.Functions.CreatePropDoorLink( ent, flagsStr )
@@ -31,7 +31,7 @@ function nz.Doors.Functions.CreateLink( ent, flagsStr )
 end
 
 function nz.Doors.Functions.RemoveLink( ent )
-	if ent:IsDoor() then
+	if ent:IsDoor() or ent:IsButton() then
 		nz.Doors.Functions.RemoveMapDoorLink( ent:doorIndex(), flagsStr )
 	elseif ent:IsBuyableProp() then
 		nz.Doors.Functions.RemovePropDoorLink( ent )
@@ -43,7 +43,7 @@ function nz.Doors.Functions.CreateMapDoorLink( doorID, flagsStr )
 	local door = nz.Doors.Functions.doorIndexToEnt(doorID)
 	local flagsTbl = nz.Doors.Functions.ParseFlagString( flagsStr )
 	
-	if door:IsValid() and door:IsDoor() then
+	if door:IsValid() and (door:IsDoor() or door:IsButton()) then
 		//Assign the flags to the door
 		for k,v in pairs(flagsTbl) do
 			door[k] = tonumber(v)
@@ -68,7 +68,7 @@ function nz.Doors.Functions.RemoveMapDoorLink( doorID )
 	local door = nz.Doors.Functions.doorIndexToEnt(doorID)
 	
 	if door.Data != nil then
-		if door:IsValid() and door:IsDoor() then
+		if door:IsValid() and (door:IsDoor() or door:IsButton()) then
 			local flagsTbl = nz.Doors.Functions.ParseFlagString( door.Data )
 			
 			//Remove the flags to the door
