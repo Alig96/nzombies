@@ -2,7 +2,7 @@
 
 nz.Mapping.Data.Version = 381 //Note to Ali; Any time you make an update to the way this is saved, increment this.
 
-function nz.Mapping.Functions.SaveConfig(cleanup)
+function nz.Mapping.Functions.SaveConfig()
 
 	local main = {}
 	
@@ -325,7 +325,8 @@ function nz.Mapping.Functions.CleanUpMap()
 		"random_box_handler",
 		"wall_block",
 		"wall_buys",
-		"zed_spawns"
+		"zed_spawns",
+		"easter_egg"
 	})
 	//Gotta reset the doors and other entites' values!
 	for k,v in pairs(nz.Doors.Data.LinkFlags) do
@@ -333,7 +334,7 @@ function nz.Mapping.Functions.CleanUpMap()
 		door.elec = tonumber(v.elec)
 		door.price = tonumber(v.price)
 		door.link = tonumber(v.link)
-		door.locked = true
+		door.Locked = true
 		if door:IsDoor() then
 			door:DoorLock()
 		elseif door:IsButton() then

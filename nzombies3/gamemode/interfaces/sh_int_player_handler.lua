@@ -63,7 +63,7 @@ if CLIENT then
 		Row3:SetValue( valz["Row3"] )
 		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
 		
-		local Row4 = DProperties:CreateRow( "Weapon Settings", "Max Weapons" )
+		local Row4 = DProperties:CreateRow( "Weapon Settings", "Easter Egg Song URL" )
 		Row4:Setup( "Generic" )
 		Row4:SetValue( valz["Row4"] )
 		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
