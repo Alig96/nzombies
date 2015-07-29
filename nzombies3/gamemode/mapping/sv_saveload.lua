@@ -334,6 +334,7 @@ function nz.Mapping.Functions.CleanUpMap()
 		door.elec = tonumber(v.elec)
 		door.price = tonumber(v.price)
 		door.link = tonumber(v.link)
+		door.buyable = tonumber(v.buyable)
 		door.Locked = true
 		if door:IsDoor() then
 			door:DoorLock()

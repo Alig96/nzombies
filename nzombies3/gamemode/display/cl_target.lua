@@ -98,12 +98,11 @@ function nz.Display.Functions.GetText( ent )
 		door_data = nz.Doors.Data.BuyableProps[ent:EntIndex()]
 	end
 	
-	//If we have door data
-	if door_data != nil then
+	//If we have door data - Don't draw target ID if the door can't even be bought
+	if door_data != nil and tonumber(door_data.buyable) == 1 then
 		local price = door_data.price
 		local req_elec = door_data.elec
 		local link = door_data.link
-		--PrintTable(door_data)
 		if req_elec == "1" and !IsElec() then
 			text = "You must turn on the electricity first!"
 		else
@@ -114,6 +113,9 @@ function nz.Display.Functions.GetText( ent )
 				end
 			end
 		end
+	elseif door_data != nil and tonumber(door_data.buyable) != 1 and nz.Rounds.Data.CurrentState == ROUND_CREATE then
+		text = "This door is locked and cannot be bought in-game."
+		--PrintTable(door_data)
 	end
 	
 	//Create Only

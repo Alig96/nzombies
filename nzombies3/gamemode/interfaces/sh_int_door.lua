@@ -17,6 +17,7 @@ if CLIENT then
 		valz["Row2"] = 1
 		valz["Row3"] = 1000
 		valz["Row4"] = 0
+		valz["Row5"] = 1
 
 		local door_data = nil
 
@@ -34,11 +35,12 @@ if CLIENT then
 			end
 			valz["Row3"] = door_data.price
 			valz["Row4"] = door_data.elec
+			valz["Row5"] = door_data.buyable
 			name = "Modifying Door Flag"
 		end
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
-		DermaPanel:SetSize( 300, 180 )
+		DermaPanel:SetSize( 300, 200 )
 		DermaPanel:SetTitle( name )
 		DermaPanel:SetVisible( true )
 		DermaPanel:SetDraggable( true )
@@ -66,18 +68,23 @@ if CLIENT then
 		Row4:Setup( "Boolean" )
 		Row4:SetValue( valz["Row4"] )
 		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
+		local Row5 = DProperties:CreateRow( "Door Settings", "Purchaseable?" )
+		Row5:Setup( "Boolean" )
+		Row5:SetValue( valz["Row5"] )
+		Row5.DataChanged = function( _, val ) valz["Row5"] = val end
 
 		local DermaButton = vgui.Create( "DButton" )
 		DermaButton:SetParent( DermaPanel )
 		DermaButton:SetText( "Submit" )
-		DermaButton:SetPos( 10, 140 )
+		DermaButton:SetPos( 10, 160 )
 		DermaButton:SetSize( 280, 30 )
 		DermaButton.DoClick = function()
-			local function compileString(price, elec, flag)
+			local function compileString(price, elec, flag, buyable)
 				local str = "price="..price..",elec="..elec
 				if flag != false then
 					str = str..",link="..flag
 				end
+				str = str..",buyable="..buyable
 				return str
 			end
 			local flag = false
@@ -85,7 +92,7 @@ if CLIENT then
 				flag = valz["Row2"]
 			end
 			DermaPanel:SetTitle( "Modifying Door Flag" )
-			local flagString = compileString(valz["Row3"], valz["Row4"], flag)
+			local flagString = compileString(valz["Row3"], valz["Row4"], flag, valz["Row5"])
 			print(flagString)
 
 			//Send the data

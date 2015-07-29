@@ -38,9 +38,10 @@ function nz.Doors.Functions.LockAllDoors()
 				print("Locked door ", v)
 			else
 				//Unlocked doors get an output which forces it to stay open once you open it
-				v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
-				v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
-				print("added output to", v)
+				//They now get that output the same way as any other door when being opened
+				--v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
+				--v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
+				--print("added output to", v)
 			end
 		//Allow locking buttons
 		elseif v:IsButton() and nz.Doors.Data.LinkFlags[v:doorIndex()] then
@@ -56,9 +57,10 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 	local price = ent.price
 	local req_elec = ent.elec
 	local link = ent.link
-	print("Entity info buying ", ent, link, req_elec, price)
-	//If it has a price
-	if price != nil then
+	local buyable = ent.buyable
+	print("Entity info buying ", ent, link, req_elec, price, buyable)
+	//If it has a price and it can be bought
+	if price != nil and tonumber(buyable) == 1 then
 		if ply:CanAfford(price) and ent.Locked == true then
 			//If this door doesn't require electricity or if it does, then if the electricity is on at the same time
 			if (req_elec == 0 or (req_elec == 1 and IsElec())) then
@@ -70,6 +72,10 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 				end
 			end
 		end
+	elseif price == nil and buyable == nil then
+		//Doors that can be opened because the gamemode doesn't lock them, still need to try and lock upon opening.
+		//Additionally, they get the OnClose output added, in case they can still close
+		ent:DoorUnlock()
 	end
 end
 
@@ -84,9 +90,8 @@ end
 hook.Add( "PlayerUse", "player_buydoors", nz.Doors.Functions.OnUseDoor )
 
 function nz.Doors.Functions.CheckUseDoor(ply, ent)
-	print(ply, ent)
+	--print(ply, ent)
 
-	
 	local tr = util.QuickTrace(ply:EyePos(), ply:GetAimVector()*100, ply)
 	local door = tr.Entity
 	print(door)
