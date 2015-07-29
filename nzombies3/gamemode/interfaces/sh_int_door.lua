@@ -22,7 +22,7 @@ if CLIENT then
 		local door_data = nil
 
 		//Check if the ent has flags already
-		if ent:IsDoor() then
+		if ent:IsDoor() or ent:IsButton() then
 			door_data = nz.Doors.Data.LinkFlags[ent:doorIndex()]
 		elseif ent:IsBuyableProp() then
 			door_data = nz.Doors.Data.BuyableProps[ent:EntIndex()]
