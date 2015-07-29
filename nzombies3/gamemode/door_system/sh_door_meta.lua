@@ -17,7 +17,7 @@ function meta:IsButton()
 	if not IsValid(self) then return false end
 	local class = self:GetClass()
 
-	if class == "func_button" then
+	if class == "func_button" or (CLIENT and class == "class C_BaseEntity") then
 		return true
 	end
 	return false

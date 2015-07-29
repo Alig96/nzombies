@@ -38,10 +38,10 @@ function nz.Doors.Functions.LockAllDoors()
 				print("Locked door ", v)
 			else
 				//Unlocked doors get an output which forces it to stay open once you open it
-				//They now get that output the same way as any other door when being opened
-				--v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
-				--v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
-				--print("added output to", v)
+				v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
+				v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
+				print("added output to", v)
+				//They now get that output through OpenDoor too, but for safety
 			end
 		//Allow locking buttons
 		elseif v:IsButton() and nz.Doors.Data.LinkFlags[v:doorIndex()] then
