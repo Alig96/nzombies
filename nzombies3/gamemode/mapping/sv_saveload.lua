@@ -29,6 +29,7 @@ function nz.Mapping.Functions.SaveConfig()
 		startwep = v:GetStartWep(),
 		startpoints = v:GetStartPoints(),
 		numweps = v:GetNumWeps(),
+		eeurl = v:GetEEURL(),
 		angle = v:GetAngles( ),
 		})
 	end
@@ -285,7 +286,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 		end
 		
 		for k,v in pairs(data.PlayerHandler) do
-			nz.Mapping.Functions.PlayerHandler(v.pos, v.angle, v.startwep, v.startpoints, v.numweps)
+			nz.Mapping.Functions.PlayerHandler(v.pos, v.angle, v.startwep, v.startpoints, v.numweps, v.eeurl)
 		end
 		
 		for k,v in pairs(data.EasterEggs) do

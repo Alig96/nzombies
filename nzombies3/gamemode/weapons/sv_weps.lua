@@ -110,7 +110,7 @@ function nz.Weps.Functions.OnWeaponAdded( weapon )
 		local ply = weapon:GetOwner()
 		if nz.Rounds.Data.CurrentState != ROUND_CREATE then
 				
-				if #ply:GetWeapons() >= 2 then
+				if #ply:GetWeapons() > 2 then
 					ply:StripWeapon( ply:GetActiveWeapon():GetClass() )
 				end
 			
