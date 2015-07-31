@@ -31,6 +31,7 @@ This is an edited version featuring these changes:
 	- Decide starting weapon
 	- Decide starting points
 	- Decide max number of weapons carried
+	- Takes a Soundcloud URL which plays when all easter eggs have been activated
 		
 - Door Changes
 	- func_* doors now actually trigger with E!
