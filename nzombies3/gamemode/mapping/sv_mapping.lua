@@ -60,6 +60,11 @@ end
 
 function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
 
+	if not guns then
+		print("No guns were supplied for the RBoxHandler ... did you use a save where it isn't defined?")
+	return end
+	PrintTable(guns)
+
 	if keep then
 		local ent = ents.FindByClass("random_box_handler")[1]
 		ent:ClearWeapons()
@@ -83,7 +88,7 @@ function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
 		if weapons.Get(v) != nil then
 			ent:AddWeapon(v)
 		else
-			print("SKIPPED: " .. gun .. ". Are you sure you have it installed?")
+			print("SKIPPED: " .. v .. ". Are you sure you have it installed?")
 		end
 	end
 	

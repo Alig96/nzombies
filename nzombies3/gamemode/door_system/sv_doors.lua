@@ -14,6 +14,10 @@ function nz.Doors.Functions.ParseFlagString( flagsStr )
 	for k,v in pairs(ex) do
 		local ex2 = string.Explode( "=", v )
 		tbl[ex2[1]] = ex2[2]
+		//If buyable is not set on a door, we default to on
+		if ex2[1] != "buyable" and k == #ex then
+			tbl["buyable"] = "1"
+		end
 	end
 	
 	return tbl

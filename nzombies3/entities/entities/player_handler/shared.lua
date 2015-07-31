@@ -32,6 +32,11 @@ end
 
 function ENT:SetData(points, weapon, numweps, eeurl)
 
+	if not points then points = 500 end
+	if not weapon then weapon = "fas2_m1919" end
+	if not numweps then numweps = 2 end
+	if not eeurl then eeurl = "" end
+
 	self:SetStartPoints(points)
 	self:SetStartWep(weapon)
 	self:SetNumWeps(numweps)
@@ -59,6 +64,7 @@ if CLIENT then
 	
 	function ENT:ParseSong()
 		local url = self:GetEEURL()
+		if url == nil or url == "" then return end
 		if string.find( url, "soundcloud.com/" ) and string.find( url, "api." ) == nil then
 			http.Fetch( "https://api.soundcloud.com/resolve.json?url=" .. url .. "&client_id=" .. "b45b1aa10f1ac2941910a7f0d10f8e28",
 			function( body, len, headers, code )
