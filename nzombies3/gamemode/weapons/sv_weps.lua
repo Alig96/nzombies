@@ -65,7 +65,8 @@ end
 function nz.Weps.Functions.ApplyPaP( ply, wep )
 	if wep.pap != true then
 		print("Applying PaP to: " .. wep.ClassName)
-		ply:PrintMessage( HUD_PRINTTALK, "Damage: " .. ply:GetActiveWeapon().Damage .. " > ".. ply:GetActiveWeapon().Damage * 2)
+		local dmg = ply:GetActiveWeapon().Damage != nil and ply:GetActiveWeapon().Damage or ply:GetActiveWeapon().Primary.Damage
+		ply:PrintMessage( HUD_PRINTTALK, "Damage: " .. dmg .. " > ".. dmg * 2)
 		local data = {}
 		//Normal
 		data["Damage"] = true
@@ -73,6 +74,11 @@ function nz.Weps.Functions.ApplyPaP( ply, wep )
 			if wep[k] != nil then
 				local val = wep[k] * 2
 				wep[k] = val
+				data[k] = val
+			//Also allow the Primary.Damage style
+			elseif wep.Primary[k] != nil then
+				local val = wep.Primary[k] * 2
+				wep.Primary[k] = val
 				data[k] = val
 			else
 				data[k] = nil
@@ -104,6 +110,8 @@ end
 
 //We use a seperate function for this, as this for some reason works
 function nz.Weps.Functions.OnWeaponAdded( weapon )
+
+	if weapon:GetClass() == "zombies_perk_juggernog_nz" then return end
 
 	//0 seconds timer for the next tick, where the weapon's owner will be valid
 	timer.Simple(0, function()

@@ -31,6 +31,7 @@ nz.Perks.Functions.NewPerk("jugg", {
 	func = function(self, ply)
 			ply:SetMaxHealth(200)
 			ply:SetHealth(200)
+			ply:Give("zombies_perk_juggernog_nz")
 			return true
 	end,
 })
@@ -54,6 +55,7 @@ nz.Perks.Functions.NewPerk("dtap", {
 				str = str .. v.ClassName .. ", "
 			end
 			ply:PrintMessage( HUD_PRINTTALK, "Double Tap Applied to: " .. str)
+			ply:Give("zombies_perk_juggernog_nz")
 			return true
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "You don't have a weapon that is compatible with this perk. (Requires a FAS2 weapon)")
@@ -70,6 +72,7 @@ nz.Perks.Functions.NewPerk("revive", {
 	func = function(self, ply)
 			print(self)
 			ply:PrintMessage( HUD_PRINTTALK, "You've got Quick Revive!")
+			ply:Give("zombies_perk_juggernog_nz")
 			return true
 	end,
 })
@@ -93,6 +96,7 @@ nz.Perks.Functions.NewPerk("sleight", {
 					str = str .. v.ClassName .. ", "
 				end
 				ply:PrintMessage( HUD_PRINTTALK, "Speed Cola Applied to: " .. str)
+				ply:Give("zombies_perk_juggernog_nz")
 				return true
 			else
 				ply:PrintMessage( HUD_PRINTTALK, "You don't have a weapon that is compatible with this perk. (Requires a FAS2 weapon)")

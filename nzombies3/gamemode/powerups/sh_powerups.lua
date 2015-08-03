@@ -141,3 +141,16 @@ nz.PowerUps.Functions.NewPowerUp("nuke", {
 		nz.PowerUps.Functions.Nuke()
 	end),
 })
+
+//Fire Sale
+nz.PowerUps.Functions.NewPowerUp("firesale", {
+	name = "Fire Sale",
+	model = "models/props_urban/mhanko_shovel_tag.mdl",
+	scale = 3.5,
+	chance = 3,
+	duration = 30,
+	func = (function(self, ply)
+		nz.Notifications.Functions.PlaySound("nz/powerups/fire_sale_announcer.wav", 1)
+		nz.PowerUps.Functions.FireSale()
+	end),
+})

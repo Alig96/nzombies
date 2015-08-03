@@ -55,7 +55,7 @@ function nz.Display.Functions.GetText( ent )
 	
 	if class == "random_box" then
 		if !ent:GetOpen() then
-			text = "Press E to buy a random weapon for 950 points."
+			text = nz.PowerUps.Functions.IsPowerupActive("firesale") and "Press E to buy a random weapon for 10 points." or "Press E to buy a random weapon for 950 points."
 		end
 	end
 	

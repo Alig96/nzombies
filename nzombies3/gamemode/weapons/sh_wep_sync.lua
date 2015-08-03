@@ -23,10 +23,12 @@ if CLIENT then
 		data.wep = nil
 		if wep != nil then
 			if wep:IsValid() then
+				print(wep)
 				print("Applying data to: " .. wep.ClassName)
 				for k,v in pairs(data) do
 					wep[k] = v
 				end
+				PrintTable(data)
 			end
 		end
 	end

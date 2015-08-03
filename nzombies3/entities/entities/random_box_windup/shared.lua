@@ -12,6 +12,7 @@ function ENT:SetupDataTables()
 
 	self:NetworkVar( "Bool", 0, "Winding" )
 	self:NetworkVar( "String", 0, "WepClass")
+	self:NetworkVar( "Bool", 1, "IsTeddy" )
 
 end
 
@@ -22,14 +23,28 @@ function ENT:Initialize()
 	self:DrawShadow( false )
 
 	self:SetWinding(true)
+	self:SetIsTeddy(false)
 	self.c = 0
 	self.s = -20
+	self.t = 0
 	self:SetModel("models/weapons/w_rif_ak47.mdl")
 	--self:SetAngles(self:GetParent():GetAngles())
 
 	if SERVER then
 		//Stop winding up
-		timer.Simple(7, function() self:SetWinding(false) self:SetModel(weapons.Get(self:GetWepClass()).WorldModel) end)
+		timer.Simple(7, function() 
+			self:SetWinding(false)
+			if self:GetWepClass() == "nz_box_teddy" then
+				print("Model here")
+				self:SetModel("models/hoff/props/teddy_bear/teddy_bear.mdl")
+				self:SetAngles( Angle(-90,90,0) )
+				nz.Notifications.Functions.PlaySound("nz/randombox/teddy_bear_laugh.wav", 0)
+				self:SetIsTeddy(true)
+			else
+				self:SetModel(weapons.Get(self:GetWepClass()).WorldModel)
+			end
+			print(self:GetModel())
+		end)
 		//If we time out, remove the object
 		timer.Simple(18, function() if self:IsValid() then self:GetParent():Close() self:Remove() end end)
 	end
@@ -63,8 +78,20 @@ function ENT:WindUp( )
 	self:SetPos(Vector(self:GetPos().X, self:GetPos().Y, self:GetPos().Z + 0.1*self.c))
 end
 
+function ENT:TeddyFlyUp( )
+	self.t = self.t + 1
+	if self.t > 25 then
+		self:GetParent():Close()
+		self:GetParent():MoveAway()
+		self:Remove()
+		self.t = 25
+	end
+	self:SetPos(Vector(self:GetPos().X, self:GetPos().Y, self:GetPos().Z + 1*self.t))
+end
+
 function ENT:WindDown( )
 	self.s = self.s + 1
+	
 	if self.s > 7 then
 		self.s = 7
 	end
@@ -75,7 +102,9 @@ end
 
 function ENT:Think()
 	if SERVER then
-		if self:GetWinding() then
+		if self:GetIsTeddy() then
+			self:TeddyFlyUp()
+		elseif self:GetWinding() then
 			self:WindUp()
 		else
 			self:WindDown()

@@ -23,6 +23,48 @@ function nz.PowerUps.Functions.Nuke()
 	end
 end
 
+function nz.PowerUps.Functions.FireSale()
+	print("Running")
+	//Get all spawns
+	local all = ents.FindByClass("random_box_spawns")
+	
+	for k,v in pairs(all) do
+		if !v.HasBox then
+			if v != nil and !v.HasBox then
+				local box = ents.Create( "random_box" )
+				box:SetPos( v:GetPos() )
+				box:SetAngles( v:GetAngles() )
+				box:Spawn()
+				--box:PhysicsInit( SOLID_VPHYSICS )
+				box.SpawnPoint = v
+				v.FireSaleBox = box
+
+				local phys = box:GetPhysicsObject()
+				if phys:IsValid() then
+					phys:EnableMotion(false)
+				end
+			else
+				print("No random box spawns have been set.")
+			end
+		end
+	end
+	
+	for k,v in pairs(ents.FindByClass("random_box")) do
+		v:EmitSound("nz/randombox/fire_sale.wav")
+	end
+	
+	hook.Add("Tick", "FireSaleActive", function()
+		if !nz.PowerUps.Functions.IsPowerupActive("firesale") then
+			for k,v in pairs(ents.FindByClass("random_box_spawns")) do
+				if IsValid(v.FireSaleBox) then
+					v.FireSaleBox:MarkForRemoval()
+				end
+			end
+			hook.Remove("Tick", "FireSaleActive")
+		end
+	end)
+end
+
 function nz.PowerUps.Functions.CleanUp()
 	//Clear all powerups
 	for k,v in pairs(ents.FindByClass("drop_powerup")) do
