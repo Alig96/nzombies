@@ -20,6 +20,7 @@ function nz.Doors.Functions.ParseFlagString( flagsStr )
 		end
 	end
 	
+	PrintTable(tbl)
 	return tbl
 	
 end

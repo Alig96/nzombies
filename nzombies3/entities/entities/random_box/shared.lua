@@ -18,7 +18,7 @@ function ENT:Initialize()
 
 	self:SetModel( "models/hoff/props/mysterybox/box.mdl" )
 	self:PhysicsInit( SOLID_VPHYSICS )
-	self:SetMoveType( MOVETYPE_FLY )
+	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
 	print(self:GetMoveType())
 
@@ -101,7 +101,7 @@ function ENT:MoveAway()
 	local ang = self:GetAngles()
 	//Shake Effect
 	timer.Create( "shake", 0.1, 300, function()
-		if s < 30 then
+		if s < 23 then
 			if s % 2 == 0 then
 				if self:IsValid() then
 					self:SetAngles(ang + Angle(10, 0, 0))
@@ -131,16 +131,28 @@ function ENT:MoveAway()
 				self:Remove()
 			end)
 			print(self:GetMoveType())
-			local phys = self:GetPhysicsObject()
-			if IsValid(phys) then
-				self:SetSolid(SOLID_NONE)
-				self:SetPos(self:GetPos() + Vector(0,0,20))
-				print("Flying1!", phys:IsAsleep(), phys:IsMoveable(), self:GetMoveType())
-				phys:SetVelocity(Vector(0,0,100))
-				self:SetVelocity(Vector(0,0,100))
-				print("Flying2!", phys:IsAsleep(), phys:IsMoveable(), self:GetMoveType(), self:GetVelocity())
-				phys:OutputDebugInfo()
-			end
+			self:SetMoveType(MOVETYPE_FLYGRAVITY)
+			self:SetGravity(0.1)
+			self:SetNotSolid(true)
+			self:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
+			self:GetPhysicsObject():SetDamping(100, 0)
+			self:CollisionRulesChanged()
+			self:SetVelocity(Vector(0,0,100))
+			timer.Simple(1.5, function()
+				self:SetVelocity( Vector(0,0,0) )
+				self:SetMoveType(MOVETYPE_FLY)
+				self:Open()
+				self:SetLocalAngularVelocity( Angle(0, 0, 250) )
+				timer.Simple(0.5, function()
+					self:SetLocalAngularVelocity( Angle(0, 0, 500) )
+					timer.Simple(0.5, function()
+						self:SetLocalAngularVelocity( Angle(0, 0, 750) )
+						timer.Simple(0.2, function()
+							self:SetLocalAngularVelocity( Angle(0, 0, 1000) )
+						end)
+					end)
+				end)
+			end)
 		end)
 
 

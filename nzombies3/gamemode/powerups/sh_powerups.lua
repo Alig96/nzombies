@@ -33,7 +33,7 @@ if SERVER then
 		end
 
 		//Insert a blank // Change 100 to increase the blank
-		choices["null"] = 500 - total
+		choices["null"] = 0 - total
 
 		local id = nz.Misc.Functions.WeightedRandom(choices)
 		if id == "null" then return end // Back out
@@ -146,8 +146,8 @@ nz.PowerUps.Functions.NewPowerUp("nuke", {
 nz.PowerUps.Functions.NewPowerUp("firesale", {
 	name = "Fire Sale",
 	model = "models/props_urban/mhanko_shovel_tag.mdl",
-	scale = 3.5,
-	chance = 3,
+	scale = 4.5,
+	chance = 1,
 	duration = 30,
 	func = (function(self, ply)
 		nz.Notifications.Functions.PlaySound("nz/powerups/fire_sale_announcer.wav", 1)

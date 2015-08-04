@@ -19,17 +19,19 @@ function ENT:Initialize()
 	//self:SetPowerUp("dp")
 	self:SetModelScale(nz.PowerUps.Functions.Get(self:GetPowerUp()).scale, 0)
 	
-	self:PhysicsInit(SOLID_VPHYSICS)
+	--self:PhysicsInit(SOLID_VPHYSICS)
+	self:PhysicsInitSphere(50, "default_silent")
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
+	--self:SetTrigger(true)
 	self.DeathTimer = 30
 	if SERVER then
 		self:SetUseType(SIMPLE_USE)
-		local phys = self:GetPhysicsObject()
+		--[[local phys = self:GetPhysicsObject()
 		if (phys:IsValid()) then
 			phys:Wake()
 			--phys:EnableCollisions(false)
-		end
+		end]]
 	end
 	timer.Create( self:EntIndex().."_deathtimer", 0.1, 300, function()
 		if self:IsValid() then

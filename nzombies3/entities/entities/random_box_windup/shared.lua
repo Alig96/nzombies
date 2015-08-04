@@ -32,12 +32,12 @@ function ENT:Initialize()
 
 	if SERVER then
 		//Stop winding up
-		timer.Simple(7, function() 
+		timer.Simple(5, function() 
 			self:SetWinding(false)
 			if self:GetWepClass() == "nz_box_teddy" then
 				print("Model here")
 				self:SetModel("models/hoff/props/teddy_bear/teddy_bear.mdl")
-				self:SetAngles( Angle(-90,90,0) )
+				self:SetAngles( self:GetParent():GetAngles() + Angle(-90,90,0) )
 				nz.Notifications.Functions.PlaySound("nz/randombox/teddy_bear_laugh.wav", 0)
 				self:SetIsTeddy(true)
 			else
@@ -51,7 +51,7 @@ function ENT:Initialize()
 end
 
 function ENT:Use( activator, caller )
-	if !self:GetWinding() then
+	if !self:GetWinding() and self:GetWepClass() != "nz_box_teddy" then
 		if activator == self.Buyer then
 			local class = self:GetWepClass()
 			activator:Give(class)
@@ -71,7 +71,7 @@ function ENT:WindUp( )
 	if gun.WorldModel != nil then
 		self:SetModel(gun.WorldModel)
 	end
-	self.c = self.c + 1
+	self.c = self.c + 1.3
 	if self.c > 7 then
 		self.c = 7
 	end

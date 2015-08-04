@@ -60,7 +60,7 @@ function nz.Display.Functions.GetText( ent )
 	end
 	
 	if class == "random_box_windup" then
-		if !ent:GetWinding() then
+		if !ent:GetWinding() and ent:GetWepClass() != "nz_box_teddy" then
 			local wepclass = ent:GetWepClass()
 			local wep = weapons.Get(wepclass)
 			local name = "UNKNOWN" 

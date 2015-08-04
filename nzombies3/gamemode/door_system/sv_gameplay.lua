@@ -72,7 +72,7 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 				end
 			end
 		end
-	elseif price == nil and buyable == nil then
+	elseif price == nil and buyable == nil and !ent:IsBuyableProp() then
 		//Doors that can be opened because the gamemode doesn't lock them, still need to try and lock upon opening.
 		//Additionally, they get the OnClose output added, in case they can still close
 		ent:DoorUnlock()
