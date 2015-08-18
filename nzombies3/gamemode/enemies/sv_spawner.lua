@@ -51,8 +51,9 @@ function nz.Enemies.Functions.ValidSpawns()
 	
 	//Get positions
 	for k,v in pairs(spawns) do
-		table.insert(valids, v:GetPos())
+		table.insert(valids, v)
 	end
+	//Edited to get spawn point entites instead - for CurrentRoom setting - Nav
 	
 	return valids
 end
@@ -70,7 +71,7 @@ function nz.Enemies.Functions.TotalCurrentEnemies()
 	return c
 end
 
-function nz.Enemies.Functions.SpawnZombie(pos)
+function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 	if nz.Enemies.Functions.TotalCurrentEnemies() < 100 then
 		local ent = "nut_zombie"
 		
@@ -83,9 +84,14 @@ function nz.Enemies.Functions.SpawnZombie(pos)
 		end
 	
 		local zombie = ents.Create(ent)
-		zombie:SetPos(pos)
+		zombie:SetPos(spawnpoint:GetPos())
 		zombie:Spawn()
 		zombie:Activate()
+		//Set a zombies current room to the one he spawns in
+		if IsValid(spawnpoint.OwnerRoom) then
+			zombie.CurrentRoom = spawnpoint.OwnerRoom
+		end
+		zombie:SpawnNavigate()
 		nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned + 1
 		print("Spawning Enemy: " .. nz.Rounds.Data.ZombiesSpawned .. "/" .. nz.Rounds.Data.MaxZombies )
 	else
@@ -107,10 +113,10 @@ function nz.Enemies.Functions.ZombieSpawner()
 				--Since we couldn't find a valid spawn, just back out for now.
 			end
 			
-			local pos = table.Random(valids)
+			local spawnpoint = table.Random(valids)
 			
-			if nz.Enemies.Functions.CheckIfSuitable(pos) then
-				nz.Enemies.Functions.SpawnZombie(pos)
+			if nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
+				nz.Enemies.Functions.SpawnZombie(spawnpoint)
 			end
 		end
 	end

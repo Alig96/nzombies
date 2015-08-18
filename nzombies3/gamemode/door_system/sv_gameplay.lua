@@ -31,7 +31,7 @@ function nz.Doors.Functions.LockAllDoors()
 	for k,v in pairs(ents.GetAll()) do
 		if (v:IsDoor() or v:IsBuyableProp()) then
 			//Only lock doors that have been assigned a price - Prop Dynamics may be tied to invisible func_doors
-			if nz.Doors.Data.LinkFlags[v:doorIndex()] then
+			if nz.Doors.Data.LinkFlags[v:doorIndex()] or nz.Doors.Data.BuyableProps[v:EntIndex()] then
 				v:SetUseType( SIMPLE_USE )
 				v:DoorLock()
 				v:SetKeyValue("wait",-1)

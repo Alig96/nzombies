@@ -33,7 +33,7 @@ if SERVER then
 		end
 
 		//Insert a blank // Change 100 to increase the blank
-		choices["null"] = 0 - total
+		choices["null"] = 500 - total
 
 		local id = nz.Misc.Functions.WeightedRandom(choices)
 		if id == "null" then return end // Back out

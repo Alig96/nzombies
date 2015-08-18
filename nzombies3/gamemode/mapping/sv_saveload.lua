@@ -133,6 +133,38 @@ function nz.Mapping.Functions.SaveConfig()
 		})
 	end
 	
+	//Navigation (Room Controllers first)
+	local nav_rooms = {}
+	for k,v in pairs(ents.FindByClass("nav_room_controller")) do
+		v.SaveIndex = table.insert(nav_rooms, {
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+		})
+		print(v, v.SaveIndex)
+	end
+	
+	//Navigation (Nav Gates)
+	local nav_gates = {}
+	for k,v in pairs(ents.FindByClass("nav_gate")) do
+		v.SaveIndex = table.insert(nav_gates, {
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+			model = v.CurModelNum,
+			doorlink = nz.Nav.Data[v.OwnerRoom][v].doorlink,
+			open = nz.Nav.Data[v.OwnerRoom][v].open,
+			targetroom = nz.Nav.Data[v.OwnerRoom][v].targetroom.SaveIndex,
+			ownerroom = v.OwnerRoom.SaveIndex
+		})
+		print(v, v.SaveIndex)
+	end
+	//Do a second loop through gates where they have all got their SaveIndex
+	for k,v in pairs(ents.FindByClass("nav_gate")) do
+		nav_gates[v.SaveIndex].navlink = nz.Nav.Data[v.OwnerRoom][v].navlink.SaveIndex
+	end
+	
+	PrintTable(nav_gates)
+	PrintTable(nav_rooms)
+	
 	main["ZedSpawns"] = zed_spawns
 	main["PlayerSpawns"] = player_spawns
 	main["WallBuys"] = wall_buys
@@ -146,6 +178,8 @@ function nz.Mapping.Functions.SaveConfig()
 	main["RBoxHandler"] = random_box_handler
 	main["PlayerHandler"] = player_handler
 	main["EasterEggs"] = easter_eggs
+	main["NavRooms"] = nav_rooms
+	main["NavGates"] = nav_gates
 	
 	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
@@ -207,6 +241,17 @@ function nz.Mapping.Functions.ClearConfig()
 	for k,v in pairs(ents.FindByClass("breakable_entry")) do
 		v:Remove()
 	end
+	
+	for k,v in pairs(ents.FindByClass("nav_gate")) do
+		v:Remove()
+	end
+	
+	for k,v in pairs(ents.FindByClass("nav_room_controller")) do
+		v:Remove()
+	end
+	
+	//Reset Navigation table
+	nz.Nav.Data = {}
 	
 	//Sync
 	nz.Rounds.Functions.SendSync()
@@ -305,6 +350,57 @@ function nz.Mapping.Functions.LoadConfig( name )
 			end
 		end
 		
+		timer.Simple(0.1, function()
+		//Navigation - Room Entites
+		if data.NavRooms then
+			for k,v in pairs(data.NavRooms) do
+				local room = ents.Create("nav_room_controller")
+				room:SetPos(v.pos)
+				room:Spawn()
+				nz.Nav.Data[room] = {}
+				room.LoadIndex = k
+				print("Created", room, room.LoadIndex)
+			end
+		end
+		
+		//Navigation - Nav Gates + Linking
+		if data.NavGates then
+			for k,v in pairs(data.NavGates) do
+				local gate = ents.Create("nav_gate")
+				gate:SetPos(v.pos)
+				gate:SetAngles(v.angle)
+				gate:Spawn()
+				gate:CycleModel(model)
+				gate.LoadIndex = k
+			end
+			
+			//Take a second cycle where everyone has their LoadIndex
+			for k,v in pairs(ents.FindByClass("nav_gate")) do
+				//Cycle through room controllers and set up Ownership and tables
+				for i, q in pairs(ents.FindByClass("nav_room_controller")) do
+					if IsValid(q) and q.LoadIndex == data.NavGates[v.LoadIndex].ownerroom then
+						v.OwnerRoom = q
+						nz.Nav.Data[q][v] = {}
+						nz.Nav.Data[q][v].open = data.NavGates[v.LoadIndex].open
+						nz.Nav.Data[q][v].doorlink = data.NavGates[v.LoadIndex].doorlink
+					end
+				end
+				//We need another cycle where every Gate has their Owner Room so we can set Target Room
+				for i, q in pairs(ents.FindByClass("nav_room_controller")) do
+					if q.LoadIndex == data.NavGates[v.LoadIndex].targetroom then
+						nz.Nav.Data[v.OwnerRoom][v].targetroom = q
+					end
+				end
+				//One final cycle for the navlinks
+				for i, q in pairs(ents.FindByClass("nav_gate")) do
+					if q.LoadIndex == data.NavGates[v.LoadIndex].navlink then
+						nz.Nav.Data[v.OwnerRoom][v].navlink = q
+					end
+				end
+			end
+		end
+		end)
+		
 		print("[NZ] Finished loading map config.")
 	else
 		print(filepath)
@@ -327,7 +423,9 @@ function nz.Mapping.Functions.CleanUpMap()
 		"wall_block",
 		"wall_buys",
 		"zed_spawns",
-		"easter_egg"
+		"easter_egg",
+		"nav_gate",
+		"nav_room_controller"
 	})
 	//Gotta reset the doors and other entites' values!
 	for k,v in pairs(nz.Doors.Data.LinkFlags) do

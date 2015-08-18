@@ -11,14 +11,14 @@ if SERVER then
 	nz.Config.MaxRounds = 100 // How much round data should we load?
 
 	//Spawn Rate Curve
-	nz.Config.BaseDifficultySpawnRateCurve = 3
-	nz.Config.DifficultySpawnRateCurve = 1.005
+	nz.Config.BaseDifficultySpawnRateCurve = 5
+	nz.Config.DifficultySpawnRateCurve = 1.01
 	//Health Curve
 	nz.Config.BaseDifficultyHealthCurve = 75
-	nz.Config.DifficultyHealthCurve = 0.3
+	nz.Config.DifficultyHealthCurve = 0.2
 	//Speed curve
 	nz.Config.BaseDifficultySpeedCurve = 60
-	nz.Config.DifficultySpeedCurve = 0.4
+	nz.Config.DifficultySpeedCurve = 0.5
 
 	//Display
 
@@ -67,7 +67,8 @@ if SERVER then
 	"weapon_base", "weapon_fists", "weapon_flechettegun", "weapon_medkit",
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot", "weapon_dod_sim_base_snip", "weapon_sim_admin", "weapon_sim_spade",
 	"fas2_base", "fas2_ammobox", "fas2_ifak", "fas2_base_shotgun",
-	"nz_tool_base", "nz_tool_barricades", "nz_tool_block_spawns", "nz_tool_door_locker", "nz_tool_elec", "nz_tool_perk_machine", "nz_tool_player_spawns", "nz_tool_prop_modifier", "nz_tool_random_box", "nz_tool_template", "nz_tool_wall_buys", "nz_tool_zed_spawns"
+	"nz_tool_base", "nz_tool_barricades", "nz_tool_block_spawns", "nz_tool_door_locker", "nz_tool_elec", "nz_tool_perk_machine", "nz_tool_player_spawns", "nz_tool_prop_modifier", "nz_tool_random_box", "nz_tool_template", "nz_tool_wall_buys", "nz_tool_zed_spawns",
+	"nz_tool_ee", "nz_tool_nav_creator", "nz_tool_random_box_handler", "nz_tool_player_handler"
 	}
 
 	//Round Handler
@@ -81,6 +82,20 @@ if SERVER then
 
 	//Weapons
 	nz.Config.MaxWeps = 2
+	
+	
+	//Navigation Modes (1 least expensive, 3 most accurate)
+		//Won't use custom Nav Tool navigation
+		NAV_MODE_NEVER_USE = 0
+		//Will use Nav Tool navigation on stuck
+		NAV_MODE_ON_STUCK = 1
+		//Will retarget every time a player changes room
+		NAV_MODE_PLAYER_ROOM_CHANGE = 2
+		//Will always target in ENT:Think (every 4 seconds)
+		NAV_MODE_THINK = 3
+	
+	nz.Config.NavMode = NAV_MODE_PLAYER_ROOM_CHANGE
+	
 
 
 end

@@ -60,6 +60,10 @@ function PLAYER:Spawn()
 		if v == self.Player then
 			if spawns[k]:IsValid() then
 				v:SetPos(spawns[k]:GetPos())
+				//Set a players owner room to the one he spawns in
+				if IsValid(spawns[k].OwnerRoom) then
+					v.CurrentRoom = spawns[k].OwnerRoom
+				end
 			else
 				print("No spawn set for player: " .. v:Nick())
 			end

@@ -177,12 +177,29 @@ function nz.Rounds.Functions.CreateMode()
 				nz.Rounds.Functions.Create(v)
 			end
 		end
+		
+		//Set them to solid again so you can interact with physgun and toolgun
+		for k,v in pairs(ents.FindByClass("nav_gate")) do
+			print(v, "set to NOT solid")
+			v:SetNotSolid(false)
+		end
+		for k,v in pairs(ents.FindByClass("nav_room_controller")) do
+			v:SetNotSolid(false)
+		end
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
 		nz.Rounds.Data.CurrentState = ROUND_INIT
 		//We are in play mode
 		for k,v in pairs(player.GetAll()) do
 			v:SetAsSpec()
+		end
+		
+		//Set them to not solid to make Traces go through (gunshots)
+		for k,v in pairs(ents.FindByClass("nav_gate")) do
+			v:SetNotSolid(true)
+		end
+		for k,v in pairs(ents.FindByClass("nav_room_controller")) do
+			v:SetNotSolid(true)
 		end
 	end
 	nz.Rounds.Functions.SendSync()
