@@ -16,6 +16,15 @@ This is an edited version featuring these changes:
 	- Downed players also count as 'dead' towards ending the game
 	- Upon being downed, you equip a pistol if available
 		-(Planned: If no pistol, give starting pistol for the duration of being downed)
+
+- Navigation Gates Creator Tool [BETA]
+	- Create and Link Nav Gates and Room Controllers
+		- These will make Zombies able to know which doors are open and which 'rooms' they link to
+		- They function sort of like waypoints that can only be used if the linked door is open
+		- This is in Beta as of now and is an Advanced tool (There's a small in-game help menu)
+	- Zombies can now navigate with the use of the Nav Gates and Room Controllers (Still need navmeshes)
+		- Only normal zombies can as of now
+	- A setting in the config file will allow you to change the mode this is run
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -25,7 +34,6 @@ This is an edited version featuring these changes:
 	- Max number weapons you can carry
 	- You swap weapons if the max has been reached
 	- You automatically equip newly gotten weapons
-	- If no Player Handler entity exists, this won't be active
 	
 - Player Handler Tool + Entity (For Create mode)
 	- Decide starting weapon
