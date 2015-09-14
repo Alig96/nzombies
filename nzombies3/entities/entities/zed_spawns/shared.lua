@@ -11,6 +11,7 @@ ENT.Instructions	= ""
 function ENT:SetupDataTables()
 
 	self:NetworkVar( "String", 0, "Link" )
+	self:NetworkVar( "String", 0, "MaxLink" )
 	
 end
 

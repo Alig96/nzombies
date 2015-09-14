@@ -17,7 +17,7 @@ if SERVER then
 
 	function SWEP:OnReload( trace )
 		if trace.Entity:GetClass() == "zed_spawns" then
-			nz.Interfaces.Functions.SendInterface(self.Owner, "ZombLink", {ent = trace.Entity, link = trace.Entity.link})
+			nz.Interfaces.Functions.SendInterface(self.Owner, "ZombLink", {ent = trace.Entity, link = trace.Entity.link, max_link = trace.Entity.max_link})
 		end
 	end
 end

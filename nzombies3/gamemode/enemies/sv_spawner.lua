@@ -47,6 +47,12 @@ function nz.Enemies.Functions.ValidSpawns()
 				spawns[k] = nil
 			end
 		end
+
+		if v.max_link != nil then
+			if nz.Doors.Data.OpenedLinks[tonumber(v.max_link)] != nil then //Zombie Links
+				spawns[k] = nil
+			end
+		end
 	end
 	
 	//Get positions
