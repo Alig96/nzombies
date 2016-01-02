@@ -57,7 +57,7 @@ This is an edited version featuring these changes:
 	- Random Box weapons float up with the right angle to match the box
 	- Random Box Weapons can now be picked up even with wierd models
 
-To-do list:
+- To-do list:
 	- Make point distribution by hook instead of on-zombie functions
 	- Fix special wave spawn breaking
 	- Better HUD elements and revival icon
