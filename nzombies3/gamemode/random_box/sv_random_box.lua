@@ -40,7 +40,7 @@ end
 
 function nz.RandomBox.Functions.DecideWep(ply)
 	
-	local teddychance = math.random(1, 1)
+	local teddychance = math.random(1, 20)
 	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") then
 		return "nz_box_teddy"
 	end
