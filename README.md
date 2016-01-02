@@ -56,3 +56,18 @@ This is an edited version featuring these changes:
 	- Enabled the Start Round sound on every round, like in the real game
 	- Random Box weapons float up with the right angle to match the box
 	- Random Box Weapons can now be picked up even with wierd models
+
+To-do list:
+	- Make point distribution by hook instead of on-zombie functions
+	- Fix special wave spawn breaking
+	- Better HUD elements and revival icon
+	- Revival progress bar
+	- Change nav-gate tool to navmesh editing (possible?)
+	- All references of zombies should reference the ValidEnemies table in config
+	- Better movement stopping for downed players (block key inputs instead of movetype_none, stops weapon sway)
+	- Invisible blockers to have more models (like navgates) + blocking filter
+	- Make Pack-a-Punch a global damage multiplier by hook?
+	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
+	- Add Black Ops and Black Ops 2 perks?
+	- Carpenter powerup
+	- Correcting points (hit = 10, kill = 50, headshot kill = 100)
