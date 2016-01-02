@@ -65,6 +65,7 @@ This is an edited version featuring these changes:
 	- Change nav-gate tool to navmesh editing (possible?)
 	- All references of zombies should reference the ValidEnemies table in config
 	- Better movement stopping for downed players (block key inputs instead of movetype_none, stops weapon sway)
+	- Correct health (No visible numbers, a couple of hits to die, constant health regen)
 	- Invisible blockers to have more models (like navgates) + blocking filter
 	- Make Pack-a-Punch a global damage multiplier by hook?
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
