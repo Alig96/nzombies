@@ -7,7 +7,7 @@ place in gamemodes/nzombies/
 
 This is an edited version featuring these changes:
 
-- Revival System
+- Revival System & Health
 	- You get downed by losing all HP
 	- CalcView low angle for being downed, screen slowly fades to black until you die
 	- Hold E on a downed friend to revive, 45 seconds without revival kills the downed player
@@ -16,15 +16,14 @@ This is an edited version featuring these changes:
 	- Downed players also count as 'dead' towards ending the game
 	- Upon being downed, you equip a pistol if available
 		-(Planned: If no pistol, give starting pistol for the duration of being downed)
+	- Zombies now deal 50-70 damage, but you have health regen on your side!
 
-- Navigation Gates Creator Tool [BETA]
-	- Create and Link Nav Gates and Room Controllers
-		- These will make Zombies able to know which doors are open and which 'rooms' they link to
-		- They function sort of like waypoints that can only be used if the linked door is open
-		- This is in Beta as of now and is an Advanced tool (There's a small in-game help menu)
-	- Zombies can now navigate with the use of the Nav Gates and Room Controllers (Still need navmeshes)
-		- Only normal zombies can as of now
-	- A setting in the config file will allow you to change the mode this is run
+- Navigation Locker Tool
+	- Lock Navmeshes or link them to doors!
+		- Zombies will not be able to pathfind through locked navmeshes
+		- Opening a linked door will unlock the navmesh it was tied to
+		- You need to be in a local server with sv_cheats to 1 to visualize them, however they still work without
+		- Only normal zombies can, but you can copy-past the pathfinding check to any other NPC if needed
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -56,19 +55,15 @@ This is an edited version featuring these changes:
 	- Enabled the Start Round sound on every round, like in the real game
 	- Random Box weapons float up with the right angle to match the box
 	- Random Box Weapons can now be picked up even with wierd models
+	- Zombies now correctly give 50 points for a kill and 100 for a headshot kill
+	- Point distribution works on hooks now, making it work for any NPC you add to ValidEnemies
+	- ValidEnemies table setup changed to allow more customizability
 
 - To-do list:
-	+ Make point distribution by hook instead of on-zombie functions
-	- Fix special wave spawn breaking
 	- Better HUD elements and revival icon
 	- Revival progress bar
-	- Change nav-gate tool to navmesh editing (possible?)
-	- All references of zombies should reference the ValidEnemies table in config
-	- Better movement stopping for downed players (block key inputs instead of movetype_none, stops weapon sway)
-	- Correct health (No visible numbers, a couple of hits to die, constant health regen)
 	- Invisible blockers to have more models (like navgates) + blocking filter
 	- Make Pack-a-Punch a global damage multiplier by hook?
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
 	- Carpenter powerup
-	+ Correcting points (hit = 10, kill = 50, headshot kill = 100)
