@@ -58,7 +58,7 @@ This is an edited version featuring these changes:
 	- Random Box Weapons can now be picked up even with wierd models
 
 - To-do list:
-	- Make point distribution by hook instead of on-zombie functions
+	+ Make point distribution by hook instead of on-zombie functions
 	- Fix special wave spawn breaking
 	- Better HUD elements and revival icon
 	- Revival progress bar
@@ -71,4 +71,4 @@ This is an edited version featuring these changes:
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
 	- Carpenter powerup
-	- Correcting points (hit = 10, kill = 50, headshot kill = 100)
+	+ Correcting points (hit = 10, kill = 50, headshot kill = 100)
