@@ -41,20 +41,6 @@ function ENT:Initialize()
 		end
 	end)
 	
-	hook.Add("nz_EntityChangedRoom", self, function(self, ent, oldroom, newroom, navgate)
-		--print("HOOK INFO ON ZOMBIE", ent, oldroom, newroom, navgate)
-		if nz.Config.NavMode == NAV_MODE_PLAYER_ROOM_CHANGE and IsValid(ent) and ent:IsPlayer() and ent:Alive() then
-			self:GetAllWaypointRoutes()
-		end
-	end)
-	
-end
-
-function ENT:SpawnNavigate()
-	//Call this function from the spawner after it is spawned - this is where CurrentRoom is assigned
-	if nz.Config.NavMode == NAV_MODE_PLAYER_ROOM_CHANGE then
-		self:GetAllWaypointRoutes()
-	end
 end
 
 function ENT:TimedEvent(time, callback)
@@ -96,6 +82,7 @@ function ENT:RunBehaviour()
 				data.maxs = self:OBBMaxs() * 0.65
 			local trace = util.TraceHull(data)
 			local entity = trace.Entity
+			--print(entity, "UNDER FAIHH")
 
 			//Barricades
 			if (IsValid(entity) and entity:GetClass() == "breakable_entry" ) then
@@ -116,18 +103,18 @@ function ENT:RunBehaviour()
 		if (IsValid(target) and target:Alive()  ) then --and self:GetRangeTo(target) <= 1500
 			self.loco:FaceTowards(target:GetPos())
 
-			if (self:GetRangeTo(target) <= 42) then
+			if (self:GetRangeTo(target) <= 50) then
 				self:EmitSound("npc/zombie_poison/pz_throw2.wav", 50, math.random(75, 125))
 
-				self:TimedEvent(0.3, function()
+				self:TimedEvent(0.1, function()
 					self:EmitSound("npc/vort/claw_swing"..math.random(1, 2)..".wav")
 				end)
 
-				self:TimedEvent(0.4, function()
-					if (IsValid(target) and self:GetRangeTo(target) <= 50) then
+				self:TimedEvent(0.3, function()
+					if (IsValid(target) and self:GetRangeTo(target) <= 60) then
 						local damageInfo = DamageInfo()
 							damageInfo:SetAttacker(self)
-							damageInfo:SetDamage(math.random(5, 10))
+							damageInfo:SetDamage(math.random(50, 70))
 							damageInfo:SetDamageType(DMG_CLUB)
 
 							local force = target:GetAimVector() * -300
@@ -165,20 +152,15 @@ function ENT:RunBehaviour()
 				end
 
 				self.loco:SetDesiredSpeed(nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound])
-				if self.FollowingWaypoints then
-					if self:GetRangeTo(self:GetNextWaypoint()) <= 20 then
-						self:InitiateNextWaypoint()
-					end
-				end
-				if self.FollowingWaypoints then
-					self:MoveToPos(self:GetNextWaypoint():NearestPoint(self:GetPos()), {
-						maxage = 0.67
-					})
-				else
-					self:MoveToPos(target:GetPos(), {
-						maxage = 0.67
-					})
-				end
+				--[[self:MoveToPos(target:GetPos(), {
+					maxage = 0.67
+				})]]
+				self:ChaseEnemy({
+					maxage = 0.67,
+					draw = false,
+					enemy = self.target,
+					tolerance = 50
+				})
 			end
 		else
 			self.target = nil
@@ -211,22 +193,105 @@ function ENT:RunBehaviour()
 	end
 end
 
+function ENT:ChaseEnemy( options )
+
+	local options = options or {}
+
+	local path = Path( "Chase" )
+	path:SetMinLookAheadDistance( options.lookahead or 300 )
+	path:SetGoalTolerance( options.tolerance or 50 )
+	
+	//Custom path computer, the same as default but not pathing through locked nav areas.
+	path:Compute( self, options.enemy:GetPos() or self:GetEnemy():GetPos(), function( area, fromArea, ladder, elevator, length )
+		--print("Pathing!")
+		--print(area, fromArea, ladder, elevator, length)
+		if ( !IsValid( fromArea ) ) then
+			// first area in path, no cost
+			--print("Area is the first area in path!")
+			return 0
+		else
+			if ( !self.loco:IsAreaTraversable( area ) ) then
+				// our locomotor says we can't move here
+				--print("Area not traversable!")
+				return -1
+			end
+				
+			//Prevent movement through either locked navareas or areas with closed doors
+			if (nz.Nav.Data[area:GetID()]) then
+				--print("Has area")
+				if nz.Nav.Data[area:GetID()].link then
+					--print("Area has door link")
+					if !nz.Doors.Data.OpenedLinks[nz.Nav.Data[area:GetID()].link] then
+						--print("Door link is not opened")
+						return -1
+					end
+				elseif nz.Nav.Data[area:GetID()].locked then 
+					--print("Area is locked") 
+				return -1 end
+			end
+			// compute distance traveled along path so far
+			local dist = 0
+			if ( IsValid( ladder ) ) then
+				dist = ladder:GetLength()
+			elseif ( length > 0 ) then
+				// optimization to avoid recomputing length
+				dist = length
+			else
+				dist = ( area:GetCenter() - fromArea:GetCenter() ):GetLength()
+			end
+
+			local cost = dist + fromArea:GetCostSoFar()
+			// check height change
+			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
+			if ( deltaZ >= self.loco:GetStepHeight() ) then
+				if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
+					// too high to reach
+					return -1
+				end
+				// jumping is slower than flat ground
+				local jumpPenalty = 5
+				cost = cost + jumpPenalty * dist
+			elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
+				// too far to drop
+				return -1
+			end
+			return cost
+		end
+	end)
+
+	if ( !path:IsValid() ) then return "failed" end
+
+	while ( path:IsValid() and (IsValid(self.target) or (self.HaveEnemy and self:HaveEnemy())) ) do
+
+		//Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
+		if ( path:GetAge() > options.maxage ) then
+			return "timeout"
+		end
+		path:Update( self )	-- This function moves the bot along the path
+
+		if ( options.draw ) then path:Draw() end
+		-- If we're stuck, then call the HandleStuck function and abandon
+		if ( self.loco:IsStuck() ) then
+			self:HandleStuck()
+			return "stuck"
+		end
+
+		coroutine.yield()
+
+	end
+
+	return "ok"
+
+end
+
 function ENT:Think()
 	//Retarget closest players. Don't put this in the function above or else mass lag due to constant rethinking of target
-	if nz.Config.NavMode == NAV_MODE_THINK then
-		self:GetAllWaypointRoutes()
-	else
-		self.target = IsValid(self.FollowingWaypoints) and self.FollowingWaypoints or self:GetPriorityEnemy()
-	end
+	self.target = self:GetPriorityEnemy()
 	self:NextThink(4)
 end
 
 function ENT:OnStuck()
 	--print("Now I'm stuck", self)
-	//Check for routes when stuck
-	if nz.Config.NavMode == NAV_MODE_ON_STUCK then
-		self:GetAllWaypointRoutes()
-	end
 end
 
 function ENT:AlertNearby(target, range, noNoise)
@@ -289,11 +354,8 @@ function ENT:OnKilled(damageInfo)
 	self:EmitSound(table.Random(deathSounds), 50, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
 
-	nz.Enemies.Functions.OnEnemyKilled( self, attacker )
-	
-	//Delete tables of routestacks to clear them
-	if nz.Nav.RouteStacks[self] then nz.Nav.RouteStacks[self] = nil end
-	if nz.Nav.SelectedRouteStacks[self] then nz.Nav.SelectedRouteStacks[self] = nil end
+	//Now handled with hooks globally
+	--nz.Enemies.Functions.OnEnemyKilled( self, attacker )
 
 end
 
@@ -308,10 +370,13 @@ local painSounds = {
 
 function ENT:OnInjured(damageInfo)
 	local attacker = damageInfo:GetAttacker()
-	local hitgroup = util.QuickTrace( damageInfo:GetDamagePosition( ), damageInfo:GetDamagePosition( ) ).HitGroup
-	local range = self:GetRangeTo(attacker)
-	//Deal an double damage if headshot
-	if hitgroup == HITGROUP_HEAD then
+	--local hitgroup = util.QuickTrace( damageInfo:GetDamagePosition( ), damageInfo:GetDamagePosition( ) ).HitGroup
+	--local range = self:GetRangeTo(attacker)
+	//Deal an double damage if headshot 
+	
+							//NOW HANDLED IN CONFIG FOR ONHIT AND ONKILLED
+	
+	--[[if hitgroup == HITGROUP_HEAD then
 		if self:IsValid() and damageInfo:GetDamageType() != DMG_BLAST_SURFACE then
 			local headshot = DamageInfo()
 			headshot:SetDamage(damageInfo:GetDamage( ))
@@ -321,127 +386,11 @@ function ENT:OnInjured(damageInfo)
 			//Delay so it doesn't "die" twice
 			timer.Simple(0.1, function() if self:IsValid() then self:TakeDamageInfo( headshot ) end end)
 		end
-	end
+	end]]
 	self:EmitSound(table.Random(painSounds), 50, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
 
-	nz.Enemies.Functions.OnEnemyHurt( self, attacker, hitgroup )
-end
-
-function ENT:GetNextWaypoint()
-	if nz.Nav.SelectedRouteStacks[self] then
-		return nz.Nav.SelectedRouteStacks[self].points[self.CurrentStackTarget]
-	end
-end
-
-function ENT:InitiateNextWaypoint()
-	if IsValid(nz.Nav.SelectedRouteStacks[self].points[self.CurrentStackTarget + 1]) then
-		self.CurrentStackTarget = self.CurrentStackTarget + 1
-		--print("Proceeding to target "..self.CurrentStackTarget)
-		PrintTable(nz.Nav.SelectedRouteStacks[self])
-	else
-		self.FollowingWaypoints = nil
-		--print("Proceeding with regular targeting")
-	end
-end
-
-function ENT:GetAllWaypointRoutes(seed, specifictarget)
-	local seed = seed or self.CurrentRoom
-	//If people don't link spawns, zombies will still get a CurrentRoom by walking through a Nav Gate
-	
-	//The zombie has no current room and no seed was provided
-	if !IsValid(seed) then return end
-	
-	self.HasBeen = {}
-	routes = {}
-	if specifictarget and IsValid(specifictarget) and specifictarget:IsPlayer() then
-		if !IsValid(specifictarget.CurrentRoom) then
-			--print("Tried to find a route to "..specifictarget:Nick()..", but he has no CurrentRoom assigned!")
-			return
-		end
-		--print("Finding routes for", specifictarget)
-		self:GetNextPoints(seed, seed, specifictarget.CurrentRoom, {points = {}, dist = 0}, v, self)
-	else
-		for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
-			if !IsValid(v.CurrentRoom) then
-				--print("Tried to find a route to "..v:Nick()..", but he has no CurrentRoom assigned!")
-			else
-				--print("Finding routes for", v)
-				self:GetNextPoints(seed, seed, v.CurrentRoom, {points = {}, dist = 0, ent = self}, v, self)
-			end
-		end
-	end
-end
-
-function ENT:GetNextPoints(seed, curroom, target, stack, ply, curgate)
-	local newstack = stack and table.Copy(stack) or {}
-	--table.Empty(stack)
-	stack = nil
-	if !newstack then return end
-	--PrintTable(newstack)
-	if curroom == target then
-		self:ReturnStack( newstack, ply )
-		newstack = {points = {}, dist = 0, ent = self} --print("RESET")
-		--newstack = nil
-		--print("NILLING newstack")
-	else
-		self.HasBeen[curroom] = true
-		for k,v in pairs(nz.Nav.Data[curroom]) do
-			if curroom == seed then newstack = {points = {}, dist = 0, ent = self} print("RESET ROUTESTACK") end
-			--print("Looking for connection at", v, "looking from", curroom)
-			if !self.HasBeen[v.targetroom] and (v.open or (nz.Doors.Data.OpenedLinks[v.doorlink])) then
-				print("Tracing on from", curroom, "on to", v.targetroom, "through door", k, self)
-				table.insert(newstack.points, v.navlink)
-				//DistToSqr is cheaper - and it works just as well to compare what's shortest
-				newstack.dist = newstack.dist + curgate:GetPos():DistToSqr(v.navlink:GetPos())
-				--PrintTable(stack)
-				self:GetNextPoints(seed, v.targetroom, target, newstack, ply, v.navlink)
-			end
-		end
-	end
-end
-
-function ENT:ReturnStack(stack, ply)
-	print("--- STACK FOUND ---")
-	--PrintTable(stack)
-	if stack.ent == self then
-		if !nz.Nav.RouteStacks[stack.ent] then nz.Nav.RouteStacks[stack.ent] = {} end
-		table.insert(nz.Nav.RouteStacks[stack.ent], stack)
-		--print(self, "INSDFHAKUF")
-		--PrintTable(nz.Nav.RouteStacks[stack.ent])
-	end
-	--PrintTable(self.AllRouteStacks)
-	--print(self)
-	
-	//Make a little buffer to wait for all routes to be found
-	if !self.RouteStackBuffer then
-		self.RouteStackBuffer = CurTime() + 1
-		hook.Add("Think", "RouteStackBuffer"..self:EntIndex(), function()
-			if CurTime() >= self.RouteStackBuffer then
-				hook.Remove("Think", "RouteStackBuffer"..self:EntIndex())
-				self:PrioritizeStack(ply)
-				self.RouteStackBuffer = false
-			end
-		end)
-	end
-end
-
-function ENT:PrioritizeStack(ply)
-	--print("Picking stack")
-	--print(nz.Nav.RouteStacks[self])
-	--PrintTable(nz.Nav.RouteStacks[self])
-	if IsValid(self) and self.RouteStackBuffer then
-		--PrintTable(self.AllRouteStacks)
-		table.SortByMember(nz.Nav.RouteStacks[self], "dist", true)
-		--PrintTable(self.AllRouteStacks)
-		nz.Nav.SelectedRouteStacks[self] = nz.Nav.RouteStacks[self][1]
-		--print("--- TARGETED ROUTESTACK ---")
-		--print(self.RouteStack)
-		--PrintTable(nz.Nav.RouteStacks)
-		table.Empty(nz.Nav.RouteStacks[self])
-		self.CurrentStackTarget = 0
-		self.FollowingWaypoints = ply
-		self:InitiateNextWaypoint()
-	end
+	//Now handled with hooks globally
+	--nz.Enemies.Functions.OnEnemyHurt( self, attacker, hitgroup )
 end

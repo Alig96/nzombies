@@ -29,8 +29,8 @@ nz.Perks.Functions.NewPerk("jugg", {
 	on_model = "models/alig96/perks/jugg/jugg_on.mdl",
 	price = 2500,
 	func = function(self, ply)
-			ply:SetMaxHealth(200)
-			ply:SetHealth(200)
+			ply:SetMaxHealth(250)
+			ply:SetHealth(250)
 			ply:Give("zombies_perk_juggernog_nz")
 			return true
 	end,

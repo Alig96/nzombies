@@ -52,7 +52,7 @@ end
 function ENT:Explode()
 	local ex = ents.Create("env_explosion")
 	ex:SetPos(self:GetPos())
-	ex:SetKeyValue( "iMagnitude", "50" )
+	ex:SetKeyValue( "iMagnitude", "80" )
 	ex:SetOwner(self)
 	ex:Spawn()
 	ex:Fire("Explode",0,0)
@@ -157,8 +157,14 @@ function ENT:RunBehaviour()
 				end
 
 				self.loco:SetDesiredSpeed(nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound])
-				self:MoveToPos(target:GetPos(), {
+				--[[self:MoveToPos(target:GetPos(), {
 					maxage = 0.67
+				})]]
+				self:ChaseEnemy({
+					maxage = 0.67,
+					draw = false,
+					enemy = self.target,
+					tolerance = 35
 				})
 			end
 		else
@@ -190,6 +196,95 @@ function ENT:RunBehaviour()
 		end
 		coroutine.yield()
 	end
+end
+
+function ENT:ChaseEnemy( options )
+
+	local options = options or {}
+
+	local path = Path( "Chase" )
+	path:SetMinLookAheadDistance( options.lookahead or 300 )
+	path:SetGoalTolerance( options.tolerance or 50 )
+	
+	//Custom path computer, the same as default but not pathing through locked nav areas.
+	path:Compute( self, options.enemy:GetPos() or self:GetEnemy():GetPos(), function( area, fromArea, ladder, elevator, length )
+		--print("Pathing!")
+		--print(area, fromArea, ladder, elevator, length)
+		if ( !IsValid( fromArea ) ) then
+			// first area in path, no cost
+			--print("Area is the first area in path!")
+			return 0
+		else
+			if ( !self.loco:IsAreaTraversable( area ) ) then
+				// our locomotor says we can't move here
+				--print("Area not traversable!")
+				return -1
+			end
+				
+			//Prevent movement through either locked navareas or areas with closed doors
+			if (nz.Nav.Data[area:GetID()]) then
+				--print("Has area")
+				if nz.Nav.Data[area:GetID()].link then
+					--print("Area has door link")
+					if !nz.Doors.Data.OpenedLinks[nz.Nav.Data[area:GetID()].link] then
+						--print("Door link is not opened")
+						return -1
+					end
+				elseif nz.Nav.Data[area:GetID()].locked then return -1 end
+			end
+			// compute distance traveled along path so far
+			local dist = 0
+			if ( IsValid( ladder ) ) then
+				dist = ladder:GetLength()
+			elseif ( length > 0 ) then
+				// optimization to avoid recomputing length
+				dist = length
+			else
+				dist = ( area:GetCenter() - fromArea:GetCenter() ):GetLength()
+			end
+
+			local cost = dist + fromArea:GetCostSoFar()
+			// check height change
+			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
+			if ( deltaZ >= self.loco:GetStepHeight() ) then
+				if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
+					// too high to reach
+					return -1
+				end
+				// jumping is slower than flat ground
+				local jumpPenalty = 5
+				cost = cost + jumpPenalty * dist
+			elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
+				// too far to drop
+				return -1
+			end
+			return cost
+		end
+	end)
+
+	if ( !path:IsValid() ) then return "failed" end
+
+	while ( path:IsValid() and (IsValid(self.target) or (self.HaveEnemy and self:HaveEnemy())) ) do
+
+		//Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
+		if ( path:GetAge() > options.maxage ) then
+			return "timeout"
+		end
+		path:Update( self )	-- This function moves the bot along the path
+
+		if ( options.draw ) then path:Draw() end
+		-- If we're stuck, then call the HandleStuck function and abandon
+		if ( self.loco:IsStuck() ) then
+			self:HandleStuck()
+			return "stuck"
+		end
+
+		coroutine.yield()
+
+	end
+
+	return "ok"
+
 end
 
 function ENT:Think()
@@ -258,7 +353,8 @@ function ENT:OnKilled(damageInfo)
 	self:EmitSound(table.Random(deathSounds), 50, math.random(75, 130))
 	self:BecomeRagdoll(damageInfo)
 
-	nz.Enemies.Functions.OnEnemyKilled( self, attacker )
+	//Now handled with hooks globally
+	--nz.Enemies.Functions.OnEnemyKilled( self, attacker )
 
 end
 
@@ -273,10 +369,13 @@ local painSounds = {
 
 function ENT:OnInjured(damageInfo)
 	local attacker = damageInfo:GetAttacker()
-	local hitgroup = util.QuickTrace( damageInfo:GetDamagePosition( ), damageInfo:GetDamagePosition( ) ).HitGroup
-	local range = self:GetRangeTo(attacker)
+	--local hitgroup = util.QuickTrace( damageInfo:GetDamagePosition( ), damageInfo:GetDamagePosition( ) ).HitGroup
+	--local range = self:GetRangeTo(attacker)
 	//Deal an double damage if headshot
-	if hitgroup == HITGROUP_HEAD then
+	
+							//NOW HANDLED IN CONFIG FOR ONHIT AND ONKILLED
+	
+	--[[if hitgroup == HITGROUP_HEAD then
 		if self:IsValid() and damageInfo:GetDamageType() != DMG_BLAST_SURFACE then
 			local headshot = DamageInfo()
 			headshot:SetDamage(damageInfo:GetDamage( ))
@@ -286,10 +385,11 @@ function ENT:OnInjured(damageInfo)
 			//Delay so it doesn't "die" twice
 			timer.Simple(0.1, function() if self:IsValid() then self:TakeDamageInfo( headshot ) end end)
 		end
-	end
+	end]]
 	self:EmitSound(table.Random(painSounds), 50, math.random(50, 130))
 	self.target = attacker
 	self:AlertNearby(attacker, 1000)
 
-	nz.Enemies.Functions.OnEnemyHurt( self, attacker, hitgroup )
+	//Now handled with hooks globally
+	--nz.Enemies.Functions.OnEnemyHurt( self, attacker, hitgroup )
 end

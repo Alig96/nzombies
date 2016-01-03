@@ -6,7 +6,7 @@ function nz.Enemies.Functions.CheckIfSuitable(pos)
 	local Blockers = 0
 	if Ents == nil then return true end
 	for k, v in pairs( Ents ) do
-		if ( IsValid( v ) and (v:GetClass() == "player" or table.HasValue(nz.Config.ValidEnemies, v:GetClass()) ) ) then 
+		if ( IsValid( v ) and (v:GetClass() == "player" or nz.Config.ValidEnemies[v:GetClass()] ) ) then 
 			Blockers = Blockers + 1
 		end
 	end
@@ -63,7 +63,7 @@ function nz.Enemies.Functions.TotalCurrentEnemies()
 	
 	//Count
 	for k,v in pairs(nz.Config.ValidEnemies) do
-		for k2,v2 in pairs(ents.FindByClass(v)) do
+		for k2,v2 in pairs(ents.FindByClass(k)) do
 			c = c + 1
 		end	
 	end
@@ -78,20 +78,21 @@ function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 		//Get the latest round number from the table
 		for i = nz.Rounds.Data.CurrentRound, 0, -1 do 
 			if nz.Config.EnemyTypes[i] != nil then
-				ent = nz.Misc.Functions.WeightedRandom(nz.Config.EnemyTypes[i])
+				//Remove the count from the weighted random by cloning and removing from the clone
+				local enemytypes = table.Copy(nz.Config.EnemyTypes[i])
+				enemytypes.count = nil
+				ent = nz.Misc.Functions.WeightedRandom(enemytypes)
 				break
 			end
 		end
-	
+		
+		if !IsValid(spawnpoint) then return end
+		
 		local zombie = ents.Create(ent)
-		zombie:SetPos(spawnpoint:GetPos())
+		zombie:SetPos(spawnpoint:GetPos()) 
 		zombie:Spawn()
 		zombie:Activate()
-		//Set a zombies current room to the one he spawns in
-		if IsValid(spawnpoint.OwnerRoom) then
-			zombie.CurrentRoom = spawnpoint.OwnerRoom
-		end
-		zombie:SpawnNavigate()
+		
 		nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned + 1
 		print("Spawning Enemy: " .. nz.Rounds.Data.ZombiesSpawned .. "/" .. nz.Rounds.Data.MaxZombies )
 	else

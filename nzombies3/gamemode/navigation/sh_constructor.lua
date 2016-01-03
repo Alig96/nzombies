@@ -3,7 +3,9 @@ nz.Nav = {}
 nz.Nav.Functions = {}
 nz.Nav.Data = {}
 
-//For entites to keep track of route stacks
-nz.Nav.RouteStacks = {}
-nz.Nav.SelectedRouteStacks = {}
-//Apparently using ENT.RouteStacks made them share the tables
+//Reset navmesh attributes so they don't accidentally save
+function GM:ShutDown()
+	for k,v in pairs(nz.Nav.Data) do
+		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
+	end
+end

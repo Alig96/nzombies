@@ -50,7 +50,12 @@ function nz.Rounds.Functions.PrepareRound()
 	nz.Rounds.Functions.SendSync()
 	nz.Rounds.Data.CurrentRound = nz.Rounds.Data.CurrentRound + 1
 
-	nz.Rounds.Data.MaxZombies = nz.Curves.Data.SpawnRate[nz.Rounds.Data.CurrentRound]
+	if nz.Config.EnemyTypes[nz.Rounds.Data.CurrentRound] and nz.Config.EnemyTypes[nz.Rounds.Data.CurrentRound].count then
+		nz.Rounds.Data.MaxZombies = nz.Config.EnemyTypes[nz.Rounds.Data.CurrentRound].count
+		print("Round "..nz.Rounds.Data.CurrentRound.." has a special count: "..nz.Rounds.Data.MaxZombies)
+	else
+		nz.Rounds.Data.MaxZombies = nz.Curves.Data.SpawnRate[nz.Rounds.Data.CurrentRound]
+	end
 	nz.Rounds.Data.KilledZombies = 0
 	nz.Rounds.Data.ZombiesSpawned = 0
 
@@ -98,6 +103,7 @@ end
 
 function nz.Rounds.Functions.ResetGame()
 	//Main Behaviour
+	nz.Doors.Functions.LockAllDoors()
 	nz.Rounds.Data.CurrentState = ROUND_INIT
 	nz.Rounds.Functions.SendSync()
 	//Notify
@@ -120,7 +126,7 @@ function nz.Rounds.Functions.ResetGame()
 	nz.Revive.Functions.SendSync()
 	//Remove all enemies
 	for k,v in pairs(nz.Config.ValidEnemies) do
-		for k2,v2 in pairs(ents.FindByClass(v)) do
+		for k2,v2 in pairs(ents.FindByClass(k)) do
 			v2:Remove()
 		end
 	end
@@ -178,14 +184,16 @@ function nz.Rounds.Functions.CreateMode()
 			end
 		end
 		
-		//Set them to solid again so you can interact with physgun and toolgun
-		for k,v in pairs(ents.FindByClass("nav_gate")) do
-			print(v, "set to NOT solid")
-			v:SetNotSolid(false)
+		//Re-enable navmesh visualization
+		for k,v in pairs(nz.Nav.Data) do
+			local navarea = navmesh.GetNavAreaByID(k)
+			if v.link then
+				navarea:SetAttributes(NAV_MESH_STOP)
+			else 
+				navarea:SetAttributes(NAV_MESH_AVOID) 
+			end
 		end
-		for k,v in pairs(ents.FindByClass("nav_room_controller")) do
-			v:SetNotSolid(false)
-		end
+		
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
 		nz.Rounds.Data.CurrentState = ROUND_INIT
@@ -218,6 +226,11 @@ function nz.Rounds.Functions.SetupGame()
 
 	nz.Mapping.Functions.CleanUpMap()
 	nz.Doors.Functions.LockAllDoors()
+	
+	//Reset navigation attributes so they don't save into the actual .nav file.
+	for k,v in pairs(nz.Nav.Data) do
+		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
+	end
 
 	//Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do

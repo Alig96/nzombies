@@ -26,7 +26,7 @@ function nz.Revive.Functions.ResetColorFade()
 	}
 	fade = 1
 	
-	print("Color reset!")
+	--print("Color reset!")
 end
 
 function nz.Revive.Functions.CalcDownView(ply, pos, ang, fov, znear, zfar)

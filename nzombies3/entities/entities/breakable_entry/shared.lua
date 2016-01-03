@@ -85,14 +85,14 @@ function ENT:SpawnPlank()
 end
 
 hook.Add("ShouldCollide", "zCollisionHook", function(ent1, ent2)
-	if ent1:GetClass() == "breakable_entry" and  (ent2:GetClass() == "nut_zombie" or ent2:GetClass() == "nut_zombie_ex") then
+	if ent1:GetClass() == "breakable_entry" and (nz.Config.ValidEnemies[ent2:GetClass()]) then
 		if ent1:IsValid() and ent1:Health() == 0 then
 			ent1:SetSolid(SOLID_NONE)
 			timer.Simple(0.1, function() if ent1:IsValid() then ent1:SetSolid(SOLID_VPHYSICS) end end)
 		end
 		return false
 	end
-	if ent2:GetClass() == "breakable_entry" and (ent1:GetClass() == "nut_zombie" or ent1:GetClass() == "nut_zombie_ex") then
+	if ent2:GetClass() == "breakable_entry" and (nz.Config.ValidEnemies[ent1:GetClass()]) then
 		if ent2:IsValid() and ent2:Health() == 0 then
 			ent2:SetSolid(SOLID_NONE)
 			timer.Simple(0.1, function() if ent2:IsValid() then ent2:SetSolid(SOLID_VPHYSICS) end end)

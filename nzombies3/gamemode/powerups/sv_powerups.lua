@@ -3,7 +3,7 @@
 function nz.PowerUps.Functions.Nuke()
 	//Kill them all
 	for k,v in pairs(nz.Config.ValidEnemies) do
-		for k2,enemy in pairs(ents.FindByClass(v)) do
+		for k2,enemy in pairs(ents.FindByClass(k)) do
 			if enemy:IsValid() then
 				local insta = DamageInfo()
 				insta:SetDamage(enemy:Health())
@@ -18,7 +18,7 @@ function nz.PowerUps.Functions.Nuke()
 	//Give the players a set amount of points
 	for k,v in pairs(player.GetAll()) do
 		if v:IsPlayer() then
-			v:GivePoints(500)
+			v:GivePoints(400)
 		end
 	end
 end

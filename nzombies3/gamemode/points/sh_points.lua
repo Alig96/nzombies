@@ -33,4 +33,5 @@ if (SERVER) then
 		//Changed to prevent double points from removing double the points. - Don't even think of changing this back Ali, Love Ali.
 		self:SetPoints(self:GetPoints() - amount)
 	end
+	
 end

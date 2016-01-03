@@ -4,6 +4,57 @@ nz.Config = {}
 //nz.Config.Data = {}
 
 // Defaults
+
+//Zombie table - Moved to shared area for client collision prediction (barricades)
+nz.Config.ValidEnemies = {
+	["nut_zombie"] = {
+		//Set to false to disable the spawning of this zombie
+		Valid = true,
+		//Allow you to scale damage on a per-hitgroup basis
+		ScaleDMG = function(zombie, hitgroup, dmginfo)
+			//Headshots for double damage
+			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
+		end,
+		//Function runs whenever the zombie is damaged (NOT when killed)
+		OnHit = function(zombie, attacker, hitgroup)
+			//If player is playing and is not downed, give points
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				attacker:GivePoints(10)
+			end
+		end,
+		//Function is run whenever the zombie is killed
+		OnKilled = function(zombie, attacker, hitgroup)
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				if hitgroup == HITGROUP_HEAD then
+					attacker:GivePoints(100)
+				else
+					attacker:GivePoints(50)
+				end
+			end
+		end
+	},
+	["nut_zombie_ex"] = {
+		Valid = true,
+		ScaleDMG = function(zombie, hitgroup, dmginfo)
+			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
+		end,
+		OnHit = function(zombie, attacker, hitgroup)
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				attacker:GivePoints(10)
+			end
+		end,
+		OnKilled = function(zombie, attacker, hitgroup)
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				if hitgroup == HITGROUP_HEAD then
+					attacker:GivePoints(100)
+				else
+					attacker:GivePoints(50)
+				end
+			end
+		end
+	}
+}
+
 if SERVER then
 
 	//Curves
@@ -27,10 +78,9 @@ if SERVER then
 	//Electricity
 
 	//Enemies
-	nz.Config.ValidEnemies = {"nut_zombie", "nut_zombie_ex"}
 	nz.Config.EnemyTypes = {}
 	nz.Config.EnemyTypes[1] = {["nut_zombie"] = 100}
-	nz.Config.EnemyTypes[6] = {["nut_zombie_ex"] = 100}
+	nz.Config.EnemyTypes[6] = {["nut_zombie_ex"] = 100, count = 20}
 	nz.Config.EnemyTypes[7] = {["nut_zombie"] = 100}
 	nz.Config.EnemyTypes[13] = {["nut_zombie"] = 80, ["nut_zombie_ex"] = 20}
 	nz.Config.EnemyTypes[18] = {["nut_zombie_ex"] = 100}
@@ -68,7 +118,7 @@ if SERVER then
 	"weapon_dod_sim_base", "weapon_dod_sim_base_shot", "weapon_dod_sim_base_snip", "weapon_sim_admin", "weapon_sim_spade",
 	"fas2_base", "fas2_ammobox", "fas2_ifak", "fas2_base_shotgun",
 	"nz_tool_base", "nz_tool_barricades", "nz_tool_block_spawns", "nz_tool_door_locker", "nz_tool_elec", "nz_tool_perk_machine", "nz_tool_player_spawns", "nz_tool_prop_modifier", "nz_tool_random_box", "nz_tool_template", "nz_tool_wall_buys", "nz_tool_zed_spawns",
-	"nz_tool_ee", "nz_tool_nav_creator", "nz_tool_random_box_handler", "nz_tool_player_handler"
+	"nz_tool_ee", "nz_tool_random_box_handler", "nz_tool_player_handler", "nz_tool_nav_locker"
 	}
 
 	//Round Handler
@@ -82,21 +132,6 @@ if SERVER then
 
 	//Weapons
 	nz.Config.MaxWeps = 2
-	
-	
-	//Navigation Modes (1 least expensive, 3 most accurate)
-		//Won't use custom Nav Tool navigation
-		NAV_MODE_NEVER_USE = 0
-		//Will use Nav Tool navigation on stuck
-		NAV_MODE_ON_STUCK = 1
-		//Will retarget every time a player changes room
-		NAV_MODE_PLAYER_ROOM_CHANGE = 2
-		//Will always target in ENT:Think (every 4 seconds)
-		NAV_MODE_THINK = 3
-	
-	nz.Config.NavMode = NAV_MODE_PLAYER_ROOM_CHANGE
-	
-
 
 end
 
