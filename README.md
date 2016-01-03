@@ -59,6 +59,8 @@ This is an edited version featuring these changes:
 	- Point distribution works on hooks now, making it work for any NPC you add to ValidEnemies
 	- ValidEnemies table setup changed to allow more customizability
 
+
+
 - To-do list:
 	- Better HUD elements and revival icon
 	- Revival progress bar
@@ -67,3 +69,4 @@ This is an edited version featuring these changes:
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
 	- Carpenter powerup
+	- Fix random downing of players (Prop collision?)
