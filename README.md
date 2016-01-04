@@ -70,3 +70,5 @@ This is an edited version featuring these changes:
 	- Add Black Ops and Black Ops 2 perks?
 	- Carpenter powerup
 	- Fix random downing of players (Prop collision?)
+	- Fix waves not progressing sometimes (with failsafes)
+	- Modify curves to be better
