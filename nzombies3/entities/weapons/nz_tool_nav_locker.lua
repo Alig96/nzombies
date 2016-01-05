@@ -8,7 +8,7 @@ SWEP.Ent1			= nil
 
 function SWEP:OnPrimaryAttack(tr)
 	local pos = tr.HitPos
-	if tr.HitWorld then
+	if tr.HitWorld or self.Owner:KeyDown(IN_SPEED) then
 		if !IsValid(self.Ent1) then self.Owner:ChatPrint("You need to mark a door first to link an area.") return end
 		local navarea = navmesh.GetNearestNavArea(pos)
 		
@@ -52,7 +52,9 @@ function IsNavApplicable(ent)
 end
 
 function SWEP:OnReload(tr)
-	self.Ent1:SetMaterial( "" )
+	if IsValid(self.Ent1) then
+		self.Ent1:SetMaterial( "" )
+	end
 	self.Ent1 = nil
 end
 

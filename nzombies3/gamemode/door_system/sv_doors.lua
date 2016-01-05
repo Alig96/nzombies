@@ -26,6 +26,8 @@ function nz.Doors.Functions.ParseFlagString( flagsStr )
 end
 
 function nz.Doors.Functions.CreateLink( ent, flagsStr )
+	print(flagsStr, ent)
+	print(debug.traceback())
 	//First remove all links
 	nz.Doors.Functions.RemoveLink( ent )
 	if ent:IsDoor() or ent:IsButton() then
@@ -46,6 +48,7 @@ end
 function nz.Doors.Functions.CreateMapDoorLink( doorID, flagsStr )
 
 	local door = nz.Doors.Functions.doorIndexToEnt(doorID)
+	if !flagsStr then print("ERROR! Door "..doorID.." doesn't have a flagStr saved!") print(debug.traceback()) return end
 	local flagsTbl = nz.Doors.Functions.ParseFlagString( flagsStr )
 	
 	if door:IsValid() and (door:IsDoor() or door:IsButton()) then

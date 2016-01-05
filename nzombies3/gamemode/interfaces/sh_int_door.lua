@@ -3,7 +3,10 @@
 if SERVER then
 	function nz.Interfaces.Functions.DoorPropsHandler( ply, data )
 		if ply:IsSuperAdmin() then
+			PrintTable(data)
+			print(data.flags, 1)
 			nz.Doors.Functions.CreateLink( data.ent, data.flags )
+			print(data.flags, 2)
 		end
 	end
 end

@@ -123,6 +123,7 @@ function nz.Mapping.Functions.SaveConfig()
 			}
 		end
 	end
+	--PrintTable(door_setup)
 	
 	//barricades
 	local break_entry = {}
@@ -333,6 +334,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 		//Normal Map doors
 		if data.DoorSetup then
 			for k,v in pairs(data.DoorSetup) do
+				print(v.flags)
 				nz.Doors.Functions.CreateMapDoorLink(k, v.flags)
 			end
 		end

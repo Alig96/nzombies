@@ -23,8 +23,18 @@ function nz.PowerUps.Functions.Nuke()
 	end
 end
 
+//Add the sound so we can stop it again
+sound.Add( {
+	name = "nz_firesale_jingle",
+	channel = CHAN_STATIC,
+	volume = 1.0,
+	level = 75,
+	pitch = { 100, 100 },
+	sound = "nz/randombox/fire_sale.wav"
+} )
+
 function nz.PowerUps.Functions.FireSale()
-	print("Running")
+	--print("Running")
 	//Get all spawns
 	local all = ents.FindByClass("random_box_spawns")
 	
@@ -50,13 +60,14 @@ function nz.PowerUps.Functions.FireSale()
 	end
 	
 	for k,v in pairs(ents.FindByClass("random_box")) do
-		v:EmitSound("nz/randombox/fire_sale.wav")
+		v:EmitSound("nz_firesale_jingle")
 	end
 	
 	hook.Add("Tick", "FireSaleActive", function()
 		if !nz.PowerUps.Functions.IsPowerupActive("firesale") then
 			for k,v in pairs(ents.FindByClass("random_box_spawns")) do
 				if IsValid(v.FireSaleBox) then
+					v.FireSaleBox:StopSound("nz_firesale_jingle")
 					v.FireSaleBox:MarkForRemoval()
 				end
 			end

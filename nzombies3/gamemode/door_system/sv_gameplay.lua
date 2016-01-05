@@ -58,7 +58,7 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 	local req_elec = ent.elec
 	local link = ent.link
 	local buyable = ent.buyable
-	print("Entity info buying ", ent, link, req_elec, price, buyable)
+	--print("Entity info buying ", ent, link, req_elec, price, buyable)
 	//If it has a price and it can be bought
 	if price != nil and tonumber(buyable) == 1 then
 		if ply:CanAfford(price) and ent.Locked == true then
@@ -94,7 +94,7 @@ function nz.Doors.Functions.CheckUseDoor(ply, ent)
 
 	local tr = util.QuickTrace(ply:EyePos(), ply:GetAimVector()*100, ply)
 	local door = tr.Entity
-	print(door)
+	--print(door)
 	
 	if IsValid(door) and door:IsDoor() then
 		return door
