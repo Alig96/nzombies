@@ -13,7 +13,7 @@ if SERVER then
 		end
 
 		//Notify
-
+		ply:EmitSound("nz/powerups/power_up_grab.wav")
 		powerupData.func(id, ply)
 
 		//Sync
@@ -48,6 +48,7 @@ if SERVER then
 		ent:SetModel(powerupData.model)
 		ent:SetPos(pos)
 		ent:Spawn()
+		ent:EmitSound("nz/powerups/power_up_spawn.wav")
 	end
 
 end
@@ -152,5 +153,19 @@ nz.PowerUps.Functions.NewPowerUp("firesale", {
 	func = (function(self, ply)
 		nz.Notifications.Functions.PlaySound("nz/powerups/fire_sale_announcer.wav", 1)
 		nz.PowerUps.Functions.FireSale()
+	end),
+})
+
+//Carpenter
+nz.PowerUps.Functions.NewPowerUp("carpenter", {
+	name = "Carpenter",
+	model = "models/props/de_vostok/hammer01.mdl",
+	scale = 2,
+	chance = 5,
+	duration = 0,
+	func = (function(self, ply)
+		nz.Notifications.Functions.PlaySound("nz/powerups/carpenter.wav", 0)
+		nz.Notifications.Functions.PlaySound("nz/powerups/carp_loop.wav", 1)
+		nz.PowerUps.Functions.Carpenter()
 	end),
 })

@@ -5,4 +5,8 @@ nz.Revive.Data = {}
 
 //_ Variables
 
-nz.Revive.Data.Players = {}
+nz.Revive.Data.Players = {} 
+
+if CLIENT then
+	nz.Revive.Data.Notify = {}
+end

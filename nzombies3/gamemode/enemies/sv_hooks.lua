@@ -1,12 +1,17 @@
 //
 
 
-function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker)
+function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo)
+	//Prevent multiple "dyings" by making sure the zombie has not already been "killed"
+	if enemy.MarkedForDeath then return end
 
 	if attacker:IsPlayer() then
 		--attacker:GivePoints(90)
 		attacker:AddFrags(1)
 	end
+	
+	//Run special on-killed function if it has any
+	nz.Config.ValidEnemies[enemy:GetClass()].OnKilled(enemy, dmginfo:GetAttacker(), hitgroup)
 
 	nz.Rounds.Data.KilledZombies = nz.Rounds.Data.KilledZombies + 1
 	//nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned - 1
@@ -17,6 +22,8 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker)
 	end
 
 	print("Killed Enemy: " .. nz.Rounds.Data.KilledZombies .. "/" .. nz.Rounds.Data.MaxZombies )
+	//Prevent this function from running on this zombie again
+	enemy.MarkedForDeath = true
 end
 
 function GM:EntityTakeDamage(zombie, dmginfo)
@@ -25,8 +32,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 		
 		if nz.PowerUps.Functions.IsPowerupActive("insta") then
 			dmginfo:SetDamage(zombie:Health())
-			nz.Config.ValidEnemies[zombie:GetClass()].OnKilled(zombie, dmginfo:GetAttacker(), hitgroup)
-			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker())
+			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo)
 		return end
 		
 		--print(dmginfo:GetDamage(), 1)
@@ -39,8 +45,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			//Prevent multiple damages in one tick (FA:S 2 Bullet penetration makes them hit 1 zombie 2-3 times per bullet)
 			timer.Simple(0, function() if IsValid(zombie) then zombie.HasTakenDamageThisTick = false end end)
 		else
-			nz.Config.ValidEnemies[zombie:GetClass()].OnKilled(zombie, dmginfo:GetAttacker(), hitgroup)
-			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker())
+			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo)
 		end
 	end
 end

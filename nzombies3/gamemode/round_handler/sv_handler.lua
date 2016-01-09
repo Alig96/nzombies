@@ -1,5 +1,7 @@
 //
 
+local CurRoundOverSpawned = false
+
 function nz.Rounds.Functions.CheckPrerequisites()
 
 	//If there is there is less than one player
@@ -81,6 +83,9 @@ function nz.Rounds.Functions.PrepareRound()
 	for k,v in pairs(nz.Rounds.Data.CurrentPlayers) do
 		v:SetHealth(v:GetMaxHealth())
 	end
+	
+	//Set this to reset the overspawn debug message status
+	CurRoundOverSpawned = false
 
 	//Start the next round
 	timer.Simple(nz.Config.PrepareTime, function() nz.Rounds.Functions.StartRound() end)
@@ -291,9 +296,26 @@ function nz.Rounds.Functions.RoundHandler()
 		nz.Rounds.Functions.EndRound()
 	end
 
+	local numzombies = nz.Enemies.Functions.TotalCurrentEnemies()
+	
 	//If we've killed all the zombies, then progress to the next level.
-	if (nz.Rounds.Data.KilledZombies == nz.Rounds.Data.MaxZombies) and nz.Rounds.Data.CurrentState == ROUND_PROG then
-		nz.Rounds.Functions.PrepareRound()
+	if (nz.Rounds.Data.KilledZombies >= nz.Rounds.Data.MaxZombies) and nz.Rounds.Data.CurrentState == ROUND_PROG then
+		if numzombies <= 0 then
+			nz.Rounds.Functions.PrepareRound()
+		elseif !CurRoundOverSpawned then //To not spam it every second upon overspawning - only once per round (reset on Prepare)
+			print("The wave was overspawning by "..numzombies.."! Kill the remaining zombies to progress.")
+			CurRoundOverSpawned = true
+		end
+	end
+	
+	//Uh-oh! Looks like all zombies have spawned, yet they aren't enough to satisfy the round limit!
+	if (nz.Rounds.Data.ZombiesSpawned >= nz.Rounds.Data.MaxZombies) and numzombies < (nz.Rounds.Data.MaxZombies - nz.Rounds.Data.KilledZombies) and nz.Rounds.Data.CurrentState == ROUND_PROG then
+		local diff = (nz.Rounds.Data.MaxZombies - nz.Rounds.Data.KilledZombies) - numzombies
+		//Apparently not?
+		if diff <= 0 then return end
+		
+		nz.Rounds.Data.ZombiesSpawned = nz.Rounds.Data.ZombiesSpawned - diff
+		print("The wave was underspawning by "..diff.."! Spawning more zombies ...")
 	end
 
 end

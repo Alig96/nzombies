@@ -91,8 +91,11 @@ function nz.Mapping.Functions.SaveConfig()
 	for k,v in pairs(ents.FindByClass("wall_block")) do
 		table.insert(block_spawns, {
 		pos = v:GetPos(),
-		angle = v:GetAngles( ),
+		angle = v:GetAngles(),
 		model = v:GetModel(),
+		modelX = v.CurModelX and v.CurModelX or 2,
+		modelY = v.CurModelY and v.CurModelY or 2,
+		modelZ = v.CurModelZ and v.CurModelZ or 0,
 		})
 	end
 		
@@ -297,7 +300,12 @@ function nz.Mapping.Functions.LoadConfig( name )
 		
 		if data.BlockSpawns then
 			for k,v in pairs(data.BlockSpawns) do
-				nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model)
+				//If X,Y,Z has been set on it, use those values
+				if v.modelX and v.modelY and v.modelZ then
+					nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model, v.modelX, v.modelY, v.modelZ)
+				else
+					nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model)
+				end
 			end
 		end
 		

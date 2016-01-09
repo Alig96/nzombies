@@ -22,13 +22,16 @@ function ENT:Initialize()
 	self.Planks = {}
 
 	if SERVER then
-		self:ResetPlanks()
+		self:ResetPlanks(true)
 	end
 end
 
-function ENT:AddPlank()
+function ENT:AddPlank(nosound)
 	self:SpawnPlank()
 	self:SetHealth(self:Health()+10)
+	if !nosound then
+		self:EmitSound("nz/effects/board_slam_0"..math.random(0,5)..".wav")
+	end
 	print("Barricade Health: " .. self:Health())
 end
 
@@ -53,12 +56,12 @@ function ENT:RemovePlank()
 	end
 end
 
-function ENT:ResetPlanks()
+function ENT:ResetPlanks(nosoundoverride)
 	for i=1, nz.Config.MaxPlanks do
 		self:RemovePlank()
 	end
 	for i=1, nz.Config.MaxPlanks do
-		self:AddPlank()
+		self:AddPlank(!nosoundoverride)
 	end
 end
 
@@ -67,6 +70,7 @@ function ENT:Use( activator, caller )
 		if self:Health() < nz.Config.MaxPlanks * 10 then
 			self:AddPlank()
                   activator:GivePoints(10)
+				  activator:EmitSound("nz/effects/repair_ching.wav")
 			self.NextPlank = CurTime() + 1
 		end
 	end

@@ -87,3 +87,23 @@ function nz.PowerUps.Functions.CleanUp()
 	//Sync
 	nz.PowerUps.Functions.SendSync()
 end
+
+function nz.PowerUps.Functions.Carpenter()
+	//Kill them all
+	for k,v in pairs(ents.FindByClass("breakable_entry")) do
+		if v:IsValid() then
+			for i=1, nz.Config.MaxPlanks do
+				if i > #v.Planks then
+					v:AddPlank()
+				end
+			end
+		end	
+	end
+	
+	//Give the players a set amount of points
+	for k,v in pairs(player.GetAll()) do
+		if v:IsPlayer() then
+			v:GivePoints(200)
+		end
+	end
+end

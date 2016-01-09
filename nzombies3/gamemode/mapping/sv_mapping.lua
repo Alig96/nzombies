@@ -160,7 +160,7 @@ function nz.Mapping.Functions.Electric(pos,ang,model)
 	end
 end
 
-function nz.Mapping.Functions.BlockSpawn(pos,ang,model)
+function nz.Mapping.Functions.BlockSpawn(pos,ang,model,x,y,z)
 	local block = ents.Create( "wall_block" )
 	block:SetModel( model )
 	block:SetPos( pos )
@@ -171,6 +171,13 @@ function nz.Mapping.Functions.BlockSpawn(pos,ang,model)
 	local phys = block:GetPhysicsObject()
 	if phys:IsValid() then
 		phys:EnableMotion(false)
+	end
+	
+	if x and y and z then
+		block.CurModelX = x
+		block.CurModelY = y
+		block.CurModelZ = z
+		block:ReloadModel()
 	end
 end
 

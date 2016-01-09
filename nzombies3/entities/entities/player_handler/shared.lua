@@ -19,6 +19,10 @@ function ENT:SetupDataTables()
 	
 end
 
+function ENT:UpdateTransmitState()
+	return TRANSMIT_ALWAYS
+end
+
 function ENT:Initialize()
 
 	self:SetModel( "models/player/odessa.mdl" )
@@ -32,26 +36,51 @@ end
 
 function ENT:SetData(points, weapon, numweps, eeurl)
 
+	local topreload = false
+
 	if not points then points = 500 end
 	if not weapon then weapon = "fas2_m1919" end
 	if not numweps then numweps = 2 end
 	if not eeurl then eeurl = "" end
+	
+	if eeurl != self:GetEEURL() then topreload = true end
 
 	self:SetStartPoints(points)
 	self:SetStartWep(weapon)
 	self:SetNumWeps(numweps)
 	self:SetEEURL(eeurl)
+	
+	if topreload then hook.Call("nz.EE.EasterEggPreload") end
 
 end
 
-if SERVER then util.AddNetworkString("EasterEggSong") end
+if SERVER then 
+	util.AddNetworkString("EasterEggSong")
+	util.AddNetworkString("EasterEggSongPreload")
+	util.AddNetworkString("EasterEggSongStop")
 
-hook.Add("nz.EE.EasterEgg", "PlayEESong", function()
-	net.Start("EasterEggSong")
-	net.Broadcast()
-end)
+	hook.Add("nz.EE.EasterEgg", "PlayEESong", function()
+		net.Start("EasterEggSong")
+		net.Broadcast()
+	end)
+	hook.Add("nz.EE.EasterEggPreload", "PreloadEESong", function()
+		net.Start("EasterEggSongPreload")
+		net.Broadcast()
+	end)
+	hook.Add("nz.EE.EasterEggStop", "StopEESong", function()
+		net.Start("EasterEggSongStop")
+		net.Broadcast()
+	end)
+	hook.Add("PlayerInitialSpawn", "PreloadEESongSpawn", function(ply)
+		net.Start("EasterEggSongPreload")
+		net.Send(ply)
+	end)
+end
 
 if CLIENT then
+
+	EEAudioChannel = nil
+
 	function ENT:Draw()
 		if nz.Rounds.Data.CurrentState == ROUND_CREATE then
 			self:DrawModel()
@@ -59,49 +88,41 @@ if CLIENT then
 	end
 	net.Receive("EasterEggSong", function()
 		local ent = ents.FindByClass("player_handler")[1]
-		ent:ParseSong()
+		if !IsValid(ent) then return end
+		ent:PlaySong()
 	end)
 	
-	function ENT:ParseSong()
+	net.Receive("EasterEggSongPreload", function()
+		timer.Simple(1, function()
+			local ent = ents.FindByClass("player_handler")[1]
+			if !IsValid(ent) then return end
+			ent:ParseSong(false)
+		end)
+	end)
+	
+	net.Receive("EasterEggSongStop", function()
+		local ent = ents.FindByClass("player_handler")[1]
+		if !IsValid(ent) then return end
+		ent:StopSong()
+	end)
+	
+	function ENT:ParseSong(play)
 		local url = self:GetEEURL()
 		if url == nil or url == "" then return end
-		if string.find( url, "soundcloud.com/" ) and string.find( url, "api." ) == nil then
-			http.Fetch( "https://api.soundcloud.com/resolve.json?url=" .. url .. "&client_id=" .. "b45b1aa10f1ac2941910a7f0d10f8e28",
-			function( body, len, headers, code )
-				local tbl = util.JSONToTable( body )
-				if tbl and tbl["stream_url"] and tbl["title"] then
-					self:PlaySong( tbl["stream_url"] .. "?client_id=" .. "b45b1aa10f1ac2941910a7f0d10f8e28" )
-				else
-					Error( "[SOUNDCLOUD] Failed to fetch song No Steam_URL. Please input a new song/same song\n" )
-				end
-			end, 
-			function( error )
-				Error( "[SOUNDCLOUD] Failed to fetch song error " .. error .. ". Please input a new song/same song\n" )
-			end )
-		end
-
-		if string.find( url, "youtu.be/" ) then
-			url = url .. "&"
-			local videoid = string.match(url, "%?v=(.-)&")
-			http.Fetch( "http://www.youtube-mp3.org/a/itemInfo/?video_id=" .. videoid .. "&ac=www&t=grp&r=" .. os.time(),
+		
+		if string.find( url, "youtube.com/watch" ) then
+			http.Fetch( "http://www.youtubeinmp3.com/fetch/?format=JSON&video="..url,
 			function( body, len, headers, code )
 				if body == "$$$ERROR$$$" then
 					Error( "Failed to fetch song from YouTube!" )
 					return
 				end
 
-				local _, hashStart = string.find( body, '"h" : "', titleEnd, true )
-				if !hashStart then
-					Error( "Failed to fetch song from YouTube!" )
-					return
-				end
-				hashStart = hashStart + 1
-				local hashEnd, _ = string.find( body, '"', hashStart, true )
-				hashEnd = hashEnd - 1
-				local hash = string.sub( body, hashStart, hashEnd )
-				local time = os.time()
-				local time2 = self:_cc( videoid .. time )
-				self:PlaySong("http://www.youtube-mp3.org/get?ab=128&video_id=" .. videoid .. "&h=" .. hash .. "&r=" .. time .. "." .. time2)
+				local tbl = util.JSONToTable(body)
+				print("Preloading Easter Egg song ...")
+				PrintTable(tbl)
+				if play then self:PlaySong(tbl.link) return end
+				self:PreloadSong(tbl.link)
 			end, 
 			function( error )
 				Error( "Failed to fetch song! Error: " .. error )
@@ -109,7 +130,27 @@ if CLIENT then
 		end
 	end
 	
-	function ENT:PlaySong(song)
-		sound.PlayURL( song, "", function() end)
+	function ENT:PlaySong(url)
+		//We have a preloaded channel
+		if EEAudioChannel then
+			EEAudioChannel:Play()
+		//We need to instantly play the given link
+		elseif url then
+			print("Playing!")
+			sound.PlayURL( url, "", function(channel) EEAudioChannel = channel end)
+		//No link and no preload, parse the link and loopback to above
+		else
+			self:ParseSong(true)
+		end
+	end
+	
+	function ENT:StopSong()
+		if EEAudioChannel then
+			EEAudioChannel:Stop()
+		end
+	end
+	
+	function ENT:PreloadSong(song)
+		sound.PlayURL( song, "noplay noblock", function(channel) EEAudioChannel = channel end)
 	end
 end

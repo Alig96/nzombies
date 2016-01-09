@@ -19,9 +19,10 @@ if CLIENT then
 	
 	//Server to client (Client)
 	function nz.Revive.Functions.ReceiveSync( length )
-		print("Received Player Revival Sync")
+		--print("Received Player Revival Sync")
+		local old = nz.Revive.Data.Players
 		nz.Revive.Data.Players = net.ReadTable()
-		PrintTable(nz.Revive.Data.Players)
+		--PrintTable(nz.Revive.Data.Players)
 		
 		for k,v in pairs(player.GetAll()) do
 			if nz.Revive.Data.Players[v] then
@@ -29,6 +30,18 @@ if CLIENT then
 			else
 				v:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
 				if v == LocalPlayer() then nz.Revive.Functions.ResetColorFade() end
+			end
+		end
+		
+		//Give a heads up to differences
+		for k,v in pairs(old) do 
+			if !nz.Revive.Data.Players[k] then
+				nz.Revive.Functions.DownedHeadsUp(k, true)
+			end
+		end
+		for k,v in pairs(nz.Revive.Data.Players) do 
+			if !old[k] then
+				nz.Revive.Functions.DownedHeadsUp(k)
 			end
 		end
 	end

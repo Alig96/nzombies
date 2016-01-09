@@ -63,16 +63,14 @@ function nz.Enemies.Functions.TotalCurrentEnemies()
 	
 	//Count
 	for k,v in pairs(nz.Config.ValidEnemies) do
-		for k2,v2 in pairs(ents.FindByClass(k)) do
-			c = c + 1
-		end	
+		c = c + #ents.FindByClass(k)
 	end
 	
 	return c
 end
 
 function nz.Enemies.Functions.SpawnZombie(spawnpoint)
-	if nz.Enemies.Functions.TotalCurrentEnemies() < 100 then
+	if nz.Enemies.Functions.TotalCurrentEnemies() < nz.Config.MaxZombiesSim then
 		local ent = "nut_zombie"
 		
 		//Get the latest round number from the table

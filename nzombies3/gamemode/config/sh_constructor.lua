@@ -3,7 +3,7 @@ nz.Config = {}
 //nz.Config.Functions = {}
 //nz.Config.Data = {}
 
-// Defaults
+// Defaults 
 
 //Zombie table - Moved to shared area for client collision prediction (barricades)
 nz.Config.ValidEnemies = {
@@ -54,6 +54,8 @@ nz.Config.ValidEnemies = {
 		end
 	}
 }
+
+nz.Config.DownTime = 45 //How long time in seconds until you die from not being revived while downed
 
 if SERVER then
 

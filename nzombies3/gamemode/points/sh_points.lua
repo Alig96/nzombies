@@ -29,9 +29,12 @@ if (SERVER) then
 	end
 
 	-- Takes away a certain amount by inverting the amount specified.
-	function _PLAYER:TakePoints(amount)
+	function _PLAYER:TakePoints(amount, nosound)
 		//Changed to prevent double points from removing double the points. - Don't even think of changing this back Ali, Love Ali.
 		self:SetPoints(self:GetPoints() - amount)
+		if !nosound then
+			self:EmitSound("nz/effects/buy.wav")
+		end
 	end
 	
 end

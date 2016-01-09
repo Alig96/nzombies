@@ -9,6 +9,7 @@ function nz.EE.Functions.Reset()
 	for k,v in pairs(ents.FindByClass("easter_egg")) do
 		v.Used = false
 	end
+	hook.Call("nz.EE.EasterEggStop")
 end
 
 function nz.EE.Functions.ActivateEgg( ent )

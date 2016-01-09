@@ -1,12 +1,14 @@
 //
-hook.Add("Think", "CheckDownedPlayersTime", function()
-	for k,v in pairs(nz.Revive.Data.Players) do
-		//The time it takes for a downed player to die - Prevent dying if being revived
-		if CurTime() - v.DownTime >= 45 and !v.ReviveTime then
-			k:KillDownedPlayer()
+if SERVER then
+	hook.Add("Think", "CheckDownedPlayersTime", function()
+		for k,v in pairs(nz.Revive.Data.Players) do
+			//The time it takes for a downed player to die - Prevent dying if being revived
+			if CurTime() - v.DownTime >= nz.Config.DownTime and !v.ReviveTime then
+				k:KillDownedPlayer()
+			end
 		end
-	end
-end)
+	end)
+end
 
 function nz.Revive.Functions.Revive(ply, ent)
 	--print(ply, ent)

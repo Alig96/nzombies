@@ -128,6 +128,7 @@ function ENT:MoveAway()
 
 				self.SpawnPoint.HasBox = false
 				self:MoveToNewSpot(self.SpawnPoint)
+				self:EmitSound("nz/randombox/poof.wav")
 				self:Remove()
 			end)
 			print(self:GetMoveType())
