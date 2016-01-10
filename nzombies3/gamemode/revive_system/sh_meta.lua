@@ -21,13 +21,18 @@ if SERVER then
 				return
 			end
 		end
+		
+		nz.Revive.Functions.SendSyncHeadsUp(self, 0)
 	end
 	
 	function playerMeta:RevivePlayer(nosync)	 //Also used to clear that someone is downed - like when they die
 		if !nz.Revive.Data.Players[self] then return end
 		self:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
 		nz.Revive.Data.Players[self] = nil
-		if !nosync then nz.Revive.Functions.SendSync() end
+		if !nosync then 
+			nz.Revive.Functions.SendSync()
+			nz.Revive.Functions.SendSyncHeadsUp(self, 1)
+		end
 	end
 	
 	function playerMeta:StartRevive(nosync)
@@ -42,7 +47,10 @@ if SERVER then
 		else
 			self:Kill()
 		end
-		if !nosync then nz.Revive.Functions.SendSync() end
+		if !nosync then 
+			nz.Revive.Functions.SendSync()
+			nz.Revive.Functions.SendSyncHeadsUp(self, 2)
+		end
 	end
 	
 end

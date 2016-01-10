@@ -4,12 +4,20 @@ if SERVER then
 
 	//Server to client (Server)
 	util.AddNetworkString( "nz.Revive.Sync" )
+	util.AddNetworkString( "nz.Revive.Sync.HeadsUp" )
 	
 	function nz.Revive.Functions.SendSync()
 		local data = table.Copy(nz.Revive.Data.Players)
 		
 		net.Start( "nz.Revive.Sync" )
 			net.WriteTable( data )
+		net.Broadcast()
+	end
+	
+	function nz.Revive.Functions.SendSyncHeadsUp(ply, status)
+		net.Start( "nz.Revive.Sync.HeadsUp" )
+			net.WriteInt(status, 3)
+			net.WriteEntity(ply)
 		net.Broadcast()
 	end
 
@@ -32,20 +40,17 @@ if CLIENT then
 				if v == LocalPlayer() then nz.Revive.Functions.ResetColorFade() end
 			end
 		end
+	end
+	
+	function nz.Revive.Functions.ReceiveSyncHeadsUp( length )
+		local status = net.ReadInt(3)
+		local ply = net.ReadEntity()
 		
-		//Give a heads up to differences
-		for k,v in pairs(old) do 
-			if !nz.Revive.Data.Players[k] then
-				nz.Revive.Functions.DownedHeadsUp(k, true)
-			end
-		end
-		for k,v in pairs(nz.Revive.Data.Players) do 
-			if !old[k] then
-				nz.Revive.Functions.DownedHeadsUp(k)
-			end
-		end
+		print(status)
+		nz.Revive.Functions.DownedHeadsUp(ply, status)
 	end
 	
 	//Receivers
 	net.Receive( "nz.Revive.Sync", nz.Revive.Functions.ReceiveSync )
+	net.Receive( "nz.Revive.Sync.HeadsUp", nz.Revive.Functions.ReceiveSyncHeadsUp )
 end

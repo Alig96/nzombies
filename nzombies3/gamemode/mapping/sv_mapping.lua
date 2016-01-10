@@ -1,6 +1,6 @@
 //
 
-function nz.Mapping.Functions.ZedSpawn(pos, link)
+function nz.Mapping.Functions.ZedSpawn(pos, link, ply)
 
 	local ent = ents.Create("zed_spawns") 
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -11,18 +11,28 @@ function nz.Mapping.Functions.ZedSpawn(pos, link)
 	if link != nil then
 		ent:SetLink(link)	
 	end
+	
+	undo.Create( "Zombie Spawnpoint" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( ent )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.PlayerSpawn(pos)
+function nz.Mapping.Functions.PlayerSpawn(pos, ply)
 
 	local ent = ents.Create("player_spawns") 
 	pos.z = pos.z - ent:OBBMaxs().z
 	ent:SetPos( pos )
 	ent:Spawn()
 	
+	undo.Create( "Player Spawnpoint" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( ent )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	
 end
 
-function nz.Mapping.Functions.EasterEgg(pos,ang,model)
+function nz.Mapping.Functions.EasterEgg(pos, ang, model, ply)
 	local egg = ents.Create( "easter_egg" )
 	egg:SetModel( model )
 	egg:SetPos( pos )
@@ -33,11 +43,18 @@ function nz.Mapping.Functions.EasterEgg(pos,ang,model)
 	if phys:IsValid() then
 		phys:EnableMotion(false)
 	end
+	
+	undo.Create( "Easter Egg Doll" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( egg )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.WallBuy(pos, gun, price, angle)
+function nz.Mapping.Functions.WallBuy(pos, gun, price, angle, oldent, ply)
 
 	if weapons.Get(gun) != nil then
+		
+		if IsValid(oldent) then oldent:Remove() end
 	
 		local ent = ents.Create("wall_buys") 
 		ent:SetAngles(angle)
@@ -52,13 +69,18 @@ function nz.Mapping.Functions.WallBuy(pos, gun, price, angle)
 			phys:EnableMotion(false)
 		end
 		
+		undo.Create( "Weapon Buy" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( ent )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+		
 	else
 		print("SKIPPED: " .. gun .. ". Are you sure you have it installed?")
 	end
 	
 end
 
-function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
+function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep, ply)
 
 	if not guns then
 		print("No guns were supplied for the RBoxHandler ... did you use a save where it isn't defined?")
@@ -92,9 +114,14 @@ function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep)
 		end
 	end
 	
+	undo.Create( "Random Box Handler" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( ent )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	
 end
 
-function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, numweps, eeurl, keep)
+function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, numweps, eeurl, keep, ply)
 
 	local ent
 	
@@ -120,9 +147,14 @@ function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, n
 		
 	ent:SetData(startpoints, startwep, numweps, eeurl)
 	
+	undo.Create( "Player Handler" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( ent )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	
 end
 
-function nz.Mapping.Functions.PropBuy(pos,ang,model,flags)
+function nz.Mapping.Functions.PropBuy(pos,ang,model,flags,ply)
 	local prop = ents.Create( "prop_buys" )
 	prop:SetModel( model )
 	prop:SetPos( pos )
@@ -139,9 +171,14 @@ function nz.Mapping.Functions.PropBuy(pos,ang,model,flags)
 	if phys:IsValid() then
 		phys:EnableMotion(false)
 	end
+	
+	undo.Create( "Prop" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( prop )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.Electric(pos,ang,model)
+function nz.Mapping.Functions.Electric(pos,ang,model,ply)
 	//THERE CAN ONLY BE ONE TRUE HERO
 	local prevs = ents.FindByClass("button_elec")
 	if prevs[1] != nil then
@@ -158,9 +195,14 @@ function nz.Mapping.Functions.Electric(pos,ang,model)
 	if phys:IsValid() then
 		phys:EnableMotion(false)
 	end
+	
+	undo.Create( "Power Switch" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( ent )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.BlockSpawn(pos,ang,model,x,y,z)
+function nz.Mapping.Functions.BlockSpawn(pos,ang,model,ply,x,y,z)
 	local block = ents.Create( "wall_block" )
 	block:SetModel( model )
 	block:SetPos( pos )
@@ -179,17 +221,27 @@ function nz.Mapping.Functions.BlockSpawn(pos,ang,model,x,y,z)
 		block.CurModelZ = z
 		block:ReloadModel()
 	end
+	
+	undo.Create( "Invisible Block" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( block )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.BoxSpawn(pos,ang)
+function nz.Mapping.Functions.BoxSpawn(pos,ang, ply)
 	local box = ents.Create( "random_box_spawns" )
 	box:SetPos( pos )
 	box:SetAngles( ang )
 	box:Spawn()
 	box:PhysicsInit( SOLID_VPHYSICS )
+	
+	undo.Create( "Random Box" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( box )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.PerkMachine(pos, ang, id)
+function nz.Mapping.Functions.PerkMachine(pos, ang, id, ply)
 	local perkData = nz.Perks.Functions.Get(id)
 	
 	local perk = ents.Create("perk_machine")
@@ -205,9 +257,14 @@ function nz.Mapping.Functions.PerkMachine(pos, ang, id)
 	if phys:IsValid() then
 		phys:EnableMotion(false)
 	end
+	
+	undo.Create( "Perk Machine" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( perk )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
-function nz.Mapping.Functions.BreakEntry(pos,ang)
+function nz.Mapping.Functions.BreakEntry(pos,ang,ply)
 	local entry = ents.Create( "breakable_entry" )
 	entry:SetPos( pos )
 	entry:SetAngles( ang )
@@ -218,9 +275,42 @@ function nz.Mapping.Functions.BreakEntry(pos,ang)
 	if phys:IsValid() then
 		phys:EnableMotion(false)
 	end
+	
+	undo.Create( "Barricade" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( entry )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 end
 
+function nz.Mapping.Functions.SpawnEffect( pos, ang, model, ply )
 
+	local e = ents.Create("prop_effect")
+	e:SetModel(model)
+	e:SetPos(pos)
+	e:SetAngles( ang )
+	e:Spawn()
+	e:Activate()
+	if ( !IsValid( e ) ) then return end
+
+	undo.Create( "Effect" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( e )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+
+end
+
+function nz.Mapping.Functions.SpawnEntity(pos,ang,ent,ply)
+	local entity = ents.Create( ent )
+	entity:SetPos( pos )
+	entity:SetAngles( ang )
+	entity:Spawn()
+	entity:PhysicsInit( SOLID_VPHYSICS )
+	
+	undo.Create( "Entity" )
+		undo.SetPlayer( ply )
+		undo.AddEntity( entity )
+	undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+end
 
 //Physgun Hooks
 function nz.Mapping.Functions.OnPhysgunPickup( ply, ent )

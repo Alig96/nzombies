@@ -12,10 +12,18 @@ function _PLAYER:CanAfford(amount)
 	return (self:GetPoints() - amount) >= 0
 end
 
+
 if (SERVER) then
+	util.AddNetworkString("nz_points_notification")
 	-- Sets the character's amount of currency to a specific value.
 	function _PLAYER:SetPoints(amount)
 		amount = math.Round(amount, 2)
+		if nz.Config.PointNotifcationMode == NZ_POINT_NOTIFCATION_NET then
+			net.Start("nz_points_notification")
+				net.WriteInt(amount - self:GetPoints(), 20)
+				net.WriteEntity(self)
+			net.Broadcast()
+		end
 		self:SetNWInt("points", amount)
 	end
 

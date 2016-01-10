@@ -18,7 +18,9 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo)
 
 	//Chance a powerup spawning
 	if nz.PowerUps.Functions.IsPowerupActive("insta") == false and enemy:IsValid() then //Don't spawn powerups during instakill
-		nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
+		if math.random(1, nz.Config.PowerUpChance) == 1 then // 1 in 100 chance - you can change this in config
+			nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
+		end
 	end
 
 	print("Killed Enemy: " .. nz.Rounds.Data.KilledZombies .. "/" .. nz.Rounds.Data.MaxZombies )

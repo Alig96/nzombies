@@ -3,7 +3,7 @@
 if SERVER then
 	function nz.Interfaces.Functions.RBoxHandlerHandler( ply, data )
 		if ply:IsSuperAdmin() then
-			nz.Mapping.Functions.RBoxHandler(data.vec, data.classes, data.ang, data.keep)
+			nz.Mapping.Functions.RBoxHandler(data.vec, data.classes, data.ang, data.keep, ply)
 		end
 	end
 end

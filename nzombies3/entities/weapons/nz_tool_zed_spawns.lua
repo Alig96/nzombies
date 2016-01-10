@@ -6,7 +6,7 @@ SWEP.Base 		= "nz_tool_base"
 
 if SERVER then
 	function SWEP:OnPrimaryAttack( trace )
-		nz.Mapping.Functions.ZedSpawn(trace.HitPos)
+		nz.Mapping.Functions.ZedSpawn(trace.HitPos, nil, self.Owner)
 	end
 
 	function SWEP:OnSecondaryAttack( trace )

@@ -7,7 +7,7 @@ SWEP.Base 		= "nz_tool_base"
 if SERVER then
 
 	function SWEP:OnPrimaryAttack( trace )
-		nz.Mapping.Functions.EasterEgg(trace.HitPos, Angle(0,0,0), "models/props_lab/huladoll.mdl")
+		nz.Mapping.Functions.EasterEgg(trace.HitPos, Angle(0,0,0), "models/props_lab/huladoll.mdl", self.Owner)
 	end
 
 	function SWEP:OnSecondaryAttack( trace )

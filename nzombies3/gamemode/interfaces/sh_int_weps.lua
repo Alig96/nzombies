@@ -3,7 +3,8 @@
 if SERVER then
 	function nz.Interfaces.Functions.WepBuyHandler( ply, data )
 		if ply:IsSuperAdmin() then
-			nz.Mapping.Functions.WallBuy(data.vec, data.class, tonumber(data.price), data.ang)
+			data.ent = data.ent or NULL
+			nz.Mapping.Functions.WallBuy(data.vec, data.class, tonumber(data.price), data.ang, data.ent, ply)
 		end
 	end
 end
@@ -14,6 +15,11 @@ if CLIENT then
 		local valz = {}
 		valz["Row1"] = "weapon_class"
 		valz["Row2"] = 500
+		
+		if data.ent then
+			valz["Row1"] = data.ent:GetEntName()
+			valz["Row2"] = data.ent:GetPrice()
+		end
 
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )

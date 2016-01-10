@@ -57,6 +57,11 @@ nz.Config.ValidEnemies = {
 
 nz.Config.DownTime = 45 //How long time in seconds until you die from not being revived while downed
 
+	NZ_POINT_NOTIFCATION_NET = 1 		//Net messages from the server on points gained or lost - More precise but costs net usage
+	NZ_POINT_NOTIFCATION_CLIENT = 2		//Calculated client-side per frame - No constant net messages but may stack multiple in 1 frame
+	
+nz.Config.PointNotifcationMode = NZ_POINT_NOTIFCATION_NET
+
 if SERVER then
 
 	//Curves
@@ -110,6 +115,7 @@ if SERVER then
 	nz.Config.BaseStartingPoints = 500
 
 	//Powerups
+	nz.Config.PowerUpChance = 100 // Chance is 1 in X (Default: 1 in 100 chance)
 
 	//Props_Menu
 

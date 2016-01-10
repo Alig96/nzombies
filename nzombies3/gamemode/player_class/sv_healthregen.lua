@@ -1,7 +1,7 @@
 local HealthRegen = {
 	Amount = 1,
 	Delay = 2,
-	Rate = 0.02
+	Rate = 0.05
 }
 
 hook.Add( "Think", "RegenHealth", function()

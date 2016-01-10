@@ -20,23 +20,22 @@ if SERVER then
 		nz.PowerUps.Functions.SendSync()
 	end
 
-	function nz.PowerUps.Functions.SpawnPowerUp(pos)
+	function nz.PowerUps.Functions.SpawnPowerUp(pos, specific)
 		local choices = {}
 		local total = 0
 
 		//Chance it
-		for k,v in pairs(nz.PowerUps.Data) do
-			if k != "ActivePowerUps" then
-				choices[k] = v.chance
-				total = total + v.chance
+		if !specific then
+			for k,v in pairs(nz.PowerUps.Data) do
+				if k != "ActivePowerUps" then
+					choices[k] = v.chance
+					total = total + v.chance
+				end
 			end
 		end
 
-		//Insert a blank // Change 100 to increase the blank
-		choices["null"] = 500 - total
-
-		local id = nz.Misc.Functions.WeightedRandom(choices)
-		if id == "null" then return end // Back out
+		local id = specific and specific or nz.Misc.Functions.WeightedRandom(choices)
+		if !id or id == "null" then return end // Back out
 
 		//Spawn it
 		local powerupData = nz.PowerUps.Functions.Get(id)
@@ -47,6 +46,7 @@ if SERVER then
 		pos.z = pos.z - ent:OBBMaxs().z
 		ent:SetModel(powerupData.model)
 		ent:SetPos(pos)
+		ent:SetAngles(powerupData.angle)
 		ent:Spawn()
 		ent:EmitSound("nz/powerups/power_up_spawn.wav")
 	end
@@ -94,6 +94,7 @@ end
 nz.PowerUps.Functions.NewPowerUp("dp", {
 	name = "Double Points",
 	model = "models/props_c17/gravestone003a.mdl",
+	angle = Angle(45,0,0),
 	scale = 0.5,
 	chance = 5,
 	duration = 30,
@@ -106,6 +107,7 @@ nz.PowerUps.Functions.NewPowerUp("dp", {
 nz.PowerUps.Functions.NewPowerUp("maxammo", {
 	name = "Max Ammo",
 	model = "models/Items/BoxSRounds.mdl",
+	angle = Angle(0,0,25),
 	scale = 1.5,
 	chance = 5,
 	duration = 0,
@@ -122,6 +124,7 @@ nz.PowerUps.Functions.NewPowerUp("maxammo", {
 nz.PowerUps.Functions.NewPowerUp("insta", {
 	name = "Insta Kill",
 	model = "models/Gibs/HGIBS.mdl",
+	angle = Angle(0,0,0),
 	scale = 3,
 	chance = 5,
 	duration = 30,
@@ -134,6 +137,7 @@ nz.PowerUps.Functions.NewPowerUp("insta", {
 nz.PowerUps.Functions.NewPowerUp("nuke", {
 	name = "Nuke",
 	model = "models/props_junk/watermelon01.mdl",
+	angle = Angle(45,0,0),
 	scale = 1.5,
 	chance = 5,
 	duration = 0,
@@ -147,6 +151,7 @@ nz.PowerUps.Functions.NewPowerUp("nuke", {
 nz.PowerUps.Functions.NewPowerUp("firesale", {
 	name = "Fire Sale",
 	model = "models/props_urban/mhanko_shovel_tag.mdl",
+	angle = Angle(45,0,0),
 	scale = 4.5,
 	chance = 1,
 	duration = 30,
@@ -160,6 +165,7 @@ nz.PowerUps.Functions.NewPowerUp("firesale", {
 nz.PowerUps.Functions.NewPowerUp("carpenter", {
 	name = "Carpenter",
 	model = "models/props/de_vostok/hammer01.mdl",
+	angle = Angle(45,0,-90),
 	scale = 2,
 	chance = 5,
 	duration = 0,

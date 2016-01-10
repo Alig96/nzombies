@@ -23,6 +23,8 @@ function ENT:Initialize()
 	self:PhysicsInitSphere(50, "default_silent")
 	self:SetMoveType(MOVETYPE_NONE)
 	self:SetSolid(SOLID_VPHYSICS)
+	self:SetMaterial("models/shiny.vtf")
+	self:SetColor( Color(255,200,0) )
 	--self:SetTrigger(true)
 	self.DeathTimer = 30
 	if SERVER then
@@ -73,8 +75,8 @@ if CLIENT then
 	end
 	local num = 0
 	function ENT:Think()
-		local var = math.sin( CurTime() * 3 )
-		self:SetPos(Vector(self:GetPos().X, self:GetPos().Y, self:GetPos().Z +1*var))
+		if !self:GetRenderAngles() then self:SetRenderAngles(self:GetAngles()) end
+		self:SetRenderAngles(self:GetRenderAngles()+(Angle(0,50,0)*FrameTime()))
 	end
 	hook.Add( "PreDrawHalos", "drop_powerups_halos", function()
 		halo.Add( ents.FindByClass( "drop_powerup" ), Color( 0, 255, 0 ), 2, 2, 2 )

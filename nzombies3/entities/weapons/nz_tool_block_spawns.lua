@@ -7,7 +7,7 @@ SWEP.Base 		= "nz_tool_base"
 if SERVER then
 	function SWEP:OnPrimaryAttack( trace )
 		if !IsValid(trace.Entity) or trace.Entity:GetClass() != "wall_block" then
-			nz.Mapping.Functions.BlockSpawn(trace.HitPos,Angle(90,(trace.HitPos - self.Owner:GetPos()):Angle()[2] + 90,90), "models/hunter/plates/plate2x2.mdl")
+			nz.Mapping.Functions.BlockSpawn(trace.HitPos,Angle(90,(trace.HitPos - self.Owner:GetPos()):Angle()[2] + 90,90), "models/hunter/plates/plate2x2.mdl", self.Owner)
 		else
 			local hitpos = trace.Entity:WorldToLocal(trace.HitPos)
 			local bounds = trace.Entity:GetCollisionBounds()

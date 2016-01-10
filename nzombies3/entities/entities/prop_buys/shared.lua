@@ -42,7 +42,7 @@ function ENT:BlockLock()
 		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
 	end
 	self:SetSolid( SOLID_VPHYSICS )
-	self:SetLocked(true)
+	self:SetLocked(true) 
 end
 
 if CLIENT then
