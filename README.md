@@ -23,7 +23,19 @@ This is an edited version featuring these changes:
 		- Zombies will not be able to pathfind through locked navmeshes
 		- Opening a linked door will unlock the navmesh it was tied to
 		- You need to be in a local server with sv_cheats to 1 to visualize them, however they still work without
-		- Only normal zombies can, but you can copy-past the pathfinding check to any other NPC if needed
+		- Only normal zombies can, but you can copy-paste the pathfinding check to any other NPC if needed
+
+- Additional Content
+	- More Powerups
+		- Carpenter
+		- Fire Sale
+	- More sounds
+		- Buy sound
+		- Barrier repair sounds
+		- Random Box moving sounds
+	- More effects
+		- Damaged blood pulse overlay
+		- Better HUD elements and scoreboard
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -62,13 +74,12 @@ This is an edited version featuring these changes:
 
 
 - To-do list:
-	- Better HUD elements and revival icon
 	- Revival progress bar
-	- Invisible blockers to have more models (like navgates) + blocking filter
+	- Invisible blockers to have blocking filters
 	- Make Pack-a-Punch a global damage multiplier by hook?
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
-	- Carpenter powerup
 	- Fix random downing of players (Prop collision?)
-	- Fix waves not progressing sometimes (with failsafes)
 	- Modify curves to be better
+	- Fix Zombies getting stuck on corners a lot
+	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players
