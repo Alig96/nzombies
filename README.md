@@ -54,7 +54,7 @@ This is an edited version featuring these changes:
 	- Decide starting weapon
 	- Decide starting points
 	- Decide max number of weapons carried
-	- Takes a Soundcloud URL which plays when all easter eggs have been activated
+	- Takes a YouTube URL which plays when all easter eggs have been activated
 		
 - Door Changes
 	- func_* doors now actually trigger with E!
@@ -96,3 +96,4 @@ This is an edited version featuring these changes:
 	- Real Nazi Zombie models and sounds for the zombies?
 	- Perk Bottle view model animations built-in?
 	- More Wonder Weapons built-in?
+	- Fix some entities not saving properly (mainly Player Handler and RBox Handler)
