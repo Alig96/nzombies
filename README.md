@@ -36,6 +36,10 @@ This is an edited version featuring these changes:
 	- More effects
 		- Damaged blood pulse overlay
 		- Better HUD elements and scoreboard
+	- Better editing
+		- Undo system
+		- Context Menu to quickly edit properties without equipping tool (Hold C)
+		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -70,16 +74,25 @@ This is an edited version featuring these changes:
 	- Zombies now correctly give 50 points for a kill and 100 for a headshot kill
 	- Point distribution works on hooks now, making it work for any NPC you add to ValidEnemies
 	- ValidEnemies table setup changed to allow more customizability
+	- Power Ups now just rotate and are golden
+	- Pack-a-Punch now a global hook, will work on all weapons
 
 
 
 - To-do list:
 	- Revival progress bar
 	- Invisible blockers to have blocking filters
-	- Make Pack-a-Punch a global damage multiplier by hook?
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
 	- Fix random downing of players (Prop collision?)
 	- Modify curves to be better
-	- Fix Zombies getting stuck on corners a lot
+	- Fix Zombies getting stuck on corners a lot (plz)
 	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players
+	- Repurchaseable entities (doors, elevators, etc)
+	- Tools to save config and apply on LMB instead of having to re-enter it every time
+	- Pack-a-Punch weapon animation and material overlay and sounds
+	- Change round handler function to not run every second; instead just on events
+	- General optimizations
+	- Real Nazi Zombie models and sounds for the zombies?
+	- Perk Bottle view model animations built-in?
+	- More Wonder Weapons built-in?
