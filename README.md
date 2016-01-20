@@ -87,8 +87,8 @@ This is an edited version featuring these changes:
 	- Fix random downing of players (Prop collision?)
 	- Modify curves to be better
 	- Fix Zombies getting stuck on corners a lot (plz)
-	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players
-	- Repurchaseable entities (doors, elevators, etc)
+	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players (Nav Mesh Grouping WIP)
+	- Repurchaseable entities (doors, elevators, etc) & support for free buttons with text
 	- Tools to save config and apply on LMB instead of having to re-enter it every time
 	- Pack-a-Punch weapon animation and material overlay and sounds
 	- Change round handler function to not run every second; instead just on events
@@ -97,3 +97,4 @@ This is an edited version featuring these changes:
 	- Perk Bottle view model animations built-in?
 	- More Wonder Weapons built-in?
 	- Fix some entities not saving properly (mainly Player Handler and RBox Handler)
+	- Fix Music Easter Egg not properly playing/preloading
