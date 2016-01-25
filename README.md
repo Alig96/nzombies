@@ -25,6 +25,9 @@ This is an edited version featuring these changes:
 		- Opening a linked door will unlock the navmesh it was tied to
 		- You need to be in a local server with sv_cheats to 1 to visualize them, however they still work without
 		- Only normal zombies can, but you can copy-paste the pathfinding check to any other NPC if needed
+	- Create NavGroups!
+		- Zombies cannot target players in different NavGroups than themselves (unless either one is in no group)
+		- If no players can be targeted, will target a spawnpoint marked with "Respawn from?" and respawn from it on arrival
 
 - Additional Content
 	- More Powerups
@@ -41,6 +44,12 @@ This is an edited version featuring these changes:
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
 		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
+
+- Better Zombie AI
+	- Zombies can now jump (Thanks lolle!)
+	- Zombies now know which navmeshes are locked to doors and won't path through them
+	- Zombies can now know if there are players in the same area as them
+	- Zombies can now go back to respawn if they can't get to any players
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -77,7 +86,7 @@ This is an edited version featuring these changes:
 	- ValidEnemies table setup changed to allow more customizability
 	- Power Ups now just rotate and are golden
 	- Pack-a-Punch now a global hook, will work on all weapons
-
+	- Zombie Spawnpoints can now be disabled so they don't spawn any zombies using "Spawnable at?"
 
 
 - To-do list:
