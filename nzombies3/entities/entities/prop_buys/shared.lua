@@ -45,6 +45,12 @@ function ENT:BlockLock()
 	self:SetLocked(true) 
 end
 
+function ENT:OnRemove()
+	if SERVER then
+		nz.Doors.Functions.RemoveLink( self )
+	end
+end
+
 if CLIENT then
 	function ENT:Draw()
 		if (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP) then

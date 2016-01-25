@@ -21,15 +21,17 @@ end
 
 function nz.Enemies.Functions.ValidSpawns()
 
-	local valids = {}
 	local spawns = {}
 	
 	//Make a table of spawns
 	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
 		//Get all spawns in the range
 		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1200)) do
-			if v2:GetClass() == "zed_spawns" then
-				table.insert(spawns, v2)
+			if v2:GetClass() == "zed_spawns" and (!v.spawnable or tobool(v.spawnable)) then
+				//If enable, then if the player is in the same area group as the spawnpoint
+				if nz.Config.NavGroupTargeting and nz.Nav.Functions.IsInSameNavGroup(v, v2) then
+					table.insert(spawns, v2)
+				end
 			end
 		end
 		//Remove all spawns that are too close
@@ -49,13 +51,7 @@ function nz.Enemies.Functions.ValidSpawns()
 		end
 	end
 	
-	//Get positions
-	for k,v in pairs(spawns) do
-		table.insert(valids, v)
-	end
-	//Edited to get spawn point entites instead - for CurrentRoom setting - Nav
-	
-	return valids
+	return spawns
 end
 
 function nz.Enemies.Functions.TotalCurrentEnemies()
@@ -99,7 +95,7 @@ function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 end
 
 
-function nz.Enemies.Functions.ZombieSpawner()	
+function nz.Enemies.Functions.ZombieSpawner()
 	//Not enough Zombies
 	if nz.Rounds.Data.ZombiesSpawned < nz.Rounds.Data.MaxZombies then
 		if nz.Rounds.Data.CurrentState == ROUND_PROG then
@@ -122,3 +118,37 @@ function nz.Enemies.Functions.ZombieSpawner()
 end
 
 timer.Create("nz.Rounds.ZombieSpawner", 1, 0, nz.Enemies.Functions.ZombieSpawner)
+
+function nz.Enemies.Functions.ValidRespawns(cur)
+
+	local spawns = {}
+	
+	//Make a table of spawns
+	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
+		//Get all spawns in the range
+		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1500)) do
+			if v2:GetClass() == "zed_spawns" and (!v.spawnable or tobool(v.spawnable)) and v2 != cur then
+				if nz.Config.NavGroupTargeting and nz.Nav.Functions.IsInSameNavGroup(v, v2) then
+					table.insert(spawns, v2)
+				end
+			end
+		end
+		//Remove all spawns that are too close
+		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 200)) do
+			if table.HasValue(spawns, v2) then
+				table.RemoveByValue(spawns, v2)
+			end
+		end
+	end
+	
+	//Removed unopened linked doors
+	for k,v in pairs(spawns) do
+		if v.link != nil then
+			if nz.Doors.Data.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
+				spawns[k] = nil
+			end
+		end
+	end
+	
+	return spawns
+end

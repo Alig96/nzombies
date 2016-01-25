@@ -15,7 +15,7 @@ function nz.Doors.Functions.ParseFlagString( flagsStr )
 		local ex2 = string.Explode( "=", v )
 		tbl[ex2[1]] = ex2[2]
 		//If buyable is not set on a door, we default to on
-		if ex2[1] != "buyable" and k == #ex then
+		if !tbl["buyable"] and k == #ex then
 			tbl["buyable"] = "1"
 		end
 	end
@@ -26,8 +26,6 @@ function nz.Doors.Functions.ParseFlagString( flagsStr )
 end
 
 function nz.Doors.Functions.CreateLink( ent, flagsStr )
-	print(flagsStr, ent)
-	print(debug.traceback())
 	//First remove all links
 	nz.Doors.Functions.RemoveLink( ent )
 	if ent:IsDoor() or ent:IsButton() then
@@ -48,13 +46,17 @@ end
 function nz.Doors.Functions.CreateMapDoorLink( doorID, flagsStr )
 
 	local door = nz.Doors.Functions.doorIndexToEnt(doorID)
-	if !flagsStr then print("ERROR! Door "..doorID.." doesn't have a flagStr saved!") print(debug.traceback()) return end
+	if !flagsStr then ErrorNoHalt("Door "..doorID.." doesn't have a flagsStr saved!") return end
 	local flagsTbl = nz.Doors.Functions.ParseFlagString( flagsStr )
 	
 	if door:IsValid() and (door:IsDoor() or door:IsButton()) then
 		//Assign the flags to the door
 		for k,v in pairs(flagsTbl) do
-			door[k] = tonumber(v)
+			if !string.find(k, "navgroup") then
+				door[k] = tonumber(v)
+			else
+				door[k] = v
+			end
 		end
 		//Save the data into a convenient table for lua refresh
 		door.Data = flagsStr
@@ -106,7 +108,11 @@ function nz.Doors.Functions.CreatePropDoorLink( ent, flagsStr )
 	if ent:IsValid() and ent:IsBuyableProp() then
 		//Assign the flags to the door
 		for k,v in pairs(flagsTbl) do
-			ent[k] = tonumber(v)
+			if !string.find(k, "navgroup") then
+				ent[k] = tonumber(v)
+			else
+				ent[k] = v
+			end
 		end
 		//Save the data into a convenient table for lua refresh
 		ent.Data = flagsStr

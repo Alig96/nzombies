@@ -157,6 +157,9 @@ function nz.Rounds.Functions.ResetGame()
 	
 	//Reset easter eggs
 	nz.EE.Functions.Reset()
+	
+	//Reset merged navigation groups
+	nz.Nav.ResetNavGroupMerges()
 
 end
 

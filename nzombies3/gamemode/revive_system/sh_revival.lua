@@ -25,7 +25,6 @@ function nz.Revive.Functions.Revive(ply, ent)
 				if !nz.Revive.Data.Players[dply].ReviveTime then 
 					nz.Revive.Data.Players[dply].ReviveTime = CurTime()
 					nz.Revive.Data.Players[dply].RevivePlayer = ply
-					ply:SetMoveType(MOVETYPE_NONE)
 					ply.Reviving = dply
 					nz.Revive.Functions.SendSync()
 				end
@@ -35,7 +34,6 @@ function nz.Revive.Functions.Revive(ply, ent)
 				if ply:HasPerk("revive") and CurTime() - nz.Revive.Data.Players[dply].ReviveTime >= 2 //With quick-revive
 				or CurTime() - nz.Revive.Data.Players[dply].ReviveTime >= 5 then	//5 is the time it takes to revive
 					dply:RevivePlayer()
-					ply:SetMoveType(MOVETYPE_WALK)
 					ply.Reviving = nil
 				end
 			end

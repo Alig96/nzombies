@@ -187,7 +187,7 @@ properties.Add( "nz_editzspawn", {
 		if ( ent:IsPlayer() ) then return false end
 		if ( !self:Filter( ent, player ) ) then return false end
 		
-		nz.Interfaces.Functions.SendInterface(player, "ZombLink", {ent = ent, link = ent.link})
+		nz.Interfaces.Functions.SendInterface(player, "ZombLink", {ent = ent, link = ent.link, spawnable = ent.spawnable, respawnable = ent.respawnable})
 		
 	end
 } );

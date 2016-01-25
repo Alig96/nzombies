@@ -121,6 +121,7 @@ function CreateContextMenu()
 	g_ContextMenu = vgui.Create( "ContextMenu" )
 	g_ContextMenu:SetVisible( false )
 	
+	menubar.Init()
 	--
 	-- We're blocking clicks to the world - but we don't want to
 	-- so feed clicks to the proper functions..

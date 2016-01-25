@@ -1,9 +1,14 @@
 function nz.Doors.Functions.OpenDoor( ent )
 	//Open the door and any other door with the same link
 	if ent:IsButton() then
-		ent:ButtonUnlock()
+		ent:ButtonUnlock(tobool(ent.rebuyable))
 	else
 		ent:DoorUnlock()
+	end
+	
+	//Merge Nav Groups
+	if ent.navgroup1 and ent.navgroup2 then
+		nz.Nav.Functions.MergeNavGroups(ent.navgroup1, ent.navgroup2)
 	end
 	
 	//Sync
@@ -40,7 +45,7 @@ function nz.Doors.Functions.LockAllDoors()
 				//Unlocked doors get an output which forces it to stay open once you open it
 				v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
 				v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
-				print("added output to", v)
+				print("Added lock output to", v)
 				//They now get that output through OpenDoor too, but for safety
 			end
 		//Allow locking buttons
@@ -54,6 +59,8 @@ function nz.Doors.Functions.LockAllDoors()
 end
 
 function nz.Doors.Functions.BuyDoor( ply, ent )
+	if ent.lasttime and ent.lasttime + 2 > CurTime() then return end
+	
 	local price = ent.price
 	local req_elec = ent.elec
 	local link = ent.link
@@ -77,6 +84,8 @@ function nz.Doors.Functions.BuyDoor( ply, ent )
 		//Additionally, they get the OnClose output added, in case they can still close
 		ent:DoorUnlock()
 	end
+	
+	ent.lasttime = CurTime()
 end
 
 
@@ -84,7 +93,9 @@ end
 
 function nz.Doors.Functions.OnUseDoor( ply, ent )
 	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
-		nz.Doors.Functions.BuyDoor( ply, ent )
+		if !ent.buyable or tobool(ent.buyable) then
+			nz.Doors.Functions.BuyDoor( ply, ent )
+		end
 	end
 end
 hook.Add( "PlayerUse", "player_buydoors", nz.Doors.Functions.OnUseDoor )

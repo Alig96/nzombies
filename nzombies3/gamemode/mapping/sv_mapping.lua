@@ -1,6 +1,6 @@
 //
 
-function nz.Mapping.Functions.ZedSpawn(pos, link, ply)
+function nz.Mapping.Functions.ZedSpawn(pos, link, respawnable, ply)
 
 	local ent = ents.Create("zed_spawns") 
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -11,7 +11,15 @@ function nz.Mapping.Functions.ZedSpawn(pos, link, ply)
 	if link != nil then
 		ent:SetLink(link)	
 	end
+	ent.respawnable = respawnable or 1 //Default to always be respawnable if not set
 	
+	if tobool(ent.respawnable) then
+		table.insert(nz.Enemies.Data.RespawnableSpawnpoints, ent)
+	elseif table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
+		table.RemoveByValue(nz.Enemies.Data.RespawnableSpawnpoints, ent)
+	end
+ 	
+	if !ply then return end
 	undo.Create( "Zombie Spawnpoint" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( ent )
@@ -25,6 +33,7 @@ function nz.Mapping.Functions.PlayerSpawn(pos, ply)
 	ent:SetPos( pos )
 	ent:Spawn()
 	
+	if !ply then return end
 	undo.Create( "Player Spawnpoint" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( ent )
@@ -44,6 +53,7 @@ function nz.Mapping.Functions.EasterEgg(pos, ang, model, ply)
 		phys:EnableMotion(false)
 	end
 	
+	if !ply then return end
 	undo.Create( "Easter Egg Doll" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( egg )
@@ -69,6 +79,7 @@ function nz.Mapping.Functions.WallBuy(pos, gun, price, angle, oldent, ply)
 			phys:EnableMotion(false)
 		end
 		
+		if !ply then return end
 		undo.Create( "Weapon Buy" )
 			undo.SetPlayer( ply )
 			undo.AddEntity( ent )
@@ -114,6 +125,7 @@ function nz.Mapping.Functions.RBoxHandler(pos, guns, angle, keep, ply)
 		end
 	end
 	
+	if !ply then return end
 	undo.Create( "Random Box Handler" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( ent )
@@ -147,6 +159,7 @@ function nz.Mapping.Functions.PlayerHandler(pos, angle, startwep, startpoints, n
 		
 	ent:SetData(startpoints, startwep, numweps, eeurl)
 	
+	if !ply then return end
 	undo.Create( "Player Handler" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( ent )
@@ -172,6 +185,7 @@ function nz.Mapping.Functions.PropBuy(pos,ang,model,flags,ply)
 		phys:EnableMotion(false)
 	end
 	
+	if !ply then return end
 	undo.Create( "Prop" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( prop )
@@ -196,6 +210,7 @@ function nz.Mapping.Functions.Electric(pos,ang,model,ply)
 		phys:EnableMotion(false)
 	end
 	
+	if !ply then return end
 	undo.Create( "Power Switch" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( ent )
@@ -222,6 +237,7 @@ function nz.Mapping.Functions.BlockSpawn(pos,ang,model,ply,x,y,z)
 		block:ReloadModel()
 	end
 	
+	if !ply then return end
 	undo.Create( "Invisible Block" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( block )
@@ -235,6 +251,7 @@ function nz.Mapping.Functions.BoxSpawn(pos,ang, ply)
 	box:Spawn()
 	box:PhysicsInit( SOLID_VPHYSICS )
 	
+	if !ply then return end
 	undo.Create( "Random Box" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( box )
@@ -258,6 +275,7 @@ function nz.Mapping.Functions.PerkMachine(pos, ang, id, ply)
 		phys:EnableMotion(false)
 	end
 	
+	if !ply then return end
 	undo.Create( "Perk Machine" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( perk )
@@ -276,6 +294,7 @@ function nz.Mapping.Functions.BreakEntry(pos,ang,ply)
 		phys:EnableMotion(false)
 	end
 	
+	if !ply then return end
 	undo.Create( "Barricade" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( entry )
@@ -284,7 +303,7 @@ end
 
 function nz.Mapping.Functions.SpawnEffect( pos, ang, model, ply )
 
-	local e = ents.Create("prop_effect")
+	local e = ents.Create("nz_prop_effect")
 	e:SetModel(model)
 	e:SetPos(pos)
 	e:SetAngles( ang )
@@ -292,6 +311,7 @@ function nz.Mapping.Functions.SpawnEffect( pos, ang, model, ply )
 	e:Activate()
 	if ( !IsValid( e ) ) then return end
 
+	if !ply then return end
 	undo.Create( "Effect" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( e )
@@ -299,13 +319,16 @@ function nz.Mapping.Functions.SpawnEffect( pos, ang, model, ply )
 
 end
 
-function nz.Mapping.Functions.SpawnEntity(pos,ang,ent,ply)
+function nz.Mapping.Functions.SpawnEntity(pos, ang, ent, ply)
 	local entity = ents.Create( ent )
 	entity:SetPos( pos )
 	entity:SetAngles( ang )
 	entity:Spawn()
 	entity:PhysicsInit( SOLID_VPHYSICS )
 	
+	table.insert(nz.PropsMenu.Data.SpawnedEntities, entity)
+	
+	if !ply then return end
 	undo.Create( "Entity" )
 		undo.SetPlayer( ply )
 		undo.AddEntity( entity )

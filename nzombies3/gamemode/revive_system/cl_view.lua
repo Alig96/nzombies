@@ -10,7 +10,7 @@ function XYCompassToScreen(pos, boundary)
 	
 	eyedir:Rotate(Angle(0,-90,0))
 	local newdirx = eyedir:Dot(dir)
-	draw.SimpleText(newdirx, "nz.display.hud.small", ScrW()/2, ScrH() - 50, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	--draw.SimpleText(newdirx, "nz.display.hud.small", ScrW()/2, ScrH() - 50, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	
 	return ScrW()/2 + (newdirx*w/2), math.Clamp(pos:ToScreen().y, boundary, h)
 end
@@ -56,6 +56,15 @@ function nz.Revive.Functions.CalcDownView(ply, pos, ang, fov, znear, zfar)
 	return {origin = pos, angles = ang, fov = fov, znear = znear, zfar = zfar, drawviewer = false }
 end
 
+function nz.Revive.Functions.CalcDownViewmodelView(wep, vm, oldpos, oldang, pos, ang)
+	if !nz.Revive.Data.Players[LocalPlayer()] then return end
+	
+	local oldpos = oldpos + Vector(0,0,-30)
+	local oldang = oldang + Angle(0,0,20)
+	
+	return oldpos, oldang
+end
+
 function nz.Revive.Functions.DrawColorModulation()
 	if !nz.Revive.Data.Players[LocalPlayer()] then return end
 	
@@ -80,8 +89,6 @@ function surface.DrawTexturedRectRotatedPoint( x, y, w, h, rot, x0, y0 )
 end
 
 function nz.Revive.Functions.DrawDownedPlayers()
-	local font = "nz.display.hud.main"
-	local font2 = "nz.display.hud.small"
 	
 	for k,v in pairs(nz.Revive.Data.Players) do
 		if k == LocalPlayer() then return end
@@ -105,6 +112,21 @@ function nz.Revive.Functions.DrawDownedPlayers()
 		
 		surface.DrawTexturedRect(posxy.x - 35, posxy.y - 50, 70, 50)
 		
+	end
+end
+
+function nz.Revive.Functions.DrawRevivalProgress()
+	local tr = util.QuickTrace(LocalPlayer():EyePos(), LocalPlayer():GetAimVector()*100, LocalPlayer())
+	local dply = tr.Entity
+	
+	local revtime = LocalPlayer():HasPerk("revive") and 2 or 5
+	
+	if IsValid(dply) and nz.Revive.Data.Players[dply] and nz.Revive.Data.Players[dply].RevivePlayer == LocalPlayer() then
+		surface.SetDrawColor(0,0,0)
+		surface.DrawRect(ScrW()/2 - 150, ScrH() - 300, 300, 20)
+		
+		surface.SetDrawColor(255,255,255)
+		surface.DrawRect(ScrW()/2 - 145, ScrH() - 295, 290 * (CurTime()-nz.Revive.Data.Players[dply].ReviveTime)/revtime, 10)
 	end
 end
 
@@ -185,7 +207,9 @@ end )
 
 //Hooks
 hook.Add("CalcView", "CalcDownedView", nz.Revive.Functions.CalcDownView )
+hook.Add("CalcViewModelView", "CalcDownedViewmodelView", nz.Revive.Functions.CalcDownViewmodelView )
 hook.Add("RenderScreenspaceEffects", "DrawColorModulation", nz.Revive.Functions.DrawColorModulation)
 hook.Add("HUDPaint", "DrawDamageOverlay", nz.Revive.Functions.DrawDamagedOverlay)
 hook.Add("HUDPaint", "DrawDownedPlayers", nz.Revive.Functions.DrawDownedPlayers )
+hook.Add("HUDPaint", "DrawRevivalProgress", nz.Revive.Functions.DrawRevivalProgress )
 hook.Add("HUDPaint", "DrawDownedPlayersNotify", nz.Revive.Functions.DrawDownedHeadsUp )

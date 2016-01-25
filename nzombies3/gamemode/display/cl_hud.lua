@@ -105,7 +105,7 @@ function nz.Display.Functions.PointsNotification(ply, amount)
 	local data = {ply = ply, amount = amount, diry = math.random(-20, 20), time = CurTime()}
 	table.insert(nz.Display.Data.PointsNotifications, data)
 	chat.AddText(amount) 
-	PrintTable(data)
+	--PrintTable(data)
 end
 
 net.Receive("nz_points_notification", function()

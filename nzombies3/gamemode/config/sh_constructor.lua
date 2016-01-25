@@ -55,7 +55,7 @@ nz.Config.ValidEnemies = {
 	}
 }
 
-nz.Config.DownTime = 45 //How long time in seconds until you die from not being revived while downed
+nz.Config.DownTime = 45 				//How long time in seconds until you die from not being revived while downed
 
 	NZ_POINT_NOTIFCATION_NET = 1 		//Net messages from the server on points gained or lost - More precise but costs net usage
 	NZ_POINT_NOTIFCATION_CLIENT = 2		//Calculated client-side per frame - No constant net messages but may stack multiple in 1 frame
@@ -64,6 +64,10 @@ nz.Config.PointNotifcationMode = NZ_POINT_NOTIFCATION_NET
 
 if SERVER then
 
+	//Zombie path retargeting
+	//Whether zombies and spawnpoints will check if Nav Group IDs are the same as their target player's before spawning
+	nz.Config.NavGroupTargeting = true
+	
 	//Curves
 
 	nz.Config.MaxRounds = 100 // How much round data should we load?

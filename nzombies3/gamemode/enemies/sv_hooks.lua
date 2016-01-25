@@ -37,9 +37,12 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo)
 		return end
 		
-		--print(dmginfo:GetDamage(), 1)
+		
 		nz.Config.ValidEnemies[zombie:GetClass()].ScaleDMG(zombie, hitgroup, dmginfo)
-		--print(dmginfo:GetDamage(), 2)
+		
+		//Pack-a-Punch doubles damage
+		if dmginfo:GetAttacker():GetActiveWeapon().pap then dmginfo:ScaleDamage(2) end
+		
 		if zombie:Health() > dmginfo:GetDamage() then
 			if zombie.HasTakenDamageThisTick then return end
 			nz.Config.ValidEnemies[zombie:GetClass()].OnHit(zombie, dmginfo:GetAttacker(), hitgroup)
