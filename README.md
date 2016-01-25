@@ -17,6 +17,7 @@ This is an edited version featuring these changes:
 	- Upon being downed, you equip a pistol if available
 		-(Planned: If no pistol, give starting pistol for the duration of being downed)
 	- Zombies now deal 50-70 damage, but you have health regen on your side!
+	- Revival progress bar
 
 - Navigation Locker Tool
 	- Lock Navmeshes or link them to doors!
@@ -80,7 +81,6 @@ This is an edited version featuring these changes:
 
 
 - To-do list:
-	- Revival progress bar
 	- Invisible blockers to have blocking filters
 	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
@@ -88,7 +88,7 @@ This is an edited version featuring these changes:
 	- Modify curves to be better
 	- Fix Zombies getting stuck on corners a lot (plz)
 	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players (Nav Mesh Grouping WIP)
-	- Repurchaseable entities (doors, elevators, etc) & support for free buttons with text
+	- Support for free buttons/doors with custom text
 	- Tools to save config and apply on LMB instead of having to re-enter it every time
 	- Pack-a-Punch weapon animation and material overlay and sounds
 	- Change round handler function to not run every second; instead just on events
