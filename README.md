@@ -39,6 +39,7 @@ This is an edited version featuring these changes:
 		- Barrier repair sounds
 		- Random Box moving sounds
 		- Pack-a-Punch shoot sounds
+		- Perk Machine jingles
 	- More effects
 		- Damaged blood pulse overlay
 		- Better HUD elements and scoreboard
