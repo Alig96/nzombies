@@ -42,7 +42,7 @@ This is an edited version featuring these changes:
 		- Perk Machine jingles
 	- More effects
 		- Damaged blood pulse overlay
-		- Better HUD elements and scoreboard
+		- Better HUD elements and scoreboard (with yellow numbers flying out of points when getting)
 		- Pack-a-Punch weapon animations
 		- Perk Bottle Drinking animation (requires workshop mod TTT/Sandbox Perk Bottles)
 	- Better editing
