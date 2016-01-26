@@ -33,6 +33,7 @@ function PLAYER:Loadout()
 	self.Player:Give( "nz_tool_barricades" )
 	self.Player:Give( "nz_tool_ee" )
 	self.Player:Give( "nz_tool_nav_locker" )
+	self.Player:Give( "nz_tool_nav_ladder_builder" )
 	
 end
 
