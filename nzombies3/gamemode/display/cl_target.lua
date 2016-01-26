@@ -9,6 +9,7 @@ local traceents = {
 	["perk_machine"] = true,
 	["player_spawns"] = true,
 	["zed_spawns"] = true,
+	["pap_weapon_fly"] = true,
 }
 
 function nz.Display.Functions.GetTarget()
@@ -72,9 +73,22 @@ function nz.Display.Functions.GetText( ent )
 		end
 	end
 	
+	if class == "pap_weapon_trigger" then
+		local wepclass = ent:GetWepClass()
+		local wep = weapons.Get(wepclass)
+		local name = "UNKNOWN" 
+		if wep != nil then 
+			name = wep.PrintName 
+		end
+		if name == nil then name = wepclass end
+		text = "Press E to take " .. name .. " from the machine."
+	end
+	
 	if class == "perk_machine" then
 		if !ent:IsOn() then
 			text = "No Power."
+		elseif ent:GetBeingUsed() then
+			text = "Currently in use."
 		else
 			local perkData = nz.Perks.Functions.Get(ent:GetPerkID())
 			//Its on
