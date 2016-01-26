@@ -79,6 +79,8 @@ This is an edited version featuring these changes:
 		- Otherwise Triggers will close it again and because we locked it, we can't reopen
 	- You can now lock buttons with a price (Say to trigger doors or elevators, or maybe even traps)
 	- Doors only lock if they have a price; doors without will force themselves to stay open when they try to close
+	- Doors can be set to "Repurchaseable" which will make them not lock (E.g. to use on Elevator buttons)
+	- Doors have "Purchaseable" option to completely disable E input (E.g. to use on doors that shouldn't lock but open by button)
 	
 - Misc changes
 	- Speed Cola and Double Tap now works on all weapons!
