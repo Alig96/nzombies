@@ -157,7 +157,7 @@ function ENT:RunBehaviour()
 				})]]
 				self:ChaseEnemy({
 					maxage = 0.67,
-					draw = true,
+					draw = false,
 					enemy = target,
 					tolerance = 50
 				})
