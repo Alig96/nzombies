@@ -20,7 +20,6 @@ function ENT:Initialize()
 	if SERVER then
 		self.loco:SetDeathDropHeight(700)
 		self:SetHealth(nz.Curves.Data.Health[nz.Rounds.Data.CurrentRound])
-		self:SetCollisionBounds( Vector(-9,-9,0), Vector(9,9,70) )
 		self.loco:SetStepHeight(22)
 		self.Jumped = CurTime() + 5 -- prevent jumping for the first 5 seconds since the spawn is crowded
 		self.IsJumping = false
@@ -34,7 +33,7 @@ function ENT:Initialize()
 			self.breathing = nil
 		end
 	end)
-	
+
 end
 
 function ENT:TimedEvent(time, callback)
@@ -96,7 +95,7 @@ function ENT:RunBehaviour()
 			end
 		end
 
-		if self:HasTarget() then --and self:GetRangeTo(target) <= 1500	
+		if self:HasTarget() then --and self:GetRangeTo(target) <= 1500
 			self.loco:FaceTowards(target:GetPos())
 
 			if (self:GetRangeTo(target) <= 50) then
@@ -200,7 +199,7 @@ function ENT:ChaseEnemy( options )
 	local path = Path( "Follow" )
 	path:SetMinLookAheadDistance( options.lookahead or 300 )
 	path:SetGoalTolerance( options.tolerance or 50 )
-	
+
 	//Custom path computer, the same as default but not pathing through locked nav areas.
 	path:Compute( self, options.enemy:GetPos() or self:GetEnemy():GetPos(), function( area, fromArea, ladder, elevator, length )
 		--print("Pathing!")
@@ -215,7 +214,7 @@ function ENT:ChaseEnemy( options )
 				--print("Area not traversable!")
 				return -1
 			end
-				
+
 			//Prevent movement through either locked navareas or areas with closed doors
 			if (nz.Nav.Data[area:GetID()]) then
 				--print("Has area")
@@ -245,6 +244,13 @@ function ENT:ChaseEnemy( options )
 			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
 			if ( deltaZ >= self.loco:GetStepHeight() ) then
 				if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
+					local fromLadds = fromArea:GetLadders()
+					local toLadds = area:GetLadders()
+					for _,f in pairs( fromLadds ) do
+						for _,t in pairs(toLadds) do
+							if f:GetID() == t:GetID() then return cost end
+						end
+					end
 					// too high to reach
 					return -1
 				end
@@ -261,7 +267,7 @@ function ENT:ChaseEnemy( options )
 
 	if ( !path:IsValid() ) then return "failed" end
 
-	while ( path:IsValid() and (IsValid(self.target) or (self.HaveEnemy and self:HaveEnemy())) ) do
+	while ( path:IsValid() and IsValid(self.target) ) do
 
 		//Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
@@ -270,22 +276,26 @@ function ENT:ChaseEnemy( options )
 		path:Update( self )	-- This function moves the bot along the path
 
 		if ( options.draw ) then path:Draw() end
-		
+
 		--the jumping part simple and buggy
 		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
 		local scanDist
 		--this will probaly need asjustments to fit the zombies speed
 		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
-		
+
 		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
 		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
 		local goal = path:GetCurrentGoal()
 		if path:IsValid() and goal.type == 2 and goal.how == 9 and goal.distanceFromStart <= scanDist then
-			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
+			if #goal.area:GetLaddersAtSide(0) >= 1 then
+				self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist, goal.area:GetLaddersAtSide(0)[1]:GetLength() + 10 )
+			else
+				self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
+			end
 		elseif path:IsValid() and !self:IsOnGround() and self:GetPos().z > goal.pos.z then
 			self:SetPos(self:GetPos() + self:EyeAngles():Forward())
 		end
-		
+
 		-- If we're stuck, then call the HandleStuck function and abandon
 		if ( self.loco:IsStuck() ) then
 			self:HandleStuck()
@@ -304,7 +314,7 @@ function ENT:Think()
 	if SERVER then --think is shared since last update but all the stuff in here should be serverside
 		//Retarget closest players. Don't put this in the function above or else mass lag due to constant rethinking of target
 		self.target = self:GetPriorityEnemy()
-		
+
 		if !self.IsJumping && self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
 			local occupied = false
 			for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
@@ -313,7 +323,7 @@ function ENT:Think()
 			if !occupied then self:SetSolidMask(MASK_NPCSOLID) end
 		end
 	end
-	
+
 	self:NextThink(4)
 end
 
@@ -355,9 +365,8 @@ function ENT:AlertNearby(target, range, noNoise)
 end
 
 --we do our own jump since the loco one is a bit weird.
- function ENT:Jump(goal, scanDist)
-	print("Hydsahhjh")
-	if CurTime() < self.Jumped + 1 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
+ function ENT:Jump(goal, scanDist, heightOverride)
+	if CurTime() < self.Jumped + 2 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
 	if !self:IsOnGround() then return end
 	local tr = util.TraceLine( {
 		start = self:EyePos() + Vector(0,0,30),
@@ -374,6 +383,7 @@ end
 	local jmpHeight
 	if tr.Hit then jmpHeight = tr.StartPos:Distance(tr.HitPos) else jmpHeight = 64 end
 	if tr2.Hit and !tr.Hit then jmpHeight = tr2.StartPos:Distance(tr2.HitPos) end
+	jmpHeight = heightOverride or jmpHeight
 	self.loco:SetJumpHeight(jmpHeight)
 	self.loco:SetDesiredSpeed( 450 )
 	self.loco:SetAcceleration( 5000 )
@@ -394,6 +404,7 @@ function ENT:OnLandOnGround()
 		self.loco:SetDesiredSpeed(40)
 	end
 	self.loco:SetAcceleration(400)
+	self.loco:SetStepHeight( 22 )
 end
 
 function ENT:OnLeaveGround( ent )
@@ -462,10 +473,10 @@ function ENT:OnInjured(damageInfo)
 	local attacker = damageInfo:GetAttacker()
 	--local hitgroup = util.QuickTrace( damageInfo:GetDamagePosition( ), damageInfo:GetDamagePosition( ) ).HitGroup
 	--local range = self:GetRangeTo(attacker)
-	//Deal an double damage if headshot 
-	
+	//Deal an double damage if headshot
+
 							//NOW HANDLED IN CONFIG FOR ONHIT AND ONKILLED
-	
+
 	--[[if hitgroup == HITGROUP_HEAD then
 		if self:IsValid() and damageInfo:GetDamageType() != DMG_BLAST_SURFACE then
 			local headshot = DamageInfo()
@@ -488,7 +499,7 @@ end
 function ENT:GetClosestAvailableRespawnPoint()
 	local pos = self:GetPos()
 	local min_dist, closest_target = -1, nil
-	
+
 	for k,v in pairs(nz.Enemies.Data.RespawnableSpawnpoints) do
 		if IsValid(v) and (!nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(self, v)) then
 			local dist = v:GetPos():Distance(pos)
@@ -504,14 +515,14 @@ end
 
 function ENT:RespawnAtPoint(cur)
 	local valids = nz.Enemies.Functions.ValidRespawns()
-				
+
 	if valids[1] == nil then
 		print("No valid spawns were found - Couldn't respawn!")
 		return
 	end
-	
+
 	local spawnpoint = table.Random(valids)
-	
+
 	if nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
 	end
