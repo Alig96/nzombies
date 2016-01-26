@@ -28,6 +28,7 @@ This is an edited version featuring these changes:
 	- Create NavGroups!
 		- Zombies cannot target players in different NavGroups than themselves (unless either one is in no group)
 		- If no players can be targeted, will target a spawnpoint marked with "Respawn from?" and respawn from it on arrival
+	- A tool for generating ladders in edit mode!
 
 - Additional Content
 	- More Powerups
@@ -37,9 +38,12 @@ This is an edited version featuring these changes:
 		- Buy sound
 		- Barrier repair sounds
 		- Random Box moving sounds
+		- Pack-a-Punch shoot sounds
 	- More effects
 		- Damaged blood pulse overlay
 		- Better HUD elements and scoreboard
+		- Pack-a-Punch weapon animations
+		- Perk Bottle Drinking animation (requires workshop mod TTT/Sandbox Perk Bottles)
 	- Better editing
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
@@ -50,6 +54,7 @@ This is an edited version featuring these changes:
 	- Zombies now know which navmeshes are locked to doors and won't path through them
 	- Zombies can now know if there are players in the same area as them
 	- Zombies can now go back to respawn if they can't get to any players
+	- Zombies can now climb ladders!
 	
 - Random Box Handler Tool (For Create mode)
 	- Decide which weapons the box can spawn
@@ -75,6 +80,7 @@ This is an edited version featuring these changes:
 	- Doors only lock if they have a price; doors without will force themselves to stay open when they try to close
 	
 - Misc changes
+	- Speed Cola and Double Tap now works on all weapons!
 	- Wall Buy tool weapon selection is a dropdown of all available weapons instead of text field
 	- Sleight of Hand renamed to Speed Cola
 	- Set the prices of the perks to what they are in the real zombies game
@@ -91,15 +97,12 @@ This is an edited version featuring these changes:
 
 - To-do list:
 	- Invisible blockers to have blocking filters
-	- Try to work around a way for Speed Cola and Double Tap (Double Tap v2?) to work on all weapons
 	- Add Black Ops and Black Ops 2 perks?
 	- Fix random downing of players (Prop collision?)
 	- Modify curves to be better
-	- Fix Zombies getting stuck on corners a lot (plz)
-	- Zombies to walk back to a spawnpoint and respawn if there's no valid paths to players (Nav Mesh Grouping WIP)
+	- Fix Zombies getting stuck on corners a lot (plz) (Already fixed?)
 	- Support for free buttons/doors with custom text
 	- Tools to save config and apply on LMB instead of having to re-enter it every time
-	- Pack-a-Punch weapon animation and material overlay and sounds
 	- Change round handler function to not run every second; instead just on events
 	- General optimizations
 	- Real Nazi Zombie models and sounds for the zombies?
