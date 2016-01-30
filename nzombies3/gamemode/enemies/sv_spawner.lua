@@ -67,15 +67,13 @@ end
 
 function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 	if nz.Enemies.Functions.TotalCurrentEnemies() < nz.Config.MaxZombiesSim then
-		local ent = "nut_zombie"
+		local ent = "nz_zombie_walker"
 		
 		//Get the latest round number from the table
 		for i = nz.Rounds.Data.CurrentRound, 0, -1 do 
 			if nz.Config.EnemyTypes[i] != nil then
-				//Remove the count from the weighted random by cloning and removing from the clone
-				local enemytypes = table.Copy(nz.Config.EnemyTypes[i])
-				enemytypes.count = nil
-				ent = nz.Misc.Functions.WeightedRandom(enemytypes)
+				//Use weightkey "chance" as defined in the new config format
+				ent = nz.Misc.Functions.WeightedRandom(nz.Rounds.CurrentRoundData, "chance")
 				break
 			end
 		end

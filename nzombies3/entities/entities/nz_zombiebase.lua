@@ -59,9 +59,6 @@ AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 --Init
 function ENT:Initialize()
     self:SetModel( self.Models[math.random( #self.Models ) ] ) --Random model will not be shared (does it matter?)
-    if SERVER then
-        self.loco:SetDeathDropHeight( self.DeathDropHeight )
-    end
 
     self.Breathing = CreateSound(self, self.BreathSounds[ math.random( #self.BreathSounds ) ] )
     self.Breathing:Play()
@@ -82,6 +79,11 @@ function ENT:Initialize()
     self:SetCollisionBounds(Vector(-9,-9, 0), Vector(9, 9, 64))
 
     self:SpecialInit()
+	
+	if SERVER then
+		self.loco:SetDeathDropHeight( self.DeathDropHeight )
+		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+	end
 
 end
 
@@ -163,19 +165,45 @@ function ENT:OnPathTimeOut()
 end
 
 function ENT:OnNoTarget()
-    local sPoint = self:GetClosestAvailableRespawnPoint()
-    if !sPoint then
-        --something is wrong remove this zombie
-        self:Remove()
-    else
-        self:ChaseTarget( {
-            maxage = 20,
-            draw = false,
-            target = sPoint,
-            tolerance = self:GetAttackRange() / 10
-        })
-        self:RespawnAtRandom( sPoint )
-    end
+	-- Game over! Walk around randomly and wave
+	if nz.Rounds.Data.CurrentState == ROUND_GO then
+		self:StartActivity(ACT_WALK)
+		self.loco:SetDesiredSpeed(40)
+		self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
+			repath = 3,
+			maxage = 2
+		})
+
+		if (math.random(1, 8) == 2) then
+			self:EmitSound("npc/zombie/zombie_voice_idle"..math.random(2, 7)..".wav", 50, 60)
+			if (math.random(1, 2) == 2) then
+				self:PlaySequenceAndWait("scaredidle")
+			else
+				self:PlaySequenceAndWait("photo_react_startle")
+			end
+		end
+		if (!self.target) then
+			local v = self:GetPriorityEnemy()
+			self.target = v
+			self:AlertNearby(v)
+			self.target = v
+			self:PlaySequenceAndWait("wave_smg1", 0.9)
+		end
+	else
+		local sPoint = self:GetClosestAvailableRespawnPoint()
+		if !sPoint then
+			--something is wrong remove this zombie
+			self:Remove()
+		else
+			self:ChaseTarget( {
+				maxage = 20,
+				draw = false,
+				target = sPoint,
+				tolerance = self:GetAttackRange() / 10
+			})
+			self:RespawnAtRandom( sPoint )
+		end
+	end
 end
 
 --Default NEXTBOT Events
@@ -244,11 +272,12 @@ function ENT:GetPriorityTarget()
 
 	for _, target in pairs(player.GetAll()) do
 		if self:IsValidTarget( target ) then
-			if nz.Config.NavGroupTargeting and !nz.Nav.Functions.IsInSameNavGroup(target, self) then return end
-			local dist = target:NearestPoint(pos):Distance(pos)
-			if ((dist < min_dist||min_dist==-1)) then
-				closest_target = target
-				min_dist = dist
+			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
+				local dist = target:NearestPoint(pos):Distance(pos)
+				if ((dist < min_dist||min_dist==-1)) then
+					closest_target = target
+					min_dist = dist
+				end
 			end
 		end
 	end

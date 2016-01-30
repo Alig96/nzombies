@@ -18,7 +18,9 @@ end
 function PLAYER:Loadout()
 	//Give ammo and guns
 	
-	if IsValid(ents.FindByClass("player_handler")[1]) then
+	if nz.Mapping.MapSettings.startwep then
+		self.Player:Give( nz.Mapping.MapSettings.startwep )
+	elseif IsValid(ents.FindByClass("player_handler")[1]) then
 		//A player handler exists, give those starting weapons
 		local ent = ents.FindByClass("player_handler")[1]
 		self.Player:Give( ent:GetStartWep() )
@@ -39,7 +41,9 @@ function PLAYER:Loadout()
 end
 function PLAYER:Spawn()
 
-	if IsValid(ents.FindByClass("player_handler")[1]) then
+	if nz.Mapping.MapSettings.startpoints then
+		self.Player:SetPoints(nz.Mapping.MapSettings.startpoints)
+	elseif IsValid(ents.FindByClass("player_handler")[1]) then
 		local ent = ents.FindByClass("player_handler")[1]
 		if !self.Player:CanAfford(ent:GetStartPoints()) then
 			self.Player:SetPoints(ent:GetStartPoints())

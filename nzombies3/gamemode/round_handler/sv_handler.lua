@@ -60,6 +60,10 @@ function nz.Rounds.Functions.PrepareRound()
 	end
 	nz.Rounds.Data.KilledZombies = 0
 	nz.Rounds.Data.ZombiesSpawned = 0
+	
+	if nz.Config.EnemyTypes[nz.Rounds.Data.CurrentRound] then
+		nz.Rounds.CurrentRoundData = nz.Config.EnemyTypes[nz.Rounds.Data.CurrentRound]
+	end
 
 	//Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.Data.CurrentRound.." preparing" )

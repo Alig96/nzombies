@@ -20,11 +20,11 @@ function ENT:Initialize()
 	if SERVER then
 		self.loco:SetDeathDropHeight(700)
 		self:SetHealth(nz.Curves.Data.Health[nz.Rounds.Data.CurrentRound])
+		--self:SetCollisionBounds(Vector(-9,-9, 0), Vector(9, 9, 64))
 		self.loco:SetStepHeight(22)
 		self.Jumped = CurTime() + 5 -- prevent jumping for the first 5 seconds since the spawn is crowded
 		self.IsJumping = false
 	end
-	self:SetCollisionBounds(Vector(-12,-12, 0), Vector(12, 12, 64))
 	self:SetSkin(math.random(0, self:SkinCount() - 1))
 
 	hook.Add("EntityRemoved", self, function()
@@ -51,11 +51,12 @@ function ENT:GetPriorityEnemy()
 
 	for _, target in pairs(player.GetAll()) do
 		if (IsValid(target) and target:Alive() and target:GetNotDowned()) then
-			if nz.Config.NavGroupTargeting and !nz.Nav.Functions.IsInSameNavGroup(target, self) then return end
-			local dist = target:NearestPoint(pos):Distance(pos)
-			if ((dist < min_dist||min_dist==-1)) then
-				closest_target = target
-				min_dist = dist
+			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
+				local dist = target:NearestPoint(pos):Distance(pos)
+				if ((dist < min_dist||min_dist==-1)) then
+					closest_target = target
+					min_dist = dist
+				end
 			end
 		end
 	end

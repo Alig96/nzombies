@@ -179,6 +179,9 @@ function nz.Mapping.Functions.SaveConfig()
 	main["NavGroups"] = nz.Nav.NavGroups
 	main["NavGroupIDs"] = nz.Nav.NavGroupIDs
 	
+	//Save this map's configuration
+	main["MapSettings"] = nz.Mapping.MapSettings
+	
 	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
 	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
 	
@@ -258,6 +261,8 @@ function nz.Mapping.Functions.ClearConfig()
 		end
 	end
 	nz.PropsMenu.Data.SpawnedEntities = {}
+	
+	nz.Mapping.MapSettings = {}
 	
 	//Sync
 	nz.Rounds.Functions.SendSync()
@@ -420,6 +425,13 @@ function nz.Mapping.Functions.LoadConfig( name )
 				PrintTable(v)
 				local ent = duplicator.CreateEntityFromTable(Entity(1), v)
 				table.insert(nz.PropsMenu.Data.SpawnedEntities, ent)
+			end
+		end
+		
+		if data.MapSettings then
+			nz.Mapping.MapSettings = data.MapSettings
+			for k,v in pairs(player.GetAll()) do
+				nz.Mapping.Functions.SendMapData(ply)
 			end
 		end
 		

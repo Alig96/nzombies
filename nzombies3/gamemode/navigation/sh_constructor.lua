@@ -12,6 +12,16 @@ function GM:ShutDown()
 	end
 end
 
+function IsNavApplicable(ent)
+	// All classes that can be linked with navigation
+	if !IsValid(ent) then return false end
+	if (ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton()) and ent.link then
+		return true
+	else
+		return false
+	end
+end
+
 NavFloodSelectedSet = {}
 NavFloodAlreadySelected = {}
 

@@ -107,27 +107,39 @@ if CLIENT then
 	end)
 	
 	function ENT:ParseSong(play)
-		local url = self:GetEEURL()
+		local url = string.lower(self:GetEEURL())
 		if url == nil or url == "" then return end
+		local strstart, strend = string.find( url, "youtube.com/watch" )
 		
-		if string.find( url, "youtube.com/watch" ) then
-			http.Fetch( "http://www.youtubeinmp3.com/fetch/?format=JSON&video="..url,
-			function( body, len, headers, code )
-				if body == "$$$ERROR$$$" then
-					Error( "Failed to fetch song from YouTube!" )
-					return
-				end
-
-				local tbl = util.JSONToTable(body)
-				print("Preloading Easter Egg song ...")
-				PrintTable(tbl)
-				if play then self:PlaySong(tbl.link) return end
-				self:PreloadSong(tbl.link)
-			end, 
-			function( error )
-				Error( "Failed to fetch song! Error: " .. error )
-			end )
+		if strstart then
+			url = string.sub(url, strend + 4)
+		else
+			local strstart2, strend2 = string.find(url, "youtu.be/")
+			if strstart2 then
+				url = string.sub(url, strend2 + 1)
+			else
+				print( "This is not a valid URL! It needs to be a youtube.com/watch?v=ID or youtu.be/ID" )
+				return
+			end
 		end
+		http.Fetch( "http://www.youtubeinmp3.com/fetch/?format=JSON&video=http://youtube.com/watch?v="..url,
+		function( body, len, headers, code )
+			if body == "$$$ERROR$$$" then
+				Error( "Failed to fetch song from YouTube!" )
+				return
+			end
+
+			local tbl = util.JSONToTable(body)
+			print("Preloading Easter Egg song ...")
+			if !tbl then print("Error loading video URL! Try a different URL format (youtu.be or youtube.com/watch) or a different video.") return end
+			if tbl.error then print("Error: "..tbl.error) return end
+			PrintTable(tbl)
+			if play then self:PlaySong(tbl.link) return end
+			self:PreloadSong(tbl.link)
+		end, 
+		function( error )
+			Error( "Failed to fetch song! Error: " .. error )
+		end )
 	end
 	
 	function ENT:PlaySong(url)

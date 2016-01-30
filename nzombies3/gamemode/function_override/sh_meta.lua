@@ -83,7 +83,6 @@ function GM:EntityFireBullets(ent, data)
 	//Fire the PaP shooting sound if the weapon is PaP'd
 	--print(wep, wep.pap)
 	if ent:IsPlayer() and IsValid(ent:GetActiveWeapon()) and ent:GetActiveWeapon().pap then
-		print("PEW")
 		wep:EmitSound("nz/effects/pap_shoot_glock20.wav", 105, 100)
 	end
 
@@ -93,10 +92,14 @@ function GM:EntityFireBullets(ent, data)
 		endpos = data.Src + (data.Dir*data.Distance),
 		filter = function(ent) 
 			if ent:GetClass() == "wall_block" then
-				return false 
+				return false
+			else
+				return true
 			end 
 		end
 	})
+	
+	--PrintTable(tr)
 	
 	//If we hit anything, move the source of the bullets up to that point
 	if tr.Hit and tr.HitPos then
