@@ -29,7 +29,7 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo)
 end
 
 function GM:EntityTakeDamage(zombie, dmginfo)
-	if zombie:IsPlayer() then return end
+	if !dmginfo:GetAttacker():IsPlayer() then return end
 	if IsValid(zombie) and nz.Config.ValidEnemies[zombie:GetClass()] and nz.Config.ValidEnemies[zombie:GetClass()].Valid then
 		local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition( ), dmginfo:GetDamagePosition( ) ).HitGroup
 		
