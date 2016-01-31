@@ -11,6 +11,7 @@ ENT.Instructions	= ""
 function ENT:SetupDataTables()
 	self:NetworkVar("String", 0, "PerkID")
 	self:NetworkVar("Bool", 0, "Active")
+	self:NetworkVar("Bool", 1, "BeingUsed")
 end
 
 function ENT:Initialize()
@@ -19,6 +20,7 @@ function ENT:Initialize()
 		self:SetSolid( SOLID_VPHYSICS )
 		self:DrawShadow( false )
 		self:SetUseType( SIMPLE_USE )
+		self:SetBeingUsed(false)
 	end
 end
 
@@ -47,7 +49,8 @@ function ENT:Use(activator, caller)
 		if activator:CanAfford(price) then
 			if !activator:HasPerk(self:GetPerkID()) then
 				activator:TakePoints(price)
-				activator:GivePerk(self:GetPerkID())
+				activator:GivePerk(self:GetPerkID(), self)
+				self:EmitSound("nz/machines/jingle/"..self:GetPerkID().."_get.wav", 150)
 			else
 				print("already have perk")
 			end

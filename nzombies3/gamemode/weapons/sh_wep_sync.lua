@@ -22,9 +22,9 @@ if CLIENT then
 		local wep = data.wep
 		data.wep = nil
 		if wep != nil then
-			if wep:IsValid() then
+			if IsValid(wep) then
 				print(wep)
-				print("Applying data to: " .. wep.ClassName)
+				print("Applying data to: " .. wep:GetClass())
 				for k,v in pairs(data) do
 					wep[k] = v
 				end
