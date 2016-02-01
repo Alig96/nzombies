@@ -59,9 +59,6 @@ AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 --Init
 function ENT:Initialize()
     self:SetModel( self.Models[math.random( #self.Models ) ] ) --Random model will not be shared (does it matter?)
-    if SERVER then
-        self.loco:SetDeathDropHeight( self.DeathDropHeight )
-    end
 
     self.Breathing = CreateSound(self, self.BreathSounds[ math.random( #self.BreathSounds ) ] )
     self.Breathing:Play()
@@ -79,9 +76,14 @@ function ENT:Initialize()
     self:SetRunSpeed( self.RunSpeed ) --fallback
     self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
-    self:SetCollisionBounds(Vector(-9,-9, 0), Vector(9, 9, 64))
+    self:SetCollisionBounds(Vector(-8,-8, 0), Vector(8, 8, 64))
 
     self:SpecialInit()
+	
+	if SERVER then
+		self.loco:SetDeathDropHeight( self.DeathDropHeight )
+		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+	end
 
 end
 
@@ -118,7 +120,7 @@ function ENT:RunBehaviour()
                 end
             elseif pathResult == "timeout" then --asume pathing timedout, maybe we are stuck maybe we are blocked by barricades
                 local barricade = self:CheckForBarricade()
-                if barrciade then
+                if barricade then
                     self:OnBarricadeBlocking( barricade )
                 else
                     self:OnPathTimeOut()
@@ -143,13 +145,13 @@ function ENT:OnTargetInAttackRange()
 end
 
 function ENT:OnBarricadeBlocking( barricade )
-    if (IsValid(entity) and entity:GetClass() == "breakable_entry" ) then
-        if entity:Health() != 0 then
+    if (IsValid(barricade) and barricade:GetClass() == "breakable_entry" ) then
+        if barricade:GetNumPlanks() > 0 then
             timer.Simple(0.3, function()
 
-                entity:EmitSound("physics/wood/wood_plank_break"..math.random(1, 4)..".wav", 100, math.random(90, 130))
+                barricade:EmitSound("physics/wood/wood_plank_break"..math.random(1, 4)..".wav", 100, math.random(90, 130))
 
-                entity:RemovePlank()
+                barricade:RemovePlank()
 
             end)
 
@@ -163,19 +165,52 @@ function ENT:OnPathTimeOut()
 end
 
 function ENT:OnNoTarget()
-    local sPoint = self:GetClosestAvailableRespawnPoint()
-    if !sPoint then
-        --something is wrong remove this zombie
-        self:Remove()
-    else
-        self:ChaseTarget( {
-            maxage = 20,
-            draw = false,
-            target = sPoint,
-            tolerance = self:GetAttackRange() / 10
-        })
-        self:RespawnAtRandom( sPoint )
-    end
+	-- Game over! Walk around randomly and wave
+	if nz.Rounds.Data.CurrentState == ROUND_GO then
+		self:StartActivity(ACT_WALK)
+		self.loco:SetDesiredSpeed(40)
+		self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
+			repath = 3,
+			maxage = 2
+		})
+
+		if (math.random(1, 8) == 2) then
+			self:EmitSound("npc/zombie/zombie_voice_idle"..math.random(2, 7)..".wav", 50, 60)
+			if (math.random(1, 2) == 2) then
+				self:PlaySequenceAndWait("scaredidle")
+			else
+				self:PlaySequenceAndWait("photo_react_startle")
+			end
+		end
+		if (!self.target) then
+			local v = self:GetPriorityEnemy()
+			self.target = v
+			self:AlertNearby(v)
+			self.target = v
+			self:PlaySequenceAndWait("wave_smg1", 0.9)
+		end
+	else
+		local sPoint = self:GetClosestAvailableRespawnPoint()
+		if !sPoint then
+			-- Something is wrong remove this zombie
+			self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
+				repath = 3,
+				maxage = 2
+			})
+			-- Wander a bit, then check again
+			if !self:GetClosestAvailableRespawnPoint() then
+				self:Remove()
+			end
+		else
+			self:ChaseTarget( {
+				maxage = 20,
+				draw = false,
+				target = sPoint,
+				tolerance = self:GetAttackRange() / 10
+			})
+			self:RespawnAtRandom( sPoint )
+		end
+	end
 end
 
 --Default NEXTBOT Events
@@ -233,7 +268,7 @@ function ENT:OnRemove()
 end
 
 function ENT:OnStuck()
-	print("Now I'm stuck", self)
+	--print("Now I'm stuck", self)
 end
 
 --Target and pathfidning
@@ -244,11 +279,12 @@ function ENT:GetPriorityTarget()
 
 	for _, target in pairs(player.GetAll()) do
 		if self:IsValidTarget( target ) then
-			if nz.Config.NavGroupTargeting and !nz.Nav.Functions.IsInSameNavGroup(target, self) then return end
-			local dist = target:NearestPoint(pos):Distance(pos)
-			if ((dist < min_dist||min_dist==-1)) then
-				closest_target = target
-				min_dist = dist
+			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
+				local dist = target:NearestPoint(pos):Distance(pos)
+				if ((dist < min_dist||min_dist==-1)) then
+					closest_target = target
+					min_dist = dist
+				end
 			end
 		end
 	end
@@ -377,10 +413,10 @@ function ENT:TargetInRange( range )
 end
 
 function ENT:CheckForBarricade()
-    --we try a line trace first since its more effecient
+    --we try a line trace first since its more efficient
     local dataL = {}
     dataL.start = self:GetPos() + Vector( 0, 0, self:OBBCenter().z )
-    dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward()*128
+    dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward()*64
     dataL.filter = self
     dataL.ignoreworld = true
     local trL = util.TraceLine( dataL )
@@ -388,16 +424,16 @@ function ENT:CheckForBarricade()
         return trL.Entity
     end
 
-    --perform a hull trace if line didnt hit jsut to amek sure
+    --perform a hull trace if line didnt hit just to make sure
     local dataH = {}
     dataH.start = self:GetPos()
-    dataH.endpos = self:GetPos() + self:GetForward()*128
+    dataH.endpos = self:GetPos() + self:GetForward()*64
     dataH.filter = self
     dataH.mins = self:OBBMins() * 0.65
     dataH.maxs = self:OBBMaxs() * 0.65
     local trH = util.TraceHull(dataH )
     if IsValid( trH.Entity ) and trH.Entity:GetClass() == "breakable_entry" then
-        return trH.Entity()
+        return trH.Entity
     end
 
     return nil

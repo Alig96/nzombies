@@ -42,15 +42,6 @@ function SWEP:OnPrimaryAttack(tr)
 	return true
 end
 
-function IsNavApplicable(ent)
-	// All classes that can be linked with navigation
-	if (ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton()) and ent.link then
-		return true
-	else
-		return false
-	end
-end
-
 if SERVER then
 	util.AddNetworkString("nz_NavMeshGrouping")
 	util.AddNetworkString("nz_NavMeshGroupRequest")

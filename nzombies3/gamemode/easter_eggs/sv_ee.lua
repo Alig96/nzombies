@@ -29,3 +29,24 @@ function nz.EE.Functions.ActivateEgg( ent )
 		hook.Call( "nz.EE.EasterEgg" )
 	end
 end
+
+util.AddNetworkString("EasterEggSong")
+util.AddNetworkString("EasterEggSongPreload")
+util.AddNetworkString("EasterEggSongStop")
+
+hook.Add("nz.EE.EasterEgg", "PlayEESong", function()
+	net.Start("EasterEggSong")
+	net.Broadcast()
+end)
+
+hook.Add("nz.EE.EasterEggStop", "StopEESong", function()
+	net.Start("EasterEggSongStop")
+	net.Broadcast()
+end)
+
+hook.Add("PlayerInitialSpawn", "PreloadEESongSpawn", function(ply)
+	//Send players the map settings - this will trigger the preload client-side
+	net.Start("nz.Mapping.SyncSettings")
+		net.WriteTable(nz.Mapping.MapSettings)
+	net.Send(ply)
+end)

@@ -14,28 +14,8 @@ if SERVER then
 			local ent = trace.Entity
 			if math.abs(hitpos.x) > (math.abs(bounds.x) * 1/5) and math.abs(hitpos.x) < (math.abs(bounds.x) - 1) then
 				if self.Owner:KeyDown(IN_SPEED) then
-					--[[if ent.CurModelZ == 0 then
-						if ent.CurModelX == 1 then
-							self.Owner:ChatPrint("X can only go lower than 1 if Z is over 0 (it must be a cube)")
-							return
-						end
-					else
-						if ent.CurModelX == 0.25 then
-							self.Owner:ChatPrint("X cannot go lower than 0.25")
-							return
-						end
-					end]]
-					--self.Owner:ChatPrint("Decreased X!")
 					ent:DecreaseXModel(self.Owner)
 				else
-					--[[if ent.CurModelX == 8 then
-						self.Owner:ChatPrint("X cannot go higher than 8")
-						return
-					elseif ent.CurModelX == ent.CurModelY then
-						self.Owner:ChatPrint("X cannot go higher than Y. You will need to rotate the block.")
-						return
-					end]]
-					--self.Owner:ChatPrint("Increased X!")
 					ent:IncreaseXModel(self.Owner)
 				end
 			end
