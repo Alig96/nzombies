@@ -45,7 +45,7 @@ function nz.Display.Functions.GetText( ent )
 	end
 	
 	if class == "breakable_entry" then
-		if ent:Health() < nz.Config.MaxPlanks * 10 then
+		if ent:GetNumPlanks() < nz.Config.MaxPlanks then
 			text = "Hold E to rebuild the barricade."
 		end
 	end

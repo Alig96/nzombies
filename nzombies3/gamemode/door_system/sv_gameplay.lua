@@ -10,6 +10,9 @@ function nz.Doors.Functions.OpenDoor( ent )
 	if ent.navgroup1 and ent.navgroup2 then
 		nz.Nav.Functions.MergeNavGroups(ent.navgroup1, ent.navgroup2)
 	end
+	if ent.linkedmeshes then
+		nz.Nav.Functions.OnNavMeshUnlocked(ent.linkedmeshes)
+	end
 	
 	//Sync
 	if ent.link != nil then
@@ -92,6 +95,8 @@ end
 //Hooks
 
 function nz.Doors.Functions.OnUseDoor( ply, ent )
+	-- Downed players can't use anything!
+	if !ply:GetNotDowned() then return false end
 	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
 		if !ent.buyable or tobool(ent.buyable) then
 			nz.Doors.Functions.BuyDoor( ply, ent )

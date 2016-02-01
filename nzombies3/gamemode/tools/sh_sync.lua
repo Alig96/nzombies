@@ -12,11 +12,23 @@ if SERVER then
 	
 	function nz.Tools.Functions.ReceiveData(len, ply)
 		if !IsValid(ply) then return end
-		ply:SetActiveNZTool( net.ReadString() )
+		local id = net.ReadString()
+		local wep = ply:GetActiveWeapon()
 		
+		//Call holster on the old tool
+		if nz.Tools.ToolData[wep.ToolMode] then
+			nz.Tools.ToolData[wep.ToolMode].OnHolster(wep, ply, ply.NZToolData)
+		end
+		
+		ply:SetActiveNZTool( id )
 		//Only read the data if the tool has any - as shown by the bool
 		if net.ReadBool() then
 			ply:SetNZToolData( net.ReadTable() )
+		end
+		
+		//Then call equip on the new one
+		if nz.Tools.ToolData[id] then
+			nz.Tools.ToolData[id].OnEquip(wep, ply, ply.NZToolData)
 		end
 	end
 	net.Receive( "nz.Tools.Update", nz.Tools.Functions.ReceiveData )

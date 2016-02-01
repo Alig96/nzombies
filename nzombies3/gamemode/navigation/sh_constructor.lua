@@ -22,8 +22,8 @@ function IsNavApplicable(ent)
 	end
 end
 
-NavFloodSelectedSet = {}
-NavFloodAlreadySelected = {}
+local NavFloodSelectedSet = {}
+local NavFloodAlreadySelected = {}
 
 function FloodSelectNavAreas(area)
 	//Clear tables to be ready for a new selection
@@ -60,7 +60,7 @@ function nz.Nav.Functions.AddNavGroupIDToArea(area, id)
 	
 	//Create the entire group in the index table if it isn't already there
 	if !nz.Nav.NavGroupIDs[id] then
-		nz.Nav.NavGroupIDs[id] = id
+		nz.Nav.NavGroupIDs[id] = {[id] = true}
 	end
 end
 
@@ -78,25 +78,18 @@ function nz.Nav.Functions.MergeNavGroups(id1, id2)
 	if !id1 or !nz.Nav.NavGroupIDs[id1] then Error("MergeNavGroups called with invalid id1!") return end
 	if !id2 or !nz.Nav.NavGroupIDs[id2] then Error("MergeNavGroups called with invalid id2!") return end
 	
-	local id1 = string.lower(id1)
-	local id2 = string.lower(id2)
-	
-	//Index all merged part of both area groups
-	local tbl1 = string.Explode(";", nz.Nav.NavGroupIDs[id1])
-	local tbl2 = string.Explode(";", nz.Nav.NavGroupIDs[id2])
-	
-	//Create a table in which the keys can only be set once
 	local tbl = {}
-	for k,v in pairs(tbl1) do
-		tbl[v] = true
+	for k,v in pairs(nz.Nav.NavGroupIDs[id1]) do
+		tbl[k] = true
 	end
-	for k,v in pairs(tbl2) do
-		tbl[v] = true
+	for k,v in pairs(nz.Nav.NavGroupIDs[id2]) do
+		tbl[k] = true
 	end
+	tbl[id1] = true
+	tbl[id2] = true
 	
-	//Loop through the keys and set their ID to the merged ID of all other keys
 	for k,v in pairs(tbl) do
-		nz.Nav.NavGroupIDs[k] = string.Implode(";", table.GetKeys(tbl))
+		nz.Nav.NavGroupIDs[k] = tbl
 	end
 end
 
@@ -117,18 +110,55 @@ function nz.Nav.Functions.IsInSameNavGroup(ent1, ent2)
 	local area2 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(ent2:GetPos()):GetID()]
 	if !area2 then return true end
 	
-	return nz.Nav.NavGroupIDs[area1] == nz.Nav.NavGroupIDs[area2]
+	return nz.Nav.NavGroupIDs[area1][area2] or false
 end
 
 function nz.Nav.ResetNavGroupMerges()
-	for k,v in pairs(nz.Nav.NavGroupIDs) do
-		v = k
+	local tbl = table.GetKeys(nz.Nav.NavGroupIDs)
+	nz.Nav.NavGroupIDs = {}
+	for k,v in pairs(tbl) do
+		nz.Nav.NavGroupIDs[v] = {[v] = true}
 	end
 end
 
 function nz.Nav.GenerateCleanGroupIDList()
 	//Something to use in case everything messes up - loops through all saved navmeshes and adds them to the index list
+	nz.Nav.NavGroupIDs = {}
 	for k,v in pairs(nz.Nav.NavGroups) do
-		nz.Nav.NavGroupIDs[v] = v
+		nz.Nav.NavGroupIDs[v] = {[v] = true}
+	end
+end
+
+function nz.Nav.Functions.CreateAutoMergeLink(door, id)
+	if !door:IsDoor() and !door:IsBuyableProp() and !door:IsButton() then return end
+	if door.linkedmeshes then
+		if !table.HasValue(door.linkedmeshes, id) then
+			table.insert(door.linkedmeshes, id)
+		end
+	else
+		door.linkedmeshes = {}
+		table.insert(door.linkedmeshes, id)
+	end
+end
+
+function nz.Nav.Functions.OnNavMeshUnlocked(areaids)
+	local tbl = {}
+	
+	for k,v in pairs(areaids) do
+		local area = navmesh.GetNavAreaByID(v)
+		for k2,v2 in pairs(area:GetAdjacentAreas()) do
+			local group = nz.Nav.NavGroups[v2:GetID()]
+			if group then
+				tbl[group] = true
+			end
+		end
+	end
+
+	local prev_group = nil
+	for k,v in pairs(tbl) do
+		if prev_group then
+			nz.Nav.Functions.MergeNavGroups(k, prev_group)
+		end
+		prev_group = k
 	end
 end

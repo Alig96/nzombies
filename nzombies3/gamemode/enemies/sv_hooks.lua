@@ -1,7 +1,7 @@
 //
 
 
-function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo)
+function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 	//Prevent multiple "dyings" by making sure the zombie has not already been "killed"
 	if enemy.MarkedForDeath then return end
 
@@ -35,7 +35,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 		
 		if nz.PowerUps.Functions.IsPowerupActive("insta") then
 			dmginfo:SetDamage(zombie:Health())
-			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo)
+			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo, hitgroup)
 		return end
 		
 		
@@ -51,7 +51,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			//Prevent multiple damages in one tick (FA:S 2 Bullet penetration makes them hit 1 zombie 2-3 times per bullet)
 			timer.Simple(0, function() if IsValid(zombie) then zombie.HasTakenDamageThisTick = false end end)
 		else
-			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo)
+			nz.Enemies.Functions.OnEnemyKilled(zombie, dmginfo:GetAttacker(), dmginfo, hitgroup)
 		end
 	end
 end

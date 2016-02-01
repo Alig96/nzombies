@@ -1,6 +1,7 @@
 //
 
 local bloodline_points = Material("bloodline_score.png", "unlitgeneric smooth")
+local bloodline_gun = Material("cod_hud.png", "unlitgeneric smooth")
 
 function nz.Display.Functions.StatesHud()
 	local text = ""
@@ -32,22 +33,41 @@ function nz.Display.Functions.StatesHud()
 end
 
 function nz.Display.Functions.ScoreHud()
-	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_INIT then
+	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_INIT or nz.Rounds.Data.CurrentState == ROUND_GO then
 		for k,v in pairs(player.GetAll()) do
 			local hp = v:Health()
 			if hp == 0 then hp = "Dead" elseif nz.Revive.Data.Players[v] then hp = "Downed" else hp = hp .. " HP"  end
 			if v:GetPoints() >= 0 then 
 				surface.SetMaterial(bloodline_points)
 				surface.SetDrawColor(255,255,255)
-				surface.DrawTexturedRect(ScrW() - 325 - #v:Nick()*10, ScrH() - 265 + (30*k), 250 + #v:Nick()*10, 35)
-				draw.SimpleText(v:GetPoints().." - "..v:Nick().." (" .. hp ..  ")", "nz.display.hud.small", ScrW() - 100, ScrH() - 250 + (30*k), Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-				v.PointsSpawnPosition = {x = ScrW() - 325 - #v:Nick()*10, y = ScrH() - 250 + (30*k)}
+				surface.DrawTexturedRect(ScrW() - 325 - #v:Nick()*10, ScrH() - 285 + (30*k), 250 + #v:Nick()*10, 35)
+				draw.SimpleText(v:GetPoints().." - "..v:Nick().." (" .. hp ..  ")", "nz.display.hud.small", ScrW() - 100, ScrH() - 270 + (30*k), Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				v.PointsSpawnPosition = {x = ScrW() - 325 - #v:Nick()*10, y = ScrH() - 270 + (30*k)}
 			end
 		end
 	end
-	if LocalPlayer():GetActiveWeapon():IsValid() and nz.Rounds.Data.CurrentState == ROUND_CREATE then
-		draw.SimpleText(LocalPlayer():GetActiveWeapon():GetClass(), "nz.display.hud.small", ScrW() * 0.8, ScrH() - 70, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	end	
+end
+
+function nz.Display.Functions.GunHud()
+
+	local wep = LocalPlayer():GetActiveWeapon()
+	
+	surface.SetMaterial(bloodline_gun)
+	surface.SetDrawColor(255,255,255)
+	surface.DrawTexturedRect(ScrW() - 630, ScrH() - 225, 600, 225)
+	if IsValid(wep) then
+		if wep:GetClass() == "nz_multi_tool" then
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240, ScrH() - 150, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240, ScrH() - 90, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+		else
+			local name = wep:GetPrintName()
+			if !name or name == "" then name = wep:GetClass() end
+			if wep.pap then name = "Upgraded "..name end
+			draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390, ScrH() - 150, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(wep:Clip1(), "nz.display.hud.ammo", ScrW() - 315, ScrH() - 175, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310, ScrH() - 160, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+		end
+	end
 end
 
 function nz.Display.Functions.PowerUpsHud()
@@ -147,5 +167,6 @@ end
 //Hooks
 hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud )
 hook.Add("HUDPaint", "scoreHUD", nz.Display.Functions.ScoreHud )
+hook.Add("HUDPaint", "gunHUD", nz.Display.Functions.GunHud )
 hook.Add("HUDPaint", "powerupHUD", nz.Display.Functions.PowerUpsHud )
 hook.Add("HUDPaint", "pointsNotifcationHUD", nz.Display.Functions.DrawPointsNotification )

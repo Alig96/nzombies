@@ -28,15 +28,15 @@ end
 function ENT:Use( activator, caller )
 	if activator == self.Owner then
 		local class = self:GetWepClass()
-		local wep = activator:Give(class)
+		local weapon = activator:Give(class)
 		nz.Weps.Functions.GiveMaxAmmoWep(activator, class)
-		nz.Weps.Functions.ApplyPaP(activator, wep)
-		if activator:HasPerk("speed") and nz.Weps.Functions.IsFAS2(wep) then
-			nz.Weps.Functions.ApplySleight( activator, wep )
+		if activator:HasPerk("speed") and nz.Weps.Functions.IsFAS2(weapon) then
+			nz.Weps.Functions.ApplySleight( activator, weapon )
 		end
-		if activator:HasPerk("dtap") and nz.Weps.Functions.IsFAS2(wep) then
-			nz.Weps.Functions.ApplyDTap( activator, wep )
+		if activator:HasPerk("dtap") and nz.Weps.Functions.IsFAS2(weapon) then
+			nz.Weps.Functions.ApplyDTap( activator, weapon )
 		end
+		nz.Weps.Functions.ApplyPaP(activator, weapon)
 		if IsValid(self.wep) then
 			self.wep.machine:SetBeingUsed(false)
 			self.wep:Remove()

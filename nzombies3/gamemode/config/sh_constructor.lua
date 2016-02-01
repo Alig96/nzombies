@@ -203,16 +203,18 @@ if SERVER then
 			[80] = 10,
 			[100] = 50,
 			[120] = 10,
-			[150] = 10
+			[150] = 10,
+			[175] = 10
 		}
 	}}
 	nz.Config.EnemyTypes[13] = {["nz_zombie_walker"] = {
 		chance = 80,
 		speeds = {
 			[50] = 5,
-			[80] = 50,
+			[80] = 40,
 			[100] = 45,
-			[150] = 20
+			[150] = 20,
+			[175] = 20
 		}
 	}, ["nz_zombie_special_burning"] = {
 		chance = 20,
@@ -221,17 +223,19 @@ if SERVER then
 			[80] = 50,
 			[100] = 20,
 			[150] = 40,
-			[175] = 5
+			[175] = 5,
+			[200] = 5
 		}
 	}}
 	nz.Config.EnemyTypes[14] = {["nz_zombie_walker"] = {
 		chance = 100,
 		speeds = {
-			[80] = 10,
-			[100] = 20,
-			[120] = 30,
+			[80] = 5,
+			[100] = 10,
+			[120] = 20,
 			[150] = 40,
-			[175] = 20
+			[175] = 20,
+			[200] = 20
 		}
 	}}
 	nz.Config.EnemyTypes[18] = {["nz_zombie_walker"] = {
@@ -241,7 +245,9 @@ if SERVER then
 			[100] = 30,
 			[120] = 10,
 			[150] = 10,
-			[175] = 50
+			[175] = 50,
+			[200] = 30,
+			[250] = 10
 		}
 	}}
 	nz.Config.EnemyTypes[23] = {["nz_zombie_walker"] = {
@@ -250,7 +256,7 @@ if SERVER then
 			[150] = 10,
 			[175] = 50,
 			[200] = 50,
-			[250] = 10
+			[250] = 20
 		}
 	}, ["nz_zombie_special_burning"] = {
 		chance = 10,
@@ -258,6 +264,40 @@ if SERVER then
 			[150] = 50,
 			[175] = 40,
 			[200] = 20,
+		}
+	}}
+	
+	nz.Config.EnemyTypes[30] = {["nz_zombie_walker"] = {
+		chance = 90,
+		speeds = {
+			[175] = 30,
+			[200] = 40,
+			[250] = 50,
+			[250] = 30,
+			[300] = 10
+		}
+	}, ["nz_zombie_special_burning"] = {
+		chance = 10,
+		speeds = {
+			[175] = 40,
+			[200] = 20,
+			[250] = 10,
+		}
+	}}
+	
+	nz.Config.EnemyTypes[38] = {["nz_zombie_walker"] = {
+		chance = 90,
+		speeds = {
+			[250] = 50,
+			[250] = 30,
+			[300] = 10
+		}
+	}, ["nz_zombie_special_burning"] = {
+		chance = 10,
+		speeds = {
+			[200] = 30,
+			[250] = 40,
+			[300] = 5,
 		}
 	}}
 	
