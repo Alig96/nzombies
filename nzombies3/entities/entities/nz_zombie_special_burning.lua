@@ -12,7 +12,7 @@ function ENT:SpecialInit()
     if SERVER then
         self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
         self:SetHealth( nz.Curves.Data.Health[nz.Rounds.Data.CurrentRound] )
-        self:Ignite( true )
+        self:Flames( true )
     end
 end
 

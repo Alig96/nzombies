@@ -41,9 +41,10 @@ ENT.BreathSounds = {
 }
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
-ENT.AttackRange = 50
+ENT.AttackRange = 60
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100
+ENT.Acceleration = 400
 ENT.DamageLow = 50
 ENT.DamageHigh = 70
 
@@ -79,10 +80,11 @@ function ENT:Initialize()
     self:SetCollisionBounds(Vector(-8,-8, 0), Vector(8, 8, 64))
 
     self:SpecialInit()
-	
+
 	if SERVER then
 		self.loco:SetDeathDropHeight( self.DeathDropHeight )
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+        self.loco:SetAcceleration( self.Acceleration )
 	end
 
 end
@@ -94,15 +96,16 @@ end
 
 function ENT:Think()
 	if SERVER then --think is shared since last update but all the stuff in here should be serverside
-		if !self:IsJumping() && self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
+		if !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
 			local occupied = false
 			for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
-				if ent:GetClass() == "nz_zombie*" && ent != self then occupied = true end
+				if ent:GetClass() == "nz_zombie*" and ent != self then occupied = true end
 			end
 			if !occupied then self:SetSolidMask(MASK_NPCSOLID) end
 		end
 	end
-	self:NextThink(1)
+    self:OnThink()
+	self:NextThink(0.5)
 end
 
 function ENT:RunBehaviour()
@@ -112,7 +115,7 @@ function ENT:RunBehaviour()
             local pathResult = self:ChaseTarget( {
                 maxage = 1,
                 draw = false,
-                tolerance = ((self:GetAttackRange() -10) > 0 ) and self:GetAttackRange()
+                tolerance = ((self:GetAttackRange() -20) > 0 ) and self:GetAttackRange() - 10
             } )
             if pathResult == "ok" then
                 if self:TargetInAttackRange() then
@@ -133,6 +136,22 @@ function ENT:RunBehaviour()
             coroutine.wait( 1 ) --This is just here to make sure nothing gets spammed, probably unnecessary.
         end
     end
+end
+
+--Draw sppoky red eyes
+local eyeGlow =  Material ( "sprites/redglow1" )
+local white = Color( 255, 255, 255, 255 )
+
+function ENT:Draw()
+    self:DrawModel()
+    local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
+    local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
+    local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
+    cam.Start3D(EyePos(),EyeAngles())
+        render.SetMaterial( eyeGlow )
+        render.DrawSprite( leftEye, 4, 4, white)
+        render.DrawSprite( rightEye, 4, 4, white)
+    cam.End3D()
 end
 
 --[[
@@ -182,13 +201,9 @@ function ENT:OnNoTarget()
 				self:PlaySequenceAndWait("photo_react_startle")
 			end
 		end
-		if (!self.target) then
-			local v = self:GetPriorityEnemy()
-			self.target = v
-			self:AlertNearby(v)
-			self.target = v
-			self:PlaySequenceAndWait("wave_smg1", 0.9)
-		end
+
+		self:PlaySequenceAndWait("wave_smg1", 0.9)
+
 	else
 		local sPoint = self:GetClosestAvailableRespawnPoint()
 		if !sPoint then
@@ -213,6 +228,18 @@ function ENT:OnNoTarget()
 	end
 end
 
+function ENT:OnContactWithTarget()
+
+end
+
+function ENT:OnLandOnGroundZombie()
+
+end
+
+function ENT:OnThink()
+
+end
+
 --Default NEXTBOT Events
 function ENT:OnLandOnGround()
 	self:EmitSound("physics/flesh/flesh_impact_hard"..math.random(1, 6)..".wav")
@@ -222,8 +249,9 @@ function ENT:OnLandOnGround()
 	else
 		self.loco:SetDesiredSpeed(self:GetWalkSpeed())
 	end
-	self.loco:SetAcceleration(400)
+	self.loco:SetAcceleration( self.Acceleration )
 	self.loco:SetStepHeight( 22 )
+    self:OnLandOnGroundZombie()
 end
 
 function ENT:OnLeaveGround( ent )
@@ -245,6 +273,10 @@ function ENT:OnContact( ent )
 		phys:ApplyForceCenter( self:GetPos() - ent:GetPos() * 1.2 )
 		DropEntityIfHeld( ent )
 	end
+
+    if self:IsTarget( ent ) then
+        self:OnContactWithTarget()
+    end
 end
 
 function ENT:OnInjured( dmgInfo )
@@ -366,7 +398,7 @@ function ENT:ChaseTarget( options )
 		end
 	end)
 	if ( !path:IsValid() ) then return "failed" end
-	while ( path:IsValid() and self:HasTarget() ) do
+	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
 		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
 			return "timeout"
@@ -521,26 +553,26 @@ function ENT:Jump(goal, scanDist, heightOverride)
 	self.loco:Approach(goal, 1000)
 end
 
-function ENT:Ignite( state, dmg )
+function ENT:Flames( state )
     if state then
-        self.Fire = ents.Create("env_fire")
-        if IsValid(self.Fire) then
-            self.Fire:SetParent(self, 2)
-            self.Fire:SetOwner(self)
-            self.Fire:SetPos(self:GetPos()-Vector(0,0,-50))
+        self.Flames = ents.Create("env_fire")
+        if IsValid( self.Flames ) then
+            self.Flames:SetParent(self, 2)
+            self.Flames:SetOwner(self)
+            self.Flames:SetPos(self:GetPos()-Vector(0,0,-50))
             --no glow + delete when out + start on + last forever
-            self.Fire:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
-            self.Fire:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
-            self.Fire:SetKeyValue("fireattack", 0)
-            self.Fire:SetKeyValue("health", 0)
-            self.Fire:SetKeyValue("damagescale", "-10") -- only neg. value prevents dmg
+            self.Flames:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
+            self.Flames:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
+            self.Flames:SetKeyValue("fireattack", 0)
+            self.Flames:SetKeyValue("health", 0)
+            self.Flames:SetKeyValue("damagescale", "-10") -- only neg. value prevents dmg
 
-            self.Fire:Spawn()
-            self.Fire:Activate()
+            self.Flames:Spawn()
+            self.Flames:Activate()
         end
-    elseif IsValid( self.Fire ) then
-        self.Fire:Remove()
-        self.Fire = nil
+    elseif IsValid( self.Flames )  then
+        self.Flames:Remove()
+        self.Flames = nil
     end
 end
 
@@ -563,6 +595,103 @@ end
 
 function ENT:Kill()
     self:TakeDamage( 10000, self, self )
+end
+
+function ENT:TeleportToTarget()
+
+    if !self:HasTarget() then return false end
+
+    --that's probably not smart, just like me. SORRY D:
+    local locations = {
+        Vector( 256, 0, 0),
+        Vector( -256, 0, 0),
+        Vector( 0, 256, 0),
+        Vector( 0, -256, 0),
+        Vector( 256, 256, 0),
+        Vector( -256, -256, 0),
+        Vector( 512, 0, 0),
+        Vector( -512, 0, 0),
+        Vector( 0, 512, 0),
+        Vector( 0, -512, 0),
+        Vector( 512, 512, 0),
+        Vector( -512, -512, 0),
+        Vector( 1024, 0, 0),
+        Vector( -1024, 0, 0),
+        Vector( 0, 1024, 0),
+        Vector( 0, -1024, 0),
+        Vector( 1024, 1024, 0),
+        Vector( -1024, -1024, 0)
+    }
+
+    --resource friendly shuffle
+    local rand = math.random
+    local n = #locations
+
+    while n > 2 do
+
+        local k = rand(n) -- 1 <= k <= n
+
+        locations[n], locations[k] = locations[k], locations[n]
+        n = n - 1
+
+    end
+
+    for _, v in pairs( locations ) do
+
+        local area = navmesh.GetNearestNavArea( self:GetTarget():GetPos() + v )
+
+        if area then
+
+            local location = area:GetRandomPoint() + Vector( 0, 0, 2 )
+
+            local tr = util.TraceHull( {
+                start = location,
+                endpos = location,
+                maxs = Vector( 16, 16, 40 ), --DOGE is small
+                mins = Vector( -16, -16, 0 ),
+            } )
+
+            --debugoverlay.Box( location, Vector( -16, -16, 0 ), Vector( 16, 16, 40 ), 5, Color( 255, 0, 0 ) )
+
+            if !tr.Hit and nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(location):GetID()] == nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(self:GetPos()):GetID()] then
+                local inFOV = false
+                for _, ply in pairs( player.GetAll() ) do
+                    --can player see us or the teleport location
+                    if ply:Alive() and ply:IsLineOfSightClear( location ) or ply:IsLineOfSightClear( self ) then
+                        inFOV = true
+                    end
+                end
+                if !inFOV then
+                    self:SetPos( location )
+                    return true
+                end
+            end
+        end
+    end
+
+    return false
+
+end
+
+--broken
+function ENT:InFieldOfView( pos )
+
+    local fov = math.rad( math.cos( 110 ) )
+    local v = ( Vector( pos.x, pos.y, 0 ) - Vector( self:GetPos().x, self:GetPos().y, 0 ) ):GetNormalized()
+
+    if self:GetAimVector():Dot( v ) > fov then
+        local tr = util.TraceLine( {
+            start = self:GetShootPos(),
+            endpos = pos + Vector( 0, 0, 64),
+            filter = self
+        } )
+
+        if !tr.Hit then return true end
+
+    end
+
+    return true
+
 end
 
 function ENT:BodyUpdate()
@@ -588,6 +717,18 @@ function ENT:BodyUpdate()
     end
 
     self:FrameAdvance()
+
+end
+
+function ENT:GetAimVector()
+
+	return self:GetForward()
+
+end
+
+function ENT:GetShootPos()
+
+	return self:EyePos()
 
 end
 
