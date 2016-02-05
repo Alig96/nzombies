@@ -324,6 +324,7 @@ nz.Tools.Functions.CreateTool("door", {
 		local ent = tr.Entity
 		if !IsValid(ent) then return end
 		if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
+			nz.Nav.Functions.UnlinkAutoMergeLink(ent)
 			nz.Doors.Functions.RemoveLink(ent)
 		end
 	end,
@@ -559,7 +560,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 			
 			wep.Owner:ChatPrint("Navmesh ["..id.."] locked to door "..wep.Ent1:GetClass().."["..wep.Ent1:EntIndex().."]!")
 			wep.Ent1:SetMaterial( "" )
-			--nz.Nav.Functions.CreateAutoMergeLink(wep.Ent1, id)
+			nz.Nav.Functions.CreateAutoMergeLink(wep.Ent1, id)
 			wep.Ent1 = nil
 		return end
 		

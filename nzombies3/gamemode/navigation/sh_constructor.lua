@@ -151,12 +151,10 @@ function nz.Nav.Functions.CreateAutoMergeLink(door, id)
 	end
 end
 
-function nz.Nav.Functions.UnlinkAutoMergeLink(door, id)
+function nz.Nav.Functions.UnlinkAutoMergeLink(door)
 	if !door:IsDoor() and !door:IsBuyableProp() and !door:IsButton() then return end
 	if door.linkedmeshes then
-		if table.HasValue(door.linkedmeshes, id) then
-			table.RemoveByValue(door.linkedmeshes, id)
-		end
+		door.linkedmeshes = nil
 	end
 end
 
