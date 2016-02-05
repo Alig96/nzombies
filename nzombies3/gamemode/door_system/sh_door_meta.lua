@@ -74,8 +74,8 @@ end
 
 function meta:ButtonUnlock(rebuyable)
 	if self:IsButton() then
-		print("Unlocked button!")
-		print(self)
+		print("Unlocked button", self)
+		--print(self)
 		--self:Fire("unlock")
 		self:Fire("Unlock")
 		--self:Fire("press")

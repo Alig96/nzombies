@@ -351,7 +351,7 @@ function nz.Mapping.Functions.SpawnEntity(pos, ang, ent, ply)
 	entity:Spawn()
 	entity:PhysicsInit( SOLID_VPHYSICS )
 	
-	table.insert(nz.PropsMenu.Data.SpawnedEntities, entity)
+	table.insert(nz.QMenu.Data.SpawnedEntities, entity)
 	
 	if ply then
 		undo.Create( "Entity" )

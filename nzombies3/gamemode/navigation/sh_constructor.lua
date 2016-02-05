@@ -113,6 +113,16 @@ function nz.Nav.Functions.IsInSameNavGroup(ent1, ent2)
 	return nz.Nav.NavGroupIDs[area1][area2] or false
 end
 
+function nz.Nav.Functions.IsPosInSameNavGroup(pos1, pos2)
+	local area1 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(pos1):GetID()]
+	if !area1 then return true end
+	
+	local area2 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(pos2):GetID()]
+	if !area2 then return true end
+	
+	return nz.Nav.NavGroupIDs[area1][area2] or false
+end
+
 function nz.Nav.ResetNavGroupMerges()
 	local tbl = table.GetKeys(nz.Nav.NavGroupIDs)
 	nz.Nav.NavGroupIDs = {}
@@ -138,6 +148,28 @@ function nz.Nav.Functions.CreateAutoMergeLink(door, id)
 	else
 		door.linkedmeshes = {}
 		table.insert(door.linkedmeshes, id)
+	end
+end
+
+function nz.Nav.Functions.UnlinkAutoMergeLink(door)
+	if !door:IsDoor() and !door:IsBuyableProp() and !door:IsButton() then return end
+	if door.linkedmeshes then
+		door.linkedmeshes = nil
+	end
+end
+
+function nz.Nav.Functions.AutoGenerateAutoMergeLinks()
+	for k,v in pairs(nz.Nav.Data) do
+		if v.link then
+			for k2,v2 in pairs(ents.GetAll()) do
+				if v2:IsDoor() or v2:IsBuyableProp() or v2:IsButton() then
+					if v2.link == v.link then
+						nz.Nav.Functions.CreateAutoMergeLink(v2, k)
+						print("Linked navmesh "..k.." to door", v2)
+					end
+				end					
+			end
+		end
 	end
 end
 

@@ -97,6 +97,8 @@ end
 function nz.Doors.Functions.OnUseDoor( ply, ent )
 	-- Downed players can't use anything!
 	if !ply:GetNotDowned() then return false end
+	-- Players can't use stuff while drinking perks!
+	if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetClass() == "nz_perk_bottle" then return false end
 	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
 		if !ent.buyable or tobool(ent.buyable) then
 			nz.Doors.Functions.BuyDoor( ply, ent )

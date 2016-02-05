@@ -108,6 +108,8 @@ nz.Config.DownTime = 45 				//How long time in seconds until you die from not be
 	
 nz.Config.PointNotifcationMode = NZ_POINT_NOTIFCATION_NET
 
+nz.Config.MaxPerks = 4					//The max perks you can BUY (You can get more in other ways) 
+
 //Random Box
 
 nz.Config.WeaponBlackList = {

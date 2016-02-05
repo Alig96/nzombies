@@ -21,16 +21,18 @@ if CLIENT then
 		local data = net.ReadTable()
 		local wep = data.wep
 		data.wep = nil
+		print(wep)
+		PrintTable(data)
 		if wep != nil then
 			if IsValid(wep) then
-				print(wep)
+				--print(wep)
 				print("Applying data to: " .. wep:GetClass())
 				for k,v in pairs(data) do
 					wep[k] = v
-					print(wep, wep.pap)
+					--print(wep, wep.pap)
 				end
 				PrintTable(data)
-				timer.Simple(0.1, function() wep.pap = true end) 
+				if data.pap then timer.Simple(0.1, function() wep.pap = true end) end
 			end
 		end
 	end

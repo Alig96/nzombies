@@ -31,6 +31,8 @@ This is an edited version featuring these changes:
 	- A tool for generating ladders in edit mode!
 
 - Additional Content
+	- All perks up until Black Ops 2 with all DLC working!
+	- A proper HUD!
 	- More Powerups
 		- Carpenter
 		- Fire Sale
@@ -42,13 +44,17 @@ This is an edited version featuring these changes:
 		- Perk Machine jingles
 	- More effects
 		- Damaged blood pulse overlay
-		- Better HUD elements and scoreboard (with yellow numbers flying out of points when getting)
 		- Pack-a-Punch weapon animations
-		- Perk Bottle Drinking animation (requires workshop mod TTT/Sandbox Perk Bottles)
+		- Perk Bottle Drinking animation
 	- Better editing
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
 		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
+
+- Map Settings tool!
+	- Decide which weapons the random box can spawn
+	- Set a SoundCloud link to the song to play on Easter Egg
+	- Decide starting weapon and points
 
 - Better Zombie AI
 	- Zombies can now jump (Thanks lolle!)
@@ -56,21 +62,11 @@ This is an edited version featuring these changes:
 	- Zombies can now know if there are players in the same area as them
 	- Zombies can now go back to respawn if they can't get to any players
 	- Zombies can now climb ladders!
-	
-- Random Box Handler Tool (For Create mode)
-	- Decide which weapons the box can spawn
-	- If no Random Box Handler entity exists, it will assume normal behaviour
 		
 - Weapon Carrying
 	- Max number weapons you can carry
 	- You swap weapons if the max has been reached
 	- You automatically equip newly gotten weapons
-	
-- Player Handler Tool + Entity (For Create mode)
-	- Decide starting weapon
-	- Decide starting points
-	- Decide max number of weapons carried
-	- Takes a YouTube URL which plays when all easter eggs have been activated
 		
 - Door Changes
 	- func_* doors now actually trigger with E!
@@ -100,16 +96,11 @@ This is an edited version featuring these changes:
 
 - To-do list:
 	- Invisible blockers to have blocking filters
-	- Add Black Ops and Black Ops 2 perks?
 	- Fix random downing of players (Prop collision?)
 	- Modify curves to be better
 	- Fix Zombies getting stuck on corners a lot (plz) (Already fixed?)
 	- Support for free buttons/doors with custom text
-	- Tools to save config and apply on LMB instead of having to re-enter it every time
 	- Change round handler function to not run every second; instead just on events
 	- General optimizations
 	- Real Nazi Zombie models and sounds for the zombies?
-	- Perk Bottle view model animations built-in?
 	- More Wonder Weapons built-in?
-	- Fix some entities not saving properly (mainly Player Handler and RBox Handler)
-	- Fix Music Easter Egg not properly playing/preloading

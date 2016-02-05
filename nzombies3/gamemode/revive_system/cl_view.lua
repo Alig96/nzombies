@@ -205,11 +205,67 @@ hook.Add( "HUDShouldDraw", "HideHUD", function( name )
 	if name == "CHudHealth" then return !GetConVar("nz_bloodoverlay"):GetBool() end
 end )
 
+function nz.Revive.Functions.DrawTombstoneNotify()
+	local font = "nz.display.hud.small"
+	
+	if LocalPlayer():GetDownedWithTombstone() then
+		local text = "Hold E to feed the zombies"
+		draw.SimpleText(text, font, ScrW()/2, ScrH() - 320, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	end
+end
+
+local tombstonetime = nil
+local senttombstonerequest = false
+
+function nz.Revive.Functions.DrawTombstoneProgress()
+	if LocalPlayer():GetDownedWithTombstone() then
+	
+		local killtime = 1
+		
+		if LocalPlayer():KeyDown(IN_USE) then
+			if !tombstonetime then
+				tombstonetime = CurTime()
+			end
+			
+			local pct = math.Clamp((CurTime()-tombstonetime)/killtime, 0, 1)
+			
+			surface.SetDrawColor(0,0,0)
+			surface.DrawRect(ScrW()/2 - 150, ScrH() - 300, 300, 20)
+			
+			surface.SetDrawColor(255,255,255)
+			surface.DrawRect(ScrW()/2 - 145, ScrH() - 295, 290 * pct, 10)
+			if pct >= 1 and !senttombstonerequest then
+				net.Start("nz_TombstoneSuicide")
+				net.SendToServer()
+				senttombstonerequest = true
+			end
+		else
+			tombstonetime = nil
+			senttombstonerequest = false
+		end
+	end
+end
+
+local whoswhoactive = false
+net.Receive("nz_WhosWhoActive", function()
+	whoswhoactive = net.ReadBool()
+end)
+local whoswhomat = "models/shadertest/shader4"
+
+function nz.Revive.Functions.DrawWhosWhoOverlay()
+	if !whoswhoactive then return end
+	DrawMaterialOverlay(whoswhomat, 0.03)
+end
+
 //Hooks
 hook.Add("CalcView", "CalcDownedView", nz.Revive.Functions.CalcDownView )
 hook.Add("CalcViewModelView", "CalcDownedViewmodelView", nz.Revive.Functions.CalcDownViewmodelView )
 hook.Add("RenderScreenspaceEffects", "DrawColorModulation", nz.Revive.Functions.DrawColorModulation)
 hook.Add("HUDPaint", "DrawDamageOverlay", nz.Revive.Functions.DrawDamagedOverlay)
 hook.Add("HUDPaint", "DrawDownedPlayers", nz.Revive.Functions.DrawDownedPlayers )
+hook.Add("HUDPaint", "DrawDownedNotify", nz.Revive.Functions.DrawDownedNotify )
 hook.Add("HUDPaint", "DrawRevivalProgress", nz.Revive.Functions.DrawRevivalProgress )
 hook.Add("HUDPaint", "DrawDownedPlayersNotify", nz.Revive.Functions.DrawDownedHeadsUp )
+hook.Add("HUDPaint", "DrawTombstoneNotify", nz.Revive.Functions.DrawTombstoneNotify )
+hook.Add("HUDPaint", "DrawTombstoneProgress", nz.Revive.Functions.DrawTombstoneProgress )
+hook.Add("RenderScreenspaceEffects", "DrawWhosWhoOverlay", nz.Revive.Functions.DrawWhosWhoOverlay )

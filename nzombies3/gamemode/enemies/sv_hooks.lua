@@ -8,6 +8,13 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 	if attacker:IsPlayer() then
 		--attacker:GivePoints(90)
 		attacker:AddFrags(1)
+		if attacker:HasPerk("vulture") then
+			if math.random(10) == 1 then
+				local drop = ents.Create("drop_vulture")
+				drop:SetPos(enemy:GetPos() + Vector(0,0,50))
+				drop:Spawn()
+			end
+		end
 	end
 	
 	//Run special on-killed function if it has any
@@ -29,6 +36,10 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 end
 
 function GM:EntityTakeDamage(zombie, dmginfo)
+	
+	-- Who's Who clones can't take damage!
+	if zombie:GetClass() == "whoswho_downed_clone" then return true end
+	
 	if !dmginfo:GetAttacker():IsPlayer() then return end
 	if IsValid(zombie) and nz.Config.ValidEnemies[zombie:GetClass()] and nz.Config.ValidEnemies[zombie:GetClass()].Valid then
 		local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition( ), dmginfo:GetDamagePosition( ) ).HitGroup

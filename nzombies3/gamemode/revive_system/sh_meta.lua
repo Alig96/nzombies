@@ -3,10 +3,28 @@ if SERVER then
 
 	function playerMeta:DownPlayer()
 		self:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
-		self:RemovePerks()
 		
 		nz.Revive.Data.Players[self] = {}
 		nz.Revive.Data.Players[self].DownTime = CurTime()
+		
+		if self:HasPerk("whoswho") then
+			timer.Simple(5, function()
+				-- If you choose to use Tombstone within these seconds, you won't make a clone and will get Who's Who back from Tombstone
+				if IsValid(self) and !self:GetNotDowned() then
+					print("Should've respawned by now")
+					nz.Revive.Functions.CreateWhosWhoClone(self)
+					nz.Revive.Functions.RespawnWithWhosWho(self)
+				end
+			end)
+		end
+		if self:HasPerk("tombstone") then
+			nz.Revive.Data.Players[self].tombstone = true
+		end
+		
+		self.OldPerks = nz.Perks.Data.Players[self] or {}
+		
+		self:RemovePerks()
+		
 		nz.Revive.Functions.SendSync()
 		
 		// Equip the first pistol found in inventory - unless a pistol is already equipped
@@ -17,7 +35,7 @@ if SERVER then
 		for k,v in pairs(self:GetWeapons()) do
 			if v:GetHoldType() == "pistol" or v:GetHoldType() == "duel" or v.HoldType == "pistol" or v.HoldType == "duel" then
 				self:SelectWeapon(v:GetClass())
-				print("Equipped "..v.ClassName.."!")
+				--print("Equipped "..v.ClassName.."!")
 				return
 			end
 		end
@@ -60,6 +78,14 @@ function playerMeta:GetNotDowned()
 		return false
 	else
 		return true
+	end
+end
+
+function playerMeta:GetDownedWithTombstone()
+	if nz.Revive.Data.Players[self] then
+		return nz.Revive.Data.Players[self].tombstone or false
+	else
+		return false
 	end
 end
 

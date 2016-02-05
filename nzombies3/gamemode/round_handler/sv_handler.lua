@@ -286,7 +286,7 @@ function nz.Rounds.Functions.RoundHandler()
 			//Reset the start timer
 			nz.Rounds.Data.StartTime = nil
 			// notify why, just print for now
-			if pre != nil then print(pre) end
+			--if pre != nil then print(pre) end
 			return //Don't process any further than here
 		end
 

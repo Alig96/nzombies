@@ -324,6 +324,7 @@ nz.Tools.Functions.CreateTool("door", {
 		local ent = tr.Entity
 		if !IsValid(ent) then return end
 		if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
+			nz.Nav.Functions.UnlinkAutoMergeLink(ent)
 			nz.Doors.Functions.RemoveLink(ent)
 		end
 	end,
@@ -1103,7 +1104,6 @@ nz.Tools.Functions.CreateTool("settings", {
 				wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
 			end
 			wepentry.OnSelect = function( panel, index, value )
-				print( value .." was selected!" )
 			end
 			
 			local wepadd = vgui.Create( "DButton", rboxpanel )

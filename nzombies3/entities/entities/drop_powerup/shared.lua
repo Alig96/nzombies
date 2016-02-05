@@ -22,7 +22,11 @@ function ENT:Initialize()
 	--self:PhysicsInit(SOLID_VPHYSICS)
 	self:PhysicsInitSphere(50, "default_silent")
 	self:SetMoveType(MOVETYPE_NONE)
-	self:SetSolid(SOLID_VPHYSICS)
+	self:SetSolid(SOLID_NONE)
+	if SERVER then
+		self:SetTrigger(true)
+	end
+	self:UseTriggerBounds(true, 0)
 	self:SetMaterial("models/shiny.vtf")
 	self:SetColor( Color(255,200,0) )
 	--self:SetTrigger(true)

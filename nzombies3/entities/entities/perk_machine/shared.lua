@@ -40,20 +40,35 @@ function ENT:IsOn()
 	return self:GetActive()
 end
 
+local MachinesNoDrink = {
+	["pap"] = true,
+}
+
 function ENT:Use(activator, caller)
 	local perkData = nz.Perks.Functions.Get(self:GetPerkID())
 	
 	if self:IsOn() then
 		local price = perkData.price
-		//If they have enough money
-		if activator:CanAfford(price) then
-			if !activator:HasPerk(self:GetPerkID()) then
-				activator:TakePoints(price)
-				activator:GivePerk(self:GetPerkID(), self)
-				self:EmitSound("nz/machines/jingle/"..self:GetPerkID().."_get.wav", 150)
-			else
-				print("already have perk")
+		-- As long as they have less than the max perks, unless it's pap
+		if #activator:GetPerks() < nz.Config.MaxPerks or self:GetPerkID() == "pap" then
+			-- If they have enough money
+			if activator:CanAfford(price) then
+				if !activator:HasPerk(self:GetPerkID()) then
+					local given = activator:GivePerk(self:GetPerkID(), self)
+					if given then
+						activator:TakePoints(price)
+						if !MachinesNoDrink[self:GetPerkID()] then
+							local wep = activator:Give("nz_perk_bottle")
+							wep:SetPerk(self:GetPerkID())
+						end
+						self:EmitSound("nz/machines/jingle/"..self:GetPerkID().."_get.wav", 75)
+					end
+				else
+					print("already have perk")
+				end
 			end
+		else
+			print(activator:Nick().." already has max perks")
 		end
 	end
 end

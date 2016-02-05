@@ -148,11 +148,11 @@ function nz.Mapping.Functions.SaveConfig()
 	end
 	
 	local special_entities = {}
-	for k,v in pairs(nz.PropsMenu.Data.SpawnedEntities) do
+	for k,v in pairs(nz.QMenu.Data.SpawnedEntities) do
 		if IsValid(v) then
 			table.insert(special_entities, duplicator.CopyEntTable(v))
 		else
-			nz.PropsMenu.Data.SpawnedEntities[k] = nil
+			nz.QMenu.Data.SpawnedEntities[k] = nil
 		end
 	end
 	--PrintTable(special_entities)
@@ -255,12 +255,12 @@ function nz.Mapping.Functions.ClearConfig()
 	nz.Nav.Data = {}
 	
 	//Specially spawned entities
-	for k,v in pairs(nz.PropsMenu.Data.SpawnedEntities) do
+	for k,v in pairs(nz.QMenu.Data.SpawnedEntities) do
 		if IsValid(v) then
 			v:Remove()
 		end
 	end
-	nz.PropsMenu.Data.SpawnedEntities = {}
+	nz.QMenu.Data.SpawnedEntities = {}
 	
 	nz.Mapping.MapSettings = {}
 	
@@ -339,7 +339,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 			for k,v in pairs(data.BlockSpawns) do
 				//If X,Y,Z has been set on it, use those values
 				if v.modelX and v.modelY and v.modelZ then
-					nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model, v.modelX, v.modelY, v.modelZ)
+					nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model, nil, v.modelX, v.modelY, v.modelZ)
 				else
 					nz.Mapping.Functions.BlockSpawn(v.pos, v.angle, v.model)
 				end
@@ -424,16 +424,19 @@ function nz.Mapping.Functions.LoadConfig( name )
 			for k,v in pairs(data.SpecialEntities) do
 				PrintTable(v)
 				local ent = duplicator.CreateEntityFromTable(Entity(1), v)
-				table.insert(nz.PropsMenu.Data.SpawnedEntities, ent)
+				table.insert(nz.QMenu.Data.SpawnedEntities, ent)
 			end
 		end
 		
 		if data.MapSettings then
 			nz.Mapping.MapSettings = data.MapSettings
 			for k,v in pairs(player.GetAll()) do
-				nz.Mapping.Functions.SendMapData(ply)
+				nz.Mapping.Functions.SendMapData(v)
 			end
 		end
+		
+		-- Generate all auto navmesh merging so we don't have to save that manually
+		nz.Nav.Functions.AutoGenerateAutoMergeLinks()
 		
 		print("[NZ] Finished loading map config.")
 	else
