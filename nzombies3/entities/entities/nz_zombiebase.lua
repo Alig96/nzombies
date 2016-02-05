@@ -809,7 +809,7 @@ function ENT:RemoveTarget()
 end
 
 function ENT:IsValidTarget( ent )
-    return IsValid( ent ) and ent:IsPlayer() and ent:Alive() and ent:GetNotDowned()
+    return IsValid( ent ) and ent:IsPlayer() and ent:Alive() and ent:GetNotDowned() and (!ent.vulturegas or ent.vulturegas < CurTime())
 end
 
 --AccessorFuncs

@@ -31,8 +31,11 @@ nz.Perks.Functions.NewPerk("jugg", {
 	func = function(self, ply, machine)
 			ply:SetMaxHealth(250)
 			ply:SetHealth(250)
-			ply:Give("zombies_perk_juggernog_nz")
 			return true
+	end,
+	lostfunc = function(self, ply)
+		ply:SetMaxHealth(100)
+		if ply:Health() > 100 then ply:SetHealth(100) end
 	end,
 })
 
@@ -49,20 +52,26 @@ nz.Perks.Functions.NewPerk("dtap", {
 			end
 		end
 		if tbl[1] != nil then
-			local str = ""
 			for k,v in pairs(tbl) do
 				nz.Weps.Functions.ApplyDTap( ply, v )
-				str = str .. v.ClassName .. ", "
 			end
-			--ply:PrintMessage( HUD_PRINTTALK, "Double Tap Applied to: " .. str)
-			--[[ply:Give("zombies_perk_juggernog_nz")
-			return true
-		else
-			ply:PrintMessage( HUD_PRINTTALK, "You don't have a weapon that is compatible with this perk. (Requires a FAS2 weapon)")
-			return true]]
 		end
-		ply:Give("zombies_perk_juggernog_nz")
 		return true
+	end,
+	lostfunc = function(self, ply)
+		if !ply:HasPerk("dtap2") then
+			local tbl = {}
+			for k,v in pairs(ply:GetWeapons()) do
+				if nz.Weps.Functions.IsFAS2( v ) then
+					table.insert(tbl, v)
+				end
+			end
+			if tbl[1] != nil then
+				for k,v in pairs(tbl) do
+					nz.Weps.Functions.RemoveDTap( ply, v )
+				end
+			end
+		end
 	end,
 })
 
@@ -74,8 +83,10 @@ nz.Perks.Functions.NewPerk("revive", {
 	func = function(self, ply, machine)
 			print(self)
 			ply:PrintMessage( HUD_PRINTTALK, "You've got Quick Revive!")
-			ply:Give("zombies_perk_juggernog_nz")
 			return true
+	end,
+	lostfunc = function(self, ply)
+	
 	end,
 })
 
@@ -92,18 +103,30 @@ nz.Perks.Functions.NewPerk("speed", {
 			end
 		end
 		if tbl[1] != nil then
-			local str = ""
+			--local str = ""
 			for k,v in pairs(tbl) do
-				nz.Weps.Functions.ApplySleight( ply, v )
-				str = str .. v.ClassName .. ", "
+				nz.Weps.Functions.ApplySpeed( ply, v )
+				--str = str .. v.ClassName .. ", "
 			end
 			--ply:PrintMessage( HUD_PRINTTALK, "Speed Cola Applied to: " .. str)
 		--[[else
 			ply:PrintMessage( HUD_PRINTTALK, "You don't have a weapon that is compatible with this perk. (Requires a FAS2 weapon)")
 			return false]]
 		end
-		ply:Give("zombies_perk_juggernog_nz")
 		return true
+	end,
+	lostfunc = function(self, ply)
+		local tbl = {}
+		for k,v in pairs(ply:GetWeapons()) do
+			if nz.Weps.Functions.IsFAS2( v ) then
+				table.insert(tbl, v)
+			end
+		end
+		if tbl[1] != nil then
+			for k,v in pairs(tbl) do
+				nz.Weps.Functions.RemoveSpeed( ply, v )
+			end
+		end
 	end,
 })
 
@@ -186,5 +209,152 @@ nz.Perks.Functions.NewPerk("pap", {
 			ply:PrintMessage( HUD_PRINTTALK, "This weapon is already Pack-a-Punched")
 			return false
 		end
+	end,
+	lostfunc = function(self, ply)
+	
+	end,
+})
+
+nz.Perks.Functions.NewPerk("dtap2", {
+	name = "Double Tap II",
+	off_model = "models/alig96/perks/doubletap2/doubletap2.mdl",
+	on_model = "models/alig96/perks/doubletap2/doubletap2.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		local tbl = {}
+		for k,v in pairs(ply:GetWeapons()) do
+			if nz.Weps.Functions.IsFAS2( v ) then
+				table.insert(tbl, v)
+			end
+		end
+		if tbl[1] != nil then
+			for k,v in pairs(tbl) do
+				nz.Weps.Functions.ApplyDTap( ply, v )
+			end
+		end
+		return true
+	end,
+	lostfunc = function(self, ply)
+		if !ply:HasPerk("dtap") then
+			local tbl = {}
+			for k,v in pairs(ply:GetWeapons()) do
+				if nz.Weps.Functions.IsFAS2( v ) then
+					table.insert(tbl, v)
+				end
+			end
+			if tbl[1] != nil then
+				for k,v in pairs(tbl) do
+					nz.Weps.Functions.RemoveDTap( ply, v )
+				end
+			end
+		end
+	end,
+})
+
+nz.Perks.Functions.NewPerk("staminup", {
+	name = "Stamin-Up",
+	off_model = "models/alig96/perks/staminup/staminup.mdl",
+	on_model = "models/alig96/perks/staminup/staminup.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		ply:SetRunSpeed(350)
+		ply:SetMaxRunSpeed( 350 )
+		ply:SetStamina( 200 )
+		ply:SetMaxStamina( 200 )
+		return true
+	end,
+	lostfunc = function(self, ply)
+		ply:SetRunSpeed(300)
+		ply:SetMaxRunSpeed( 300 )
+		ply:SetStamina( 100 )
+		ply:SetMaxStamina( 100 )
+	end,
+})
+
+nz.Perks.Functions.NewPerk("phd", {
+	name = "PhD Flopper",
+	off_model = "models/alig96/perks/phd/phdflopper.mdl",
+	on_model = "models/alig96/perks/phd/phdflopper.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
+})
+
+nz.Perks.Functions.NewPerk("deadshot", {
+	name = "Deadshot Daiquiri",
+	off_model = "models/alig96/perks/deadshot/deadshot.mdl",
+	on_model = "models/alig96/perks/deadshot/deadshot.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
+})
+
+nz.Perks.Functions.NewPerk("mulekick", {
+	name = "Mule Kick",
+	off_model = "models/alig96/perks/mulekick/mulekick.mdl",
+	on_model = "models/alig96/perks/mulekick/mulekick.mdl",
+	price = 4000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+		if IsValid(ply.ThirdWeapon) and ply.ThirdWeapon:IsWeapon() then
+			ply:StripWeapon(ply.ThirdWeapon:GetClass())
+			ply.ThirdWeapon = nil
+		end
+	end,
+})
+
+nz.Perks.Functions.NewPerk("tombstone", {
+	name = "Tombstone Soda",
+	off_model = "models/alig96/perks/tombstone/tombstone.mdl",
+	on_model = "models/alig96/perks/tombstone/tombstone.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
+})
+
+nz.Perks.Functions.NewPerk("whoswho", {
+	name = "Who's Who",
+	off_model = "models/alig96/perks/whoswho/whoswho.mdl",
+	on_model = "models/alig96/perks/whoswho/whoswho.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
+})
+
+nz.Perks.Functions.NewPerk("cherry", {
+	name = "Electric Cherry",
+	off_model = "models/alig96/perks/cherry/cherry.mdl",
+	on_model = "models/alig96/perks/cherry/cherry.mdl",
+	price = 2000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
+})
+
+nz.Perks.Functions.NewPerk("vulture", {
+	name = "Vulture Aid Elixir",
+	off_model = "models/alig96/perks/vulture/vultureaid.mdl",
+	on_model = "models/alig96/perks/vulture/vultureaid.mdl",
+	price = 3000,
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
 	end,
 })

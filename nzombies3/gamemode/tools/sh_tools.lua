@@ -559,7 +559,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 			
 			wep.Owner:ChatPrint("Navmesh ["..id.."] locked to door "..wep.Ent1:GetClass().."["..wep.Ent1:EntIndex().."]!")
 			wep.Ent1:SetMaterial( "" )
-			nz.Nav.Functions.CreateAutoMergeLink(wep.Ent1, id)
+			--nz.Nav.Functions.CreateAutoMergeLink(wep.Ent1, id)
 			wep.Ent1 = nil
 		return end
 		
@@ -1103,7 +1103,6 @@ nz.Tools.Functions.CreateTool("settings", {
 				wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
 			end
 			wepentry.OnSelect = function( panel, index, value )
-				print( value .." was selected!" )
 			end
 			
 			local wepadd = vgui.Create( "DButton", rboxpanel )

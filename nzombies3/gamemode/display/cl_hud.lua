@@ -164,9 +164,67 @@ function nz.Display.Functions.DrawPointsNotification()
 	end
 end
 
+local perk_icons = {
+	["jugg"] = Material("perk_icons/jugg.png", "smooth unlitgeneric"),
+	["speed"] = Material("perk_icons/speed.png", "smooth unlitgeneric"),
+	["dtap"] = Material("perk_icons/dtap.png", "smooth unlitgeneric"),
+	["revive"] = Material("perk_icons/revive.png", "smooth unlitgeneric"),
+	["dtap2"] = Material("perk_icons/dtap2.png", "smooth unlitgeneric"),
+	["staminup"] = Material("perk_icons/staminup.png", "smooth unlitgeneric"),
+	["phd"] = Material("perk_icons/phd.png", "smooth unlitgeneric"),
+	["deadshot"] = Material("perk_icons/deadshot.png", "smooth unlitgeneric"),
+	["mulekick"] = Material("perk_icons/mulekick.png", "smooth unlitgeneric"),
+	["cherry"] = Material("perk_icons/cherry.png", "smooth unlitgeneric"),
+	["tombstone"] = Material("perk_icons/tombstone.png", "smooth unlitgeneric"),
+	["whoswho"] = Material("perk_icons/whoswho.png", "smooth unlitgeneric"),
+	["vulture"] = Material("perk_icons/vulture.png", "smooth unlitgeneric"),
+	
+	-- Only used to see PaP through walls with Vulture Aid
+	["pap"] = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
+}
+
+function nz.Display.Functions.PerksHud()
+	local w = -20
+	local size = 50
+	for k,v in pairs(LocalPlayer():GetPerks()) do
+		surface.SetMaterial(perk_icons[v])
+		surface.SetDrawColor(255,255,255)
+		surface.DrawTexturedRect(w + k*(size + 10), ScrH() - 150, size, size) 
+	end
+end
+
+local vulture_textures = {
+	["wall_buys"] = Material("vulture_icons/wall_buys.png", "smooth unlitgeneric"),
+	["random_box"] = Material("vulture_icons/random_box.png", "smooth unlitgeneric"),
+}
+
+function nz.Display.Functions.VultureVision()
+	if !LocalPlayer():HasPerk("vulture") then return end
+	for k,v in pairs(ents.FindInSphere(LocalPlayer():GetPos(), 700)) do
+		local target = v:GetClass()
+		if vulture_textures[target] then
+			local data = v:WorldSpaceCenter():ToScreen()
+			if data.visible then
+				surface.SetMaterial(vulture_textures[target])
+				surface.SetDrawColor(255,255,255)
+				surface.DrawTexturedRect(data.x - 25, data.y - 25, 50, 50)
+			end
+		elseif target == "perk_machine" then
+			local data = v:WorldSpaceCenter():ToScreen()
+			if data.visible then
+				surface.SetMaterial(perk_icons[v:GetPerkID()])
+				surface.SetDrawColor(255,255,255)
+				surface.DrawTexturedRect(data.x - 25, data.y - 25, 50, 50)
+			end
+		end
+	end
+end
+
 //Hooks
 hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud )
 hook.Add("HUDPaint", "scoreHUD", nz.Display.Functions.ScoreHud )
 hook.Add("HUDPaint", "gunHUD", nz.Display.Functions.GunHud )
 hook.Add("HUDPaint", "powerupHUD", nz.Display.Functions.PowerUpsHud )
 hook.Add("HUDPaint", "pointsNotifcationHUD", nz.Display.Functions.DrawPointsNotification )
+hook.Add("HUDPaint", "perksHUD", nz.Display.Functions.PerksHud )
+hook.Add("HUDPaint", "vultureVision", nz.Display.Functions.VultureVision )

@@ -16,3 +16,7 @@ hook.Add( "SetupMove", "FreezePlayersDowned", function( ply, mv, cmd )
 		cmd:SetForwardMove( 0 )
 	end
 end )
+
+hook.Add("PlayerSpawn", "SetupHands", function(ply)
+	ply:SetupHands()
+end)

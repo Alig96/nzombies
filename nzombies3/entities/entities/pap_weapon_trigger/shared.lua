@@ -30,18 +30,22 @@ function ENT:Use( activator, caller )
 		local class = self:GetWepClass()
 		local weapon = activator:Give(class)
 		nz.Weps.Functions.GiveMaxAmmoWep(activator, class)
-		if activator:HasPerk("speed") and nz.Weps.Functions.IsFAS2(weapon) then
-			nz.Weps.Functions.ApplySleight( activator, weapon )
-		end
-		if activator:HasPerk("dtap") and nz.Weps.Functions.IsFAS2(weapon) then
-			nz.Weps.Functions.ApplyDTap( activator, weapon )
-		end
-		nz.Weps.Functions.ApplyPaP(activator, weapon)
-		if IsValid(self.wep) then
-			self.wep.machine:SetBeingUsed(false)
-			self.wep:Remove()
-		end
-		self:Remove()
+		timer.Simple(0, function()
+			if IsValid(weapon) and IsValid(activator) then
+				if activator:HasPerk("speed") and nz.Weps.Functions.IsFAS2(weapon) then
+					nz.Weps.Functions.ApplySleight( activator, weapon )
+				end
+				if activator:HasPerk("dtap") and nz.Weps.Functions.IsFAS2(weapon) then
+					nz.Weps.Functions.ApplyDTap( activator, weapon )
+				end
+				nz.Weps.Functions.ApplyPaP(activator, weapon)
+				if IsValid(self.wep) then
+					self.wep.machine:SetBeingUsed(false)
+					self.wep:Remove()
+				end
+			end
+			self:Remove()
+		end)
 	else
 		if IsValid(self.Owner) then
 			activator:PrintMessage( HUD_PRINTTALK, "This is " .. self.PapOwner:Nick() .. "'s gun. You cannot take it." )

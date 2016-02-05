@@ -28,7 +28,15 @@ function nz.Display.Functions.GetText( ent )
 	local text = ""
 	
 	if ent:IsPlayer() then
-		text = ent:Nick() .. " - " .. ent:Health() .. " HP"
+		if ent:GetNotDowned() then
+			text = ent:Nick() .. " - " .. ent:Health() .. " HP"
+		else
+			text = "Hold E to revive "..ent:Nick()
+		end
+	end
+	
+	if class == "whoswho_downed_clone" then
+		text = "Hold E to revive "..ent:GetPerkOwner():Nick()
 	end
 	
 	if class == "wall_buys" then

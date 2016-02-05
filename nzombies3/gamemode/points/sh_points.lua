@@ -43,6 +43,9 @@ if (SERVER) then
 		if !nosound then
 			self:EmitSound("nz/effects/buy.wav")
 		end
+		
+		-- If you have a clone like this, it tracks money spent which will be refunded on revival
+		if self.WhosWhoMoney then self.WhosWhoMoney = self.WhosWhoMoney + amount end
 	end
 	
 end
