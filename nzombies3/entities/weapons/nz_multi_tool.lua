@@ -20,7 +20,7 @@ SWEP.ShootSound			= Sound( "Airboat.FireGunRevDown" )
 
 SWEP.Tool				= {}
 
-SWEP.Primary = 
+SWEP.Primary =
 {
 	ClipSize 	= -1,
 	DefaultClip = -1,
@@ -28,7 +28,7 @@ SWEP.Primary =
 	Ammo = "none"
 }
 
-SWEP.Secondary = 
+SWEP.Secondary =
 {
 	ClipSize 	= -1,
 	DefaultClip = -1,
@@ -43,22 +43,22 @@ SWEP.CanDeploy			= true
 	Initialize
 -----------------------------------------------------------]]
 function SWEP:Initialize()
-	self.Primary = 
+	self.Primary =
 	{
 		ClipSize 	= -1,
 		DefaultClip = -1,
 		Automatic = false,
 		Ammo = "none"
 	}
-	
-	self.Secondary = 
+
+	self.Secondary =
 	{
 		ClipSize 	= -1,
 		DefaultClip = -1,
 		Automatic = false,
 		Ammo = "none"
 	}
-	
+
 	self.ToolMode = "default"
 end
 
@@ -68,7 +68,7 @@ end
 function SWEP:Precache()
 
 	util.PrecacheSound( self.ShootSound )
-	
+
 end
 
 --[[---------------------------------------------------------
@@ -78,41 +78,41 @@ function SWEP:DoShootEffect( hitpos, hitnormal, entity, physbone, bFirstTimePred
 
 	self.Weapon:EmitSound( self.ShootSound	)
 	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
-	
+
 
 	self.Owner:SetAnimation( PLAYER_ATTACK1 )
-	
+
 	if ( !bFirstTimePredicted ) then return end
-	
+
 	local effectdata = EffectData()
 		effectdata:SetOrigin( hitpos )
 		effectdata:SetNormal( hitnormal )
 		effectdata:SetEntity( entity )
 		effectdata:SetAttachment( physbone )
-	util.Effect( "selection_indicator", effectdata )	
-	
+	util.Effect( "selection_indicator", effectdata )
+
 	local effectdata = EffectData()
 		effectdata:SetOrigin( hitpos )
 		effectdata:SetStart( self.Owner:GetShootPos() )
 		effectdata:SetAttachment( 1 )
 		effectdata:SetEntity( self.Weapon )
 	util.Effect( "ToolTracer", effectdata )
-	
+
 end
 
 --[[---------------------------------------------------------
 	Switch to another toolmode
 -----------------------------------------------------------]]
 function SWEP:SwitchTool(id)
-	
+
 	//Only allow if the condition has been met
 	if nz.Tools.ToolData[id].condition(self, self.Owner) then
 		self.ToolMode = id
-		
+
 		//Update the server with the newly equipped tool
 		nz.Tools.Functions.SendData( nz.Tools.SavedData[id], id )
 	end
-	
+
 end
 
 
@@ -127,7 +127,7 @@ function SWEP:PrimaryAttack()
 	if (!trace.Hit) then return end
 
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
-	
+
 	if SERVER and nz.Tools.ToolData[self.ToolMode] then
 		nz.Tools.ToolData[self.ToolMode].PrimaryAttack(self, self.Owner, trace, self.Owner.NZToolData)
 	end
@@ -143,13 +143,13 @@ function SWEP:SecondaryAttack()
 	tr.mask = bit.bor( CONTENTS_SOLID, CONTENTS_MOVEABLE, CONTENTS_MONSTER, CONTENTS_WINDOW, CONTENTS_DEBRIS, CONTENTS_GRATE, CONTENTS_AUX )
 	local trace = util.TraceLine( tr )
 	if (!trace.Hit) then return end
-	
+
 	self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 	if SERVER and nz.Tools.ToolData[self.ToolMode] then
 		nz.Tools.ToolData[self.ToolMode].SecondaryAttack(self, self.Owner, trace, self.Owner.NZToolData)
 	end
-	
+
 end
 
 local reload_cd = CurTime()
@@ -160,13 +160,13 @@ function SWEP:Reload()
 		tr.mask = bit.bor( CONTENTS_SOLID, CONTENTS_MOVEABLE, CONTENTS_MONSTER, CONTENTS_WINDOW, CONTENTS_DEBRIS, CONTENTS_GRATE, CONTENTS_AUX )
 		local trace = util.TraceLine( tr )
 		if (!trace.Hit) then return end
-		
+
 		self:DoShootEffect( trace.HitPos, trace.HitNormal, trace.Entity, trace.PhysicsBone, IsFirstTimePredicted() )
 
 		if SERVER and nz.Tools.ToolData[self.ToolMode] then
 			nz.Tools.ToolData[self.ToolMode].Reload(self, self.Owner, trace, self.Owner.NZToolData)
 		end
-		
+
 		reload_cd = CurTime() + 0.3
 	end
 end
@@ -182,4 +182,82 @@ function SWEP:Holster()
 		nz.Tools.ToolData[self.ToolMode].OnHolster(self, self.Owner, self.Owner.NZToolData)
 	end
 	return true
+end
+
+--[[
+RENDER The scroll text Liek in sandbox
+--]]
+
+if CLIENT then
+	local matScreen 	= Material( "models/weapons/v_toolgun/screen" )
+	local txBackground	= surface.GetTextureID( "models/weapons/v_toolgun/screen_bg" )
+
+	-- GetRenderTarget returns the texture if it exists, or creates it if it doesn't
+	local RTTexture 	= GetRenderTarget( "GModToolgunScreen", 256, 256 )
+
+	surface.CreateFont( "GModToolScreen", {
+		font	= "Helvetica",
+		size	= 60,
+		weight	= 900
+	} )
+
+
+	local function DrawScrollingText( text, y, texwide )
+
+		local w, h = surface.GetTextSize( text  )
+		w = w + 64
+
+		y = y - h / 2 -- Center text to y position
+
+		local x = RealTime() * 250 % w * -1
+
+		while ( x < texwide ) do
+
+			surface.SetTextColor( 0, 0, 0, 255 )
+			surface.SetTextPos( x + 3, y + 3 )
+			surface.DrawText( text )
+
+			surface.SetTextColor( 255, 255, 255, 255 )
+			surface.SetTextPos( x, y )
+			surface.DrawText( text )
+
+			x = x + w
+
+		end
+
+	end
+
+	--[[---------------------------------------------------------
+		We use this opportunity to draw to the toolmode
+			screen's rendertarget texture.
+	-----------------------------------------------------------]]
+	function SWEP:RenderScreen()
+
+		local TEX_SIZE = 256
+		local mode = GetConVarString( "gmod_toolmode" )
+		local oldW = ScrW()
+		local oldH = ScrH()
+
+		-- Set the material of the screen to our render target
+		matScreen:SetTexture( "$basetexture", RTTexture )
+
+		local OldRT = render.GetRenderTarget()
+
+		-- Set up our view for drawing to the texture
+		render.SetRenderTarget( RTTexture )
+		render.SetViewPort( 0, 0, TEX_SIZE, TEX_SIZE )
+		cam.Start2D()
+
+			-- Background
+			surface.SetDrawColor( 255, 255, 255, 255 )
+			surface.SetTexture( txBackground )
+			surface.DrawTexturedRect( 0, 0, TEX_SIZE, TEX_SIZE )
+
+			surface.SetFont( "GModToolScreen" )
+			DrawScrollingText( nz.Tools.ToolData[self.ToolMode].displayname or "Toolgun", 104, TEX_SIZE )
+
+		cam.End2D()
+		render.SetRenderTarget( OldRT )
+		render.SetViewPort( 0, 0, oldW, oldH )
+	end
 end

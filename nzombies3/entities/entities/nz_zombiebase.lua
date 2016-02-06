@@ -41,21 +41,23 @@ ENT.BreathSounds = {
 }
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
-ENT.AttackRange = 60
+ENT.AttackRange = 65
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100
 ENT.Acceleration = 400
 ENT.DamageLow = 50
 ENT.DamageHigh = 70
 
---The Accessors will be partially shared, but should only use them serverside
+--The Accessors will be partially shared, but should only be used serverside
 AccessorFunc( ENT, "fWalkSpeed", "WalkSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fRunSpeed", "RunSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fAttackRange", "AttackRange", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
+AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
 
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
+AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
 
 --Init
 function ENT:Initialize()
@@ -68,6 +70,7 @@ function ENT:Initialize()
 
     self:SetJumping( false )
     self:SetLastJump( CurTime() + 3 ) --prevent jumping after spawn
+    self:SetLastTargetCheck( CurTime() )
 
     self:SetAttacking( false )
     self:SetAttackRange( self.AttackRange )
@@ -77,7 +80,7 @@ function ENT:Initialize()
     self:SetRunSpeed( self.RunSpeed ) --fallback
     self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
-    self:SetCollisionBounds(Vector(-8,-8, 0), Vector(8, 8, 64))
+    self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
 
     self:SpecialInit()
 
@@ -96,13 +99,22 @@ end
 
 function ENT:Think()
 	if SERVER then --think is shared since last update but all the stuff in here should be serverside
-		if !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
+		if  !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
 			local occupied = false
 			for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
 				if ent:GetClass() == "nz_zombie*" and ent != self then occupied = true end
 			end
 			if !occupied then self:SetSolidMask(MASK_NPCSOLID) end
 		end
+
+        if self.loco:IsUsingLadder() then
+            self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
+        end
+
+        if self:GetLastTargetCheck() + 2 < CurTime() then
+            self:GetPriorityTarget()
+        end
+
 	end
     self:OnThink()
 	self:NextThink(0.5)
@@ -300,7 +312,9 @@ function ENT:OnRemove()
 end
 
 function ENT:OnStuck()
-	--print("Now I'm stuck", self)
+    self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 50 )
+    --self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000, 1000 )
+	print("Now I'm stuck", self)
 end
 
 --Target and pathfidning
@@ -374,16 +388,11 @@ function ENT:ChaseTarget( options )
 			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
 			if ( deltaZ >= self.loco:GetStepHeight() ) then
 				if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
-                    --check if a ladder is available to climb
-					local fromLadds = fromArea:GetLadders()
-					local toLadds = area:GetLadders()
-                    if fromLadds and toLadds then
-    					for _,f in pairs( fromLadds ) do
-    						for _,t in pairs(toLadds) do
-    							if f:GetID() == t:GetID() then return cost end
-    						end
-    					end
-                    end
+					if IsValid( ladder ) then
+						if ladder:GetTopForwardArea():GetID() == area:GetID() then
+							return cost
+						end
+					end
 					--too high to reach
 					return -1
 				end
@@ -404,7 +413,8 @@ function ENT:ChaseTarget( options )
 			return "timeout"
 		end
 		path:Update( self )	-- This function moves the bot along the path
-		if ( options.draw ) then path:Draw() end
+		--if ( options.draw ) then
+		path:Draw() --end
 		--the jumping part simple and buggy
 		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
 		local scanDist
@@ -413,15 +423,22 @@ function ENT:ChaseTarget( options )
 		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
 		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
 		local goal = path:GetCurrentGoal()
-		if path:IsValid() and goal.type == 2 and goal.how == 9 and goal.distanceFromStart <= scanDist then
-			if #goal.area:GetLaddersAtSide(0) >= 1 then
-				self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist, goal.area:GetLaddersAtSide(0)[1]:GetLength() + 10 )
-			else
-				self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
-			end
-		elseif path:IsValid() and !self:IsOnGround() and self:GetPos().z > goal.pos.z then
-			self:SetPos(self:GetPos() + self:EyeAngles():Forward())
+		if path:IsValid() and ((self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z < 0 and (math.abs(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z - self:GetPos().z) > 22))) then
+			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
 		end
+
+		--[[if path:IsValid() and goal.type == 4 then
+            --self.loco:SetVelocity( Vector( 0, 0, 1000 ) )
+			self:SetPos( path:GetClosestPosition( goal.ladder:GetTopForwardArea():GetCenter() ) )
+			self:SetClimbing( true )
+			coroutine.wait( 0.5 )
+			self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
+			return "timeout"
+            if self.loco:IsUsingLadder() then
+                self.loco:SetVelocity( self.loco:GetVelocity() + Vector( 0, 0, 50 ) )
+            end
+		end --]]
+
 		-- If we're stuck, then call the HandleStuck function and abandon
 		if ( self.loco:IsStuck() ) then
 			self:HandleStuck()
@@ -434,6 +451,10 @@ function ENT:ChaseTarget( options )
 
 	return "ok"
 
+end
+
+function ENT:GetLadderTop( ladder )
+	return ladder:GetTopForwardArea() or ladder:GetTopBehindArea() or ladder:GetTopRightArea() or ladder:GetTopLeftArea()
 end
 
 function ENT:TargetInAttackRange()
@@ -523,26 +544,9 @@ function ENT:Attack( data )
 end
 
 --we do our own jump since the loco one is a bit weird.
-function ENT:Jump(goal, scanDist, heightOverride)
+function ENT:Jump( goal, scanDist )
     if CurTime() < self:GetLastJump() + 2 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
 	if !self:IsOnGround() then return end
-	local tr = util.TraceLine( {
-		start = self:EyePos() + Vector(0,0,30),
-		endpos = self:EyePos() + Vector(0,0,94),
-		filter = self
-		} )
-	local tr2 = util.TraceLine( {
-		start = self:EyePos() + Vector(0,0,30) + self:EyeAngles():Forward() * scanDist,
-		endpos = self:EyePos() + self:EyeAngles():Forward() * scanDist + Vector(0,0,94),
-		filter = self
-		} )
-	--debugoverlay.Line(self:EyePos() + Vector(0,0,30), self:EyePos() + Vector(0,0,94), 5, Color(255,255,0), true)
-	--debugoverlay.Line(self:EyePos() + Vector(0,0,30) + self:EyeAngles():Forward() * scanDist, self:EyePos() + self:EyeAngles():Forward() * scanDist + Vector(0,0,94), 5, Color(255,255,0), true)
-	local jmpHeight
-	if tr.Hit then jmpHeight = tr.StartPos:Distance(tr.HitPos) else jmpHeight = 64 end
-	if tr2.Hit and !tr.Hit then jmpHeight = tr2.StartPos:Distance(tr2.HitPos) end
-	jmpHeight = heightOverride or jmpHeight
-	self.loco:SetJumpHeight(jmpHeight)
 	self.loco:SetDesiredSpeed( 450 )
 	self.loco:SetAcceleration( 5000 )
 	self:SetLastJump( CurTime() )
@@ -597,7 +601,7 @@ function ENT:Kill()
     self:TakeDamage( 10000, self, self )
 end
 
-function ENT:TeleportToTarget()
+function ENT:TeleportToTarget( silent )
 
     if !self:HasTarget() then return false end
 
@@ -653,18 +657,22 @@ function ENT:TeleportToTarget()
 
             --debugoverlay.Box( location, Vector( -16, -16, 0 ), Vector( 16, 16, 40 ), 5, Color( 255, 0, 0 ) )
 
-            if !tr.Hit and nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(location):GetID()] == nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(self:GetPos()):GetID()] then
-                local inFOV = false
-                for _, ply in pairs( player.GetAll() ) do
-                    --can player see us or the teleport location
-                    if ply:Alive() and ply:IsLineOfSightClear( location ) or ply:IsLineOfSightClear( self ) then
-                        inFOV = true
+            if silent then
+                if !tr.Hit and nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(location):GetID()] == nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(self:GetPos()):GetID()] then
+                    local inFOV = false
+                    for _, ply in pairs( player.GetAll() ) do
+                        --can player see us or the teleport location
+                        if ply:Alive() and ply:IsLineOfSightClear( location ) or ply:IsLineOfSightClear( self ) then
+                            inFOV = true
+                        end
+                    end
+                    if !inFOV then
+                        self:SetPos( location )
+                        return true
                     end
                 end
-                if !inFOV then
-                    self:SetPos( location )
-                    return true
-                end
+            else
+                self:SetPos( location )
             end
         end
     end
@@ -702,7 +710,7 @@ function ENT:BodyUpdate()
 
     local len2d = velocity:Length2D()
 
-    if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 10 ) then self.CalcIdeal = ACT_WALK end
+    if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
 
     if self:IsJumping() && self:WaterLevel() <= 0 then
         self.CalcIdeal = ACT_JUMP
@@ -816,6 +824,11 @@ end
 function ENT:IsJumping()
     return self:GetJumping()
 end
+
+function ENT:IsClimbing()
+    return self:GetClimbing()
+end
+
 
 function ENT:IsAttacking()
     return self:GetAttacking()
