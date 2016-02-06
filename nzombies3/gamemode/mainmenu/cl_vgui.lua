@@ -1,18 +1,18 @@
-surface.CreateFont( "korolev_large", {
-	font = "Korolev Medium",
-	size = 36,
+surface.CreateFont( "pier_large", {
+	font = "PierSans-Regular",
+	size = 48,
 	antialias = true,
 } )
 
-surface.CreateFont( "korolev_medium", {
-	font = "Korolev Medium",
-	size = 18,
+surface.CreateFont( "pier_medium", {
+	font = "PierSans-Regular",
+	size = 24,
 	antialias = true,
 } )
 
-surface.CreateFont( "korolev_small", {
-	font = "Korolev Medium",
-	size = 14,
+surface.CreateFont( "pier_small", {
+	font = "PierSans-Regular",
+	size = 16,
 	antialias = true,
 } )
 
@@ -21,20 +21,20 @@ local MenuFrame = {}
 AccessorFunc( MenuFrame, "fLastSpawnSwitch", "LastSpawnSwitch", FORCE_NUMBER )
 
 function MenuFrame:Init()
-    self:SetSize(ScrW(), ScrH())
-    self:SetPos( 0, 0 )
-    gui.EnableScreenClicker( true )
+	self:SetSize(ScrW(), ScrH())
+	self:SetPos( 0, 0 )
+	gui.EnableScreenClicker( true )
 
-    self.ToolBar = vgui.Create( "NZMainMenuToolBar", self )
-    self.Content = vgui.Create( "NZMainMenuContent", self )
+	self.ToolBar = vgui.Create( "NZMainMenuToolBar", self )
+	self.Content = vgui.Create( "NZMainMenuContent", self )
 
-    self.CameraPos = LocalPlayer():GetPos() + Vector( 30, 30, 30 )
+	self.CameraPos = LocalPlayer():GetPos() + Vector( 30, 30, 30 )
 	self:SetLastSpawnSwitch( CurTime() )
 
 end
 
 function MenuFrame:Think()
-    local ply = LocalPlayer()
+	local ply = LocalPlayer()
 	if ply:Alive() then return end
 	if self:GetLastSpawnSwitch() + 15 < CurTime() then
 		local sPoints = ents.FindByClass( "player_spawns" )
@@ -47,16 +47,16 @@ function MenuFrame:Think()
 			end
 		end
 	end
-    local vec1 = self.CameraPos
-    local vec2 = ply:GetPos() + Vector( 0, 0, 20 )
-    local ang = ( vec2 - vec1 ):Angle()
-    ang:RotateAroundAxis( Vector( 0, 0, 1), math.sin( CurTime()/20 ) * 360 )
-    ply:SetEyeAngles( ang )
+	local vec1 = self.CameraPos
+	local vec2 = ply:GetPos() + Vector( 0, 0, 20 )
+	local ang = ( vec2 - vec1 ):Angle()
+	ang:RotateAroundAxis( Vector( 0, 0, 1), math.sin( CurTime()/20 ) * 360 )
+	ply:SetEyeAngles( ang )
 end
 
 function MenuFrame:Paint()
-    --Derma_DrawBackgroundBlur( self, self.startTime )
-    return
+	--Derma_DrawBackgroundBlur( self, self.startTime )
+	return
 end
 
 --It's not actually a frame but whatever
@@ -66,8 +66,8 @@ vgui.Register( "NZMainMenuFrame", MenuFrame, "DPanel")
 local MenuToolBar = {}
 
 function MenuToolBar:Init()
-    self:SetSize( ScrW(), 80 )
-    self:SetPos( 0, 0 )
+	self:SetSize( ScrW(), 80 )
+	self:SetPos( 0, 0 )
 
 	self.Logo = vgui.Create( "DLabel", self )
 	self.Logo:SetPos( 14, 14 )
@@ -76,9 +76,9 @@ function MenuToolBar:Init()
 	self.Logo:SetText( "NZombies" )
 	self.Logo:SizeToContents()
 
-    self.Entries = {}
+	self.Entries = {}
 
-    local ready = self:AddEntry( "READY", "large", "say", "/ready" )
+	local ready = self:AddEntry( "READY", "large", "say", "/ready" )
 	function ready:Think()
 		if nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP then
 			if LocalPlayer():Alive()  then
@@ -148,7 +148,7 @@ function MenuToolBar:Init()
 end
 
 function MenuToolBar:Paint( w, h )
-    draw.RoundedBox( 0, 0, 0, w, h, Color( 130, 45, 45, 255 ) )
+	draw.RoundedBox( 0, 0, 0, w, h, Color( 130, 45, 45, 255 ) )
 	--draw.RoundedBox( 0, 0, h-5, w, 5, Color( 255, 255, 255, 255 ) )
 end
 
@@ -161,34 +161,34 @@ function MenuToolBar:Think()
 			if i == j then break end
 			nextPos = nextPos + self.Entries[j]:GetWide() + 30
 		end
-		self.Entries[i]:SetPos( nextPos, 0 )
+		self.Entries[i]:SetPos( nextPos, 20 )
 		nextPos = 320
 	end
 end
 
 function MenuToolBar:AddEntry( lbl, fontSize, cmd, args )
-    local entry = vgui.Create( "NZMainMenuToolBarEntry", self )
+	local entry = vgui.Create( "NZMainMenuToolBarEntry", self )
 	if fontSize == "large" then
-		entry:SetFont( "korolev_large" )
+		entry:SetFont( "pier_large" )
 	elseif fontSize == "medium" then
-		entry:SetFont( "korolev_medium" )
+		entry:SetFont( "pier_medium" )
 	else
-		entry:SetFont( "korolev_small" )
+		entry:SetFont( "pier_small" )
 	end
 	local nextPos = 320
 	for _, v in pairs( self.Entries ) do
 		nextPos = nextPos + v:GetWide() + 30
 	end
-    entry:SetPos( nextPos, 0 )
+	entry:SetPos( nextPos, 20 )
 	if isfunction( cmd ) then
-    	entry.DoClick = cmd
+		entry.DoClick = cmd
 	elseif isstring( cmd ) then
 		entry:SetConsoleCommand( cmd, args )
 	end
 	entry:SetText( lbl )
 	entry:SizeToContentsX()
 
-    table.insert( self.Entries, 1, entry )
+	table.insert( self.Entries, 1, entry )
 
 	return self.Entries[ 1 ]
 end
@@ -199,10 +199,10 @@ vgui.Register( "NZMainMenuToolBar", MenuToolBar, "DPanel")
 local MenuToolBarEntry = {}
 
 function MenuToolBarEntry:Init()
-    self:SetSize( 200, 80 )
-    self:SetFont( "korolev_large" )
-    self:SetContentAlignment( 5 )
-    self:SetTextColor( Color( 255, 255, 255 ) )
+	self:SetSize( 200, 60 )
+	self:SetFont( "pier_large" )
+	self:SetContentAlignment( 5 )
+	self:SetTextColor( Color( 255, 255, 255 ) )
 end
 
 function MenuToolBarEntry:Paint()
@@ -221,7 +221,7 @@ function MenuSettingsPanel:Init()
 end
 
 function MenuSettingsPanel:Paint( w, h )
-    draw.RoundedBox( 0, 0, 0, w, h, Color( 255, 255, 255, 255 ) )
+	draw.RoundedBox( 0, 0, 0, w, h, Color( 255, 255, 255, 255 ) )
 end
 
 vgui.Register( "NZMainMenuSettingsPanel", MenuSettingsPanel, "DScrollPanel" )
@@ -246,19 +246,19 @@ end
 function MenuSettingsList:AddButton( lbl, cmd, args )
 	local button = vgui.Create( "DButton", self )
 	if isfunction( cmd ) then
-    	button.DoClick = cmd
+		button.DoClick = cmd
 	elseif isstring( cmd ) then
 		button:SetConsoleCommand( cmd, args )
 	end
 	button:SetText( lbl )
-	button:SetFont( "korolev_small" )
+	button:SetFont( "pier_small" )
 	button:SetTall( 42 )
 
 	function button:Paint( w, h )
 
 	end
 
-    return self:Add( button )
+	return self:Add( button )
 end
 
 vgui.Register( "NZMainMenuSettingsList", MenuSettingsList, "DListLayout" )
@@ -269,8 +269,8 @@ local MenuContent = {}
 function MenuContent:Init()
 	self.Layouts = {}
 	self.ActiveLayout = "main"
-    self:SetSize(ScrW(), ScrH() - 80 )
-    self:SetPos( 0, 80 )
+	self:SetSize(ScrW(), ScrH() - 80 )
+	self:SetPos( 0, 80 )
 
 	--Main Page of the menu
 	local mainLayout = vgui.Create( "NZMainMenuContentLayout" )
@@ -293,7 +293,7 @@ function MenuContent:GetActiveLayout()
 end
 
 function MenuContent:Paint()
-    return
+	return
 end
 
 function MenuContent:AddLayout( name, layout )
@@ -308,8 +308,8 @@ local MenuContentLayout = {}
 
 function MenuContentLayout:Init()
 	self.Panels = {}
-    self:SetSize( 768, 512 )
-    self:SetPos( ScrW() / 2 - 384, ScrH() / 2 - 320 )
+	self:SetSize( 768, 512 )
+	self:SetPos( ScrW() / 2 - 384, ScrH() / 2 - 320 )
 	self:SetVisible( false )
 end
 
@@ -318,7 +318,7 @@ function MenuContentLayout:GetPanels()
 end
 
 function MenuContentLayout:Paint()
-    return
+	return
 end
 
 function MenuContentLayout:AddPanel( pnl, startGridX, startGridY, gridSizeX, gridSizeY )
@@ -333,22 +333,22 @@ vgui.Register( "NZMainMenuContentLayout", MenuContentLayout, "DPanel")
 
 
 local function showSettings(ply, cmd, args)
-    if ( !IsValid( g_Settings ) ) then
-        g_Settings = vgui.Create("NZMainMenuFrame")
-        g_Settings:SetVisible(false) -- use the visible bool as toggle indicator
-    end
+	if ( !IsValid( g_Settings ) ) then
+		g_Settings = vgui.Create("NZMainMenuFrame")
+		g_Settings:SetVisible(false) -- use the visible bool as toggle indicator
+	end
 
-    if ( IsValid( g_Settings ) ) then
-        if g_Settings:IsVisible() then
-            g_Settings:Hide()
-            gui.EnableScreenClicker( false )
-            g_Settings:SetVisible(false)
-            g_Settings:Remove()
-        else
-            g_Settings:Show()
-            gui.EnableScreenClicker( true )
-            g_Settings:SetVisible(true)
-        end
-    end
+	if ( IsValid( g_Settings ) ) then
+		if g_Settings:IsVisible() then
+			g_Settings:Hide()
+			gui.EnableScreenClicker( false )
+			g_Settings:SetVisible(false)
+			g_Settings:Remove()
+		else
+			g_Settings:Show()
+			gui.EnableScreenClicker( true )
+			g_Settings:SetVisible(true)
+		end
+	end
 end
 concommand.Add("nz_settings", showSettings)
