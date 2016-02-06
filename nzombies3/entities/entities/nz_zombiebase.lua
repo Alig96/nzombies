@@ -388,11 +388,13 @@ function ENT:ChaseTarget( options )
 			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
 			if ( deltaZ >= self.loco:GetStepHeight() ) then
 				if ( deltaZ >= self.loco:GetMaxJumpHeight() ) then
-					if IsValid( ladder ) then
+                    --Include ladders in pathing:
+                    --currently disableddue to the lack of a loco:Climb function
+					--[[if IsValid( ladder ) then
 						if ladder:GetTopForwardArea():GetID() == area:GetID() then
 							return cost
 						end
-					end
+					end --]]
 					--too high to reach
 					return -1
 				end
