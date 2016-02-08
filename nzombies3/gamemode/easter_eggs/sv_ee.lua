@@ -44,7 +44,7 @@ hook.Add("nz.EE.EasterEggStop", "StopEESong", function()
 	net.Broadcast()
 end)
 
-hook.Add("PlayerInitialSpawn", "PreloadEESongSpawn", function(ply)
+hook.Add("PlayerFullyInitialized", "PreloadEESongSpawn", function(ply)
 	//Send players the map settings - this will trigger the preload client-side
 	net.Start("nz.Mapping.SyncSettings")
 		net.WriteTable(nz.Mapping.MapSettings)

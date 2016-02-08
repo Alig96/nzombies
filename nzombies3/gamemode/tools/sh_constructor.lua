@@ -5,6 +5,6 @@ nz.Tools.ToolData = {}
 
 //Variables
 if CLIENT then
-	nz.Tools.Advanced = false
+	nz.Tools.Advanced = nz.Tools.Advanced or false
 	nz.Tools.SavedData = {}
 end

@@ -312,7 +312,7 @@ function ENT:OnRemove()
 end
 
 function ENT:OnStuck()
-	self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 50 )
+	self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
 	--self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000, 1000 )
 	print("Now I'm stuck", self)
 end
@@ -446,6 +446,10 @@ function ENT:ChaseTarget( options )
 		if ( self.loco:IsStuck() ) then
 			self:HandleStuck()
 			return "stuck"
+		end
+		
+		if self.loco:GetVelocity():Length() < 10 then
+			self:OnStuck()
 		end
 
 		coroutine.yield()

@@ -33,7 +33,7 @@ function ENT:Use( activator, caller )
 		timer.Simple(0, function()
 			if IsValid(weapon) and IsValid(activator) then
 				if activator:HasPerk("speed") and nz.Weps.Functions.IsFAS2(weapon) then
-					nz.Weps.Functions.ApplySleight( activator, weapon )
+					nz.Weps.Functions.ApplySpeed( activator, weapon )
 				end
 				if activator:HasPerk("dtap") and nz.Weps.Functions.IsFAS2(weapon) then
 					nz.Weps.Functions.ApplyDTap( activator, weapon )

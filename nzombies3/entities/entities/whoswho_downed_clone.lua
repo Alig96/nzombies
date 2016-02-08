@@ -123,5 +123,6 @@ function ENT:OnRemove()
 		net.Start("nz_WhosWhoActive")
 			net.WriteBool(false)
 		net.Send(ply)
+		nz.Revive.Functions.SendSync()
 	end
 end

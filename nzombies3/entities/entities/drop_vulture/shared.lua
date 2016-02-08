@@ -77,7 +77,7 @@ local vulturedrops = {
 
 function ENT:Initialize()
 	
-	-- 50/50 chance of either
+	-- Random chance of any
 	if SERVER then
 		self:SetDropType(table.Random(vulturedrops).id)
 	end

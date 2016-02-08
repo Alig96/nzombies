@@ -43,6 +43,28 @@ if SERVER then
 		nz.Perks.Functions.SendSync()
 	end
 	
+	function playerMeta:GiveRandomPerk(maponly)
+		local tbl = {}
+		for k,v in pairs(nz.Perks.Data) do
+			if !self:HasPerk(k) and k != "pap" and k != "Players" then
+				if maponly then
+					for k2,v2 in pairs(ents.FindByClass("perk_machine")) do
+						if v2:GetPerkID() == k then
+							table.insert(tbl, k)
+							break
+						end
+					end
+				else
+					table.insert(tbl, k)
+				end
+			end
+		end
+		--PrintTable(tbl)
+		if tbl[1] then
+			self:GivePerk(table.Random(tbl))
+		end
+	end
+	
 end
 
 function playerMeta:HasPerk(id)

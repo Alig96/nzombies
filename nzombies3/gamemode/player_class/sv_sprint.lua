@@ -27,6 +27,7 @@ hook.Add( "PlayerSpawn", "PlayerSprintSpawn", function( ply )
 	ply:SetLastStaminaRecover( 0 )
 
 	ply:SetMaxRunSpeed( ply:GetRunSpeed() )
+	--print(player_manager.GetPlayerClass(ply))
 
 end )
 

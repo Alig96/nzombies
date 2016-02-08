@@ -27,7 +27,7 @@ function nz.Enemies.Functions.ValidSpawns()
 	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
 		//Get all spawns in the range
 		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1200)) do
-			if v2:GetClass() == "zed_spawns" and (!v.spawnable or tobool(v.spawnable)) then
+			if v2:GetClass() == "zed_spawns" and (v.spawnable == nil or tobool(v.spawnable)) then
 				//If enable, then if the player is in the same area group as the spawnpoint
 				if nz.Config.NavGroupTargeting and nz.Nav.Functions.IsInSameNavGroup(v, v2) then
 					table.insert(spawns, v2)

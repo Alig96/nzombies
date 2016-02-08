@@ -2,7 +2,7 @@
 
 nz.Mapping.Data.Version = 381 //Note to Ali; Any time you make an update to the way this is saved, increment this.
 
-function nz.Mapping.Functions.SaveConfig()
+function nz.Mapping.Functions.SaveConfig(name)
 
 	local main = {}
 	
@@ -129,11 +129,17 @@ function nz.Mapping.Functions.SaveConfig()
 	//Normal Map doors
 	local door_setup = {}
 	for k,v in pairs(nz.Doors.Data.LinkFlags) do
+		local flags = ""
+		for k2, v2 in pairs(v) do
+			flags = flags..k2.."="..v2..","
+		end
+		flags = string.Trim(flags, ",")
 		v = nz.Doors.Functions.doorIndexToEnt(k)
 		if v:IsDoor() then
 			door_setup[k] = {
-			flags = v.Data,
+			flags = flags,
 			}
+			--print(v.Data)
 		end
 	end
 	--PrintTable(door_setup)
@@ -182,8 +188,15 @@ function nz.Mapping.Functions.SaveConfig()
 	//Save this map's configuration
 	main["MapSettings"] = nz.Mapping.MapSettings
 	
-	file.Write( "nz/nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt", util.TableToJSON( main ) )
-	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/nz/".."nz_"..game.GetMap( ).."_"..os.date("%H_%M_%j")..".txt" )
+	local configname
+	if name and name != "" then
+		configname = "nz/nz_"..game.GetMap( )..";"..name..".txt"
+	else
+		configname = "nz/nz_"..game.GetMap( )..";"..os.date("%H_%M_%j")..".txt"
+	end
+	
+	file.Write( configname, util.TableToJSON( main ) )
+	PrintMessage( HUD_PRINTTALK, "[NZ] Saved to garrysmod/data/"..configname )
 	
 end
 

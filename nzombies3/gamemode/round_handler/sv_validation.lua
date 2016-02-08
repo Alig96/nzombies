@@ -13,10 +13,10 @@ function nz.Rounds.Functions.CheckReady()
 	end
 	//Get the total of ready players
 	for k,v in pairs(player.GetAll()) do
-		if v.Ready == 1 and v:IsValid() and !v:IsPermSpec() then
+		if v.Ready and v:IsValid() and !v:IsPermSpec() then
 			count = count + 1
 		else
-			v.Ready = 0
+			v.Ready = false
 		end
 	end
 	print("Waiting for players: " .. count .. " / " .. total)
@@ -32,7 +32,8 @@ function nz.Rounds.Functions.CheckAlive()
 
 	//Check alive players!
 	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
-		if v:Alive() and v:GetNotDowned() then
+		-- Players with Who's Who will not count towards losing the game just yet!
+		if v:Alive() and (v:GetNotDowned() or v.HasWhosWho) then
 			return true
 		end
 	end

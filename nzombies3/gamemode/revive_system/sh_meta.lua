@@ -8,6 +8,7 @@ if SERVER then
 		nz.Revive.Data.Players[self].DownTime = CurTime()
 		
 		if self:HasPerk("whoswho") then
+			self.HasWhosWho = true
 			timer.Simple(5, function()
 				-- If you choose to use Tombstone within these seconds, you won't make a clone and will get Who's Who back from Tombstone
 				if IsValid(self) and !self:GetNotDowned() then
@@ -51,6 +52,7 @@ if SERVER then
 			nz.Revive.Functions.SendSync()
 			nz.Revive.Functions.SendSyncHeadsUp(self, 1)
 		end
+		self.HasWhosWho = nil
 	end
 	
 	function playerMeta:StartRevive(nosync)
@@ -69,6 +71,7 @@ if SERVER then
 			nz.Revive.Functions.SendSync()
 			nz.Revive.Functions.SendSyncHeadsUp(self, 2)
 		end
+		self.HasWhosWho = nil
 	end
 	
 end

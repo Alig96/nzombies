@@ -148,12 +148,16 @@ nz.Tools.Functions.CreateTool("zspawn", {
 			local str="nil"
 			if valz["Row1"] == 0 then
 				str=nil
+				data.flag = 0
 			else
 				str=valz["Row2"]
+				data.flag = 1
 			end
 			data.link = str
 			data.spawnable = valz["Row3"]
 			data.respawnable = valz["Row4"]
+			
+			PrintTable(data)
 			
 			nz.Tools.Functions.SendData(data, "zspawn")
 		end
@@ -761,7 +765,7 @@ nz.Tools.Functions.CreateTool("rbox", {
 	end,
 	
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2],0), ply)
+		nz.Mapping.Functions.BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 90,0), ply)
 	end,
 	
 	SecondaryAttack = function(wep, ply, tr, data)
@@ -1472,6 +1476,57 @@ nz.Tools.Functions.CreateTool("legacy", {
 		end
 		
 		return panel
+	end,
+	//defaultdata = {}
+})
+
+nz.Tools.Functions.CreateTool("testzombie", {
+	displayname = "Spawn Test Zombie",
+	desc = "LMB: Create a test zombie, RMB: Remove test zombie",
+	condition = function(wep, ply)
+		return true
+	end,
+	
+	PrimaryAttack = function(wep, ply, tr, data)
+		local z = ents.Create("nz_zombie_walker")
+		z:SetPos(tr.HitPos)
+		z:SetHealth(100)
+		z.SpecialInit = function(self)
+			self:SetRunSpeed(50)
+		end
+		z:Spawn()
+		z:SetRunSpeed(50)
+		
+		undo.Create( "Test Zombie" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( z )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end,
+	
+	SecondaryAttack = function(wep, ply, tr, data)
+		if IsValid(tr.Entity) and tr.Entity:GetClass() == "nz_zombie_walker" then
+			tr.Entity:Remove()
+		end
+	end,
+	Reload = function(wep, ply, tr, data)
+		//Nothing
+	end,
+	OnEquip = function(wep, ply, data)
+		
+	end,
+	OnHolster = function(wep, ply, data)
+		
+	end
+}, {
+	displayname = "Spawn Test Zombie",
+	desc = "LMB: Create a test zombie, RMB: Remove test zombie",
+	icon = "icon16/user_green.png",
+	weight = 400,
+	condition = function(wep, ply)
+		return nz.Tools.Advanced
+	end,
+	interface = function(frame, data)
+	
 	end,
 	//defaultdata = {}
 })
