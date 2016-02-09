@@ -20,16 +20,16 @@ function nz.Display.Functions.GetTarget()
 	local trace = util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	if (!trace.HitNonWorld) then return end
-	
+
 	--print(trace.Entity:GetClass())
 	return trace.Entity
 end
 
 function nz.Display.Functions.GetText( ent )
-	
+
 	local class = ent:GetClass()
 	local text = ""
-	
+
 	if ent:IsPlayer() then
 		if ent:GetNotDowned() then
 			text = ent:Nick() .. " - " .. ent:Health() .. " HP"
@@ -37,11 +37,11 @@ function nz.Display.Functions.GetText( ent )
 			text = "Hold E to revive "..ent:Nick()
 		end
 	end
-	
+
 	if class == "whoswho_downed_clone" then
 		text = "Hold E to revive "..ent:GetPerkOwner():Nick()
 	end
-	
+
 	if class == "wall_buys" then
 		local wepclass = ent:GetEntName()
 		local price = ent:GetPrice()
@@ -54,43 +54,43 @@ function nz.Display.Functions.GetText( ent )
 			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points." // In future give more ammo
 		end
 	end
-	
+
 	if class == "breakable_entry" then
 		if ent:GetNumPlanks() < nz.Config.MaxPlanks then
 			text = "Hold E to rebuild the barricade."
 		end
 	end
-	
+
 	if class == "random_box" then
 		if !ent:GetOpen() then
 			text = nz.PowerUps.Functions.IsPowerupActive("firesale") and "Press E to buy a random weapon for 10 points." or "Press E to buy a random weapon for 950 points."
 		end
 	end
-	
+
 	if class == "random_box_windup" then
 		if !ent:GetWinding() and ent:GetWepClass() != "nz_box_teddy" then
 			local wepclass = ent:GetWepClass()
 			local wep = weapons.Get(wepclass)
-			local name = "UNKNOWN" 
-			if wep != nil then 
-				name = wep.PrintName 
+			local name = "UNKNOWN"
+			if wep != nil then
+				name = wep.PrintName
 			end
 			if name == nil then name = wepclass end
 			text = "Press E to take " .. name .. " from the box."
 		end
 	end
-	
+
 	if class == "pap_weapon_trigger" then
 		local wepclass = ent:GetWepClass()
 		local wep = weapons.Get(wepclass)
-		local name = "UNKNOWN" 
-		if wep != nil then 
-			name = wep.PrintName 
+		local name = "UNKNOWN"
+		if wep != nil then
+			name = wep.PrintName
 		end
 		if name == nil then name = wepclass end
 		text = "Press E to take " .. name .. " from the machine."
 	end
-	
+
 	if class == "perk_machine" then
 		if !ent:IsOn() then
 			text = "No Power."
@@ -106,19 +106,19 @@ function nz.Display.Functions.GetText( ent )
 			end
 		end
 	end
-	
+
 	local door_data = nil
-	
+
 	if ent:IsDoor() or ent:IsButton() or ent:GetClass() == "class C_BaseEntity" then
 		//Normal Doors
 		door_data = nz.Doors.Data.LinkFlags[ent:doorIndex()]
 	end
-	
+
 	if ent:IsBuyableProp() then
 		//Prop Doors
 		door_data = nz.Doors.Data.BuyableProps[ent:EntIndex()]
 	end
-	
+
 	//If we have door data - Don't draw target ID if the door can't even be bought
 	if door_data != nil and tonumber(door_data.buyable) == 1 then
 		local price = door_data.price
@@ -138,26 +138,26 @@ function nz.Display.Functions.GetText( ent )
 		text = "This door is locked and cannot be bought in-game."
 		--PrintTable(door_data)
 	end
-	
+
 	//Create Only
-	if nz.Rounds.Data.CurrentState == ROUND_CREATE then
+	if Round:InState( ROUND_CREATE ) then
 		if class == "player_spawns" then
 			text = "Player Spawn"
 		end
-		
+
 		if class == "player_handler" then
 			text = "Player Handler"
 		end
-		
+
 		if class == "random_box_handler" then
 			text = "Random Box Weapons Handler"
 		end
-		
+
 		if class == "zed_spawns" then
 			text = "Zombie Spawn"
 		end
 	end
-	
+
 	return text
 end
 
@@ -188,11 +188,11 @@ end
 
 
 function GM:HUDDrawTargetID()
-	
+
 	local ent = nz.Display.Functions.GetTarget()
-	
+
 	if ent != nil then
 		nz.Display.Functions.DrawTargetID(nz.Display.Functions.GetText(ent))
 	end
-	
+
 end
