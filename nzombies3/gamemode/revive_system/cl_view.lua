@@ -140,7 +140,7 @@ function nz.Revive.Functions.DrawDownedNotify()
 		if IsValid(rply) and rply:IsPlayer() then
 			text = rply:Nick().." is reviving you!"
 		end
-		draw.SimpleText(text, font, ScrW() / 2, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText(text, font, ScrW() / 2, ScrH() * 0.9, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 
 end
@@ -203,6 +203,8 @@ end
 
 hook.Add( "HUDShouldDraw", "HideHUD", function( name )
 	if name == "CHudHealth" then return !GetConVar("nz_bloodoverlay"):GetBool() end
+	if name == "CHudAmmo" then return false end
+	if name == "CHudBattery" then return false end
 end )
 
 function nz.Revive.Functions.DrawTombstoneNotify()

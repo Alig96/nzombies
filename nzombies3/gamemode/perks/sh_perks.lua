@@ -82,7 +82,7 @@ nz.Perks.Functions.NewPerk("revive", {
 	price = 1500,
 	func = function(self, ply, machine)
 			print(self)
-			ply:PrintMessage( HUD_PRINTTALK, "You've got Quick Revive!")
+			--ply:PrintMessage( HUD_PRINTTALK, "You've got Quick Revive!")
 			return true
 	end,
 	lostfunc = function(self, ply)

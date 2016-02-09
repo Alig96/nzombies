@@ -2,7 +2,6 @@
 
 local traceents = {
 	["wall_buys"] = true,
-	["nut_zombie"] = true,
 	["breakable_entry"] = true,
 	["random_box"] = true,
 	["random_box_windup"] = true,
@@ -13,7 +12,11 @@ local traceents = {
 }
 
 function nz.Display.Functions.GetTarget()
-	local tr = util.GetPlayerTrace( LocalPlayer() )
+	local tr =  {
+		start = EyePos(),
+		endpos = EyePos() + LocalPlayer():GetAimVector()*150,
+		filter = LocalPlayer(),
+	}
 	local trace = util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	if (!trace.HitNonWorld) then return end

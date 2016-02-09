@@ -70,6 +70,7 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 			nz.QMenu.Functions.Request(item.Entity, true)
 			surface.PlaySound( "ui/buttonclickrelease.wav" )
 		end
+		ListItem:SetTooltip(v[3] or v[1])
 		//You don't need to set the position, that is done automatically.
 
 	end
@@ -128,7 +129,7 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 	local numtools = 0
 	
 	local function RebuildToolInterface(id)
-		print(ToolData.interface)
+		--print(ToolData.interface)
 		if nz.Tools.ToolData[id] then
 			if ToolData.interface then ToolData.interface:Remove() end
 			ToolData.interface = nz.Tools.ToolData[id].interface(ToolData, nz.Tools.SavedData[id])
@@ -232,7 +233,7 @@ end
 
 function nz.QMenu.Functions.Open()
 	//Check if we're in create mode
-	--if nz.Rounds.Data.CurrentState == ROUND_CREATE and LocalPlayer():IsSuperAdmin() then
+	if nz.Rounds.Data.CurrentState == ROUND_CREATE and LocalPlayer():IsSuperAdmin() then
 		if !IsValid(nz.QMenu.Data.MainFrame) then
 			if LocalPlayer():GetActiveWeapon():GetClass() == "nz_multi_tool" then
 				nz.QMenu.Functions.CreateToolsMenu()
@@ -251,7 +252,7 @@ function nz.QMenu.Functions.Open()
 		end
 
 		nz.QMenu.Data.MainFrame:SetVisible( true )
-	--end
+	end
 end
 
 local textentryfocus = false
@@ -262,7 +263,7 @@ function nz.QMenu.Functions.Close()
 	if textentryfocus then return end
 	
 	if !IsValid(nz.QMenu.Data.MainFrame) then
-		if LocalPlayer():GetActiveWeapon():GetClass() == "nz_multi_tool" then
+		if IsValid(LocalPlayer():GetActiveWeapon()) and LocalPlayer():GetActiveWeapon():GetClass() == "nz_multi_tool" then
 			nz.QMenu.Functions.CreateToolsMenu()
 		else
 			nz.QMenu.Functions.CreatePropsMenu()
@@ -277,11 +278,15 @@ hook.Add( "OnSpawnMenuClose", "CloseSpawnMenu", nz.QMenu.Functions.Close )
 
 hook.Add( "OnTextEntryGetFocus", "StartTextFocus", function(panel) 
 	textentryfocus = true
-	nz.QMenu.Data.MainFrame:SetKeyboardInputEnabled(true)
+	if IsValid(nz.QMenu.Data.MainFrame) then
+		nz.QMenu.Data.MainFrame:SetKeyboardInputEnabled(true)
+	end
 end )
 hook.Add( "OnTextEntryLoseFocus", "EndTextFocus", function(panel) 
 	textentryfocus = false 
-	TextEntryLoseFocus() 
-	nz.QMenu.Data.MainFrame:KillFocus()
-	nz.QMenu.Data.MainFrame:SetKeyboardInputEnabled(false)
+	TextEntryLoseFocus()
+	if IsValid(nz.QMenu.Data.MainFrame) then
+		nz.QMenu.Data.MainFrame:KillFocus()
+		nz.QMenu.Data.MainFrame:SetKeyboardInputEnabled(false)
+	end
 end )

@@ -11,8 +11,8 @@ function nz.QMenu.Functions.AddNewModel( cat, model )
 	table.insert(nz.QMenu.Data.Models, {cat, model})
 end
 
-function nz.QMenu.Functions.AddNewEntity( ent, icon )
-	table.insert(nz.QMenu.Data.Entities, {ent, icon})
+function nz.QMenu.Functions.AddNewEntity( ent, icon, name )
+	table.insert(nz.QMenu.Data.Entities, {ent, icon, name})
 end
 
 //QuickFunctions
@@ -111,7 +111,8 @@ PropMenuAddModel("Scenery", "models/props_combine/combine_fence01a.mdl")
 PropMenuAddModel("Scenery", "models/props_combine/combine_fence01b.mdl")
 PropMenuAddModel("Scenery", "models/props_combine/weaponstripper.mdl")
 
-PropMenuAddEntity("edit_fog", "entities/edit_fog.png")
-PropMenuAddEntity("edit_sky", "entities/edit_sky.png")
-PropMenuAddEntity("edit_sun", "entities/edit_sun.png")
-PropMenuAddEntity("nz_fire_effect", "icon16/fire.png")
+PropMenuAddEntity("edit_fog", "entities/edit_fog.png", "Base Fog Editor")
+PropMenuAddEntity("edit_fog_special", "entities/edit_fog.png", "Special Round Fog Editor")
+PropMenuAddEntity("edit_sky", "entities/edit_sky.png", "Sky Editor")
+PropMenuAddEntity("edit_sun", "entities/edit_sun.png", "Sun Editor")
+PropMenuAddEntity("nz_fire_effect", "icon16/fire.png", "Fire Effect")

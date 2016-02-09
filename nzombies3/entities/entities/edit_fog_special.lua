@@ -2,10 +2,10 @@
 AddCSLuaFile()
 DEFINE_BASECLASS( "base_edit" )
 
-ENT.Spawnable			= true
-ENT.AdminOnly			= true
+ENT.Spawnable			= false
+ENT.AdminOnly			= false
 
-ENT.PrintName			= "Fog Editor"
+ENT.PrintName			= "Fog Editor for Special Rounds"
 ENT.Category			= "Editors"
 
 function ENT:Initialize()
@@ -15,15 +15,36 @@ function ENT:Initialize()
 	self:SetMaterial( "gmod/edit_fog" )
 	
 	-- There can only be one!
-	if IsValid(ents.FindByClass("edit_fog")[1]) and ents.FindByClass("edit_fog")[1] != self then ents.FindByClass("edit_fog")[1]:Remove() end
+	if IsValid(ents.FindByClass("edit_fog_special")[1]) and ents.FindByClass("edit_fog_special")[1] != self then ents.FindByClass("edit_fog_special")[1]:Remove() end
 	
 	if ( CLIENT ) then
-
-		hook.Add( "SetupWorldFog", self, self.SetupWorldFog )
-		hook.Add( "SetupSkyboxFog", self, self.SetupSkyFog )
-
+		if nz.Rounds.Data.CurrentState == ROUND_CREATE or self:GetIsSpecialRound() then
+			self:HookFogHooks()
+		end
 	end
 
+end
+
+function ENT:HookFogHooks()
+	local fog = ents.FindByClass("edit_fog")[1]
+	if IsValid(fog) then
+		hook.Remove( "SetupWorldFog", fog )
+		hook.Remove( "SetupSkyboxFog", fog )
+	end
+	
+	hook.Add( "SetupWorldFog", self, self.SetupWorldFog )
+	hook.Add( "SetupSkyboxFog", self, self.SetupSkyFog )
+end
+
+function ENT:RemoveFogHooks()
+	hook.Remove( "SetupWorldFog", self )
+	hook.Remove( "SetupSkyboxFog", self )
+	
+	local fog = ents.FindByClass("edit_fog")[1]
+	if IsValid(fog) then
+		hook.Add( "SetupWorldFog", fog, fog.SetupWorldFog )
+		hook.Add( "SetupSkyboxFog", fog, fog.SetupSkyFog )
+	end
 end
 
 function ENT:SetupWorldFog()
@@ -61,6 +82,9 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Float",	2, "Density", { KeyName = "density", Edit = { type = "Float", min = 0, max = 1, order = 3 } }  );
 
 	self:NetworkVar( "Vector",	0, "FogColor", { KeyName = "fogcolor", Edit = { type = "VectorColor", order = 3 } }  );
+	
+	-- Updates when round changes, will enable the hook for this one
+	self:NetworkVar( "Bool", 0, "IsSpecialRound")
 
 	--
 	-- TODO: Should skybox fog be edited seperately?

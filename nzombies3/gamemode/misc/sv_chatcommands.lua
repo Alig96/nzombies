@@ -77,17 +77,19 @@ NewChatCommand("/generate", function(ply, text)
 	end
 end)
 
+util.AddNetworkString("nz_SaveConfig")
 NewChatCommand("/save", function(ply, text)
 	if ply:IsSuperAdmin() then
 		if nz.Rounds.Data.CurrentState == ROUND_CREATE then
-			nz.Mapping.Functions.SaveConfig()
+			--nz.Mapping.Functions.SaveConfig()
+			net.Start("nz_SaveConfig")
+			net.Send(ply)
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't save outside of create mode." )
 		end
 	end
 end)
 
---decrepit
 NewChatCommand("/forcegenerate", function(ply, text)
 	if ply:IsSuperAdmin() then
 		local ent = ents.Create("info_player_start")
@@ -100,7 +102,7 @@ end)
 NewChatCommand("/load", function(ply, text)
 	if ply:IsSuperAdmin() then
 		if nz.Rounds.Data.CurrentState == ROUND_CREATE or nz.Rounds.Data.CurrentState == ROUND_INIT then
-			nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_"..game.GetMap( ).."*", "DATA" )})
+			nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" )})
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't load while playing!" )
 		end

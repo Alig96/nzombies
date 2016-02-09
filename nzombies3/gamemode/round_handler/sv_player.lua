@@ -11,9 +11,9 @@ function nz.Rounds.Functions.ReadyUp(ply)
 	end
 
 	if nz.Rounds.Data.CurrentState == ROUND_INIT then
-		if ply.Ready == 0 then
+		if !ply.Ready then
 			PrintMessage( HUD_PRINTTALK, ply:Nick().." is ready!" )
-			ply.Ready = 1
+			ply.Ready = true
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "You are already ready!" )
 		end
@@ -21,6 +21,8 @@ function nz.Rounds.Functions.ReadyUp(ply)
 		ply:PrintMessage( HUD_PRINTTALK, "You can't ready up right now, use /dropin to spawn next round." )
 		nz.Rounds.Functions.DropIn(ply)
 	end
+	
+	nz.Rounds.Functions.SendReadySync()
 end
 
 function nz.Rounds.Functions.DropIn(ply)
@@ -40,11 +42,10 @@ function nz.Rounds.Functions.DropOut(ply)
 end
 
 function nz.Rounds.Functions.UnReady(ply, reason)
-	if ply.Ready == nil then ply.Ready = 0 end
 	if nz.Rounds.Data.CurrentState == ROUND_INIT then
-		if ply.Ready == 1 then
+		if ply.Ready then
 			PrintMessage( HUD_PRINTTALK, ply:Nick().." is no longer ready!" )
-			ply.Ready = 0
+			ply.Ready = false
 			if reason != nil then
 				ply:PrintMessage( HUD_PRINTTALK, reason )
 			end
@@ -52,6 +53,8 @@ function nz.Rounds.Functions.UnReady(ply, reason)
 	elseif nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP then
 		nz.Rounds.Functions.DropOut(ply)
 	end
+	
+	nz.Rounds.Functions.SendReadySync()
 end
 
 function nz.Rounds.Functions.ReSpawn(ply)
@@ -65,6 +68,7 @@ function nz.Rounds.Functions.ReSpawn(ply)
 	if !ply:Alive() then
 		ply:Spawn()
 	end
+	ply:SetMaxRunSpeed(ply:HasPerk("staminup") and 350 or 300)
 end
 
 function nz.Rounds.Functions.AddPlayer(ply)
@@ -87,6 +91,7 @@ function nz.Rounds.Functions.Create(ply)
 	if !ply:Alive() then
 		ply:Spawn()
 	end
+	ply:SetMaxRunSpeed(600)
 	//SetPos
 
 end

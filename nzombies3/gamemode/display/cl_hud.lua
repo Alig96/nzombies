@@ -10,20 +10,6 @@ function nz.Display.Functions.StatesHud()
 	if nz.Rounds.Data.CurrentState == ROUND_INIT then
 		text = "Waiting for players. Type /ready to ready up."
 		font = "nz.display.hud.small"
-	elseif nz.Rounds.Data.CurrentState == ROUND_PREP then
-		if nz.Rounds.Data.CurrentRound != 0 then
-			text = nz.Rounds.Data.CurrentRound
-		else 
-			text = "1"
-		end
-		w = ScrW() * 0.1
-	elseif nz.Rounds.Data.CurrentState == ROUND_PROG then
-		if nz.Rounds.Data.CurrentRound != 0 then
-			text = nz.Rounds.Data.CurrentRound
-		else
-			text = "1"
-		end
-		w = ScrW() * 0.1
 	elseif nz.Rounds.Data.CurrentState == ROUND_CREATE then
 		text = "Creative Mode"
 	elseif nz.Rounds.Data.CurrentState == ROUND_GO then
@@ -33,16 +19,19 @@ function nz.Display.Functions.StatesHud()
 end
 
 function nz.Display.Functions.ScoreHud()
+	local scale = (ScrW()/1920 + 1)/2
+	
 	if nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_INIT or nz.Rounds.Data.CurrentState == ROUND_GO then
 		for k,v in pairs(player.GetAll()) do
 			local hp = v:Health()
 			if hp == 0 then hp = "Dead" elseif nz.Revive.Data.Players[v] then hp = "Downed" else hp = hp .. " HP"  end
-			if v:GetPoints() >= 0 then 
+			if v:GetPoints() >= 0 then
+				local numname = #v:Nick()
 				surface.SetMaterial(bloodline_points)
 				surface.SetDrawColor(255,255,255)
-				surface.DrawTexturedRect(ScrW() - 325 - #v:Nick()*10, ScrH() - 285 + (30*k), 250 + #v:Nick()*10, 35)
-				draw.SimpleText(v:GetPoints().." - "..v:Nick().." (" .. hp ..  ")", "nz.display.hud.small", ScrW() - 100, ScrH() - 270 + (30*k), Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-				v.PointsSpawnPosition = {x = ScrW() - 325 - #v:Nick()*10, y = ScrH() - 270 + (30*k)}
+				surface.DrawTexturedRect(ScrW() - 325*scale - numname*10, ScrH() - 285*scale - (30*k), 250 + numname*10, 35)
+				draw.SimpleText(v:GetPoints().." - "..v:Nick().." (" .. hp ..  ")", "nz.display.hud.small", ScrW() - (325*scale - 230), ScrH() - 270*scale - (30*k), Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				v.PointsSpawnPosition = {x = ScrW() - 325*scale - numname*10, y = ScrH() - 270*scale - (30*k)}
 			end
 		end
 	end
@@ -51,21 +40,29 @@ end
 function nz.Display.Functions.GunHud()
 
 	local wep = LocalPlayer():GetActiveWeapon()
+	local scale = ((ScrW()/1920)+1)/2
 	
 	surface.SetMaterial(bloodline_gun)
 	surface.SetDrawColor(255,255,255)
-	surface.DrawTexturedRect(ScrW() - 630, ScrH() - 225, 600, 225)
+	surface.DrawTexturedRect(ScrW() - 630*scale, ScrH() - 225*scale, 600*scale, 225*scale)
 	if IsValid(wep) then
 		if wep:GetClass() == "nz_multi_tool" then
-			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240, ScrH() - 150, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240, ScrH() - 90, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
 		else
 			local name = wep:GetPrintName()
+			local clip = wep:Clip1()
 			if !name or name == "" then name = wep:GetClass() end
-			if wep.pap then name = "Upgraded "..name end
-			draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390, ScrH() - 150, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-			draw.SimpleTextOutlined(wep:Clip1(), "nz.display.hud.ammo", ScrW() - 315, ScrH() - 175, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-			draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310, ScrH() - 160, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			if wep.pap then
+				name = nz.Display.PaPNames[wep:GetClass()] or nz.Display.PaPNames[name] or "Upgraded "..name
+			end
+			if clip >= 0 then
+				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined(clip, "nz.display.hud.ammo", ScrW() - 315*scale, ScrH() - 175*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310*scale, ScrH() - 160*scale, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			else
+				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 250*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			end
 		end
 	end
 end
@@ -122,9 +119,9 @@ function nz.Display.Functions.DrawLinks( ent, link )
 end
 
 function nz.Display.Functions.PointsNotification(ply, amount)
+	if !IsValid(ply) then return end
 	local data = {ply = ply, amount = amount, diry = math.random(-20, 20), time = CurTime()}
 	table.insert(nz.Display.Data.PointsNotifications, data)
-	chat.AddText(amount) 
 	--PrintTable(data)
 end
 
@@ -184,12 +181,13 @@ local perk_icons = {
 }
 
 function nz.Display.Functions.PerksHud()
+	local scale = (ScrW()/1920 + 1)/2
 	local w = -20
 	local size = 50
 	for k,v in pairs(LocalPlayer():GetPerks()) do
 		surface.SetMaterial(perk_icons[v])
 		surface.SetDrawColor(255,255,255)
-		surface.DrawTexturedRect(w + k*(size + 10), ScrH() - 150, size, size) 
+		surface.DrawTexturedRect(w + k*(size*scale + 10), ScrH() - 200, size*scale, size*scale) 
 	end
 end
 
@@ -200,24 +198,109 @@ local vulture_textures = {
 
 function nz.Display.Functions.VultureVision()
 	if !LocalPlayer():HasPerk("vulture") then return end
+	local scale = (ScrW()/1920 + 1)/2
+	
 	for k,v in pairs(ents.FindInSphere(LocalPlayer():GetPos(), 700)) do
 		local target = v:GetClass()
 		if vulture_textures[target] then
 			local data = v:WorldSpaceCenter():ToScreen()
 			if data.visible then
 				surface.SetMaterial(vulture_textures[target])
-				surface.SetDrawColor(255,255,255)
-				surface.DrawTexturedRect(data.x - 25, data.y - 25, 50, 50)
+				surface.SetDrawColor(255,255,255,150)
+				surface.DrawTexturedRect(data.x - 15*scale, data.y - 15*scale, 30*scale, 30*scale)
 			end
 		elseif target == "perk_machine" then
 			local data = v:WorldSpaceCenter():ToScreen()
 			if data.visible then
 				surface.SetMaterial(perk_icons[v:GetPerkID()])
-				surface.SetDrawColor(255,255,255)
-				surface.DrawTexturedRect(data.x - 25, data.y - 25, 50, 50)
+				surface.SetDrawColor(255,255,255,150)
+				surface.DrawTexturedRect(data.x - 15*scale, data.y - 15*scale, 30*scale, 30*scale)
 			end
 		end
 	end
+end
+
+local round_white = 0
+local round_alpha = 255
+local round_num = 0 --nz.Rounds.Data.CurrentRound or 0
+function nz.Display.Functions.RoundHud()
+
+	local text = ""
+	local font = "nz.display.hud.rounds"
+	local w = 70
+	local h = ScrH() - 30
+	local round = round_num
+	local col = Color(200 + round_white*55, round_white, round_white,round_alpha)
+	if round < 11 then
+		for i = 1, round do
+			if i == 5 or i == 10 then
+				text = text.." "
+			else
+				text = text.."i"
+			end
+		end
+		if round >= 5 then
+			draw.TextRotatedScaled( "i", w + 100, h - 150, col, font, 60, 1, 1.7 )
+		end
+		if round >= 10 then
+			draw.TextRotatedScaled( "i", w + 220, h - 150, col, font, 60, 1, 1.7 )
+		end
+	else
+		text = round
+	end
+	draw.SimpleText(text, font, w, h, col, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+
+end
+
+local roundchangeending = false
+function nz.Display.Functions.StartChangeRound(noendsound)
+
+	if !noendsound then
+		surface.PlaySound("nz/round/round_end.mp3")
+	else
+		round_num = 0
+	end
+	
+	roundchangeending = false
+	round_white = 0
+	local round_charger = 0.25
+	local alphafading = false
+	local haschanged = false
+	hook.Add("HUDPaint", "nz_roundnumWhiteFade", function()
+		if !alphafading then
+			round_white = math.Approach(round_white, round_charger > 0 and 255 or 0, round_charger*350*FrameTime())
+			if round_white >= 255 and !roundchangeending then
+				alphafading = true
+				round_charger = -1
+			elseif round_white <= 0 and roundchangeending then
+				hook.Remove("HUDPaint", "nz_roundnumWhiteFade")
+			end
+		else
+			round_alpha = math.Approach(round_alpha, round_charger > 0 and 255 or 0, round_charger*350*FrameTime())
+			if round_alpha >= 255 then
+				if haschanged then
+					round_charger = -0.25
+					alphafading = false
+				else
+					round_charger = -1
+				end
+			elseif round_alpha <= 0 then
+				if roundchangeending then
+					round_num = nz.Rounds.Data.CurrentRound
+					round_charger = 0.5
+					surface.PlaySound("nz/round/round_start.mp3")
+					haschanged = true
+				else
+					round_charger = 1
+				end
+			end
+		end
+	end)
+
+end
+
+function nz.Display.Functions.EndChangeRound()
+	roundchangeending = true
 end
 
 //Hooks
@@ -228,3 +311,4 @@ hook.Add("HUDPaint", "powerupHUD", nz.Display.Functions.PowerUpsHud )
 hook.Add("HUDPaint", "pointsNotifcationHUD", nz.Display.Functions.DrawPointsNotification )
 hook.Add("HUDPaint", "perksHUD", nz.Display.Functions.PerksHud )
 hook.Add("HUDPaint", "vultureVision", nz.Display.Functions.VultureVision )
+hook.Add("HUDPaint", "roundnumHud", nz.Display.Functions.RoundHud )

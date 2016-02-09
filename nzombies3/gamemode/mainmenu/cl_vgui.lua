@@ -27,6 +27,7 @@ function MenuFrame:Init()
 
 	self.ToolBar = vgui.Create( "NZMainMenuToolBar", self )
 	self.Content = vgui.Create( "NZMainMenuContent", self )
+	self.PlayerList = vgui.Create( "NZMainMenuPlayerList", self )
 
 	self.CameraPos = LocalPlayer():GetPos() + Vector( 30, 30, 30 )
 	self:SetLastSpawnSwitch( CurTime() )
@@ -89,10 +90,18 @@ function MenuToolBar:Init()
 				self:SetConsoleCommand( "say", "/dropin" )
 			end
 		else
-			self:SetText( "READY" )
+			if nz.Rounds.ReadyPlayers[LocalPlayer():EntIndex()] then 
+				self:SetText( "UNREADY" )
+			else
+				self:SetText( "READY" )
+			end
 			self.DoClick = function()
-				RunConsoleCommand( "say", "/ready" )
-				RunConsoleCommand( "nz_settings" )
+				if nz.Rounds.ReadyPlayers[LocalPlayer():EntIndex()] then
+					RunConsoleCommand( "say", "/unready" )
+				else
+					RunConsoleCommand( "say", "/ready" )
+				end
+				--RunConsoleCommand( "nz_settings" )
 			end
 		end
 	end
@@ -152,7 +161,7 @@ function MenuToolBar:Paint( w, h )
 	--draw.RoundedBox( 0, 0, h-5, w, 5, Color( 255, 255, 255, 255 ) )
 end
 
-function MenuToolBar:Think()
+--[[function MenuToolBar:Think()
 	local nextPos = 320
 	local temp = self.Entries
 	for i = #self.Entries, 1, -1  do
@@ -164,7 +173,7 @@ function MenuToolBar:Think()
 		self.Entries[i]:SetPos( nextPos, 20 )
 		nextPos = 320
 	end
-end
+end]]
 
 function MenuToolBar:AddEntry( lbl, fontSize, cmd, args )
 	local entry = vgui.Create( "NZMainMenuToolBarEntry", self )
@@ -186,7 +195,7 @@ function MenuToolBar:AddEntry( lbl, fontSize, cmd, args )
 		entry:SetConsoleCommand( cmd, args )
 	end
 	entry:SetText( lbl )
-	entry:SizeToContentsX()
+	--entry:SizeToContentsX()
 
 	table.insert( self.Entries, 1, entry )
 
@@ -199,7 +208,7 @@ vgui.Register( "NZMainMenuToolBar", MenuToolBar, "DPanel")
 local MenuToolBarEntry = {}
 
 function MenuToolBarEntry:Init()
-	self:SetSize( 200, 60 )
+	self:SetSize( 300, 60 )
 	self:SetFont( "pier_large" )
 	self:SetContentAlignment( 5 )
 	self:SetTextColor( Color( 255, 255, 255 ) )
@@ -331,6 +340,33 @@ end
 
 vgui.Register( "NZMainMenuContentLayout", MenuContentLayout, "DPanel")
 
+local PlayerList = {}
+
+function PlayerList:Init()
+	self:SetPos(100, 200)
+	self:SetSize(500, 800)
+end
+
+local bloodline_points = Material("bloodline_score.png", "unlitgeneric smooth")
+function PlayerList:Paint()
+	local c = 0
+	local n = #nz.Rounds.ReadyPlayers
+	local w, h = self:GetSize()
+	for k,v in pairs(nz.Rounds.ReadyPlayers) do
+		local ply = Entity(k)
+		local text = ""
+		surface.SetMaterial(bloodline_points)
+		surface.SetDrawColor(200,0,0)
+		surface.DrawTexturedRect(0, h/2 - n*17.5 + 35*c, 300, 40)
+		if v then text = "READY" else text = "Not ready" end
+		draw.SimpleText(ply:Nick().." - "..text, "nz.display.hud.small", 25, h/2 - n*17.5 + 35*c + 15, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+		c = c + 1
+	end
+	return
+end
+
+vgui.Register( "NZMainMenuPlayerList", PlayerList, "DPanel")
+
 
 local function showSettings(ply, cmd, args)
 	if ( !IsValid( g_Settings ) ) then
@@ -352,3 +388,7 @@ local function showSettings(ply, cmd, args)
 	end
 end
 concommand.Add("nz_settings", showSettings)
+
+hook.Add("InitPostEntity", "AutoOpenMenu", function()
+	LocalPlayer():ConCommand("nz_settings")
+end)

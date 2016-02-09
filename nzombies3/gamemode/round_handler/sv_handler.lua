@@ -35,7 +35,7 @@ function nz.Rounds.Functions.CheckPrerequisites()
 	local str = ""
 	//Get the players that are playing
 	for k,v in pairs(player.GetAll()) do
-		if v.Ready == 1 and v:IsValid() then
+		if v.Ready and IsValid(v) then
 			str = str .. v:Nick() .. ", "
 		end
 	end
@@ -73,7 +73,7 @@ function nz.Rounds.Functions.PrepareRound()
 		--nz.Mapping.Functions.CleanUpMap()
 		--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 	else
-		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
+		--nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
 	end
 
 	//Spawn all players
@@ -105,7 +105,7 @@ function nz.Rounds.Functions.StartRound()
 		//Notify
 		PrintMessage( HUD_PRINTTALK, "ROUND: "..nz.Rounds.Data.CurrentRound.." started" )
 		hook.Run("nz.Round.Start", nz.Rounds.Data.CurrentRound)
-		nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
+		--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 	end
 
 end

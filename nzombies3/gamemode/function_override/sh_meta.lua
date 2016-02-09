@@ -108,7 +108,7 @@ if SERVER then
 							util.Effect( "TeslaHitBoxes", effectdata )
 						end
 					end)
-					print(pct)
+					--print(pct)
 					local zombies = ents.FindInSphere(ply:GetPos(), 200*pct)
 					for k,v in pairs(zombies) do
 						if nz.Config.ValidEnemies[v:GetClass()] then

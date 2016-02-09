@@ -7,7 +7,7 @@ end)
 	
 net.Receive("EasterEggSongPreload", function()
 	timer.Simple(1, function()
-		ParseSong(false)
+		EasterEggData.ParseSong()
 	end)
 end)
 	
@@ -16,6 +16,7 @@ net.Receive("EasterEggSongStop", function()
 end)
 	
 function EasterEggData.ParseSong(play)
+	if !nz.Mapping.MapSettings.eeurl then return end
 	local url = string.lower(nz.Mapping.MapSettings.eeurl)
 	if url == nil or url == "" then return end
 		

@@ -5,6 +5,8 @@ nz.Display.Data = {}
 
 if CLIENT then
 	nz.Display.Data.PointsNotifications = {}
+	nz.Display.Data.DisplayRound = 1
+	
 	function GM:ContextMenuOpen()
 		return nz.Rounds.Data.CurrentState == ROUND_CREATE and LocalPlayer():IsAdmin()
 	end
