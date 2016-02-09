@@ -197,7 +197,7 @@ end
 
 function ENT:OnNoTarget()
 	-- Game over! Walk around randomly and wave
-	if nz.Rounds.Data.CurrentState == ROUND_GO then
+	if Round:InState( ROUND_GO ) then
 		self:StartActivity(ACT_WALK)
 		self.loco:SetDesiredSpeed(40)
 		self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
@@ -447,7 +447,7 @@ function ENT:ChaseTarget( options )
 			self:HandleStuck()
 			return "stuck"
 		end
-		
+
 		if self.loco:GetVelocity():Length() < 10 then
 			self:OnStuck()
 		end
