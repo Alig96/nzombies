@@ -34,7 +34,7 @@ end
 function player.GetAllPlayingAndAlive()
 	local result = {}
 	for _, ply in pairs( player.GetAll() ) do
-		if ply:IsPlaying() and ply:Alive() and ply:GetNotDowned() then
+		if ply:IsPlaying() and ply:Alive() and (ply:GetNotDowned() or ply.HasWhosWho) then -- Who's Who will respawn the player, don't end yet
 			table.insert( result, ply )
 		end
 	end

@@ -1,8 +1,9 @@
 --pool network strings
 util.AddNetworkString( "nzRoundNumber" )
 util.AddNetworkString( "nzRoundState" )
+util.AddNetworkString( "nzRoundSpecial" )
 util.AddNetworkString( "nzPlayerReadyState" )
-util.AddNetworkString( "nzPlayerPlaingState" )
+util.AddNetworkString( "nzPlayerPlayingState" )
 
 function Round:GetZombiesKilled()
 	return self.ZombiesKilled
@@ -33,10 +34,19 @@ function Round:GetZombieData()
 end
 function Round:SetZombieData( tbl )
 	self.ZombieData = tbl
+	self:SetSpecial(tbl.special or false)
 end
 
 function Round:InState( state )
 	return self:GetState() == state
+end
+
+function Round:IsSpecial()
+	return self.SpecialRound or false
+end
+
+function Round:SetSpecial( bool )
+	self.SpecialRound = bool or false
 end
 
 function Round:InProgress()
@@ -93,6 +103,14 @@ function Round:SendState( state, ply )
 
 end
 
+function Round:SendSpecialRound( bool, ply )
+
+	net.Start( "nzRoundSpecial" )
+		net.WriteBool( bool or false )
+	return ply and net.Send( ply ) or net.Broadcast()
+
+end
+
 function Round:SendReadyState( ply, state, recieverPly )
 
 	net.Start( "nzPlayerReadyState" )
@@ -127,6 +145,7 @@ function Round:SendSync( ply )
 
 	self:SendState( self:GetState(), ply )
 	self:SendNumber( self:GetNumber(), ply )
+	self:SendSpecialRound( self:IsSpecial(), ply )
 
 	for _, v in pairs( player.GetAll() ) do
 		self:SendReadyState( v, v:GetReady(), ply )

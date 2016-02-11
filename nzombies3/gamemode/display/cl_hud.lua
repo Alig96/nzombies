@@ -1,9 +1,10 @@
 //
+nzDisplay = {}
 
 local bloodline_points = Material("bloodline_score.png", "unlitgeneric smooth")
 local bloodline_gun = Material("cod_hud.png", "unlitgeneric smooth")
 
-function nz.Display.Functions.StatesHud()
+local function StatesHud()
 	local text = ""
 	local font = "nz.display.hud.main"
 	local w = ScrW() / 2
@@ -18,10 +19,10 @@ function nz.Display.Functions.StatesHud()
 	draw.SimpleText(text, font, w, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end
 
-function nz.Display.Functions.ScoreHud()
+local function ScoreHud()
 	local scale = (ScrW()/1920 + 1)/2
 
-	if !Round:InState( ROUND_CREATE ) then
+	if Round:InProgress() then
 		for k,v in pairs(player.GetAll()) do
 			local hp = v:Health()
 			if hp == 0 then hp = "Dead" elseif nz.Revive.Data.Players[v] then hp = "Downed" else hp = hp .. " HP"  end
@@ -37,7 +38,7 @@ function nz.Display.Functions.ScoreHud()
 	end
 end
 
-function nz.Display.Functions.GunHud()
+local function GunHud()
 
 	local wep = LocalPlayer():GetActiveWeapon()
 	local scale = ((ScrW()/1920)+1)/2
@@ -54,7 +55,7 @@ function nz.Display.Functions.GunHud()
 			local clip = wep:Clip1()
 			if !name or name == "" then name = wep:GetClass() end
 			if wep.pap then
-				name = nz.Display.PaPNames[wep:GetClass()] or nz.Display.PaPNames[name] or "Upgraded "..name
+				name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 			end
 			if clip >= 0 then
 				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
@@ -67,7 +68,7 @@ function nz.Display.Functions.GunHud()
 	end
 end
 
-function nz.Display.Functions.PowerUpsHud()
+local function PowerUpsHud()
 	if Round:InProgress() then
 		local font = "nz.display.hud.main"
 		local w = ScrW() / 2
@@ -84,7 +85,7 @@ function nz.Display.Functions.PowerUpsHud()
 end
 
 local Laser = Material( "cable/redlaser" )
-function nz.Display.Functions.DrawLinks( ent, link )
+function nzDisplay.DrawLinks( ent, link )
 
 	local tbl = {}
 	//Check for zombie spawns
@@ -118,10 +119,11 @@ function nz.Display.Functions.DrawLinks( ent, link )
 	end
 end
 
-function nz.Display.Functions.PointsNotification(ply, amount)
+local PointsNotifications = {}
+local function PointsNotification(ply, amount)
 	if !IsValid(ply) then return end
 	local data = {ply = ply, amount = amount, diry = math.random(-20, 20), time = CurTime()}
-	table.insert(nz.Display.Data.PointsNotifications, data)
+	table.insert(PointsNotifications, data)
 	--PrintTable(data)
 end
 
@@ -129,10 +131,10 @@ net.Receive("nz_points_notification", function()
 	local amount = net.ReadInt(20)
 	local ply = net.ReadEntity()
 
-	nz.Display.Functions.PointsNotification(ply, amount)
+	PointsNotification(ply, amount)
 end)
 
-function nz.Display.Functions.DrawPointsNotification()
+local function DrawPointsNotification()
 
 	if nz.Config.PointNotifcationMode == NZ_POINT_NOTIFCATION_CLIENT then
 		for k,v in pairs(player.GetAll()) do
@@ -148,15 +150,16 @@ function nz.Display.Functions.DrawPointsNotification()
 
 	local font = "nz.display.hud.points"
 
-	for k,v in pairs(nz.Display.Data.PointsNotifications) do
+	for k,v in pairs(PointsNotifications) do
 		local fade = math.Clamp((CurTime()-v.time), 0, 1)
+		if !v.ply.PointsSpawnPosition then return end
 		if v.amount >= 0 then
 			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,255,0,255-255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		else
 			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,0,0,255-255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		end
 		if fade >= 1 then
-			table.remove(nz.Display.Data.PointsNotifications, k)
+			table.remove(PointsNotifications, k)
 		end
 	end
 end
@@ -180,7 +183,7 @@ local perk_icons = {
 	["pap"] = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
 }
 
-function nz.Display.Functions.PerksHud()
+local function PerksHud()
 	local scale = (ScrW()/1920 + 1)/2
 	local w = -20
 	local size = 50
@@ -196,7 +199,7 @@ local vulture_textures = {
 	["random_box"] = Material("vulture_icons/random_box.png", "smooth unlitgeneric"),
 }
 
-function nz.Display.Functions.VultureVision()
+local function VultureVision()
 	if !LocalPlayer():HasPerk("vulture") then return end
 	local scale = (ScrW()/1920 + 1)/2
 
@@ -223,7 +226,7 @@ end
 local round_white = 0
 local round_alpha = 255
 local round_num = 0 --nz.Rounds.Data.CurrentRound or 0
-function nz.Display.Functions.RoundHud()
+local function RoundHud()
 
 	local text = ""
 	local font = "nz.display.hud.rounds"
@@ -253,9 +256,9 @@ function nz.Display.Functions.RoundHud()
 end
 
 local roundchangeending = false
-function nz.Display.Functions.StartChangeRound(noendsound)
+local function StartChangeRound(round)
 
-	if !noendsound then
+	if Round:GetNumber() > 1 then
 		surface.PlaySound("nz/round/round_end.mp3")
 	else
 		round_num = 0
@@ -286,7 +289,7 @@ function nz.Display.Functions.StartChangeRound(noendsound)
 				end
 			elseif round_alpha <= 0 then
 				if roundchangeending then
-					round_num = nz.Rounds.Data.CurrentRound
+					round_num = Round:GetNumber()
 					round_charger = 0.5
 					surface.PlaySound("nz/round/round_start.mp3")
 					haschanged = true
@@ -299,16 +302,19 @@ function nz.Display.Functions.StartChangeRound(noendsound)
 
 end
 
-function nz.Display.Functions.EndChangeRound()
+local function EndChangeRound()
 	roundchangeending = true
 end
 
 //Hooks
-hook.Add("HUDPaint", "roundHUD", nz.Display.Functions.StatesHud )
-hook.Add("HUDPaint", "scoreHUD", nz.Display.Functions.ScoreHud )
-hook.Add("HUDPaint", "gunHUD", nz.Display.Functions.GunHud )
-hook.Add("HUDPaint", "powerupHUD", nz.Display.Functions.PowerUpsHud )
-hook.Add("HUDPaint", "pointsNotifcationHUD", nz.Display.Functions.DrawPointsNotification )
-hook.Add("HUDPaint", "perksHUD", nz.Display.Functions.PerksHud )
-hook.Add("HUDPaint", "vultureVision", nz.Display.Functions.VultureVision )
-hook.Add("HUDPaint", "roundnumHud", nz.Display.Functions.RoundHud )
+hook.Add("HUDPaint", "roundHUD", StatesHud )
+hook.Add("HUDPaint", "scoreHUD", ScoreHud )
+hook.Add("HUDPaint", "gunHUD", GunHud )
+hook.Add("HUDPaint", "powerupHUD", PowerUpsHud )
+hook.Add("HUDPaint", "pointsNotifcationHUD", DrawPointsNotification )
+hook.Add("HUDPaint", "perksHUD", PerksHud )
+hook.Add("HUDPaint", "vultureVision", VultureVision )
+hook.Add("HUDPaint", "roundnumHud", RoundHud )
+
+hook.Add("OnRoundPreperation", "BeginRoundHUDChange", StartChangeRound)
+hook.Add("OnRoundStart", "EndRoundHUDChange", EndChangeRound)

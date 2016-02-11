@@ -11,7 +11,7 @@ local traceents = {
 	["pap_weapon_fly"] = true,
 }
 
-function nz.Display.Functions.GetTarget()
+local function GetTarget()
 	local tr =  {
 		start = EyePos(),
 		endpos = EyePos() + LocalPlayer():GetAimVector()*150,
@@ -25,7 +25,7 @@ function nz.Display.Functions.GetTarget()
 	return trace.Entity
 end
 
-function nz.Display.Functions.GetText( ent )
+local function GetText( ent )
 
 	local class = ent:GetClass()
 	local text = ""
@@ -109,14 +109,9 @@ function nz.Display.Functions.GetText( ent )
 
 	local door_data = nil
 
-	if ent:IsDoor() or ent:IsButton() or ent:GetClass() == "class C_BaseEntity" then
-		//Normal Doors
-		door_data = nz.Doors.Data.LinkFlags[ent:doorIndex()]
-	end
-
-	if ent:IsBuyableProp() then
-		//Prop Doors
-		door_data = nz.Doors.Data.BuyableProps[ent:EntIndex()]
+	if ent:IsDoor() or ent:IsButton() or ent:GetClass() == "class C_BaseEntity" or ent:IsBuyableProp() then
+		-- Door data
+		door_data = ent:GetDoorData()
 	end
 
 	//If we have door data - Don't draw target ID if the door can't even be bought
@@ -127,14 +122,14 @@ function nz.Display.Functions.GetText( ent )
 		if req_elec == "1" and !IsElec() then
 			text = "You must turn on the electricity first!"
 		else
-			if !nz.Doors.Data.OpenedLinks[tonumber(link)] == true then
+			if ent:GetLocked() then
 				if price != "0" then
 					--print("Still here", nz.Doors.Data.OpenedLinks[tonumber(link)])
 					text = "Press E to open for " .. price .. " points."
 				end
 			end
 		end
-	elseif door_data != nil and tonumber(door_data.buyable) != 1 and nz.Rounds.Data.CurrentState == ROUND_CREATE then
+	elseif door_data != nil and tonumber(door_data.buyable) != 1 and Round:InState( ROUND_CREATE ) then
 		text = "This door is locked and cannot be bought in-game."
 		--PrintTable(door_data)
 	end
@@ -161,7 +156,7 @@ function nz.Display.Functions.GetText( ent )
 	return text
 end
 
-function nz.Display.Functions.DrawTargetID( text )
+local function DrawTargetID( text )
 
 	local font = "nz.display.hud.small"
 	surface.SetFont( font )
@@ -189,10 +184,10 @@ end
 
 function GM:HUDDrawTargetID()
 
-	local ent = nz.Display.Functions.GetTarget()
+	local ent = GetTarget()
 
 	if ent != nil then
-		nz.Display.Functions.DrawTargetID(nz.Display.Functions.GetText(ent))
+		DrawTargetID(GetText(ent))
 	end
 
 end

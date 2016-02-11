@@ -44,12 +44,6 @@ function Round:Prepare()
 	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
 	hook.Call( "OnRoundPreperation", Round, self:GetNumber() )
 	--Play the sound
-	if self:GetNumber() == 1 then
-		--nz.Mapping.Functions.CleanUpMap()
-		--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
-	else
-		--nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 1)
-	end
 
 	--Spawn all players
 	--Check config for dropins
@@ -59,9 +53,9 @@ function Round:Prepare()
 	end
 
 	--Heal
-	for _, ply in pairs( player.GetAllPlaying() ) do
+	--[[for _, ply in pairs( player.GetAllPlaying() ) do
 		ply:SetHealth( ply:GetMaxHealth() )
-	end
+	end]]
 
 	--Set this to reset the overspawn debug message status
 	CurRoundOverSpawned = false
