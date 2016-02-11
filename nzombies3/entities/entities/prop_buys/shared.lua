@@ -26,7 +26,7 @@ function ENT:Initialize()
 end
 
 function ENT:BlockUnlock()
-	self.Locked = false
+	--self.Locked = false
 	--self:SetNoDraw( true )
 	if SERVER then
 		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
@@ -36,7 +36,7 @@ function ENT:BlockUnlock()
 end
 
 function ENT:BlockLock()
-	self.Locked = true
+	--self.Locked = true
 	--self:SetNoDraw( false )
 	if SERVER then
 		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
@@ -47,22 +47,22 @@ end
 
 function ENT:OnRemove()
 	if SERVER then
-		nz.Doors.Functions.RemoveLink( self )
+		Doors:RemoveLink( self )
 	end
 end
 
 if CLIENT then
 	function ENT:Draw()
-		if (nz.Rounds.Data.CurrentState == ROUND_PROG or nz.Rounds.Data.CurrentState == ROUND_PREP) then
+		if Round:InProgress() then
 			if self:GetLocked() then
 				self:DrawModel()
 			end
 		else
 			self:DrawModel()
 		end
-		if nz.Rounds.Data.CurrentState == ROUND_CREATE then
-			if nz.Doors.Data.DisplayLinks[self] != nil then
-				nz.Display.Functions.DrawLinks(self, nz.Doors.Data.BuyableProps[self:EntIndex()].link)
+		if Round:InState( ROUND_CREATE ) then
+			if Doors.DisplayLinks[self] then
+				nzDisplay.DrawLinks(self, Doors.PropDoors[self:EntIndex()].link)
 			end
 		end
 	end

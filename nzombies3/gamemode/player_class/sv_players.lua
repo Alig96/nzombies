@@ -12,7 +12,7 @@ function nz.Players.Functions.FullSync( ply )
 	--PowerUps
 	nz.PowerUps.Functions.SendSync()
 	--Doors
-	nz.Doors.Functions.SendSync()
+	Doors:SendSync( ply )
 	--Perks
 	nz.Perks.Functions.SendSync()
 	--Rounds

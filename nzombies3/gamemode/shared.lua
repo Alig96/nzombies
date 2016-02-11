@@ -1,5 +1,5 @@
 GM.Name = "nZombies 3"
-GM.Author = "N/A"
+GM.Author = "Alig96, Zet0r, Lolle"
 GM.Email = "N/A"
 GM.Website = "N/A"
 
@@ -22,7 +22,3 @@ TEAM_PLAYERS = 2
 --Setup Teams
 team.SetUp( TEAM_SPECS, "Spectators", Color( 255, 255, 255 ) )
 team.SetUp( TEAM_PLAYERS, "Players", Color( 255, 0, 0 ) )
-
---Setup round module
-GM.nzRound = {}
-Round = GM.nzRound

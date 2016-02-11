@@ -67,7 +67,7 @@ if SERVER then
 	end
 	hook.Add("WeaponEquip", "ModifyWeaponNextFires", ReplacePrimaryFireCooldown)
 	
-	function ReplacePrimaryFireCooldown(wep)
+	function ReplaceAimDownSight(wep)
 		local oldfire = wep.SecondaryAttack
 		
 		--print("Weapon fire modified")
@@ -86,7 +86,7 @@ if SERVER then
 			end
 		end
 	end
-	hook.Add("WeaponEquip", "ModifyWeaponNextFires", ReplacePrimaryFireCooldown)
+	hook.Add("WeaponEquip", "ModifyAimDownSights", ReplaceAimDownSight)
 	
 	hook.Add("DoAnimationEvent", "ReloadCherry", function(ply, event, data)
 		--print(ply, event, data)
@@ -96,18 +96,16 @@ if SERVER then
 				if IsValid(wep) and wep:Clip1() < wep:GetMaxClip1() then
 					local pct = 1 - (wep:Clip1()/wep:GetMaxClip1())
 					local pos, ang = ply:GetPos() + ply:GetAimVector()*10 + Vector(0,0,50), ply:GetAimVector()
-					timer.Create("Cherry"..ply:EntIndex(), 0.1, 5, function()
-						if IsValid(ply) then
-							--print("effect here")
-							local effectdata = EffectData()
-							effectdata:SetOrigin( pos )
-							effectdata:SetNormal( ang )
-							effectdata:SetMagnitude( 8 )
-							effectdata:SetScale( 1 )
-							effectdata:SetRadius( 16 )
-							util.Effect( "TeslaHitBoxes", effectdata )
-						end
-					end)
+					nz.Effects.Functions.Tesla( {
+						pos = ply:GetPos() + Vector(0,0,50),
+						ent = ply,
+						turnOn = true,
+						dieTime = 1,
+						lifetimeMin = 0.05*pct,
+						lifetimeMax = 0.1*pct,
+						intervalMin = 0.01,
+						intervalMax = 0.02,
+					})
 					--print(pct)
 					local zombies = ents.FindInSphere(ply:GetPos(), 200*pct)
 					for k,v in pairs(zombies) do

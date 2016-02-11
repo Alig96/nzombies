@@ -155,7 +155,8 @@ if SERVER then
 		speeds = {
 			[40] = 80,
 			[50] = 20
-		}
+		},
+		special = true
 	}}
 	nz.Config.EnemyTypes[2] = {["nz_zombie_walker"] = {
 		chance = 100,
