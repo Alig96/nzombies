@@ -1,16 +1,6 @@
-//
-
-function nz.Weps.Functions.IsFAS2( wep )
-	if wep.Category == "FA:S 2 Weapons" then
-		return true
-	end
-
-	return false
-end
-
 function nz.Weps.Functions.ApplySpeed( ply, wep )
 	print(ply, wep, wep.speed)
-	if nz.Weps.Functions.IsFAS2( wep ) and wep.speed != true then
+	if wep:IsFAS2() and wep.speed != true then
 		print("Applying Speed to: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -51,7 +41,7 @@ function nz.Weps.Functions.ApplySpeed( ply, wep )
 end
 
 function nz.Weps.Functions.ApplyDTap( ply, wep )
-	if nz.Weps.Functions.IsFAS2( wep ) and wep.dtap != true then
+	if wep:IsFAS2() and wep.dtap != true then
 		print("Applying Dtap to: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -81,7 +71,7 @@ function nz.Weps.Functions.ApplyDTap( ply, wep )
 end
 
 function nz.Weps.Functions.RemoveSpeed( ply, wep )
-	if nz.Weps.Functions.IsFAS2( wep ) and wep.speed then
+	if wep:IsFAS2() and wep.speed then
 		print("Removing Speed from: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -111,7 +101,7 @@ function nz.Weps.Functions.RemoveSpeed( ply, wep )
 end
 
 function nz.Weps.Functions.RemoveDTap( ply, wep )
-	if nz.Weps.Functions.IsFAS2( wep ) and wep.dtap then
+	if wep:IsFAS2() and wep.dtap then
 		print("Removing Dtap from: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -136,10 +126,10 @@ function nz.Weps.Functions.ApplyPaP( ply, wep )
 	if wep.pap != true then
 		print("Applying PaP to: " .. wep.ClassName)
 		--wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
-		
+
 		//Call OnPaP function for specially coded weapons
 		if wep.OnPaP then wep:OnPaP() end
-		
+
 		local data = {}
 		//Attach the weapon to the data
 		data["wep"] = wep
@@ -165,36 +155,39 @@ end]]
 
 --hook.Add("OnEntityCreated", "nz.Weps.OnEntityCreated", nz.Weps.Functions.OnWepCreated)
 
-//We use a seperate function for this, as this for some reason works
-function nz.Weps.Functions.OnWeaponAdded( weapon )
+local function OnWeaponAdded( weapon )
 
 	if weapon:GetClass() == "nz_perk_bottle" then return end
 
-	//0 seconds timer for the next tick, where the weapon's owner will be valid
+	--0 seconds timer for the next tick, where the weapon's owner will be valid
 	timer.Simple(0, function()
 		local ply = weapon:GetOwner()
-		if Round:InState( ROUND_CREATE ) then
-				
+		if !Round:InState( ROUND_CREATE ) then
+
 			if ply:HasPerk("mulekick") then
 				if #ply:GetWeapons() > 3 then
+					weapon:SetNWInt( "SwitchSlot", ply:GetActiveWeapon():GetNWInt( "SwitchSlot", 1) )
 					ply:StripWeapon( ply:GetActiveWeapon():GetClass() )
-				elseif #ply:GetWeapons() == 3 then
-					ply.ThirdWeapon = weapon
+				else
+					weapon:SetNWInt( "SwitchSlot", 3 )
 				end
 			else
 				if #ply:GetWeapons() > 2 then
+					weapon:SetNWInt( "SwitchSlot", ply:GetActiveWeapon():GetNWInt( "SwitchSlot", 1) )
 					ply:StripWeapon( ply:GetActiveWeapon():GetClass() )
+				elseif #ply:GetWeapons() == 1 then
+					weapon:SetNWInt( "SwitchSlot", 1 )
+				else
+					weapon:SetNWInt( "SwitchSlot", 2 )
 				end
 			end
-			ply:SelectWeapon( weapon:GetClass() )
-			
 		end
 	end)
-	
+
 end
 
-//Hooks
-hook.Add("WeaponEquip", "OnWeaponAdded", nz.Weps.Functions.OnWeaponAdded)
+--Hooks
+hook.Add("WeaponEquip", "OnWeaponAdded", OnWeaponAdded)
 
 hook.Add("PlayerCanPickupWeapon", "PreventWhosWhoWeapons", function(ply, wep)
 	if IsValid(wep:GetOwner()) and wep:GetOwner():GetClass() == "whoswho_downed_clone" then return false end
