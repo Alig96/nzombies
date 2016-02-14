@@ -796,7 +796,7 @@ end
 --Helper function
 function ENT:TimedEvent(time, callback)
 	timer.Simple(time, function()
-		if (IsValid(self)) then
+		if (IsValid(self) and self:Health() > 0) then
 			callback()
 		end
 	end)

@@ -29,11 +29,23 @@ function Round:SetZombiesMax( num )
 	self.ZombiesMax = num
 end
 
+function Round:GetZombieHealth()
+	return self.ZombieHealth
+end
+function Round:SetZombieHealth( num )
+	self.ZombieHealth = num
+end
+
 function Round:GetZombieData()
 	return self.ZombieData
 end
 function Round:SetZombieData( tbl )
 	self.ZombieData = tbl
+end
+
+function Round:SetGlobalZombieData( tbl )
+	self:SetZombiesMax(tbl.maxzombies or 5)
+	self:SetZombieHealth(tbl.health or 75)
 	self:SetSpecial(tbl.special or false)
 end
 
@@ -68,7 +80,6 @@ function Round:GetState()
 end
 
 function Round:SetNumber( number )
-
 	self.Number = number
 
 	self:SendNumber( number )
@@ -87,48 +98,6 @@ function Round:GetNumber()
 
 end
 
-function Round:SendNumber( number, ply )
-
-	net.Start( "nzRoundNumber" )
-		net.WriteUInt( number or 0, 16 )
-	return ply and net.Send( ply ) or net.Broadcast()
-
-end
-
-function Round:SendState( state, ply )
-
-	net.Start( "nzRoundState" )
-		net.WriteUInt( state or ROUND_WAITING, 3 )
-	return ply and net.Send( ply ) or net.Broadcast()
-
-end
-
-function Round:SendSpecialRound( bool, ply )
-
-	net.Start( "nzRoundSpecial" )
-		net.WriteBool( bool or false )
-	return ply and net.Send( ply ) or net.Broadcast()
-
-end
-
-function Round:SendReadyState( ply, state, recieverPly )
-
-	net.Start( "nzPlayerReadyState" )
-		net.WriteEntity( ply )
-		net.WriteBool( state )
-	return recieverPly and net.Send( recieverPly ) or net.Broadcast()
-
-end
-
-function Round:SendPlayingState( ply, state, recieverPly )
-
-	net.Start( "nzPlayerPlayingState" )
-		net.WriteEntity( ply )
-		net.WriteBool( state )
-	return recieverPly and net.Send( recieverPly ) or net.Broadcast()
-
-end
-
 function Round:SetEndTime( time )
 
 	SetGlobalFloat( "nzEndTime", time )
@@ -138,19 +107,5 @@ end
 function Round:GetEndTime( time )
 
 	GetGlobalFloat( "nzEndTime" )
-
-end
-
-function Round:SendSync( ply )
-
-	self:SendState( self:GetState(), ply )
-	self:SendNumber( self:GetNumber(), ply )
-	self:SendSpecialRound( self:IsSpecial(), ply )
-
-	for _, v in pairs( player.GetAll() ) do
-		self:SendReadyState( v, v:GetReady(), ply )
-	end
-
-	self:SetEndTime( self:GetEndTime() )
 
 end

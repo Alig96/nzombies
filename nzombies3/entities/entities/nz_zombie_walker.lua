@@ -17,6 +17,6 @@ function ENT:SpecialInit()
 		else
 			self:SetRunSpeed( nz.Curves.Data.Speed[ Round:GetNumber() ] )
 		end
-        self:SetHealth( nz.Curves.Data.Health[ Round:GetNumber() ] )
+        self:SetHealth( Round:GetZombieHealth() )
     end
 end

@@ -25,8 +25,9 @@ hook.Add( "PlayerSpawn", "PlayerSprintSpawn", function( ply )
 
 	ply:SetLastStaminaLoss( 0 )
 	ply:SetLastStaminaRecover( 0 )
-
-	ply:SetMaxRunSpeed( ply:GetRunSpeed() )
+	
+	-- Delay this a bit - it seems like it takes the old sprint speed from last round state (Creative speed)
+	timer.Simple(0.1, function() if IsValid(ply) then ply:SetMaxRunSpeed( ply:GetRunSpeed() ) end end)
 	--print(player_manager.GetPlayerClass(ply))
 
 end )

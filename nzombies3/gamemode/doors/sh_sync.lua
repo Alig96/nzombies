@@ -85,12 +85,13 @@ if CLIENT then
 	local function ReceiveMapDoorCreation()
 		local bool = net.ReadBool()
 		local ent = net.ReadEntity()
+		print("Received", bool, ent)
 		-- True if door is created, false if removed
 		if bool then
 			local tbl = net.ReadTable()
+			Doors.MapCreationIndexTable[ent:EntIndex()] = net.ReadInt(13)
 			ent:SetDoorData(tbl)
 			-- We store the map creation ID in a table so we can access it universally
-			Doors.MapCreationIndexTable[ent:EntIndex()] = net.ReadInt(13)
 			ent:SetLocked(true)
 		else
 			ent:SetDoorData(nil)

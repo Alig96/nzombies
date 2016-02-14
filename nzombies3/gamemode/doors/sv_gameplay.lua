@@ -24,18 +24,20 @@ end
 function Doors:OpenLinkedDoors( link )
 	-- Go through all the doors
 	for k,v in pairs(self.MapDoors) do
-		local doorlink = v:GetDoorData().link
+		local doorlink = v.link
 		if doorlink and doorlink == link then
-			self:OpenDoor( v )
+			self:OpenDoor( self:DoorIndexToEnt(k) )
 		end		
 	end
 	
 	for k,v in pairs(self.PropDoors) do
-		local doorlink = v:GetDoorData().link
+		local doorlink = v.link
 		if doorlink and doorlink == link then
-			self:OpenDoor( v )
+			self:OpenDoor( Entity(k) )
 		end		
 	end
+	
+	self.OpenedLinks[tonumber(link)] = true
 end
 
 function Doors:LockAllDoors()
@@ -103,12 +105,12 @@ function Doors.OnUseDoor( ply, ent )
 	-- Downed players can't use anything!
 	if !ply:GetNotDowned() then return false end
 	
-	-- Players can't use stuff while drinking perks!
-	if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetClass() == "nz_perk_bottle" then return false end
+	-- Players can't use stuff while ysing special weapons! (Perk bottles, knives, etc)
+	if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():IsSpecial() then return false end
 	
 	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
 		if ent.buyable == nil or tobool(ent.buyable) then
-			self:BuyDoor( ply, ent )
+			Doors:BuyDoor( ply, ent )
 		end
 	end
 end

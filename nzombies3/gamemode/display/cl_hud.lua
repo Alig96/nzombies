@@ -256,9 +256,11 @@ local function RoundHud()
 end
 
 local roundchangeending = false
-local function StartChangeRound(round)
+local function StartChangeRound()
 
-	if Round:GetNumber() > 1 then
+	print(Round:GetNumber())
+
+	if Round:GetNumber() >= 1 then
 		surface.PlaySound("nz/round/round_end.mp3")
 	else
 		round_num = 0
@@ -306,6 +308,23 @@ local function EndChangeRound()
 	roundchangeending = true
 end
 
+local grenade_icon = Material("grenade-256.png", "unlitgeneric smooth")
+local function DrawGrenadeHud()
+	local num = LocalPlayer():GetAmmoCount("nz_specialgrenade")
+	local scale = (ScrW()/1920 + 1)/2
+	
+	--print(num)
+	if num > 0 then
+		surface.SetMaterial(grenade_icon)
+		surface.SetDrawColor(255,255,255)
+		for i = num, 1, -1 do
+			--print(i)
+			surface.DrawTexturedRect(ScrW() - 250*scale - i*10*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+		end
+	end
+	--surface.DrawTexturedRect(ScrW()/2, ScrH()/2, 100, 100)
+end
+
 //Hooks
 hook.Add("HUDPaint", "roundHUD", StatesHud )
 hook.Add("HUDPaint", "scoreHUD", ScoreHud )
@@ -314,7 +333,8 @@ hook.Add("HUDPaint", "powerupHUD", PowerUpsHud )
 hook.Add("HUDPaint", "pointsNotifcationHUD", DrawPointsNotification )
 hook.Add("HUDPaint", "perksHUD", PerksHud )
 hook.Add("HUDPaint", "vultureVision", VultureVision )
-hook.Add("HUDPaint", "roundnumHud", RoundHud )
+hook.Add("HUDPaint", "roundnumHUD", RoundHud )
+hook.Add("HUDPaint", "grenadeHUD", DrawGrenadeHud )
 
 hook.Add("OnRoundPreperation", "BeginRoundHUDChange", StartChangeRound)
 hook.Add("OnRoundStart", "EndRoundHUDChange", EndChangeRound)
