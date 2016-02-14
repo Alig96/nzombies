@@ -1,5 +1,5 @@
 --Get the meta Table
-plyMeta = FindMetaTable( "Player" )
+local plyMeta = FindMetaTable( "Player" )
 --accessors
 AccessorFunc( plyMeta, "iSpectatingID", "SpectatingID", FORCE_NUMBER )
 AccessorFunc( plyMeta, "iSpectatingType", "SpectatingType", FORCE_NUMBER )
