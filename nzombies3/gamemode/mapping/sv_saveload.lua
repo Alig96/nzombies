@@ -71,11 +71,19 @@ function nz.Mapping.Functions.SaveConfig(name)
 	
 	local buyableprop_spawns = {}
 	for k,v in pairs(ents.FindByClass("prop_buys")) do
+		
+		-- Convert the table to a flag string
+		local flagstr = ""
+		for k2, v2 in pairs(v:GetDoorData()) do
+			flagstr = flagstr..k2.."="..v2..","
+		end
+		flagstr = string.Trim(flagstr, ",")
+		
 		table.insert(buyableprop_spawns, {
 		pos = v:GetPos(),
 		angle = v:GetAngles(),
 		model = v:GetModel(),
-		flags = v.Data,
+		flags = flagstr,
 		})
 	end
 	
@@ -451,6 +459,7 @@ function nz.Mapping.Functions.LoadConfig( name )
 	
 end
 
+util.AddNetworkString("nzCleanUp")
 function nz.Mapping.Functions.CleanUpMap()
 	game.CleanUpMap(true, {
 		"breakable_entry",
@@ -468,20 +477,17 @@ function nz.Mapping.Functions.CleanUpMap()
 		"easter_egg"
 	})
 	//Gotta reset the doors and other entites' values!
-	for k,v in pairs(nz.Doors.Data.LinkFlags) do
-		local door = nz.Doors.Functions.doorIndexToEnt(k)
-		door.elec = tonumber(v.elec)
-		door.price = tonumber(v.price)
-		door.link = tonumber(v.link)
-		door.buyable = tonumber(v.buyable)
-		door.rebuyable = tonumber(v.rebuyable)
-		door.Locked = true
+	for k,v in pairs(Doors.MapDoors) do
+		local door = Doors:DoorIndexToEnt(k)
+		door:SetLocked(true)
 		if door:IsDoor() then
-			door:DoorLock()
+			door:LockDoor()
 		elseif door:IsButton() then
-			door:ButtonLock()
+			door:LockButton()
 		end
 	end
+	net.Start("nzCleanUp")
+	net.Broadcast()
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()

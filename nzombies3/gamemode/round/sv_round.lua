@@ -13,8 +13,7 @@ end
 
 function Round:Init()
 
-	timer.Simple( 5, function() self:Prepare() end )
-	self:SetupGame()
+	timer.Simple( 5, function() self:SetupGame() self:Prepare() end )
 	self:SetState( ROUND_INIT )
 	self:SetEndTime( CurTime() + 5 )
 	PrintMessage( HUD_PRINTTALK, "5 seconds till start time." )
@@ -26,19 +25,21 @@ function Round:Prepare()
 
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
+	
+	if nz.Config.EnemyTypes[ self:GetNumber() ] then
+		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ] )
+	end
+	self:SetGlobalZombieData( {
+		health = nz.Curves.Functions.GenerateHealthCurve(Round:GetNumber()),
+		maxzombies = nz.Curves.Functions.GenerateMaxZombies(Round:GetNumber()),
+	})
 
 	if nz.Config.EnemyTypes[ self:GetNumber() ] and nz.Config.EnemyTypes[ self:GetNumber() ].count then
 		self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
 		--print("Round "..nz.Rounds.Data.CurrentRound.." has a special count: "..nz.Rounds.Data.MaxZombies)
-	else
-		self:SetZombiesMax( nz.Curves.Data.SpawnRate[ self:GetNumber() ] )
 	end
 	self:SetZombiesKilled( 0 )
 	self:SetZombiesSpawned( 0 )
-
-	if nz.Config.EnemyTypes[ self:GetNumber() ] then
-		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ] )
-	end
 
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
@@ -113,7 +114,7 @@ end
 
 function Round:ResetGame()
 	--Main Behaviour
-	nz.Doors.Functions.LockAllDoors()
+	Doors:LockAllDoors()
 	self:SetState( ROUND_WAITING )
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "GAME READY!" )
@@ -243,7 +244,7 @@ function Round:SetupGame()
 	end
 
 	nz.Mapping.Functions.CleanUpMap()
-	nz.Doors.Functions.LockAllDoors()
+	Doors:LockAllDoors()
 
 	//Reset navigation attributes so they don't save into the actual .nav file.
 	for k,v in pairs(nz.Nav.Data) do
@@ -254,7 +255,7 @@ function Round:SetupGame()
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() or v:IsBuyableProp() then
 			if v.price == 0 and v.elec == 0 then
-				nz.Doors.Functions.OpenDoor( v )
+				Doors:OpenDoor( v )
 			end
 		end
 		//Setup barricades
@@ -264,11 +265,11 @@ function Round:SetupGame()
 	end
 
 	//Empty the link table
-	table.Empty(nz.Doors.Data.OpenedLinks)
+	table.Empty(Doors.OpenedLinks)
 
 	//All doors with Link 0 (No Link)
-	nz.Doors.Data.OpenedLinks[0] = true
-	nz.Doors.Functions.SendSync()
+	Doors.OpenedLinks[0] = true
+	--nz.Doors.Functions.SendSync()
 
 	//Spawn a random box
 	nz.RandomBox.Functions.SpawnBox()

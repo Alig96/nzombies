@@ -6,7 +6,7 @@ function nz.Mapping.Functions.ZedSpawn(pos, link, respawnable, ply)
 	pos.z = pos.z - ent:OBBMaxs().z
 	ent:SetPos( pos )
 	ent:Spawn()
-	ent.link = link
+	ent.link = tonumber(link)
 	//For the link displayer
 	if link != nil then
 		ent:SetLink(link)	

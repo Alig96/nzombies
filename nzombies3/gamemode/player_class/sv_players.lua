@@ -1,6 +1,12 @@
 //
 
 function nz.Players.Functions.PlayerNoClip( ply, desiredState )
+	-- We hardcode the "knife" special weapons category to be called from noclip
+	local wep = ply:GetSpecialWeaponFromCategory( "knife" )
+	if IsValid(wep) and !ply.UsingSpecialWep then
+		SpecialWeapons.Weapons[wep:GetClass()].use(ply, wep)
+	end
+	
 	if ply:Alive() and Round:InState( ROUND_CREATE ) then
 		return ply:IsSuperAdmin()
 	end

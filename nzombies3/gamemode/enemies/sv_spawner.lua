@@ -45,7 +45,7 @@ function nz.Enemies.Functions.ValidSpawns()
 	//Removed unopened linked doors
 	for k,v in pairs(spawns) do
 		if v.link != nil then
-			if nz.Doors.Data.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
+			if !Doors.OpenedLinks[tonumber(v.link)] then //Zombie Links
 				spawns[k] = nil
 			end
 		end
@@ -142,7 +142,7 @@ function nz.Enemies.Functions.ValidRespawns(cur)
 	//Removed unopened linked doors
 	for k,v in pairs(spawns) do
 		if v.link != nil then
-			if nz.Doors.Data.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
+			if Doors.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
 				spawns[k] = nil
 			end
 		end

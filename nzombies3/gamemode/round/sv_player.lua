@@ -1,7 +1,12 @@
 local plyMeta = FindMetaTable( "Player" )
 
 function plyMeta:ReadyUp()
-
+	
+	if !navmesh.IsLoaded() then
+		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because the map has not Navmesh loaded. Use the settings menu to generate a rough Navmesh or use tools in sandbox to make a proper one.")
+		return false
+	end
+	
 	if nz.Mapping.Functions.CheckSpawns() == false then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because no Zombie/Player spawns have been set.")
 		return false

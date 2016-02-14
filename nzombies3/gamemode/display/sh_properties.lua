@@ -121,9 +121,9 @@ properties.Add( "nz_unlock", {
 		if ( ent:IsPlayer() ) then return false end
 		if ( !ply:IsAdmin() ) then return false end
 		if ent:IsBuyableProp() then
-			if ( !nz.Doors.Data.BuyableProps[ent:EntIndex()] ) then return false end
+			if ( !Doors.PropDoors[ent:EntIndex()] ) then return false end
 		else
-			if ( !nz.Doors.Data.LinkFlags[ent:doorIndex()] ) then return false end
+			if ( !Doors.MapDoors[ent:DoorIndex()] ) then return false end
 		end
 
 		return true 

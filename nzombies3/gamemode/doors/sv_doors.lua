@@ -33,7 +33,7 @@ end
 
 function Doors:CreateLink( ent, flagsStr )
 	-- First remove all links
-	self:RemoveLink( ent )
+	--self:RemoveLink( ent )
 	if ent:IsDoor() or ent:IsButton() then
 		self:CreateMapDoorLink( ent:DoorIndex(), flagsStr )
 	elseif ent:IsBuyableProp() then

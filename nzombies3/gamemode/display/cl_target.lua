@@ -48,10 +48,13 @@ local function GetText( ent )
 		local wep = weapons.Get(wepclass)
 		local name = wep.PrintName
 		local ammo_price = math.Round((price - (price % 10))/2)
+		
 		if !LocalPlayer():HasWeapon( wepclass ) then
 			text = "Press E to buy " .. name .." for " .. price .. " points."
+		elseif LocalPlayer():GetWeapon( wepclass ).pap then
+			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. 4500 .. " points."
 		else
-			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points." // In future give more ammo
+			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points."
 		end
 	end
 

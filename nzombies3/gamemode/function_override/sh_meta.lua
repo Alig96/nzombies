@@ -2,14 +2,15 @@ local playerMeta = FindMetaTable("Player")
 local wepMeta = FindMetaTable("Weapon")
 
 if SERVER then
-
+	
 	function ReplaceReloadFunction(wep)
 		//Either not a weapon, doesn't have a reload function, or is FAS2
 		if wep:IsFAS2() then return end
 		local oldreload = wep.Reload
-
+		if !oldreload then return end
+		
 		--print("Weapon reload modified")
-
+		
 		wep.Reload = function()
 			if wep.ReloadFinish and wep.ReloadFinish > CurTime() then return end
 			local ply = wep.Owner
@@ -17,7 +18,7 @@ if SERVER then
 				--print("Hasd perk")
 				local cur = wep:Clip1()
 				if cur >= wep:GetMaxClip1() then return end
-
+				
 				wep:SendWeaponAnim(ACT_VM_RELOAD)
 				oldreload(wep)
 				local rtime = wep:SequenceDuration(wep:SelectWeightedSequence(ACT_VM_RELOAD))/2
@@ -29,7 +30,7 @@ if SERVER then
 				wep:SetNextPrimaryFire(nexttime)
 				wep:SetNextSecondaryFire(nexttime)
 				wep.ReloadFinish = nexttime
-
+				
 				timer.Simple(rtime, function()
 					if IsValid(wep) and ply:GetActiveWeapon() == wep then
 						wep:SetPlaybackRate(1)
@@ -47,15 +48,16 @@ if SERVER then
 		end
 	end
 	hook.Add("WeaponEquip", "ModifyWeaponReloads", ReplaceReloadFunction)
-
+	
 	function ReplacePrimaryFireCooldown(wep)
 		local oldfire = wep.PrimaryAttack
-
+		if !oldfire then return end
+		
 		--print("Weapon fire modified")
-
+		
 		wep.PrimaryAttack = function()
 			oldfire(wep)
-
+			
 			//FAS2 weapons have built-in DTap functionality
 			if wep:IsFAS2() then return end
 			//With double tap, reduce the delay for next primary fire to 2/3
@@ -66,12 +68,13 @@ if SERVER then
 		end
 	end
 	hook.Add("WeaponEquip", "ModifyWeaponNextFires", ReplacePrimaryFireCooldown)
-
+	
 	function ReplaceAimDownSight(wep)
 		local oldfire = wep.SecondaryAttack
-
+		if !oldfire then return end
+		
 		--print("Weapon fire modified")
-
+		
 		wep.SecondaryAttack = function()
 			oldfire(wep)
 			//With deadshot, aim at the head of the entity aimed at
@@ -87,7 +90,7 @@ if SERVER then
 		end
 	end
 	hook.Add("WeaponEquip", "ModifyAimDownSights", ReplaceAimDownSight)
-
+	
 	hook.Add("DoAnimationEvent", "ReloadCherry", function(ply, event, data)
 		--print(ply, event, data)
 		if event == PLAYERANIMEVENT_RELOAD then
@@ -129,7 +132,7 @@ if SERVER then
 			end
 		end
 	end)
-
+	
 	function GM:GetFallDamage( ply, speed )
 		local dmg = speed / 10
 		if ply:HasPerk("phd") and dmg >= 50 then
@@ -150,23 +153,29 @@ if SERVER then
 		end
 		return ( dmg )
 	end
-
+	
 else
-
-	-- Manual speedup of the reload function on FAS2 weapons - seemed like the original solution broke along the way
+	
+	--[[ Manual speedup of the reload function on FAS2 weapons - seemed like the original solution broke along the way
 	function ReplaceReloadFunction(wep)
+		print(wep, "HUKDAHD1")
 		if wep:IsFAS2() then
+			print(wep, "HUKDAHD2")
 			local oldreload = wep.Reload
+			if !oldreload then return end
+			print(wep, "HUKDAHD3")
 			wep.Reload = function()
+				print(wep, "HUKDAHD4")
 				oldreload(wep)
 				if LocalPlayer():HasPerk("speed") then
 					wep.Wep:SetPlaybackRate(2)
 				end
 			end
+			print(wep, "HUKDAHD5")
 		end
 	end
-	hook.Add("HUDWeaponPickedUp", "ModifyFAS2WeaponReloads", ReplaceReloadFunction)
-
+	hook.Add("HUDWeaponPickedUp", "ModifyFAS2WeaponReloads", ReplaceReloadFunction)]]
+	
 end
 
 local olddefreload = wepMeta.DefaultReload
@@ -187,17 +196,17 @@ function GM:EntityFireBullets(ent, data)
 	local tr = util.TraceLine({
 		start = data.Src,
 		endpos = data.Src + (data.Dir*data.Distance),
-		filter = function(ent)
+		filter = function(ent) 
 			if ent:GetClass() == "wall_block" then
 				return false
 			else
 				return true
-			end
+			end 
 		end
 	})
-
+	
 	--PrintTable(tr)
-
+	
 	//If we hit anything, move the source of the bullets up to that point
 	if tr.Hit and tr.HitPos then
 		data.Src = tr.HitPos - data.Dir

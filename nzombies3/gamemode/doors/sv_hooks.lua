@@ -15,7 +15,7 @@ function Doors:OnMapDoorLinkCreated( door, flags, id )
 end
 
 function Doors:OnMapDoorLinkRemoved( door, id )
-	self:SendMapDoorRemoved(door)
+	self:SendMapDoorRemoval(door)
 end
 
 function Doors:OnPropDoorLinkCreated( ent, flags )

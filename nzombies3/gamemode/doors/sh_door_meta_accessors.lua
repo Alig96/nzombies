@@ -2,9 +2,9 @@ local meta = FindMetaTable("Entity")
 AccessorFunc( meta, "bLocked", "Locked", FORCE_BOOL )
 function meta:IsLocked() return self:GetLocked() end
 
-Doors.MapDoors = {}
-Doors.PropDoors = {}
-Doors.OpenedLinks = {}
+Doors.MapDoors = Doors.MapDoors or {}
+Doors.PropDoors = Doors.PropDoors or {}
+Doors.OpenedLinks = Doors.OpenedLinks or {}
 
 local validdoors = {
 	["func_door"] = true,
