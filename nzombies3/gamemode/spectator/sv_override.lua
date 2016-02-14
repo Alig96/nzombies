@@ -9,7 +9,7 @@ function GM:PlayerDeath( ply, wep, killer )
 end
 
 function GM:PlayerDeathThink( ply )
-	local players = player.GetAll()
+	local players = player.GetAllPlayingAndAlive()
 
 	if ply:KeyPressed( IN_RELOAD ) then
 		ply:SetSpectatingType( ply:GetSpectatingType() + 1 )
