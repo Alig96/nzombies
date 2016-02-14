@@ -45,7 +45,7 @@ end
 function player.GetAllNonSpecs()
 	local result = {}
 	for _, ply in pairs( player.GetAll() ) do
-		if !ply:IsPermSpec() then
+		if ply:Team() != TEAM_SPECTATOR then
 			table.insert( result, ply )
 		end
 	end

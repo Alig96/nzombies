@@ -237,7 +237,7 @@ function Round:SetupGame()
 
 	--Store a session of all our players
 	for _, ply in pairs(player.GetAll()) do
-		if ply:IsValid() and !ply:IsPermSpec() then
+		if ply:IsValid() and ply:IsReady() then
 			ply:SetPlaying( true )
 		end
 		ply:SetFrags( 0 ) --Reset all player kills

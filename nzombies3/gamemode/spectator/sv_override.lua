@@ -14,7 +14,7 @@ function GM:PlayerDeathThink( ply )
 	if ply:KeyPressed( IN_RELOAD ) then
 		ply:SetSpectatingType( ply:GetSpectatingType() + 1 )
 		if ply:GetSpectatingType() > 5 then
-			ply:GetSpectatingType() = 4
+			ply:SetSpectatingType( 4 )
 			ply:SetupHands(players[ ply:GetSpectatingID() ])
 		end
 		ply:Spectate( ply:GetSpectatingType() )
