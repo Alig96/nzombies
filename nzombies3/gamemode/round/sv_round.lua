@@ -219,7 +219,7 @@ function Round:Create()
 		self:SetState( ROUND_WAITING )
 		--We are in play mode
 		for k,v in pairs(player.GetAll()) do
-			v:SetAsSpec()
+			v:SetSpectator()
 		end
 		//Set them to not solid to make Traces go through (gunshots)
 		for k,v in pairs(ents.FindByClass("nav_gate")) do
