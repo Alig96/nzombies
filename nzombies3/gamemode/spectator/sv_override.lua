@@ -25,7 +25,7 @@ function GM:PlayerDeathThink( ply )
 	elseif ply:KeyPressed( IN_ATTACK2 ) then
 		ply:SetSpectatingID( ply:GetSpectatingID() - 1 )
 		if ply:GetSpectatingID() <= 0 then ply:SetSpectatingID( #players ) end
-		pl:SpectateEntity( players[ ply:GetSpectatingID() ] )
+		ply:SpectateEntity( players[ ply:GetSpectatingID() ] )
 	end
 end
 
