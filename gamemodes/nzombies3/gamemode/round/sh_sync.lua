@@ -48,8 +48,8 @@ if SERVER then
 
 	function Round:SendSync( ply )
 		self:SendNumber( self:GetNumber(), ply )
-		self:SendState( self:GetState(), ply )
 		self:SendSpecialRound( self:IsSpecial(), ply )
+		self:SendState( self:GetState(), ply )
 
 		for _, v in pairs( player.GetAll() ) do
 			self:SendReadyState( v, v:GetReady(), ply )

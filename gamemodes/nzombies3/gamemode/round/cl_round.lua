@@ -15,3 +15,17 @@ function Round:StateChange( old, new )
 		hook.Call( "OnRoundEnd", Round )
 	end
 end
+
+function Round:OnRoundPreperation()
+	if !self:IsSpecial() then
+		self:EnableSpecialFog(false)
+	end
+end
+
+function Round:OnRoundStart()
+	if self:IsSpecial() then
+		self:EnableSpecialFog(true)
+	else
+		self:EnableSpecialFog(false)
+	end
+end

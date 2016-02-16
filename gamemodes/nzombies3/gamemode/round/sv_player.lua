@@ -22,6 +22,7 @@ function plyMeta:ReadyUp()
 		if !self:IsReady() then
 			PrintMessage( HUD_PRINTTALK, self:Nick().." is ready!" )
 			self:SetReady( true )
+			self:SetTeam(TEAM_PLAYERS)
 			hook.Call( "OnPlayerReady", Round, self )
 		else
 			self:PrintMessage( HUD_PRINTTALK, "You are already ready!" )

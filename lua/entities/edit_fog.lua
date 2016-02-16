@@ -16,42 +16,11 @@ function ENT:Initialize()
 	
 	-- There can only be one!
 	if IsValid(ents.FindByClass("edit_fog")[1]) and ents.FindByClass("edit_fog")[1] != self then ents.FindByClass("edit_fog")[1]:Remove() end
-	
+
 	if ( CLIENT ) then
-
-		hook.Add( "SetupWorldFog", self, self.SetupWorldFog )
-		hook.Add( "SetupSkyboxFog", self, self.SetupSkyFog )
-
+		Round:EnableSpecialFog( false )
 	end
-
-end
-
-function ENT:SetupWorldFog()
-
-	render.FogMode( 1 ) 
-	render.FogStart( self:GetFogStart() )
-	render.FogEnd( self:GetFogEnd()  )
-	render.FogMaxDensity( self:GetDensity() )
-
-	local col = self:GetFogColor()
-	render.FogColor( col.x * 255, col.y * 255, col.z * 255 )
-
-	return true
-
-end
-
-function ENT:SetupSkyFog( skyboxscale )
-
-	render.FogMode( 1 ) 
-	render.FogStart( self:GetFogStart() * skyboxscale )
-	render.FogEnd( self:GetFogEnd() * skyboxscale )
-	render.FogMaxDensity( self:GetDensity() )
-
-	local col = self:GetFogColor()
-	render.FogColor( col.x * 255, col.y * 255, col.z * 255 )
-
-	return true
-
+	
 end
 
 function ENT:SetupDataTables()
