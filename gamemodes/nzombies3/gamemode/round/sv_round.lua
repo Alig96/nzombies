@@ -25,7 +25,7 @@ function Round:Prepare()
 
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
-	
+
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ] )
 	end
@@ -152,7 +152,7 @@ function Round:ResetGame()
 	nz.Elec.Functions.Reset()
 
 	--Remove the random box
-	nz.RandomBox.Functions.RemoveBox()
+	RandomBox:Remove()
 
 	--Reset all perk machines
 	for k,v in pairs(ents.FindByClass("perk_machine")) do
@@ -230,7 +230,8 @@ function Round:SetupGame()
 
 	--Store a session of all our players
 	for _, ply in pairs(player.GetAll()) do
-		if ply:IsValid() and !ply:IsPermSpec() then
+		if ply:IsValid() and ply:IsReady() then
+			ply:SetTeam( TEAM_PLAYERS )
 			ply:SetPlaying( true )
 		end
 		ply:SetFrags( 0 ) --Reset all player kills
@@ -265,6 +266,6 @@ function Round:SetupGame()
 	--nz.Doors.Functions.SendSync()
 
 	//Spawn a random box
-	nz.RandomBox.Functions.SpawnBox()
+	RandomBox:Spawn()
 
 end

@@ -107,13 +107,7 @@ function MenuToolBar:Init()
 	end
 
 	local spectate = self:AddEntry( "SPECTATE", "medium", "say", "/spectate" )
-	function spectate:Think()
-		if LocalPlayer():Team() == TEAM_SPEC then
-			spectate:SetText( "UNSPECTATE" )
-		else
-			spectate:SetText( "SPECTATE" )
-		end
-	end
+
 	self:AddEntry( "WORKSHOP PAGE", "medium", function() gui.OpenURL( "http://steamcommunity.com" ) end )
 
 	--Settings Button / Close button
@@ -184,17 +178,19 @@ function MenuToolBar:AddEntry( lbl, fontSize, cmd, args )
 	else
 		entry:SetFont( "pier_small" )
 	end
-	local nextPos = 320
+	local nextPos = 300
 	for _, v in pairs( self.Entries ) do
 		nextPos = nextPos + v:GetWide() + 30
 	end
-	entry:SetPos( nextPos, 20 )
+	entry:SetPos( nextPos, 0 )
+	entry:SetTall( self:GetTall() )
 	if isfunction( cmd ) then
 		entry.DoClick = cmd
 	elseif isstring( cmd ) then
 		entry:SetConsoleCommand( cmd, args )
 	end
 	entry:SetText( lbl )
+	entry:SetContentAlignment( 5 )
 	--entry:SizeToContentsX()
 
 	table.insert( self.Entries, 1, entry )

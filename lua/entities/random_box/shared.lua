@@ -46,7 +46,7 @@ end
 
 function ENT:BuyWeapon(ply)
 	if ply:CanAfford(nz.PowerUps.Functions.IsPowerupActive("firesale") and 10 or 950) then
-        local class = nz.RandomBox.Functions.DecideWep(ply)
+        local class = RandomBox:DecideWep(ply)
         if class != nil then
       		ply:TakePoints(nz.PowerUps.Functions.IsPowerupActive("firesale") and 10 or 950)
       		self:Open()
@@ -161,7 +161,7 @@ end
 
 function ENT:MoveToNewSpot(oldspot)
 	//Calls mapping function excluding the current spot
-	nz.RandomBox.Functions.SpawnBox(oldspot)
+	RandomBox:Spawn(oldspot)
 end
 
 function ENT:MarkForRemoval()
@@ -192,5 +192,5 @@ if CLIENT then
 			end
 		end
 	end )
-	
+
 end

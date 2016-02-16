@@ -41,6 +41,7 @@ ENT.BreathSounds = {
 }
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
+ENT.JumpHeight = 68
 ENT.AttackRange = 65
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100
@@ -88,6 +89,7 @@ function ENT:Initialize()
 		self.loco:SetDeathDropHeight( self.DeathDropHeight )
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.loco:SetAcceleration( self.Acceleration )
+		self.loco:SetJumpHeight( self.JumpHeight )
 	end
 
 end
@@ -315,7 +317,7 @@ function ENT:OnRemove()
 end
 
 function ENT:OnStuck()
-	self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
+	--
 	--self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000, 1000 )
 	--print("Now I'm stuck", self)
 end
@@ -428,8 +430,8 @@ function ENT:ChaseTarget( options )
 		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
 		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
 		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
-		local goal = path:GetCurrentGoal()
-		if path:IsValid() and ((self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z < 0 and (math.abs(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z - self:GetPos().z) > 22))) then
+		--local goal = path:GetCurrentGoal()
+		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z) > 22 then
 			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
 		end
 
@@ -452,7 +454,7 @@ function ENT:ChaseTarget( options )
 		end
 
 		if self.loco:GetVelocity():Length() < 10 then
-			self:OnStuck()
+			self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
 		end
 
 		coroutine.yield()
@@ -554,39 +556,39 @@ function ENT:Attack( data )
 end
 
 --we do our own jump since the loco one is a bit weird.
-function ENT:Jump( goal, scanDist )
+function ENT:Jump()
 	if CurTime() < self:GetLastJump() + 2 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
 	if !self:IsOnGround() then return end
 	self.loco:SetDesiredSpeed( 450 )
 	self.loco:SetAcceleration( 5000 )
 	self:SetLastJump( CurTime() )
 	self:SetJumping( true )
-	self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
+	--self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
 	self.loco:Jump()
 	--Boost them
-	self.loco:Approach(goal, 1000)
+	--self.loco:SetVelocity( self:GetForward()*5 )
 end
 
 function ENT:Flames( state )
 	if state then
-		self.Flames = ents.Create("env_fire")
-		if IsValid( self.Flames ) then
-			self.Flames:SetParent(self, 2)
-			self.Flames:SetOwner(self)
-			self.Flames:SetPos(self:GetPos()-Vector(0,0,-50))
+		self.FlamesEnt = ents.Create("env_fire")
+		if IsValid( self.FlamesEnt ) then
+			self.FlamesEnt:SetParent(self, 2)
+			self.FlamesEnt:SetOwner(self)
+			self.FlamesEnt:SetPos(self:GetPos()-Vector(0,0,-50))
 			--no glow + delete when out + start on + last forever
-			self.Flames:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
-			self.Flames:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
-			self.Flames:SetKeyValue("fireattack", 0)
-			self.Flames:SetKeyValue("health", 0)
-			self.Flames:SetKeyValue("damagescale", "-10") -- only neg. value prevents dmg
+			self.FlamesEnt:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
+			self.FlamesEnt:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
+			self.FlamesEnt:SetKeyValue("fireattack", 0)
+			self.FlamesEnt:SetKeyValue("health", 0)
+			self.FlamesEnt:SetKeyValue("damagescale", "-10") -- only neg. value prevents dmg
 
-			self.Flames:Spawn()
-			self.Flames:Activate()
+			self.FlamesEnt:Spawn()
+			self.FlamesEnt:Activate()
 		end
-	elseif IsValid( self.Flames )  then
-		self.Flames:Remove()
-		self.Flames = nil
+	elseif IsValid( self.FlamesEnt )  then
+		self.FlamesEnt:Remove()
+		self.FlamesEnt = nil
 	end
 end
 
