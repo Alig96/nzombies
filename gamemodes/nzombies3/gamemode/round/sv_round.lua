@@ -24,12 +24,14 @@ end
 function Round:Prepare()
 
 	-- Set special for the upcoming round during prep, that way clients have time to fade the fog in
-	self:SetSpecial( nz.Config.EnemyTypes[ self:GetNumber() + 1 ].special )
+	self:SetSpecial( self:MarkedForSpecial( self:GetNumber() + 1 ) )
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
 	
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
+	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
+		self:SetZombieData( nz.Config.SpecialRoundData )
 	end
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
 	
@@ -66,6 +68,10 @@ function Round:Prepare()
 
 	--Start the next round
 	timer.Simple(nz.Config.PrepareTime, function() self:Start() end )
+	
+	if self:IsSpecial() then
+		self:SetNextSpecialRound( self:GetNumber() + nz.Config.SpecialRoundInterval )
+	end
 
 end
 

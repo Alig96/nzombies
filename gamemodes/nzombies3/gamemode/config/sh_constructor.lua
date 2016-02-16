@@ -109,6 +109,13 @@ if SERVER then
 	//Electricity
 
 	//Enemies
+	nz.Config.SpecialRoundInterval = 6
+	nz.Config.SpecialRoundData = {
+		["nz_zombie_special_burning"] = {
+				chance = 100,
+			}
+	}
+	
 	nz.Config.EnemyTypes = {}
 	--nz.Config.EnemyTypes[1] = {["nz_zombie_walker"] = 100}
 	
