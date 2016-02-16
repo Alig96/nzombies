@@ -3,7 +3,8 @@ nZombies
 
 A GM13 Nazi Zombies style (WIP) gamemode
 
-place in gamemodes/nzombies/
+Download folder and place it in garrysmod/garrysmod/addons
+If it for some reason doesn't work, refer to the Fallback branch using the old structure (installed differently)
 
 This is an edited version featuring these changes:
 
