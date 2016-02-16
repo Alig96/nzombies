@@ -111,8 +111,15 @@ end)
 
 //Tests
 
-NewChatCommand("/spec", function(ply, text)
-	ply:PermSpec()
+NewChatCommand("/spectate", function(ply, text)
+	if !Round:InProgress() or Round:InState( ROUND_INIT ) then
+		ply:PrintMessage( HUD_PRINTTALK, "No round in progress, couldnt set you to spectator!" )
+	elseif ply:IsReady() then
+		ply:UnReady()
+		ply:SetSpectator()
+	else
+		ply:SetSpectator()
+	end
 end)
 
 NewChatCommand("/soundcheck", function(ply, text)

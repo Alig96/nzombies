@@ -40,9 +40,9 @@ function plyMeta:ReadyUp()
 end
 
 function plyMeta:UnReady()
-	if Round:InState( ROUND_WAITING ) or Round:InState( ROUND_INIT ) then
+	if Round:InState( ROUND_WAITING ) then
 		if self:IsReady() then
-			PrintMessage( HUD_PRINTTALK, self:Nick().." is no longer ready!" )
+			PrintMessage( HUD_PRINTTALK, self:Nick() .. " is no longer ready!" )
 			self:SetReady( false )
 			hook.Call( "OnPlayerUnReady", Round, self )
 		end
@@ -56,6 +56,7 @@ function plyMeta:DropIn()
 	if nz.Config.AllowDropins == true and !self:IsPlaying() then
 		PrintMessage( HUD_PRINTTALK, self:Nick().." will be dropping in next round!" )
 		self:SetPlaying( true )
+		self:SetTeam( TEAM_PLAYERS )
 		hook.Call( "OnPlayerDropIn", Round, self )
 	else
 		self:PrintMessage( HUD_PRINTTALK, "You are already in queue or dropins are not allowed on this Server." )
@@ -76,7 +77,6 @@ end
 function plyMeta:ReSpawn()
 
 	--Setup a player
-	self:SetTeam( TEAM_PLAYERS )
 	player_manager.SetPlayerClass( self, "player_ingame" )
 	if !self:Alive() then
 		self:Spawn()
@@ -86,7 +86,6 @@ end
 
 function plyMeta:GiveCreativeMode()
 
-	self:SetTeam( TEAM_PLAYERS )
 	player_manager.SetPlayerClass( self, "player_create" )
 	if !self:Alive() then
 		self:Spawn()

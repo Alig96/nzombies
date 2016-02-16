@@ -1,14 +1,14 @@
 //
 
-function nz.RandomBox.Functions.SpawnBox(exclude)
+function RandomBox:Spawn(exclude)
 	//Get all spawns
 	local all = ents.FindByClass("random_box_spawns")
-	if exclude and IsValid(exclude) then 
+	if exclude and IsValid(exclude) then
 		table.RemoveByValue(all, exclude)
 		print("Excluded ", exclude)
 	end
-	
-	local rand = table.Random(all)
+
+	local rand = all[ math.random( #all ) ]
 
 	if rand != nil and !rand.HasBox then
 		local box = ents.Create( "random_box" )
@@ -28,7 +28,7 @@ function nz.RandomBox.Functions.SpawnBox(exclude)
 	end
 end
 
-function nz.RandomBox.Functions.RemoveBox()
+function RandomBox:Remove()
 	//Get all spawns
 	local all = ents.FindByClass("random_box")
 	//Loop just incase
@@ -38,13 +38,13 @@ function nz.RandomBox.Functions.RemoveBox()
 	end
 end
 
-function nz.RandomBox.Functions.DecideWep(ply)
-	
+function RandomBox:DecideWep(ply)
+
 	local teddychance = math.random(1, 15)
 	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") then
 		return "nz_box_teddy"
 	end
-	
+
 	local guns = {}
 	local blacklist = table.Copy(nz.Config.WeaponBlackList)
 
@@ -63,7 +63,7 @@ function nz.RandomBox.Functions.DecideWep(ply)
 			end
 		end
 	end
-	
+
 	if nz.Mapping.MapSettings.rboxweps then
 		for k,v in pairs(nz.Mapping.MapSettings.rboxweps) do
 			if !table.HasValue(blacklist, v) then
