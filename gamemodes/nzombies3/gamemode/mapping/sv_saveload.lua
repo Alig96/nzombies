@@ -466,23 +466,27 @@ function nz.Mapping.Functions.LoadConfig( name )
 	
 end
 
-util.AddNetworkString("nzCleanUp")
 function nz.Mapping.Functions.CleanUpMap()
-	game.CleanUpMap(true, {
+	game.CleanUpMap(false, {
 		"breakable_entry",
 		"breakable_entry_plank",
 		"button_elec",
 		"perk_machine",
-		"player_handler",
 		"player_spawns",
 		"prop_buys",
 		"random_box_spawns",
-		"random_box_handler",
 		"wall_block",
 		"wall_buys",
 		"zed_spawns",
-		"easter_egg"
+		"easter_egg",
+		"edit_fog",
+		"edit_fog_special",
+		"edit_sky",
+		"edit_sun",
+		"nz_prop_effect",
+		"nz_fire_effect",
 	})
+	
 	//Gotta reset the doors and other entites' values!
 	for k,v in pairs(Doors.MapDoors) do
 		local door = Doors:DoorIndexToEnt(k)
@@ -493,8 +497,6 @@ function nz.Mapping.Functions.CleanUpMap()
 			door:LockButton()
 		end
 	end
-	net.Start("nzCleanUp")
-	net.Broadcast()
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()

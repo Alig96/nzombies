@@ -23,16 +23,21 @@ end
 
 function Round:Prepare()
 
+	-- Set special for the upcoming round during prep, that way clients have time to fade the fog in
+	self:SetSpecial( self:MarkedForSpecial( self:GetNumber() + 1 ) )
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
-
+	
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
-		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ] )
+		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
+	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
+		self:SetZombieData( nz.Config.SpecialRoundData )
 	end
-	self:SetGlobalZombieData( {
-		health = nz.Curves.Functions.GenerateHealthCurve(Round:GetNumber()),
-		maxzombies = nz.Curves.Functions.GenerateMaxZombies(Round:GetNumber()),
-	})
+	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
+	
+	
+	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
+	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
 
 	if nz.Config.EnemyTypes[ self:GetNumber() ] and nz.Config.EnemyTypes[ self:GetNumber() ].count then
 		self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
@@ -63,6 +68,10 @@ function Round:Prepare()
 
 	--Start the next round
 	timer.Simple(nz.Config.PrepareTime, function() self:Start() end )
+	
+	if self:IsSpecial() then
+		self:SetNextSpecialRound( self:GetNumber() + nz.Config.SpecialRoundInterval )
+	end
 
 end
 
@@ -231,7 +240,6 @@ function Round:SetupGame()
 	--Store a session of all our players
 	for _, ply in pairs(player.GetAll()) do
 		if ply:IsValid() and ply:IsReady() then
-			ply:SetTeam( TEAM_PLAYERS )
 			ply:SetPlaying( true )
 		end
 		ply:SetFrags( 0 ) --Reset all player kills

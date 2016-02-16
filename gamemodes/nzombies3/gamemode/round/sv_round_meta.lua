@@ -43,6 +43,13 @@ function Round:SetZombieData( tbl )
 	self.ZombieData = tbl
 end
 
+function Round:GetZombieSpeeds()
+	return self.ZombieSpeeds
+end
+function Round:SetZombieSpeeds( tbl )
+	self.ZombieSpeeds = tbl
+end
+
 function Round:SetGlobalZombieData( tbl )
 	self:SetZombiesMax(tbl.maxzombies or 5)
 	self:SetZombieHealth(tbl.health or 75)
@@ -59,6 +66,7 @@ end
 
 function Round:SetSpecial( bool )
 	self.SpecialRound = bool or false
+	self:SendSpecialRound( self.SpecialRound )
 end
 
 function Round:InProgress()

@@ -256,12 +256,17 @@ local function RoundHud()
 end
 
 local roundchangeending = false
+local prevroundspecial = false
 local function StartChangeRound()
 
-	print(Round:GetNumber())
+	print(Round:GetNumber(), Round:IsSpecial())
 
 	if Round:GetNumber() >= 1 then
-		surface.PlaySound("nz/round/round_end.mp3")
+		if prevroundspecial then
+			surface.PlaySound("nz/round/special_round_end.wav")
+		else
+			surface.PlaySound("nz/round/round_end.mp3")
+		end
 	else
 		round_num = 0
 	end
@@ -293,7 +298,13 @@ local function StartChangeRound()
 				if roundchangeending then
 					round_num = Round:GetNumber()
 					round_charger = 0.5
-					surface.PlaySound("nz/round/round_start.mp3")
+					if Round:IsSpecial() then
+						surface.PlaySound("nz/round/special_round_start.wav")
+						prevroundspecial = true
+					else
+						surface.PlaySound("nz/round/round_start.mp3")
+						prevroundspecial = false
+					end
 					haschanged = true
 				else
 					round_charger = 1

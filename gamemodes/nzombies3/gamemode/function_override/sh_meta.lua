@@ -18,6 +18,12 @@ if SERVER then
 				--print("Hasd perk")
 				local cur = wep:Clip1()
 				if cur >= wep:GetMaxClip1() then return end
+				local give = wep:GetMaxClip1() - cur
+				if give > ply:GetAmmoCount(wep:GetPrimaryAmmoType()) then
+					give = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
+				end
+				if give <= 0 then return end
+				--print(give)
 				
 				wep:SendWeaponAnim(ACT_VM_RELOAD)
 				oldreload(wep)
@@ -36,8 +42,8 @@ if SERVER then
 						wep:SetPlaybackRate(1)
 						ply:GetViewModel():SetPlaybackRate(1)
 						wep:SendWeaponAnim(ACT_VM_IDLE)
-						wep:SetClip1(wep:GetMaxClip1())
-						ply:RemoveAmmo(wep:GetMaxClip1() - cur, wep:GetPrimaryAmmoType())
+						wep:SetClip1(give + cur)
+						ply:RemoveAmmo(give, wep:GetPrimaryAmmoType())
 						wep:SetNextPrimaryFire(0)
 						wep:SetNextSecondaryFire(0)
 					end

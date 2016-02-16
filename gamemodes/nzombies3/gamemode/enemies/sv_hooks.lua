@@ -31,6 +31,9 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 		end
 
 		print("Killed Enemy: " .. Round:GetZombiesKilled() .. "/" .. Round:GetZombiesMax() )
+		if Round:IsSpecial() and Round:GetZombiesKilled() >= Round:GetZombiesMax() then
+			nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos(), "maxammo")
+		end
 	end
 	-- Prevent this function from running on this zombie again
 	enemy.MarkedForDeath = true
