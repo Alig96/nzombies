@@ -1,12 +1,12 @@
 local plyMeta = FindMetaTable( "Player" )
 
 function plyMeta:ReadyUp()
-	
+
 	if !navmesh.IsLoaded() then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because the map has not Navmesh loaded. Use the settings menu to generate a rough Navmesh or use tools in sandbox to make a proper one.")
 		return false
 	end
-	
+
 	if nz.Mapping.Functions.CheckSpawns() == false then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because no Zombie/Player spawns have been set.")
 		return false
@@ -15,11 +15,6 @@ function plyMeta:ReadyUp()
 	--Check if we have enough player spawns
 	if nz.Mapping.Functions.CheckEnoughPlayerSpawns() == false then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because not enough player spawns have been set. We need " .. #player.GetAll() .. " but only have " .. #ents.FindByClass("player_spawns") .. "." )
-		return false
-	end
-
-	if self:IsPermSpec() then
-		self:PrintMessage( HUD_PRINTTALK, "You can't ready up because you are a perm spectator!" )
 		return false
 	end
 
@@ -79,8 +74,6 @@ function plyMeta:DropOut(ply)
 end
 
 function plyMeta:ReSpawn()
-
-	if self:IsPermSpec() then return end
 
 	--Setup a player
 	self:SetTeam( TEAM_PLAYERS )

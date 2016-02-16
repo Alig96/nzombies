@@ -219,7 +219,7 @@ function Round:Create()
 		self:SetState( ROUND_WAITING )
 		--We are in play mode
 		for k,v in pairs(player.GetAll()) do
-			v:SetAsSpec()
+			v:SetSpectator()
 		end
 		//Set them to not solid to make Traces go through (gunshots)
 		for k,v in pairs(ents.FindByClass("nav_gate")) do
@@ -237,7 +237,7 @@ function Round:SetupGame()
 
 	--Store a session of all our players
 	for _, ply in pairs(player.GetAll()) do
-		if ply:IsValid() and !ply:IsPermSpec() then
+		if ply:IsValid() and ply:IsReady() then
 			ply:SetPlaying( true )
 		end
 		ply:SetFrags( 0 ) --Reset all player kills
