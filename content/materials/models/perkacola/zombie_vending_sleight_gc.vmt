@@ -1,7 +1,0 @@
-"VertexlitGeneric"
-{
-	"$basetexture" "models/perkacola/zombie_vending_sleight_gc"
-	"$normalmap" "models/perkacola/zombie_vending_sleight_n"
-	"$surfaceprop" "Metal"
-	"$translucent" 1
-}
