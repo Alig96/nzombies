@@ -49,7 +49,7 @@ function nz.Weps.Functions.ApplyDTap( ply, wep )
 		local oldtbl = {}
 		for k,v in pairs(data) do
 			if wep[k] != nil then
-				local val = wep[k] / 2
+				local val = wep[k] * 0.66
 				local old = wep[k]
 				wep["old_"..k] = old
 				wep[k] = val
@@ -131,10 +131,21 @@ function nz.Weps.Functions.ApplyPaP( ply, wep )
 		if wep.OnPaP then wep:OnPaP() end
 
 		local data = {}
+		data.wepdata = {}
+		data.primarydata = {}
 		//Attach the weapon to the data
 		data["wep"] = wep
 		wep["pap"] = true
-		data["pap"] = true
+		data.wepdata["pap"] = true
+		
+		if wep.Primary and wep.Primary.ClipSize > 0 then
+			local newammo = wep.Primary.ClipSize + (wep.Primary.ClipSize*0.5)
+			newammo = math.Round(newammo/5)*5
+			wep.Primary.ClipSize = newammo
+			data.primarydata = {}
+			data.primarydata.ClipSize = newammo
+			wep:SetClip1(newammo)
+		end
 		nz.Weps.Functions.SendSync( ply, data )
 	end
 end

@@ -29,7 +29,9 @@ function nz.Players.Functions.FullSync( ply )
 	nz.Fog.Functions.SendSync()
 	
 	-- A full sync module using the new rewrites
-	ply:SendFullSync()
+	if IsValid(ply) then
+		ply:SendFullSync()
+	end
 end
 
 function nz.Players.Functions.PlayerInitialSpawn( ply )
