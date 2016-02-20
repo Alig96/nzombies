@@ -39,6 +39,9 @@ ENT.DeathSounds = {
 ENT.BreathSounds = {
 	"npc/zombie_poison/pz_breathe_loop1.wav"
 }
+
+ENT.RedEyes = false
+
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
 ENT.JumpHeight = 68
@@ -56,13 +59,19 @@ AccessorFunc( ENT, "fAttackRange", "AttackRange", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
 
+--Stuck prevention
+AccessorFunc( ENT, "fLastPostionSave", "LastPostionSave", FORCE_NUMBER)
+AccessorFunc( ENT, "iStuckCounter", "StuckCounter", FORCE_NUMBER)
+AccessorFunc( ENT, "vStuckAt", "StuckAt")
+
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
 
 --Init
 function ENT:Initialize()
-	self:SetModel( self.Models[math.random( #self.Models ) ] ) --Random model will not be shared (does it matter?)
+
+	self:SetModel( self.Models[math.random( #self.Models )] )
 
 	self.Breathing = CreateSound(self, self.BreathSounds[ math.random( #self.BreathSounds ) ] )
 	self.Breathing:Play()
@@ -72,6 +81,11 @@ function ENT:Initialize()
 	self:SetJumping( false )
 	self:SetLastJump( CurTime() + 3 ) --prevent jumping after spawn
 	self:SetLastTargetCheck( CurTime() )
+
+	--stuck prevetion
+	self:SetLastPostionSave( CurTime() )
+	self:SetStuckAt( self:GetPos() )
+	self:SetStuckCounter( 0 )
 
 	self:SetAttacking( false )
 	self:SetAttackRange( self.AttackRange )
@@ -90,6 +104,10 @@ function ENT:Initialize()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.loco:SetAcceleration( self.Acceleration )
 		self.loco:SetJumpHeight( self.JumpHeight )
+	end
+
+	for i,v in ipairs(self:GetBodyGroups()) do
+		self:SetBodygroup( i-1, math.random(0, self:GetBodygroupCount(i-1) - 1))
 	end
 
 end
@@ -113,9 +131,43 @@ function ENT:Think()
 			self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
 		end
 
-		if self:GetLastTargetCheck() + 2 < CurTime() then
+		--this is a very costly operation so we only do it every 1 seconds
+		if self:GetLastTargetCheck() + 1 < CurTime() then
 			self:GetPriorityTarget()
 		end
+
+		if self:GetLastPostionSave() + 4 < CurTime() then
+			if self:GetPos():Distance( self:GetStuckAt() ) < 10 then
+				self:SetStuckCounter( self:GetStuckCounter() + 1)
+			else
+				self:SetStuckCounter( 0 )
+			end
+
+			if self:GetStuckCounter() > 2 then
+
+				if self:GetStuckCounter() <= 4  then
+					--try to unstuck via random velocity
+					self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
+				end
+
+				if self:GetStuckCounter() > 4 and self:GetStuckCounter() <= 7 then
+					--try to unstuck via jump
+					self:Jump()
+				end
+
+				if self:GetStuckCounter() > 7 then
+					--Worst case:
+					--respawn the zombie after 32 seconds with no postion change
+					self:RespawnAtRandom()
+					self:SetStuckCounter( 0 )
+				end
+
+			end
+			self:SetLastPostionSave( CurTime() )
+			self:SetStuckAt( self:GetPos() )
+		end
+
+
 
 	end
 	self:OnThink()
@@ -158,14 +210,16 @@ local white = Color( 255, 255, 255, 255 )
 
 function ENT:Draw()
 	self:DrawModel()
-	local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
-	local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
-	local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
-	cam.Start3D(EyePos(),EyeAngles())
-		render.SetMaterial( eyeGlow )
-		render.DrawSprite( leftEye, 4, 4, white)
-		render.DrawSprite( rightEye, 4, 4, white)
-	cam.End3D()
+	if self.RedEyes then
+		local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
+		local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
+		local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
+		cam.Start3D(EyePos(),EyeAngles())
+			render.SetMaterial( eyeGlow )
+			render.DrawSprite( leftEye, 4, 4, white)
+			render.DrawSprite( rightEye, 4, 4, white)
+		cam.End3D()
+	end
 end
 
 --[[
@@ -305,8 +359,10 @@ function ENT:OnInjured( dmgInfo )
 end
 
 function ENT:OnKilled(dmgInfo)
+
 	self:EmitSound(self.DeathSounds[ math.random( #self.DeathSounds ) ], 50, math.random(75, 130))
 	self:BecomeRagdoll(dmgInfo)
+
 end
 
 function ENT:OnRemove()
@@ -324,39 +380,102 @@ end
 
 --Target and pathfidning
 function ENT:GetPriorityTarget()
-	local pos = self:GetPos()
 
-	local min_dist, closest_target = -1, nil
+	local minDist, closestTarget = -1, nil
 
 	for _, target in pairs(player.GetAll()) do
 		if self:IsValidTarget( target ) then
 			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
-				local dist = target:NearestPoint(pos):Distance(pos)
-				if ((dist < min_dist||min_dist==-1)) then
-					closest_target = target
-					min_dist = dist
+				local pos = target:GetPos()
+				local distance = self:GetRangeSquaredTo( target:NearestPoint(pos) )
+				if minDist == -1 or minDist > distance then
+					minDist = distance
+					closestTarget = target
 				end
 			end
 		end
 	end
 
-	return closest_target
+	return closestTarget
 end
 
 function ENT:ChaseTarget( options )
 
-	local options = options or {}
+	options = options or {}
 
 	if !options.target then
 		options.target = self:GetTarget()
 	end
 
+	local path = self:ChaseTargetPath( options )
+
+	if ( !path:IsValid() ) then return "failed" end
+	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
+		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
+		if ( path:GetAge() > options.maxage ) then
+			return "timeout"
+		end
+		path:Update( self )	-- This function moves the bot along the path
+		--if ( options.draw ) then
+			path:Draw()
+		--end
+		--the jumping part simple and buggy
+		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
+		local scanDist
+		--this will probaly need asjustments to fit the zombies speed
+		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
+		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
+		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
+		--local goal = path:GetCurrentGoal()
+		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z) > 22 then
+			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
+		end
+
+		--[[if path:IsValid() and goal.type == 4 then
+			--self.loco:SetVelocity( Vector( 0, 0, 1000 ) )
+			self:SetPos( path:GetClosestPosition( goal.ladder:GetTopForwardArea():GetCenter() ) )
+			self:SetClimbing( true )
+			coroutine.wait( 0.5 )
+			self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
+			return "timeout"
+			if self.loco:IsUsingLadder() then
+				self.loco:SetVelocity( self.loco:GetVelocity() + Vector( 0, 0, 50 ) )
+			end
+		end --]]
+
+		-- If we're stuck, then call the HandleStuck function and abandon
+		if ( self.loco:IsStuck() ) then
+			self:HandleStuck()
+			return "stuck"
+		end
+
+		if self.loco:GetVelocity():Length() < 10 then
+			self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
+		end
+
+		coroutine.yield()
+
+	end
+
+	return "ok"
+
+end
+
+function ENT:ChaseTargetPath( options )
+
+	options = options or {}
+
 	local path = Path( "Follow" )
 	path:SetMinLookAheadDistance( options.lookahead or 300 )
 	path:SetGoalTolerance( options.tolerance or 50 )
 
+	--[[local targetPos = options.target:GetPos()
+	--set the goal to the closet navmesh
+	local goal = navmesh.GetNearestNavArea(targetPos, false, 100)
+	goal = goal and goal:GetClosestPointOnArea(targetPos) or targetPos--]]
+
 	--Custom path computer, the same as default but not pathing through locked nav areas.
-	path:Compute( self, options.target:GetPos(), function( area, fromArea, ladder, elevator, length )
+	path:Compute( self, options.target:GetPos(),  function( area, fromArea, ladder, elevator, length )
 		if ( !IsValid( fromArea ) ) then
 			--first area in path, no cost
 			return 0
@@ -370,7 +489,7 @@ function ENT:ChaseTarget( options )
 				--print("Has area")
 				if nz.Nav.Data[area:GetID()].link then
 					--print("Area has door link")
-					if !nz.Doors.Data.OpenedLinks[nz.Nav.Data[area:GetID()].link] then
+					if !Doors.OpenedLinks[nz.Nav.Data[area:GetID()].link] then
 						--print("Door link is not opened")
 						return -1
 					end
@@ -413,56 +532,8 @@ function ENT:ChaseTarget( options )
 			return cost
 		end
 	end)
-	if ( !path:IsValid() ) then return "failed" end
-	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
-		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
-		if ( path:GetAge() > options.maxage ) then
-			return "timeout"
-		end
-		path:Update( self )	-- This function moves the bot along the path
-		if ( options.draw ) then
-			path:Draw()
-		end
-		--the jumping part simple and buggy
-		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
-		local scanDist
-		--this will probaly need asjustments to fit the zombies speed
-		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
-		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
-		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
-		--local goal = path:GetCurrentGoal()
-		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z) > 22 then
-			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
-		end
 
-		--[[if path:IsValid() and goal.type == 4 then
-			--self.loco:SetVelocity( Vector( 0, 0, 1000 ) )
-			self:SetPos( path:GetClosestPosition( goal.ladder:GetTopForwardArea():GetCenter() ) )
-			self:SetClimbing( true )
-			coroutine.wait( 0.5 )
-			self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
-			return "timeout"
-			if self.loco:IsUsingLadder() then
-				self.loco:SetVelocity( self.loco:GetVelocity() + Vector( 0, 0, 50 ) )
-			end
-		end --]]
-
-		-- If we're stuck, then call the HandleStuck function and abandon
-		if ( self.loco:IsStuck() ) then
-			self:HandleStuck()
-			return "stuck"
-		end
-
-		if self.loco:GetVelocity():Length() < 10 then
-			self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
-		end
-
-		coroutine.yield()
-
-	end
-
-	return "ok"
-
+	return path
 end
 
 function ENT:GetLadderTop( ladder )
@@ -790,7 +861,7 @@ function ENT:RespawnAtRandom( cur )
 		print("No valid spawns were found - Couldn't respawn!")
 		return
 	end
-	local spawnpoint = table.Random(valids)
+	local spawnpoint = valids[ math.random(#valids) ]
 	if nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
 		return true

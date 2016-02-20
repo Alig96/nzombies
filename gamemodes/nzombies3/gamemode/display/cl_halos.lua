@@ -12,7 +12,7 @@ local function nzNewHalo(class, colour, createOnly)
 	else
 		table.insert(Halos.Normal, {class, colour})
 	end
-	
+
 end
 
 //Hooks
@@ -24,7 +24,7 @@ if nz.Config.Halos == true then
 				halo.Add( ents.FindByClass( v[1] ), v[2], 0, 0, 0.1, 0, 1 )
 			end
 		end
-		
+
 		//Normals
 		for k,v in pairs(Halos.Normal) do
 			halo.Add( ents.FindByClass( v[1] ), v[2], 0, 0, 0.1, 0, 1 )
