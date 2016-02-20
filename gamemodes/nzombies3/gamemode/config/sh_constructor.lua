@@ -74,13 +74,32 @@ nz.Config.MaxPerks = 4					//The max perks you can BUY (You can get more in othe
 
 //Random Box
 
-nz.Config.WeaponBlackList = {
-"weapon_base", "weapon_fists", "weapon_flechettegun", "weapon_medkit",
-"weapon_dod_sim_base", "weapon_dod_sim_base_shot", "weapon_dod_sim_base_snip", "weapon_sim_admin", "weapon_sim_spade",
-"fas2_base", "fas2_ammobox", "fas2_ifak", "fas2_base_shotgun",
-"nz_tool_base", "nz_tool_barricades", "nz_tool_block_spawns", "nz_tool_door_locker", "nz_tool_elec", "nz_tool_perk_machine", "nz_tool_player_spawns", "nz_tool_prop_modifier", "nz_tool_random_box", "nz_tool_template", "nz_tool_wall_buys", "nz_tool_zed_spawns",
-"nz_tool_ee", "nz_tool_random_box_handler", "nz_tool_player_handler", "nz_tool_nav_locker", "nz_multi_tool", "nz_tool_nav_ladder_builder"
+nz.Config.WeaponBlackList = {}
+function nz.Config.AddWeaponToBlacklist( class, remove )
+	nz.Config.WeaponBlackList[class] = remove and nil or true
+end
+
+nz.Config.AddWeaponToBlacklist( "weapon_base" )
+nz.Config.AddWeaponToBlacklist( "weapon_fists" )
+nz.Config.AddWeaponToBlacklist( "weapon_flechettegun" )
+nz.Config.AddWeaponToBlacklist( "weapon_medkit" )
+nz.Config.AddWeaponToBlacklist( "weapon_dod_sim_base" )
+nz.Config.AddWeaponToBlacklist( "weapon_dod_sim_base_shot" )
+nz.Config.AddWeaponToBlacklist( "weapon_dod_sim_base_snip" )
+nz.Config.AddWeaponToBlacklist( "weapon_sim_admin" )
+nz.Config.AddWeaponToBlacklist( "weapon_sim_spade" )
+nz.Config.AddWeaponToBlacklist( "fas2_base" )
+nz.Config.AddWeaponToBlacklist( "fas2_ammobox" )
+nz.Config.AddWeaponToBlacklist( "fas2_ifak" )
+nz.Config.AddWeaponToBlacklist( "nz_multi_tool" )
+
+nz.Config.WeaponWhiteList = {
+	"fas2_", "m9k_",
 }
+nz.Config.UseWhiteList = true -- Whether to load only from the whitelist (still bans from the blacklist)
+
+-- Whether to replace the white- and blacklist with the config's Map Settings list - turn off to always use the above lists
+nz.Config.UseMapWeaponList = true
 
 if SERVER then
 
@@ -111,9 +130,14 @@ if SERVER then
 	//Enemies
 	nz.Config.SpecialRoundInterval = 6
 	nz.Config.SpecialRoundData = {
-		["nz_zombie_special_burning"] = {
+		types = {
+			["nz_zombie_special_burning"] = {
 				chance = 100,
 			}
+		},
+		modifycount = function(original) -- Modify the count of zombies on special rounds
+			return original * 0.5
+		end
 	}
 	
 	nz.Config.EnemyTypes = {}
@@ -125,7 +149,6 @@ if SERVER then
 				chance = 100,
 			},
 		},
-		special = true
 	}
 	nz.Config.EnemyTypes[2] = { 
 		types = {

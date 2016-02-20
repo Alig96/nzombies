@@ -321,7 +321,7 @@ end
 
 local grenade_icon = Material("grenade-256.png", "unlitgeneric smooth")
 local function DrawGrenadeHud()
-	local num = LocalPlayer():GetAmmoCount("nz_specialgrenade")
+	local num = LocalPlayer():GetAmmoCount("nz_grenade")
 	local scale = (ScrW()/1920 + 1)/2
 	
 	--print(num)

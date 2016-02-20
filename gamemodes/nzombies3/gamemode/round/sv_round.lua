@@ -28,16 +28,16 @@ function Round:Prepare()
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
 	
+	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
+	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
+	
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
 	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
-		self:SetZombieData( nz.Config.SpecialRoundData )
+		self:SetZombieData( nz.Config.SpecialRoundData.types )
+		self:SetZombiesMax( nz.Config.SpecialRoundData.modifycount(self:GetZombiesMax()) )
 	end
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
-	
-	
-	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
-	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
 
 	if nz.Config.EnemyTypes[ self:GetNumber() ] and nz.Config.EnemyTypes[ self:GetNumber() ].count then
 		self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
@@ -87,6 +87,7 @@ function Round:Start()
 
 	timer.Create( "NZRoundThink", 0.1, 0, function() self:Think() end )
 
+	nz.Weps.DoRoundResupply()
 end
 
 function Round:Think()

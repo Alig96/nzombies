@@ -38,6 +38,12 @@ end
 
 function nz.Weps.Functions.GiveMaxAmmo(ply)
 	for k,v in pairs(ply:GetWeapons()) do
-		nz.Weps.Functions.GiveMaxAmmoWep(ply, v:GetClass())
+		if !v:IsSpecial() then
+			nz.Weps.Functions.GiveMaxAmmoWep(ply, v:GetClass())
+		else
+			if SpecialWeapons.Weapons[v:GetClass()].maxammo then
+				SpecialWeapons.Weapons[v:GetClass()].maxammo(ply, v)
+			end
+		end
 	end
 end

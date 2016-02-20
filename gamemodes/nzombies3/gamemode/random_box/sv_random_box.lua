@@ -51,36 +51,41 @@ function RandomBox:DecideWep(ply)
 	//Add all our current guns to the black list
 	if ply:IsValid() then
 		for k,v in pairs( ply:GetWeapons() ) do
-			table.insert(blacklist, v.ClassName)
+			blacklist[v.ClassName] = true
 		end
 	end
 
 	//Add all guns with no model to the blacklist
 	for k,v in pairs( weapons.GetList() ) do
-		if !table.HasValue(blacklist, v.ClassName) then
+		if !blacklist[v.ClassName] then
 			if v.WorldModel == nil then
-				table.insert(blacklist, v.ClassName)
+				blacklist[v.ClassName] = true
 			end
 		end
 	end
 
-	if nz.Mapping.MapSettings.rboxweps then
+	if nz.Config.UseMapWeaponList and nz.Mapping.MapSettings.rboxweps then
 		for k,v in pairs(nz.Mapping.MapSettings.rboxweps) do
-			if !table.HasValue(blacklist, v) then
+			if !blacklist[v] then
 				table.insert(guns, v)
 			end
 		end
-	elseif IsValid(ents.FindByClass("random_box_handler")[1]) then
-		//Only add guns found in the Random Box Handler
-		for k,v in pairs( ents.FindByClass("random_box_handler")[1]:GetWeaponsList() ) do
-			if !table.HasValue(blacklist, v) then
-				table.insert(guns, v)
+	elseif nz.Config.UseWhiteList then
+		-- Load only weapons that have a prefix from the whitelist
+		for k,v in pairs( weapons.GetList() ) do
+			if !blacklist[v.ClassName] then
+				for k2,v2 in pairs(nz.Config.WeaponWhiteList) do
+					if string.sub(v.ClassName, 1, #v2) == v2 then
+						table.insert(guns, v.ClassName)
+						break
+					end
+				end
 			end
 		end
 	else
-		//It doesn't exist, add all guns
+		-- No weapon list and not using whitelist only, add all guns
 		for k,v in pairs( weapons.GetList() ) do
-			if !table.HasValue(blacklist, v.ClassName) then
+			if !blacklist[v.ClassName] then
 				table.insert(guns, v.ClassName)
 			end
 		end

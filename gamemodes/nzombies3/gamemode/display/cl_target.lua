@@ -88,9 +88,8 @@ local function GetText( ent )
 		local wep = weapons.Get(wepclass)
 		local name = "UNKNOWN"
 		if wep != nil then
-			name = wep.PrintName
+			name = nz.Display_PaPNames[wepclass] or nz.Display_PaPNames[name] or "Upgraded "..wep.PrintName
 		end
-		if name == nil then name = wepclass end
 		text = "Press E to take " .. name .. " from the machine."
 	end
 

@@ -11,8 +11,8 @@ function SpecialWeapons:CreateCategory(id, bind, useammo)
 	self.Keys[bind] = id
 end
 
-function SpecialWeapons:AddWeapon( wepclass, id, use, equip )
-	self.Weapons[wepclass] = {id = id, use = use, equip = equip}
+function SpecialWeapons:AddWeapon( wepclass, id, use, equip, maxammo )
+	self.Weapons[wepclass] = {id = id, use = use, equip = equip, maxammo = maxammo}
 end
 
 hook.Add("KeyPress", "SpecialWeaponsUsage", function(ply, key)

@@ -38,6 +38,7 @@ function PLAYER:Loadout()
 		end
 	end
 	self.Player:Give("nz_quickknife_crowbar")
+	self.Player:Give("nz_grenade")
 	
 end
 function PLAYER:Spawn()
