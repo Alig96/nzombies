@@ -18,7 +18,7 @@ function plyMeta:ReadyUp()
 		return false
 	end
 
-	if Round:InState( ROUND_WAITING ) then
+	if Round:InState( ROUND_WAITING ) or Round:InState( ROUND_INIT ) then
 		if !self:IsReady() then
 			PrintMessage( HUD_PRINTTALK, self:Nick().." is ready!" )
 			self:SetReady( true )
