@@ -304,9 +304,10 @@ nz.Perks.Functions.NewPerk("mulekick", {
 		return true
 	end,
 	lostfunc = function(self, ply)
-		if IsValid(ply.ThirdWeapon) and ply.ThirdWeapon:IsWeapon() then
-			ply:StripWeapon(ply.ThirdWeapon:GetClass())
-			ply.ThirdWeapon = nil
+		for k,v in pairs(ply:GetWeapons()) do
+			if v:GetNWInt("SwitchSlot") == 3 then
+				ply:StripWeapon(v:GetClass())
+			end
 		end
 	end,
 })

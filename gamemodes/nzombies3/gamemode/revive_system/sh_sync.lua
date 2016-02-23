@@ -2,55 +2,129 @@
 
 if SERVER then
 
-	//Server to client (Server)
-	util.AddNetworkString( "nz.Revive.Sync" )
-	util.AddNetworkString( "nz.Revive.Sync.HeadsUp" )
-	
-	function nz.Revive.Functions.SendSync()
-		local data = table.Copy(nz.Revive.Data.Players)
+	util.AddNetworkString( "nzRevivePlayerFull" )
+	util.AddNetworkString( "nzRevivePlayerDowned" )
+	util.AddNetworkString( "nzRevivePlayerRevived" )
+	util.AddNetworkString( "nzRevivePlayerBeingRevived" )
+	util.AddNetworkString( "nzRevivePlayerKilled" )
+
+
+	function Revive:SendPlayerFullData(ply, receiver)
+		local data = table.Copy(self.Players[ply:EntIndex()])
 		
-		net.Start( "nz.Revive.Sync" )
+		net.Start( "nzRevivePlayerFull" )
+			net.WriteInt(ply:EntIndex(), 13)
 			net.WriteTable( data )
-		net.Broadcast()
+		return receiver and net.Send(receiver) or net.Broadcast()
 	end
 	
-	function nz.Revive.Functions.SendSyncHeadsUp(ply, status)
-		net.Start( "nz.Revive.Sync.HeadsUp" )
-			net.WriteInt(status, 3)
-			net.WriteEntity(ply)
-		net.Broadcast()
+	function Revive:SendPlayerDowned(ply, receiver)
+		net.Start( "nzRevivePlayerDowned" )
+			net.WriteInt(ply:EntIndex(), 13)
+		return receiver and net.Send(receiver) or net.Broadcast()
 	end
-
-end
-
-if CLIENT then
 	
-	//Server to client (Client)
-	function nz.Revive.Functions.ReceiveSync( length )
-		--print("Received Player Revival Sync")
-		local old = nz.Revive.Data.Players
-		nz.Revive.Data.Players = net.ReadTable()
-		--PrintTable(nz.Revive.Data.Players)
-		
+	function Revive:SendPlayerRevived(ply, receiver)
+		net.Start( "nzRevivePlayerRevived" )
+			net.WriteInt(ply:EntIndex(), 13)
+		return receiver and net.Send(receiver) or net.Broadcast()
+	end
+	
+	function Revive:SendPlayerBeingRevived(ply, revivor, receiver)
+		net.Start( "nzRevivePlayerBeingRevived" )
+			net.WriteInt(ply:EntIndex(), 13)
+			if IsValid(revivor) then
+				net.WriteBool(true)
+				net.WriteInt(revivor:EntIndex(), 13)
+			else -- No valid revivor means the player stopped being revived
+				net.WriteBool(false)
+			end
+		return receiver and net.Send(receiver) or net.Broadcast()
+	end
+	
+	function Revive:SendPlayerKilled(ply, receiver)
+		net.Start( "nzRevivePlayerKilled" )
+			net.WriteInt(ply:EntIndex(), 13)
+		return receiver and net.Send(receiver) or net.Broadcast()
+	end
+	
+	FullSyncModules["Revive"] = function(ply)
 		for k,v in pairs(player.GetAll()) do
-			if nz.Revive.Data.Players[v] then
-				v:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
-			else
-				v:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
-				if v == LocalPlayer() then nz.Revive.Functions.ResetColorFade() end
+			if !v:GetNotDowned() then -- Player needs to be downed
+				print(v, ply)
+				Revive:SendPlayerFullData(v, ply)
 			end
 		end
 	end
+end
+
+if CLIENT then
+
+	local function ReceivePlayerDowned()
+		local id = net.ReadInt(13)
+		Revive.Players[id] = Revive.Players[id] or {}
+		Revive.Players[id].DownTime = CurTime()
+		local ply = Entity(id)
+		if IsValid(ply) and ply:IsPlayer() then
+			ply:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
+			Revive:DownedHeadsUp(ply, "needs to be revived!")
+		end
+	end
 	
-	function nz.Revive.Functions.ReceiveSyncHeadsUp( length )
-		local status = net.ReadInt(3)
-		local ply = net.ReadEntity()
-		
-		print(status)
-		nz.Revive.Functions.DownedHeadsUp(ply, status)
+	local function ReceivePlayerRevived()
+		local id = net.ReadInt(13)
+		Revive.Players[id] = nil
+		local ply = Entity(id)
+		if IsValid(ply) and ply:IsPlayer() then
+			ply:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
+			if ply == LocalPlayer() then Revive:ResetColorFade() end
+			Revive:DownedHeadsUp(ply, "has been revived!")
+		end
+	end
+	
+	local function ReceivePlayerBeingRevived()
+		local id = net.ReadInt(13)
+		local bool = net.ReadBool()
+		if bool then
+			local revivor = Entity(net.ReadInt(13))
+			Revive.Players[id] = Revive.Players[id] or {}
+			if !Revive.Players[id].ReviveTime then 
+				Revive.Players[id].ReviveTime = CurTime()
+				Revive.Players[id].RevivePlayer = revivor
+			end
+		else
+			Revive.Players[id] = Revive.Players[id] or {}
+			Revive.Players[id].ReviveTime = nil
+			Revive.Players[id].RevivePlayer = nil
+		end
+	end
+	
+	local function ReceivePlayerKilled()
+		local id = net.ReadInt(13)
+		Revive.Players[id] = nil
+		local ply = Entity(id)
+		if IsValid(ply) and ply:IsPlayer() then
+			ply:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
+			if ply == LocalPlayer() then Revive:ResetColorFade() end
+			Revive:DownedHeadsUp(ply, "has died!")
+		end
+	end
+	
+	local function ReceiveFullPlayerSync()
+		local id = net.ReadInt(13)
+		local data = net.ReadTable()
+		Revive.Players[id] = data
+		local ply = Entity(id)
+		if IsValid(ply) and ply:IsPlayer() then
+			ply:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
+			Revive:DownedHeadsUp(ply, "has been downed!")
+		end
 	end
 	
 	//Receivers
-	net.Receive( "nz.Revive.Sync", nz.Revive.Functions.ReceiveSync )
-	net.Receive( "nz.Revive.Sync.HeadsUp", nz.Revive.Functions.ReceiveSyncHeadsUp )
+	net.Receive( "nzRevivePlayerDowned", ReceivePlayerDowned )
+	net.Receive( "nzRevivePlayerRevived", ReceivePlayerRevived )
+	net.Receive( "nzRevivePlayerBeingRevived", ReceivePlayerBeingRevived )
+	net.Receive( "nzRevivePlayerKilled", ReceivePlayerKilled )
+	net.Receive( "nzRevivePlayerFull", ReceiveFullPlayerSync )
 end

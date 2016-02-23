@@ -107,6 +107,28 @@ function ENT:RevivePlayer()
 	self:Remove()
 end
 
+function ENT:StartRevive(revivor, nosync)
+	local id = self:EntIndex()
+	if !Revive.Players[id] then return end -- Not even downed
+	if Revive.Players[id].ReviveTime then return end -- Already being revived
+		
+	Revive.Players[id].ReviveTime = CurTime()
+	Revive.Players[id].RevivePlayer = revivor
+	revivor.Reviving = self
+
+	if !nosync then hook.Call("PlayerBeingRevived", Revive, self, revivor) end
+end
+	
+function ENT:StopRevive(nosync)
+	local id = self:EntIndex()
+	if !Revive.Players[id] then return end -- Not even downed
+		
+	Revive.Players[id].ReviveTime = nil
+	Revive.Players[id].RevivePlayer = nil
+	
+	if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
+end
+
 function ENT:KillDownedPlayer()
 	self:Remove()
 end
@@ -117,12 +139,16 @@ function ENT:OnRemove()
 		-- No more refunds for you once you become your clone mate!
 		ply.WhosWhoMoney = nil
 	end
-	nz.Revive.Data.Players[self] = nil
+	Revive.Players[self:EntIndex()] = nil
 	
 	if SERVER then
 		net.Start("nz_WhosWhoActive")
 			net.WriteBool(false)
 		net.Send(ply)
-		nz.Revive.Functions.SendSync()
+		hook.Call("PlayerRevived", Revive, self)
 	end
+end
+
+function ENT:UpdateTransmitState()
+	return TRANSMIT_ALWAYS
 end

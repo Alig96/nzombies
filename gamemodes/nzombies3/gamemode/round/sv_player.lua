@@ -64,7 +64,7 @@ function plyMeta:DropIn()
 	end
 end
 
-function plyMeta:DropOut(ply)
+function plyMeta:DropOut()
 	if self:IsPlaying() then
 		PrintMessage( HUD_PRINTTALK, self:Nick().." has dropped out of the game!" )
 		self:SetReady( false )

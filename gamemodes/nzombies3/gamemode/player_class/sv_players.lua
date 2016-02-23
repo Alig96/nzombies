@@ -24,7 +24,7 @@ function nz.Players.Functions.FullSync( ply )
 	--Rounds
 	--Round:SendSync( ply ) --handled differently since feb 2016
 	--Revival System
-	nz.Revive.Functions.SendSync()
+	--nz.Revive.Functions.SendSync() -- Now sends full sync using the module below
 	--Fog
 	nz.Fog.Functions.SendSync()
 	
@@ -42,7 +42,7 @@ function nz.Players.Functions.PlayerInitialSpawn( ply )
 end
 
 function nz.Players.Functions.PlayerDisconnected( ply )
-	nz.Rounds.Functions.DropOut(ply)
+	ply:DropOut()
 end
 
 function nz.Players.Functions.FriendlyFire( ply, ent )

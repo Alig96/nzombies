@@ -87,4 +87,14 @@ if CLIENT then
 	function ENT:Draw()
 		self:DrawModel()
 	end
+	
+	--[[hook.Add("PreDrawHalos", "DrawWallBuyHalos", function()
+		local buys = {}
+		
+		for k,v in pairs(ents.FindByClass("wall_buys")) do
+			table.insert(buys, v)
+		end
+		
+		halo.Add(buys, Color(255,255,255), 2, 2, 1, true, false)
+	end)]]
 end

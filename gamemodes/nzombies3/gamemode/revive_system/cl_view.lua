@@ -30,7 +30,7 @@ local fade = 1
 
 local mat_revive = Material("materials/revive.png", "unlitgeneric smooth")
 
-function nz.Revive.Functions.ResetColorFade()
+function Revive:ResetColorFade()
 	tab = {
 		 [ "$pp_colour_addr" ] = 0,
 		 [ "$pp_colour_addg" ] = 0,
@@ -47,8 +47,8 @@ function nz.Revive.Functions.ResetColorFade()
 	--print("Color reset!")
 end
 
-function nz.Revive.Functions.CalcDownView(ply, pos, ang, fov, znear, zfar)
-	if !nz.Revive.Data.Players[LocalPlayer()] then return end
+local function CalcDownView(ply, pos, ang, fov, znear, zfar)
+	if !Revive.Players[LocalPlayer():EntIndex()] then return end
 	
 	local pos = pos + Vector(0,0,-30)
 	local ang = ang + Angle(0,0,20)
@@ -56,8 +56,8 @@ function nz.Revive.Functions.CalcDownView(ply, pos, ang, fov, znear, zfar)
 	return {origin = pos, angles = ang, fov = fov, znear = znear, zfar = zfar, drawviewer = false }
 end
 
-function nz.Revive.Functions.CalcDownViewmodelView(wep, vm, oldpos, oldang, pos, ang)
-	if !nz.Revive.Data.Players[LocalPlayer()] then return end
+local function CalcDownViewmodelView(wep, vm, oldpos, oldang, pos, ang)
+	if !Revive.Players[LocalPlayer():EntIndex()] then return end
 	
 	local oldpos = oldpos + Vector(0,0,-30)
 	local oldang = oldang + Angle(0,0,20)
@@ -65,8 +65,8 @@ function nz.Revive.Functions.CalcDownViewmodelView(wep, vm, oldpos, oldang, pos,
 	return oldpos, oldang
 end
 
-function nz.Revive.Functions.DrawColorModulation()
-	if !nz.Revive.Data.Players[LocalPlayer()] then return end
+local function DrawColorModulation()
+	if !Revive.Players[LocalPlayer():EntIndex()] then return end
 	
 	local fadeadd = ((1/nz.Config.DownTime) * FrameTime()) * -1 	//Change 45 to the revival time
 	tab[ "$pp_colour_colour" ] = math.Approach(tab[ "$pp_colour_colour" ], 0, fadeadd)
@@ -88,54 +88,57 @@ function surface.DrawTexturedRectRotatedPoint( x, y, w, h, rot, x0, y0 )
 
 end
 
-function nz.Revive.Functions.DrawDownedPlayers()
+local function DrawDownedPlayers()
 	
-	for k,v in pairs(nz.Revive.Data.Players) do
-		if k == LocalPlayer() then return end
-		local posxy = (k:GetPos() + Vector(0,0,35)):ToScreen()
-		local dir = ((k:GetPos() + Vector(0,0,35)) - EyeVector()*2):GetNormal():ToScreen()
-		--print(posxy["x"], posxy["y"], posxy["visible"])
-		
-		if posxy.x - 35 < 60 or posxy.x - 35 > ScrW()-130 or posxy.y - 50 < 60 or posxy.y - 50 > ScrH()-110 then
-			posxy.x, posxy.y = XYCompassToScreen((k:GetPos() + Vector(0,0,35)), 60)
-		end
-		
-		surface.SetMaterial(mat_revive)
-		if v.ReviveTime then
-			surface.SetDrawColor(255, 255, 255)
-		else
-			surface.SetDrawColor(255, 150 - (CurTime() - v.DownTime)*(150/nz.Config.DownTime), 0)
-		end
-		
-		--draw.SimpleText(v.ReviveTime and "REVIVING" or "DOWNED", font, posxy["x"], posxy["y"] + 10, v.ReviveTime and Color(255,255,255) or Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-		--draw.SimpleText(k:Nick(), font2, posxy["x"], posxy["y"] - 20, v.ReviveTime and Color(255,255,255) or Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-		
-		surface.DrawTexturedRect(posxy.x - 35, posxy.y - 50, 70, 50)
-		
+	for k,v in pairs(Revive.Players) do
+		local ply = Entity(k)
+		if IsValid(ply) then -- If they're outside PVS, don't draw the icon at all
+			if ply == LocalPlayer() then return end
+			local posxy = (ply:GetPos() + Vector(0,0,35)):ToScreen()
+			local dir = ((ply:GetPos() + Vector(0,0,35)) - EyeVector()*2):GetNormal():ToScreen()
+			--print(posxy["x"], posxy["y"], posxy["visible"])
+			
+			if posxy.x - 35 < 60 or posxy.x - 35 > ScrW()-130 or posxy.y - 50 < 60 or posxy.y - 50 > ScrH()-110 then
+				posxy.x, posxy.y = XYCompassToScreen((ply:GetPos() + Vector(0,0,35)), 60)
+			end
+			
+			surface.SetMaterial(mat_revive)
+			if v.ReviveTime then
+				surface.SetDrawColor(255, 255, 255)
+			else
+				surface.SetDrawColor(255, 150 - (CurTime() - v.DownTime)*(150/nz.Config.DownTime), 0)
+			end
+			
+			--draw.SimpleText(v.ReviveTime and "REVIVING" or "DOWNED", font, posxy["x"], posxy["y"] + 10, v.ReviveTime and Color(255,255,255) or Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			--draw.SimpleText(k:Nick(), font2, posxy["x"], posxy["y"] - 20, v.ReviveTime and Color(255,255,255) or Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+			
+			surface.DrawTexturedRect(posxy.x - 35, posxy.y - 50, 70, 50)
+		end	
 	end
 end
 
-function nz.Revive.Functions.DrawRevivalProgress()
+local function DrawRevivalProgress()
 	local tr = util.QuickTrace(LocalPlayer():EyePos(), LocalPlayer():GetAimVector()*100, LocalPlayer())
 	local dply = tr.Entity
+	local id = dply:EntIndex()
 	
 	local revtime = LocalPlayer():HasPerk("revive") and 2 or 5
 	
-	if IsValid(dply) and nz.Revive.Data.Players[dply] and nz.Revive.Data.Players[dply].RevivePlayer == LocalPlayer() then
+	if IsValid(dply) and Revive.Players[id] and Revive.Players[id].RevivePlayer == LocalPlayer() then
 		surface.SetDrawColor(0,0,0)
 		surface.DrawRect(ScrW()/2 - 150, ScrH() - 300, 300, 20)
 		
 		surface.SetDrawColor(255,255,255)
-		surface.DrawRect(ScrW()/2 - 145, ScrH() - 295, 290 * (CurTime()-nz.Revive.Data.Players[dply].ReviveTime)/revtime, 10)
+		surface.DrawRect(ScrW()/2 - 145, ScrH() - 295, 290 * (CurTime()-Revive.Players[id].ReviveTime)/revtime, 10)
 	end
 end
 
-function nz.Revive.Functions.DrawDownedNotify()
+local function DrawDownedNotify()
 
 	if !LocalPlayer():GetNotDowned() then
 		local text = "YOU NEED HELP!"
 		local font = "nz.display.hud.main"
-		local rply = nz.Revive.Data.Players[LocalPlayer()].RevivePlayer
+		local rply = Revive.Players[LocalPlayer():EntIndex()].RevivePlayer
 		
 		if IsValid(rply) and rply:IsPlayer() then
 			text = rply:Nick().." is reviving you!"
@@ -145,12 +148,12 @@ function nz.Revive.Functions.DrawDownedNotify()
 
 end
 
-function nz.Revive.Functions.DownedHeadsUp(ply, wasrevived)
-	nz.Revive.Data.Notify[ply] = {time = CurTime(), revive = wasrevived}
-	PrintTable(nz.Revive.Data.Notify[ply])
+function Revive:DownedHeadsUp(ply, text)
+	Revive.Notify[ply] = {time = CurTime(), text = text}
+	--PrintTable(Revive.Notify[ply])
 end
 
-function nz.Revive.Functions.DrawDownedHeadsUp()
+local function DrawDownedHeadsUp()
 	local font = "nz.display.hud.small"
 	local h = 40
 	local offset = 20
@@ -158,16 +161,11 @@ function nz.Revive.Functions.DrawDownedHeadsUp()
 	local c = 0
 	--table.SortByMember(nz.Revive.Data.Notify, "time")
 	
-	for k,v in pairs(nz.Revive.Data.Notify) do
+	for k,v in pairs(Revive.Notify) do
 		local fade = math.Clamp(CurTime() - v.time - 5, 0, 1)
-		local status = " needs to be revived!"
-		if v.revive == 1 then
-			status = " has been revived!"
-		elseif v.revive == 2 then
-			status = " has died!"
-		end
-		draw.SimpleText(k:Nick()..status, font, ScrW()/2, ScrH() - h - offset * c, Color(255, 255, 255,255-(255*fade)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-		if fade >= 1 then nz.Revive.Data.Notify[k] = nil end
+		local status = v.text or "needs to be revived!"
+		draw.SimpleText(k:Nick().." "..status, font, ScrW()/2, ScrH() - h - offset * c, Color(255, 255, 255,255-(255*fade)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		if fade >= 1 then Revive.Notify[k] = nil end
 		c = c + 1
 	end
 end
@@ -175,9 +173,9 @@ end
 CreateClientConVar("nz_bloodoverlay", 1, true, false)
 
 local blood_overlay = Material("materials/overlay_low_health.png", "unlitgeneric smooth")
-local bloodpulse = true //if true, going up
+local bloodpulse = true --if true, going up
 local pulse = 0
-function nz.Revive.Functions.DrawDamagedOverlay()
+local function DrawDamagedOverlay()
 	if !GetConVar("nz_bloodoverlay"):GetBool() then return end
 	if !LocalPlayer():Alive() then return end
 
@@ -201,7 +199,7 @@ function nz.Revive.Functions.DrawDamagedOverlay()
 	end
 end
 
-function nz.Revive.Functions.DrawTombstoneNotify()
+local function DrawTombstoneNotify()
 	local font = "nz.display.hud.small"
 	
 	if LocalPlayer():GetDownedWithTombstone() then
@@ -213,7 +211,7 @@ end
 local tombstonetime = nil
 local senttombstonerequest = false
 
-function nz.Revive.Functions.DrawTombstoneProgress()
+local function DrawTombstoneProgress()
 	if LocalPlayer():GetDownedWithTombstone() then
 	
 		local killtime = 1
@@ -248,20 +246,20 @@ net.Receive("nz_WhosWhoActive", function()
 end)
 local whoswhomat = "models/shadertest/shader4"
 
-function nz.Revive.Functions.DrawWhosWhoOverlay()
+local function DrawWhosWhoOverlay()
 	if !whoswhoactive then return end
 	DrawMaterialOverlay(whoswhomat, 0.03)
 end
 
 //Hooks
-hook.Add("CalcView", "CalcDownedView", nz.Revive.Functions.CalcDownView )
-hook.Add("CalcViewModelView", "CalcDownedViewmodelView", nz.Revive.Functions.CalcDownViewmodelView )
-hook.Add("RenderScreenspaceEffects", "DrawColorModulation", nz.Revive.Functions.DrawColorModulation)
-hook.Add("HUDPaint", "DrawDamageOverlay", nz.Revive.Functions.DrawDamagedOverlay)
-hook.Add("HUDPaint", "DrawDownedPlayers", nz.Revive.Functions.DrawDownedPlayers )
-hook.Add("HUDPaint", "DrawDownedNotify", nz.Revive.Functions.DrawDownedNotify )
-hook.Add("HUDPaint", "DrawRevivalProgress", nz.Revive.Functions.DrawRevivalProgress )
-hook.Add("HUDPaint", "DrawDownedPlayersNotify", nz.Revive.Functions.DrawDownedHeadsUp )
-hook.Add("HUDPaint", "DrawTombstoneNotify", nz.Revive.Functions.DrawTombstoneNotify )
-hook.Add("HUDPaint", "DrawTombstoneProgress", nz.Revive.Functions.DrawTombstoneProgress )
-hook.Add("RenderScreenspaceEffects", "DrawWhosWhoOverlay", nz.Revive.Functions.DrawWhosWhoOverlay )
+hook.Add("CalcView", "CalcDownedView", CalcDownView )
+hook.Add("CalcViewModelView", "CalcDownedViewmodelView", CalcDownViewmodelView )
+hook.Add("RenderScreenspaceEffects", "DrawColorModulation", DrawColorModulation)
+hook.Add("HUDPaint", "DrawDamageOverlay", DrawDamagedOverlay)
+hook.Add("HUDPaint", "DrawDownedPlayers", DrawDownedPlayers )
+hook.Add("HUDPaint", "DrawDownedNotify", DrawDownedNotify )
+hook.Add("HUDPaint", "DrawRevivalProgress", DrawRevivalProgress )
+hook.Add("HUDPaint", "DrawDownedPlayersNotify", DrawDownedHeadsUp )
+hook.Add("HUDPaint", "DrawTombstoneNotify", DrawTombstoneNotify )
+hook.Add("HUDPaint", "DrawTombstoneProgress", DrawTombstoneProgress )
+hook.Add("RenderScreenspaceEffects", "DrawWhosWhoOverlay", DrawWhosWhoOverlay )

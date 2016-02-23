@@ -149,7 +149,6 @@ if SERVER then
 				chance = 100,
 			},
 		},
-		special = true
 	}
 	nz.Config.EnemyTypes[2] = { 
 		types = {

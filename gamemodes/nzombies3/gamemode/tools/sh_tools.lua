@@ -858,7 +858,7 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 	end,
 	Reload = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "wall_buys" then
-			tr.Entity:SetAngles(trace.Entity:GetAngles()+Angle(0,90,0))
+			tr.Entity:SetAngles(tr.Entity:GetAngles()+Angle(0,90,0))
 		end
 	end,
 	OnEquip = function(wep, ply, data)

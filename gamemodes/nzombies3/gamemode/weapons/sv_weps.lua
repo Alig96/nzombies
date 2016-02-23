@@ -3,39 +3,40 @@ function nz.Weps.Functions.ApplySpeed( ply, wep )
 	if wep:IsFAS2() and wep.speed != true then
 		print("Applying Speed to: " .. wep.ClassName)
 		local data = {}
+		data.wepdata = {}
 		//Normal
-		data["ReloadTime"] = true
-		data["ReloadTime_Nomen"] = true
-		data["ReloadTime_Empty"] = true
-		data["ReloadTime_Empty_Nomen"] = true
+		data.wepdata["ReloadTime"] = true
+		data.wepdata["ReloadTime_Nomen"] = true
+		data.wepdata["ReloadTime_Empty"] = true
+		data.wepdata["ReloadTime_Empty_Nomen"] = true
 		//BiPod
-		data["ReloadTime_Bipod"] = true
-		data["ReloadTime_Bipod_Nomen"] = true
-		data["ReloadTime_Bipod_Empty"] = true
-		data["ReloadTime_Bipod_Empty_Nomen"] = true
+		data.wepdata["ReloadTime_Bipod"] = true
+		data.wepdata["ReloadTime_Bipod_Nomen"] = true
+		data.wepdata["ReloadTime_Bipod_Empty"] = true
+		data.wepdata["ReloadTime_Bipod_Empty_Nomen"] = true
 		local oldtbl = {}
-		for k,v in pairs(data) do
+		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				local val = wep[k] / 2
 				local old = wep[k]
 				-- Save the old so we can remove it later
 				wep["old_"..k] = old
 				wep[k] = val
-				data[k] = val
+				data.wepdata[k] = val
 				oldtbl["old_"..k] = old
 				--print(k, wep[k], old)
 			else
-				data[k] = nil
+				data.wepdata[k] = nil
 			end
 		end
 		-- Attach the old values to the data
 		for k,v in pairs(oldtbl) do
-			data[k] = v
+			data.wepdata[k] = v
 		end
 		-- Attach the weapon to the data
 		data["wep"] = wep
 		wep["speed"] = true
-		data["speed"] = true
+		data.wepdata["speed"] = true
 		nz.Weps.Functions.SendSync( ply, data )
 	end
 end
@@ -44,28 +45,29 @@ function nz.Weps.Functions.ApplyDTap( ply, wep )
 	if wep:IsFAS2() and wep.dtap != true then
 		print("Applying Dtap to: " .. wep.ClassName)
 		local data = {}
+		data.wepdata = {}
 		//Normal
-		data["FireDelay"] = true
+		data.wepdata["FireDelay"] = true
 		local oldtbl = {}
-		for k,v in pairs(data) do
+		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				local val = wep[k] * 0.66
 				local old = wep[k]
 				wep["old_"..k] = old
 				wep[k] = val
-				data[k] = val
+				data.wepdata[k] = val
 				oldtbl["old_"..k] = old
 			else
-				data[k] = nil
+				data.wepdata[k] = nil
 			end
 		end
 		for k,v in pairs(oldtbl) do
-			data[k] = v
+			data.wepdata[k] = v
 		end
 		//Attach the weapon to the data
 		data["wep"] = wep
 		wep["dtap"] = true
-		data["dtap"] = true
+		data.wepdata["dtap"] = true
 		nz.Weps.Functions.SendSync( ply, data )
 	end
 end
@@ -74,28 +76,29 @@ function nz.Weps.Functions.RemoveSpeed( ply, wep )
 	if wep:IsFAS2() and wep.speed then
 		print("Removing Speed from: " .. wep.ClassName)
 		local data = {}
+		data.wepdata = {}
 		//Normal
-		data["ReloadTime"] = true
-		data["ReloadTime_Nomen"] = true
-		data["ReloadTime_Empty"] = true
-		data["ReloadTime_Empty_Nomen"] = true
+		data.wepdata["ReloadTime"] = true
+		data.wepdata["ReloadTime_Nomen"] = true
+		data.wepdata["ReloadTime_Empty"] = true
+		data.wepdata["ReloadTime_Empty_Nomen"] = true
 		//BiPod
-		data["ReloadTime_Bipod"] = true
-		data["ReloadTime_Bipod_Nomen"] = true
-		data["ReloadTime_Bipod_Empty"] = true
-		data["ReloadTime_Bipod_Empty_Nomen"] = true
-		for k,v in pairs(data) do
+		data.wepdata["ReloadTime_Bipod"] = true
+		data.wepdata["ReloadTime_Bipod_Nomen"] = true
+		data.wepdata["ReloadTime_Bipod_Empty"] = true
+		data.wepdata["ReloadTime_Bipod_Empty_Nomen"] = true
+		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				wep[k] = wep["old_"..k]
-				data[k] = wep[k]
+				data.wepdata[k] = wep[k]
 			else
-				data[k] = nil
+				data.wepdata[k] = nil
 			end
 		end
 		//Attach the weapon to the data
 		data["wep"] = wep
 		wep["speed"] = nil
-		data["speed"] = nil
+		data.wepdata["speed"] = nil
 		nz.Weps.Functions.SendSync( ply, data )
 	end
 end
@@ -104,20 +107,21 @@ function nz.Weps.Functions.RemoveDTap( ply, wep )
 	if wep:IsFAS2() and wep.dtap then
 		print("Removing Dtap from: " .. wep.ClassName)
 		local data = {}
+		data.wepdata = {}
 		//Normal
-		data["FireDelay"] = true
-		for k,v in pairs(data) do
+		data.wepdata["FireDelay"] = true
+		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				wep[k] = wep["old_"..k]
-				data[k] = wep[k]
+				data.wepdata[k] = wep[k]
 			else
-				data[k] = nil
+				data.wepdata[k] = nil
 			end
 		end
 		//Attach the weapon to the data
 		data["wep"] = wep
 		wep["dtap"] = nil
-		data["dtap"] = nil
+		data.wepdata["dtap"] = nil
 		nz.Weps.Functions.SendSync( ply, data )
 	end
 end

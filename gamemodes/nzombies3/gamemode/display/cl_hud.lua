@@ -25,7 +25,7 @@ local function ScoreHud()
 	if Round:InProgress() then
 		for k,v in pairs(player.GetAll()) do
 			local hp = v:Health()
-			if hp == 0 then hp = "Dead" elseif nz.Revive.Data.Players[v] then hp = "Downed" else hp = hp .. " HP"  end
+			if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
 			if v:GetPoints() >= 0 then
 				local numname = #v:Nick()
 				surface.SetMaterial(bloodline_points)
@@ -48,8 +48,8 @@ local function GunHud()
 	surface.DrawTexturedRect(ScrW() - 630*scale, ScrH() - 225*scale, 600*scale, 225*scale)
 	if IsValid(wep) then
 		if wep:GetClass() == "nz_multi_tool" then
-			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 125*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 		else
 			local name = wep:GetPrintName()
 			local clip = wep:Clip1()
@@ -58,11 +58,11 @@ local function GunHud()
 				name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 			end
 			if clip >= 0 then
-				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-				draw.SimpleTextOutlined(clip, "nz.display.hud.ammo", ScrW() - 315*scale, ScrH() - 175*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-				draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310*scale, ScrH() - 160*scale, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined(clip, "nz.display.hud.ammo", ScrW() - 315*scale, ScrH() - 115*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
 			else
-				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 250*scale, ScrH() - 150*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+				draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 250*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
 			end
 		end
 	end

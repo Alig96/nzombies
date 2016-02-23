@@ -1,5 +1,5 @@
 local fade
-local fadetime = 3
+local fadetime = 100
 
 local fogstart = 10000
 local fogend = 10000

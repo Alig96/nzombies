@@ -60,10 +60,12 @@ end
 
 function SWEP:Initialize()
 	if CLIENT then
-		local vm = LocalPlayer():GetViewModel()
-		local mat = perk_materials[self:GetPerk()]
-		oldmat = vm:GetMaterial() or ""
-		vm:SetMaterial(mat)
+		if self.Owner == LocalPlayer() then
+			local vm = LocalPlayer():GetViewModel()
+			local mat = perk_materials[self:GetPerk()]
+			oldmat = vm:GetMaterial() or ""
+			vm:SetMaterial(mat)
+		end
 	end
 end
 
@@ -141,8 +143,10 @@ end
 function SWEP:OnRemove()
 
 	if CLIENT then
-		local vm = LocalPlayer():GetViewModel()
-		vm:SetMaterial(oldmat)
+		if self.Owner == LocalPlayer() then
+			local vm = LocalPlayer():GetViewModel()
+			vm:SetMaterial(oldmat)
+		end
 	end
 	
 	hook.Remove( "RenderScreenspaceEffects", "PaintPerkBlur" )

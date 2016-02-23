@@ -2,10 +2,11 @@ local playerMeta = FindMetaTable("Player")
 if SERVER then
 
 	function playerMeta:DownPlayer()
+		local id = self:EntIndex()
 		self:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
 		
-		nz.Revive.Data.Players[self] = {}
-		nz.Revive.Data.Players[self].DownTime = CurTime()
+		Revive.Players[id] = {}
+		Revive.Players[id].DownTime = CurTime()
 		
 		if self:HasPerk("whoswho") then
 			self.HasWhosWho = true
@@ -13,20 +14,20 @@ if SERVER then
 				-- If you choose to use Tombstone within these seconds, you won't make a clone and will get Who's Who back from Tombstone
 				if IsValid(self) and !self:GetNotDowned() then
 					print("Should've respawned by now")
-					nz.Revive.Functions.CreateWhosWhoClone(self)
-					nz.Revive.Functions.RespawnWithWhosWho(self)
+					Revive:CreateWhosWhoClone(self)
+					Revive:RespawnWithWhosWho(self)
 				end
 			end)
 		end
 		if self:HasPerk("tombstone") then
-			nz.Revive.Data.Players[self].tombstone = true
+			Revive.Players[id].tombstone = true
 		end
 		
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
 		
 		self:RemovePerks()
 		
-		nz.Revive.Functions.SendSync()
+		hook.Call("PlayerDowned", Revive, self)
 		
 		// Equip the first pistol found in inventory - unless a pistol is already equipped
 		local wep = self:GetActiveWeapon()
@@ -40,44 +41,58 @@ if SERVER then
 				return
 			end
 		end
-		
-		nz.Revive.Functions.SendSyncHeadsUp(self, 0)
 	end
 	
-	function playerMeta:RevivePlayer(nosync)	 //Also used to clear that someone is downed - like when they die
-		if !nz.Revive.Data.Players[self] then return end
+	function playerMeta:RevivePlayer(nosync)
+		local id = self:EntIndex()
+		if !Revive.Players[id] then return end
 		self:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
-		nz.Revive.Data.Players[self] = nil
+		Revive.Players[id] = nil
 		if !nosync then 
-			nz.Revive.Functions.SendSync()
-			nz.Revive.Functions.SendSyncHeadsUp(self, 1)
+			hook.Call("PlayerRevived", Revive, self)
 		end
 		self.HasWhosWho = nil
 	end
 	
-	function playerMeta:StartRevive(nosync)
-		if !nz.Revive.Data.Players[self] then return end
-		if !nosync then nz.Revive.Functions.SendSync() end
+	function playerMeta:StartRevive(revivor, nosync)
+		local id = self:EntIndex()
+		if !Revive.Players[id] then return end -- Not even downed
+		if Revive.Players[id].ReviveTime then return end -- Already being revived
+		
+		Revive.Players[id].ReviveTime = CurTime()
+		Revive.Players[id].RevivePlayer = revivor
+		revivor.Reviving = self
+
+		if !nosync then hook.Call("PlayerBeingRevived", Revive, self, revivor) end
+	end
+	
+	function playerMeta:StopRevive(nosync)
+		local id = self:EntIndex()
+		if !Revive.Players[id] then return end -- Not even downed
+		
+		Revive.Players[id].ReviveTime = nil
+		Revive.Players[id].RevivePlayer = nil
+
+		if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
 	end
 	
 	function playerMeta:KillDownedPlayer(silent, nosync)
-		nz.Revive.Data.Players[self] = nil
+		local id = self:EntIndex()
+		Revive.Players[id] = nil
 		if silent then
 			self:KillSilent()
 		else
 			self:Kill()
 		end
-		if !nosync then 
-			nz.Revive.Functions.SendSync()
-			nz.Revive.Functions.SendSyncHeadsUp(self, 2)
-		end
+		if !nosync then hook.Call("PlayerKilled", Revive, self) end
 		self.HasWhosWho = nil
 	end
 	
 end
 
 function playerMeta:GetNotDowned()
-	if nz.Revive.Data.Players[self] then
+	local id = self:EntIndex()
+	if Revive.Players[id] then
 		return false
 	else
 		return true
@@ -85,14 +100,15 @@ function playerMeta:GetNotDowned()
 end
 
 function playerMeta:GetDownedWithTombstone()
-	if nz.Revive.Data.Players[self] then
-		return nz.Revive.Data.Players[self].tombstone or false
+	local id = self:EntIndex()
+	if Revive.Players[id] then
+		return Revive.Players[id].tombstone or false
 	else
 		return false
 	end
 end
 
-//We overwrite the shoot pos function here so we can set it to the lower angle when downed
+-- We overwrite the shoot pos function here so we can set it to the lower angle when downed
 local oldshootpos = playerMeta.GetShootPos
 function playerMeta:GetShootPos()
 	if self:GetNotDowned() then return oldshootpos(self) end

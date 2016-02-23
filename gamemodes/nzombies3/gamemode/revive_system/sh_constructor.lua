@@ -1,12 +1,10 @@
 //Main Tables
-nz.Revive = {}
-nz.Revive.Functions = {}
-nz.Revive.Data = {}
+nzRevive = {}
+Revive = nzRevive
 
 //_ Variables
-
-nz.Revive.Data.Players = {} 
+Revive.Players = {}
 
 if CLIENT then
-	nz.Revive.Data.Notify = {}
+	Revive.Notify = {}
 end

@@ -1,7 +1,7 @@
 //Load all our files in to the respective realms
 
 //Main Tables
-nz = {}
+nz = nz or {}
 
 local gmfolder = "nzombies3"
 

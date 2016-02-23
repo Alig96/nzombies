@@ -8,7 +8,7 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 	nz.QMenu.Data.MainFrame:Center()
 	nz.QMenu.Data.MainFrame:SetPopupStayAtBack(true)
 	nz.QMenu.Data.MainFrame:MakePopup()
-	nz.QMenu.Data.MainFrame:ShowCloseButton( false )
+	nz.QMenu.Data.MainFrame:ShowCloseButton( true )
 	nz.QMenu.Data.MainFrame:SetVisible( false )
 
 	local PropertySheet = vgui.Create( "DPropertySheet", nz.QMenu.Data.MainFrame )
@@ -85,7 +85,7 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 	nz.QMenu.Data.MainFrame:SetSize( 465, 300 )
 	nz.QMenu.Data.MainFrame:Center()
 	nz.QMenu.Data.MainFrame:MakePopup()
-	nz.QMenu.Data.MainFrame:ShowCloseButton( false )
+	nz.QMenu.Data.MainFrame:ShowCloseButton( true )
 	nz.QMenu.Data.MainFrame:SetTitle("")
 	nz.QMenu.Data.MainFrame.Paint = function(self, w, h) end
 	nz.QMenu.Data.MainFrame.ToolMode = true
