@@ -23,29 +23,25 @@ function nz.Enemies.Functions.ValidSpawns()
 
 	local spawns = {}
 
-	//Make a table of spawns
-	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
-		//Get all spawns in the range
-		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1200)) do
+	-- Make a table of spawns
+	for _, ply in pairs(player.GetAllPlayingAndAlive()) do
+		-- Get all spawns in the range
+		for _,v2 in pairs(ents.FindInSphere(v:GetPos(), 1500)) do
 			if v2:GetClass() == "zed_spawns" and (v.spawnable == nil or tobool(v.spawnable)) then
-				//If enable, then if the player is in the same area group as the spawnpoint
-				if nz.Config.NavGroupTargeting and nz.Nav.Functions.IsInSameNavGroup(v, v2) then
-					table.insert(spawns, v2)
+				-- If enable, then if the player is in the same area group as the spawnpoint
+				if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(v, v2) then
+					if v2:GetPos():DistToSqr(ply:GetPos()) > 22500 then
+						table.insert(spawns, v2)
+					end
 				end
-			end
-		end
-		//Remove all spawns that are too close
-		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 200)) do
-			if table.HasValue(spawns, v2) then
-				table.RemoveByValue(spawns, v2)
 			end
 		end
 	end
 
-	//Removed unopened linked doors
+	-- Removed unopened linked doors
 	for k,v in pairs(spawns) do
 		if v.link != nil then
-			if !Doors.OpenedLinks[tonumber(v.link)] then //Zombie Links
+			if !Doors.OpenedLinks[tonumber(v.link)] then -- Zombie Links
 				spawns[k] = nil
 			end
 		end
@@ -57,7 +53,7 @@ end
 function nz.Enemies.Functions.TotalCurrentEnemies()
 	local c = 0
 
-	--Count
+	-- Count
 	for k,v in pairs(nz.Config.ValidEnemies) do
 		c = c + #ents.FindByClass(k)
 	end
@@ -69,10 +65,10 @@ function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 	if nz.Enemies.Functions.TotalCurrentEnemies() < nz.Config.MaxZombiesSim then
 		local ent = "nz_zombie_walker"
 
-		--Get the latest round number from the table
+		-- Get the latest round number from the table
 		for i = Round:GetNumber(), 0, -1 do
 			if nz.Config.EnemyTypes[i] != nil then
-				--Use weightkey "chance" as defined in the new config format
+				-- Use weightkey "chance" as defined in the new config format
 				ent = nz.Misc.Functions.WeightedRandom( Round:GetZombieData(), "chance")
 				break
 			end
@@ -86,7 +82,7 @@ function nz.Enemies.Functions.SpawnZombie(spawnpoint)
 		zombie:Activate()
 
 		Round:IncrementZombiesSpawned()
-		print("Spawning Enemy: " .. Round:GetZombiesSpawned().. "/" .. Round:GetZombiesMax() )
+		print("Spawning Enemy: " .. Round:GetZombiesSpawned() .. "/" .. Round:GetZombiesMax() )
 	else
 		print("Limit of Zombies Reached!")
 	end
@@ -94,7 +90,7 @@ end
 
 
 function nz.Enemies.Functions.ZombieSpawner()
-	//Not enough Zombies
+	-- Not enough Zombies
 	if Round:InState( ROUND_PROG ) then
 		if Round:GetZombiesSpawned() < Round:GetZombiesMax() then
 
@@ -103,7 +99,7 @@ function nz.Enemies.Functions.ZombieSpawner()
 			if valids[1] == nil then
 				print("No valid spawns were found!")
 				return
-				--Since we couldn't find a valid spawn, just back out for now.
+				-- Since we couldn't find a valid spawn, just back out for now.
 			end
 
 			local spawnpoint = table.Random(valids)
@@ -118,35 +114,8 @@ end
 timer.Create("nz.Rounds.ZombieSpawner", 1, 0, nz.Enemies.Functions.ZombieSpawner)
 
 function nz.Enemies.Functions.ValidRespawns(cur)
-
-	local spawns = {}
-
-	//Make a table of spawns
-	for k,v in pairs(team.GetPlayers(TEAM_PLAYERS)) do
-		//Get all spawns in the range
-		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 1500)) do
-			if v2:GetClass() == "zed_spawns" and (!v.spawnable or tobool(v.spawnable)) and v2 != cur then
-				if nz.Config.NavGroupTargeting and nz.Nav.Functions.IsInSameNavGroup(v, v2) then
-					table.insert(spawns, v2)
-				end
-			end
-		end
-		//Remove all spawns that are too close
-		for k2,v2 in pairs(ents.FindInSphere(v:GetPos(), 200)) do
-			if table.HasValue(spawns, v2) then
-				table.RemoveByValue(spawns, v2)
-			end
-		end
-	end
-
-	//Removed unopened linked doors
-	for k,v in pairs(spawns) do
-		if v.link != nil then
-			if Doors.OpenedLinks[tonumber(v.link)] == nil then //Zombie Links
-				spawns[k] = nil
-			end
-		end
-	end
-
+	local spawns = nz.Enemies.Functions.ValidSpawns()
+	table.RemoveByValue(spawns, cur)
+	
 	return spawns
 end

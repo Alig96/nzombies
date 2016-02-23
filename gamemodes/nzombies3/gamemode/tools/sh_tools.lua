@@ -1047,6 +1047,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		end
 		if data.startwep then
 			local wep = weapons.Get(data.startwep)
+			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
 			Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, true)
 		end
 		

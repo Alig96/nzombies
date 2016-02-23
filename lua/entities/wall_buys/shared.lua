@@ -83,7 +83,9 @@ if SERVER then
 	end
 end
 
+
 if CLIENT then
+
 	function ENT:Draw()
 		self:DrawModel()
 	end

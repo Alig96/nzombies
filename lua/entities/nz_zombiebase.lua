@@ -61,6 +61,7 @@ AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
 
 --Stuck prevention
 AccessorFunc( ENT, "fLastPostionSave", "LastPostionSave", FORCE_NUMBER)
+AccessorFunc( ENT, "fLastPush", "LastPush", FORCE_NUMBER)
 AccessorFunc( ENT, "iStuckCounter", "StuckCounter", FORCE_NUMBER)
 AccessorFunc( ENT, "vStuckAt", "StuckAt")
 
@@ -83,6 +84,7 @@ function ENT:Initialize()
 	self:SetLastTargetCheck( CurTime() )
 
 	--stuck prevetion
+	self:SetLastPush( CurTime() )
 	self:SetLastPostionSave( CurTime() )
 	self:SetStuckAt( self:GetPos() )
 	self:SetStuckCounter( 0 )
@@ -128,7 +130,7 @@ function ENT:Think()
 		end
 
 		if self.loco:IsUsingLadder() then
-			self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
+			--self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
 		end
 
 		--this is a very costly operation so we only do it every 1 seconds
@@ -145,17 +147,17 @@ function ENT:Think()
 
 			if self:GetStuckCounter() > 2 then
 
-				if self:GetStuckCounter() <= 4  then
+				if self:GetStuckCounter() <= 3 then
 					--try to unstuck via random velocity
-					self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
+					self:ApplyRandomPush()
 				end
 
-				if self:GetStuckCounter() > 4 and self:GetStuckCounter() <= 7 then
+				if self:GetStuckCounter() > 3 and self:GetStuckCounter() <= 5 then
 					--try to unstuck via jump
 					self:Jump()
 				end
 
-				if self:GetStuckCounter() > 7 then
+				if self:GetStuckCounter() > 5 then
 					--Worst case:
 					--respawn the zombie after 32 seconds with no postion change
 					self:RespawnAtRandom()
@@ -416,9 +418,9 @@ function ENT:ChaseTarget( options )
 			return "timeout"
 		end
 		path:Update( self )	-- This function moves the bot along the path
-		--if ( options.draw ) then
+		if ( options.draw ) then
 			path:Draw()
-		--end
+		end
 		--the jumping part simple and buggy
 		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
 		local scanDist
@@ -450,7 +452,7 @@ function ENT:ChaseTarget( options )
 		end
 
 		if self.loco:GetVelocity():Length() < 10 then
-			self.loco:SetVelocity( self.loco:GetVelocity() + VectorRand() * 100 )
+			self:ApplyRandomPush()
 		end
 
 		coroutine.yield()
@@ -862,7 +864,7 @@ function ENT:RespawnAtRandom( cur )
 		return
 	end
 	local spawnpoint = valids[ math.random(#valids) ]
-	if nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
+	if IsVliad(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
 		return true
 	end
@@ -876,6 +878,15 @@ function ENT:TimedEvent(time, callback)
 			callback()
 		end
 	end)
+end
+
+function ENT:ApplyRandomPush( power )
+	if CurTime() < self:GetLastPush() + 0.2 or !self:IsOnGround() then return end
+	power = power or 100
+	local vec =  self.loco:GetVelocity() + VectorRand() * power
+	vec.z = math.random( 100 )
+	self.loco:SetVelocity( vec )
+	self:SetLastPush( CurTime() )
 end
 
 --Targets

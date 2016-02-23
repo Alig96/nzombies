@@ -92,12 +92,18 @@ if CLIENT then
 
 
 	local function receivePlayerReadyState()
-		net.ReadEntity():SetReady( net.ReadBool() )
+		local ply = net.ReadEntity()
+		if IsValid(ply) then
+			ply:SetReady( net.ReadBool() )
+		end
 	end
 	net.Receive( "nzPlayerReadyState", receivePlayerReadyState )
 
 	local function receivePlayerPlayingState()
-		net.ReadEntity():SetPlaying( net.ReadBool() )
+		local ply = net.ReadEntity()
+		if IsValid(ply) then
+			ply:SetPlaying( net.ReadBool() )
+		end
 	end
 	net.Receive( "nzPlayerPlayingState", receivePlayerPlayingState )
 

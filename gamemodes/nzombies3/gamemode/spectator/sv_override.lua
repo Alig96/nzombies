@@ -9,6 +9,12 @@ function GM:PlayerDeath( ply, wep, killer )
 end
 
 function GM:PlayerDeathThink( ply )
+
+	-- Allow players in creative mode to respawn
+	if ply:IsSuperAdmin() and Round:InState( ROUND_CREATE ) then
+		return true
+	end
+
 	local players = player.GetAllPlayingAndAlive()
 
 	if ply:KeyPressed( IN_RELOAD ) then
