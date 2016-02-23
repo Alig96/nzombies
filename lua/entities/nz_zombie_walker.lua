@@ -5,7 +5,17 @@ ENT.PrintName = "Walker"
 ENT.Category = "Brainz"
 ENT.Author = "Lolle"
 
-ENT.Models = { "models/zed/malezed_04.mdl", "models/zed/malezed_06.mdl", "models/zed/malezed_08.mdl"  }
+ENT.Models = {
+	"models/half-dead/alcatraz/zombie_01.mdl",
+	"models/half-dead/alcatraz/zombie_02.mdl",
+	"models/half-dead/alcatraz/zombie_03.mdl",
+	"models/half-dead/alcatraz/zombie_04.mdl",
+	"models/half-dead/alcatraz/zombie_05.mdl",
+}
+
+for _,v in pairs(ENT.Models) do
+	util.PrecacheModel( v )
+end
 
 function ENT:SpecialInit()
     self:SetSkin(math.random(0, self:SkinCount() - 1))

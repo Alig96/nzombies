@@ -1,0 +1,181 @@
+﻿Merge remote-tracking branch 'origin/Master-Changes' into Master-Changes
+
+# Conflicts:
+#	lua/entities/wall_buys/shared.lua
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch Master-Changes
+# Your branch and 'origin/Master-Changes' have diverged,
+# and have 1 and 6 different commits each, respectively.
+#   (use "git pull" to merge the remote branch into yours)
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	modified:   gamemodes/nzombies3/gamemode/display/cl_halos.lua
+#	modified:   gamemodes/nzombies3/gamemode/mapping/sv_saveload.lua
+#	modified:   gamemodes/nzombies3/gamemode/round/sv_player.lua
+#	modified:   lua/entities/nz_fraggrenade.lua
+#	modified:   lua/entities/nz_zombie_special_burning.lua
+#	modified:   lua/entities/nz_zombie_walker.lua
+#	modified:   lua/entities/nz_zombiebase.lua
+#	modified:   lua/entities/wall_buys/shared.lua
+#	new file:   materials/models/alcatraz/c_gen_arm_clean_n.vtf
+#	new file:   materials/models/alcatraz/c_gen_insidemouth_c.vmt
+#	new file:   materials/models/alcatraz/c_gen_insidemouth_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_arm_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_arlington_arm_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_hat_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_arlington_hat_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_hat_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_arlington_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_jacket_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_arlington_jacket_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_jacket_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_pants_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_arlington_pants_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_arlington_pants_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_bruiser_alphas_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_bruiser_alphas_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_bruiser_alphas_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_deluca_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_deluca_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_deluca_lower_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_deluca_lower_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_deluca_lower_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_deluca_upper_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_deluca_upper_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_deluca_upper_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_eyes.vmt
+#	new file:   materials/models/alcatraz/c_zom_hands.vmt
+#	new file:   materials/models/alcatraz/c_zom_hands.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_handsome_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_head_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_left_arm_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_handsome_left_arm_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_lower_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_handsome_lower_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_lower_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_right_arm_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_handsome_right_arm_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_upper_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_handsome_upper_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_handsome_upper_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_head_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_barechest_upper_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_inmate_barechest_upper_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_barechest_upper_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_details_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_details_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_details_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_legs_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_legs_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_legs_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_shirt_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_shirt_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_inmate_body_shirt_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_arm_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_oleary_arm_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_oleary_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_lower_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_oleary_lower_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_lower_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_upper_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_oleary_upper_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_oleary_upper_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_barbwire_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_barbwire_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_barbwire_head_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_guard_body_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_guard_body_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_guard_body_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_hellcatraz_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_hellcatraz_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_hellcatraz_head_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_device_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_device_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_device_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_mask_head_n.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_slackjaw_head_c.vmt
+#	new file:   materials/models/alcatraz/c_zom_zombie_slackjaw_head_c.vtf
+#	new file:   materials/models/alcatraz/c_zom_zombie_slackjaw_head_n.vtf
+#	new file:   materials/models/alcatraz/deluca_eyeball_l.vmt
+#	new file:   materials/models/alcatraz/deluca_eyeball_r.vmt
+#	new file:   materials/models/alcatraz/deluca_eyes.vtf
+#	new file:   materials/models/alcatraz/eye-cornea.vtf
+#	new file:   materials/models/alcatraz/eye-extra.vtf
+#	new file:   materials/models/alcatraz/eye-reflection-cubemap-.vtf
+#	new file:   materials/models/alcatraz/eyeball_l.vmt
+#	new file:   materials/models/alcatraz/eyeball_r.vmt
+#	new file:   materials/models/alcatraz/handsome_eyes.vtf
+#	new file:   materials/models/alcatraz/oleary_eyeball_l.vmt
+#	new file:   materials/models/alcatraz/oleary_eyeball_r.vmt
+#	new file:   materials/models/alcatraz/oleary_eyes.vtf
+#	new file:   models/half-dead/alcatraz/p_arlington.dx80.vtx
+#	new file:   models/half-dead/alcatraz/p_arlington.dx90.vtx
+#	new file:   models/half-dead/alcatraz/p_arlington.mdl
+#	new file:   models/half-dead/alcatraz/p_arlington.phy
+#	new file:   models/half-dead/alcatraz/p_arlington.sw.vtx
+#	new file:   models/half-dead/alcatraz/p_arlington.vvd
+#	new file:   models/half-dead/alcatraz/p_deluca.dx80.vtx
+#	new file:   models/half-dead/alcatraz/p_deluca.dx90.vtx
+#	new file:   models/half-dead/alcatraz/p_deluca.mdl
+#	new file:   models/half-dead/alcatraz/p_deluca.phy
+#	new file:   models/half-dead/alcatraz/p_deluca.sw.vtx
+#	new file:   models/half-dead/alcatraz/p_deluca.vvd
+#	new file:   models/half-dead/alcatraz/p_handsome.dx80.vtx
+#	new file:   models/half-dead/alcatraz/p_handsome.dx90.vtx
+#	new file:   models/half-dead/alcatraz/p_handsome.mdl
+#	new file:   models/half-dead/alcatraz/p_handsome.phy
+#	new file:   models/half-dead/alcatraz/p_handsome.sw.vtx
+#	new file:   models/half-dead/alcatraz/p_handsome.vvd
+#	new file:   models/half-dead/alcatraz/p_oleary.dx80.vtx
+#	new file:   models/half-dead/alcatraz/p_oleary.dx90.vtx
+#	new file:   models/half-dead/alcatraz/p_oleary.mdl
+#	new file:   models/half-dead/alcatraz/p_oleary.phy
+#	new file:   models/half-dead/alcatraz/p_oleary.sw.vtx
+#	new file:   models/half-dead/alcatraz/p_oleary.vvd
+#	new file:   models/half-dead/alcatraz/zombie_01.dx80.vtx
+#	new file:   models/half-dead/alcatraz/zombie_01.dx90.vtx
+#	new file:   models/half-dead/alcatraz/zombie_01.mdl
+#	new file:   models/half-dead/alcatraz/zombie_01.phy
+#	new file:   models/half-dead/alcatraz/zombie_01.sw.vtx
+#	new file:   models/half-dead/alcatraz/zombie_01.vvd
+#	new file:   models/half-dead/alcatraz/zombie_02.dx80.vtx
+#	new file:   models/half-dead/alcatraz/zombie_02.dx90.vtx
+#	new file:   models/half-dead/alcatraz/zombie_02.mdl
+#	new file:   models/half-dead/alcatraz/zombie_02.phy
+#	new file:   models/half-dead/alcatraz/zombie_02.sw.vtx
+#	new file:   models/half-dead/alcatraz/zombie_02.vvd
+#	new file:   models/half-dead/alcatraz/zombie_03.dx80.vtx
+#	new file:   models/half-dead/alcatraz/zombie_03.dx90.vtx
+#	new file:   models/half-dead/alcatraz/zombie_03.mdl
+#	new file:   models/half-dead/alcatraz/zombie_03.phy
+#	new file:   models/half-dead/alcatraz/zombie_03.sw.vtx
+#	new file:   models/half-dead/alcatraz/zombie_03.vvd
+#	new file:   models/half-dead/alcatraz/zombie_04.dx80.vtx
+#	new file:   models/half-dead/alcatraz/zombie_04.dx90.vtx
+#	new file:   models/half-dead/alcatraz/zombie_04.mdl
+#	new file:   models/half-dead/alcatraz/zombie_04.phy
+#	new file:   models/half-dead/alcatraz/zombie_04.sw.vtx
+#	new file:   models/half-dead/alcatraz/zombie_04.vvd
+#	new file:   models/half-dead/alcatraz/zombie_05.dx80.vtx
+#	new file:   models/half-dead/alcatraz/zombie_05.dx90.vtx
+#	new file:   models/half-dead/alcatraz/zombie_05.mdl
+#	new file:   models/half-dead/alcatraz/zombie_05.phy
+#	new file:   models/half-dead/alcatraz/zombie_05.sw.vtx
+#	new file:   models/half-dead/alcatraz/zombie_05.vvd
+#
+
