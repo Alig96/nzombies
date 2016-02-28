@@ -14,6 +14,12 @@ hook.Add( "SetupMove", "FreezePlayersDowned", function( ply, mv, cmd )
 		cmd:SetSideMove( 0 )
 		mv:SetForwardSpeed( 0 )
 		cmd:SetForwardMove( 0 )
+		if mv:KeyDown( IN_JUMP ) then
+			mv:RemoveKeys( IN_JUMP )
+		end
+		if mv:KeyDown( IN_DUCK ) then
+			mv:RemoveKeys( IN_DUCK )
+		end
 	end
 end )
 
