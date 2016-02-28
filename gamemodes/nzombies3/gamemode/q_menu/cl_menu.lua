@@ -271,6 +271,9 @@ function nz.QMenu.Functions.Close()
 	end
 
 	nz.QMenu.Data.MainFrame:SetVisible( false )
+	nz.QMenu.Data.MainFrame:KillFocus()
+	nz.QMenu.Data.MainFrame:SetKeyboardInputEnabled(false)
+	textentryfocus = false
 end
 
 hook.Add( "OnSpawnMenuOpen", "OpenSpawnMenu", nz.QMenu.Functions.Open )

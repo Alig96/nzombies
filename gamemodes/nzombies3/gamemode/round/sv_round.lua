@@ -141,10 +141,9 @@ function Round:ResetGame()
 	end
 
 	--Reset all downed players' downed status
-	for k,v in pairs( nz.Revive.Data.Players ) do
+	for k,v in pairs( Revive.Players ) do
 		k:KillDownedPlayer( true, true ) 	--We set nosync on because we only need to sync once.
 	end
-	nz.Revive.Functions.SendSync()
 
 	--Remove all enemies
 	for k,v in pairs( nz.Config.ValidEnemies ) do

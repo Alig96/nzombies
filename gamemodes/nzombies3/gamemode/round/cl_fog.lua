@@ -1,5 +1,5 @@
 local fade
-local fadetime = 100
+local fadetime = 5
 
 local fogstart = 10000
 local fogend = 10000
@@ -22,6 +22,8 @@ local foginit = false
 function Round:EnableSpecialFog( bool )
 	local ent = ents.FindByClass("edit_fog")[1]
 	local ent_special = ents.FindByClass("edit_fog_special")[1]
+	
+	hook.Remove("Think", "nzFogThink")
 	
 	if bool and (!specialfog or !foginit) then
 		if IsValid(ent_special) then
@@ -69,13 +71,30 @@ end
 
 function nzFogFade()
 	fade = math.Approach(fade, 1, FrameTime()/fadetime)
-	fogstart = Lerp(fade, fogstart, tfogstart)
-	fogend = Lerp(fade, fogend, tfogend)
-	fogdensity = Lerp(fade, fogdensity, tfogdensity)
-	fogcolor = LerpVector(fade, fogcolor, tfogcolor)
+	fogstart = Lerp(fade, ofogstart, tfogstart)
+	fogend = Lerp(fade, ofogend, tfogend)
+	fogdensity = Lerp(fade, ofogdensity, tfogdensity)
+	fogcolor = LerpVector(fade, ofogcolor, tfogcolor)
 	
 	if fade >= 1 then
 		hook.Remove("Think", "nzFogFade")
+		hook.Add("Think", "nzFogThink", nzFogThink)
+	end
+end
+
+function nzFogThink()
+	local ent
+	if specialfog then
+		ent = ents.FindByClass("edit_fog_special")[1]
+	else
+		ent = ents.FindByClass("edit_fog")[1]
+	end
+	--print(ent)
+	if IsValid(ent) then
+		fogstart = ent:GetFogStart()
+		fogend = ent:GetFogEnd()
+		fogdensity = ent:GetDensity()
+		fogcolor = ent:GetFogColor()
 	end
 end
 

@@ -44,7 +44,7 @@ ENT.RedEyes = false
 
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
-ENT.JumpHeight = 68
+ENT.JumpHeight = 75
 ENT.AttackRange = 65
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100

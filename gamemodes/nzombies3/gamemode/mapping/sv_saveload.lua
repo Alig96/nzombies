@@ -292,7 +292,7 @@ function nz.Mapping.Functions.ClearConfig()
 	Doors.MapDoors = {}
 	Doors.PropDoors = {}
 
-	//Sync
+	-- Sync
 	FullSyncModules["Round"]()
 
 	-- Clear all door data
@@ -485,9 +485,10 @@ function nz.Mapping.Functions.CleanUpMap()
 		"edit_sun",
 		"nz_prop_effect",
 		"nz_fire_effect",
+		"edit_color",
 	})
 
-	//Gotta reset the doors and other entites' values!
+	-- Gotta reset the doors and other entites' values!
 	for k,v in pairs(Doors.MapDoors) do
 		local door = Doors:DoorIndexToEnt(k)
 		door:SetLocked(true)
@@ -496,6 +497,11 @@ function nz.Mapping.Functions.CleanUpMap()
 		elseif door:IsButton() then
 			door:LockButton()
 		end
+	end
+	
+	-- Reset bought status on wall buys
+	for k,v in pairs(ents.FindByClass("wall_buys")) do
+		v:SetBought(false)
 	end
 end
 

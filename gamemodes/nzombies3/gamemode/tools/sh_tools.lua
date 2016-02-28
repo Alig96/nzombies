@@ -848,7 +848,9 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 	end,
 	
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.WallBuy(tr.HitPos, data.class, tonumber(data.price), tr.HitNormal:Angle()+Angle(0,270,0), nil, ply)
+		local ang = tr.HitNormal:Angle()
+		ang:RotateAroundAxis(tr.HitNormal:Angle():Up()*-1, 90)
+		nz.Mapping.Functions.WallBuy(tr.HitPos + tr.HitNormal*0.5, data.class, tonumber(data.price), ang, nil, ply)
 	end,
 	
 	SecondaryAttack = function(wep, ply, tr, data)
@@ -858,7 +860,7 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 	end,
 	Reload = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "wall_buys" then
-			tr.Entity:SetAngles(tr.Entity:GetAngles()+Angle(0,90,0))
+			tr.Entity:ToggleRotate()
 		end
 	end,
 	OnEquip = function(wep, ply, data)
