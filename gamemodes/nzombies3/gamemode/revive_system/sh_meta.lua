@@ -4,10 +4,10 @@ if SERVER then
 	function playerMeta:DownPlayer()
 		local id = self:EntIndex()
 		self:AnimRestartGesture(GESTURE_SLOT_GRENADE, ACT_HL2MP_SIT_PISTOL)
-		
+
 		Revive.Players[id] = {}
 		Revive.Players[id].DownTime = CurTime()
-		
+
 		if self:HasPerk("whoswho") then
 			self.HasWhosWho = true
 			timer.Simple(5, function()
@@ -22,13 +22,13 @@ if SERVER then
 		if self:HasPerk("tombstone") then
 			Revive.Players[id].tombstone = true
 		end
-		
+
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
-		
+
 		self:RemovePerks()
-		
+
 		hook.Call("PlayerDowned", Revive, self)
-		
+
 		// Equip the first pistol found in inventory - unless a pistol is already equipped
 		local wep = self:GetActiveWeapon()
 		if IsValid(wep) and wep:GetHoldType() == "pistol" or wep:GetHoldType() == "duel" or wep.HoldType == "pistol" or wep.HoldType == "duel" then
@@ -42,42 +42,43 @@ if SERVER then
 			end
 		end
 	end
-	
+
 	function playerMeta:RevivePlayer(nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end
 		self:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
 		Revive.Players[id] = nil
-		if !nosync then 
+		if !nosync then
 			hook.Call("PlayerRevived", Revive, self)
 		end
 		self.HasWhosWho = nil
 	end
-	
+
 	function playerMeta:StartRevive(revivor, nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end -- Not even downed
 		if Revive.Players[id].ReviveTime then return end -- Already being revived
-		
+
 		Revive.Players[id].ReviveTime = CurTime()
 		Revive.Players[id].RevivePlayer = revivor
 		revivor.Reviving = self
 
 		if !nosync then hook.Call("PlayerBeingRevived", Revive, self, revivor) end
 	end
-	
+
 	function playerMeta:StopRevive(nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end -- Not even downed
-		
+
 		Revive.Players[id].ReviveTime = nil
 		Revive.Players[id].RevivePlayer = nil
 
 		if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
 	end
-	
+
 	function playerMeta:KillDownedPlayer(silent, nosync)
 		local id = self:EntIndex()
+		if !Revive.Players[id] then return end
 		Revive.Players[id] = nil
 		if silent then
 			self:KillSilent()
@@ -87,7 +88,7 @@ if SERVER then
 		if !nosync then hook.Call("PlayerKilled", Revive, self) end
 		self.HasWhosWho = nil
 	end
-	
+
 end
 
 function playerMeta:GetNotDowned()

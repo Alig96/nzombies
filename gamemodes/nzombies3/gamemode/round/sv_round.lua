@@ -27,10 +27,10 @@ function Round:Prepare()
 	self:SetSpecial( self:MarkedForSpecial( self:GetNumber() + 1 ) )
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
-	
+
 	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
 	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
-	
+
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
 	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
@@ -68,7 +68,7 @@ function Round:Prepare()
 
 	--Start the next round
 	timer.Simple(nz.Config.PrepareTime, function() self:Start() end )
-	
+
 	if self:IsSpecial() then
 		self:SetNextSpecialRound( self:GetNumber() + nz.Config.SpecialRoundInterval )
 	end
@@ -141,8 +141,8 @@ function Round:ResetGame()
 	end
 
 	--Reset all downed players' downed status
-	for k,v in pairs( Revive.Players ) do
-		k:KillDownedPlayer( true, true ) 	--We set nosync on because we only need to sync once.
+	for k,v in pairs( player.GetAll() ) do
+		v:KillDownedPlayer( true )
 	end
 
 	--Remove all enemies
