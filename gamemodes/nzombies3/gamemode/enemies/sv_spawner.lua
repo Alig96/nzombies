@@ -27,7 +27,7 @@ function nz.Enemies.Functions.ValidSpawns()
 	for _, ply in pairs(player.GetAllPlayingAndAlive()) do
 		-- Get all spawns in the range
 		for _,v2 in pairs(ents.FindInSphere(ply:GetPos(), 1500)) do
-			if v2:GetClass() == "zed_spawns" and (v2.spawnable == nil or tobool(v2.spawnable)) then
+			if v2:GetClass() == "zed_spawns" then
 				-- If enable, then if the player is in the same area group as the spawnpoint
 				if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(ply, v2) then
 					if v2:GetPos():DistToSqr(ply:GetPos()) > 22500 then
@@ -96,7 +96,7 @@ function nz.Enemies.Functions.ZombieSpawner()
 
 			local valids = nz.Enemies.Functions.ValidSpawns()
 
-			if valids[1] == nil then
+			if #valids == 0  then
 				print("No valid spawns were found!")
 				return
 				-- Since we couldn't find a valid spawn, just back out for now.
@@ -116,6 +116,6 @@ timer.Create("nz.Rounds.ZombieSpawner", 1, 0, nz.Enemies.Functions.ZombieSpawner
 function nz.Enemies.Functions.ValidRespawns(cur)
 	local spawns = nz.Enemies.Functions.ValidSpawns()
 	table.RemoveByValue(spawns, cur)
-	
+
 	return spawns
 end

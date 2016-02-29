@@ -23,28 +23,81 @@ ENT.AttackHitSounds = {
 	"npc/zombie/zombie_hit.wav"
 }
 ENT.PainSounds = {
-	"npc/zombie_poison/pz_pain1.wav",
-	"npc/zombie_poison/pz_pain2.wav",
-	"npc/zombie_poison/pz_pain3.wav",
-	"npc/zombie/zombie_die1.wav",
-	"npc/zombie/zombie_die2.wav",
-	"npc/zombie/zombie_die3.wav"
+	"nz/zombies/death/death_00.wav",
+	"nz/zombies/death/death_01.wav",
+	"nz/zombies/death/death_02.wav",
+	"nz/zombies/death/death_03.wav",
+	"nz/zombies/death/death_04.wav",
+	"nz/zombies/death/death_05.wav",
+	"nz/zombies/death/death_06.wav",
+	"nz/zombies/death/death_07.wav",
+	"nz/zombies/death/death_08.wav",
+	"nz/zombies/death/death_09.wav",
+	"nz/zombies/death/death_10.wav"
 }
 ENT.DeathSounds = {
-	"npc/zombie_poison/pz_die1.wav",
-	"npc/zombie_poison/pz_die2.wav",
-	"npc/zombie/zombie_die1.wav",
-	"npc/zombie/zombie_die3.wav"
+	"nz/zombies/death/death_00.wav",
+	"nz/zombies/death/death_01.wav",
+	"nz/zombies/death/death_02.wav",
+	"nz/zombies/death/death_03.wav",
+	"nz/zombies/death/death_04.wav",
+	"nz/zombies/death/death_05.wav",
+	"nz/zombies/death/death_06.wav",
+	"nz/zombies/death/death_07.wav",
+	"nz/zombies/death/death_08.wav",
+	"nz/zombies/death/death_09.wav",
+	"nz/zombies/death/death_10.wav"
 }
-ENT.BreathSounds = {
-	"npc/zombie_poison/pz_breathe_loop1.wav"
+ENT.AmbientSounds = {
+	"nz/zombies/ambient/ambient_00.wav",
+	"nz/zombies/ambient/ambient_01.wav",
+	"nz/zombies/ambient/ambient_02.wav",
+	"nz/zombies/ambient/ambient_03.wav",
+	"nz/zombies/ambient/ambient_04.wav",
+	"nz/zombies/ambient/ambient_05.wav",
+	"nz/zombies/ambient/ambient_06.wav",
+	"nz/zombies/ambient/ambient_07.wav",
+	"nz/zombies/ambient/ambient_08.wav",
+	"nz/zombies/ambient/ambient_09.wav",
+	"nz/zombies/ambient/ambient_10.wav",
+	"nz/zombies/ambient/ambient_11.wav",
+	"nz/zombies/ambient/ambient_12.wav",
+	"nz/zombies/ambient/ambient_13.wav",
+	"nz/zombies/ambient/ambient_14.wav",
+	"nz/zombies/ambient/ambient_15.wav",
+	"nz/zombies/ambient/ambient_16.wav",
+	"nz/zombies/ambient/ambient_17.wav",
+	"nz/zombies/ambient/ambient_18.wav",
+	"nz/zombies/ambient/ambient_19.wav",
+	"nz/zombies/ambient/ambient_20.wav"
 }
+
+for _,v in pairs(ENT.AttackSounds) do
+	util.PrecacheSound( v )
+end
+
+for _,v in pairs(ENT.AttackHitSounds) do
+	util.PrecacheSound( v )
+end
+
+for _,v in pairs(ENT.PainSounds) do
+	util.PrecacheSound( v )
+end
+
+for _,v in pairs(ENT.DeathSounds) do
+	util.PrecacheSound( v )
+end
+
+for _,v in pairs(ENT.AmbientSounds) do
+	util.PrecacheSound( v )
+end
+
 
 ENT.RedEyes = false
 
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
-ENT.JumpHeight = 75
+ENT.JumpHeight = 68
 ENT.AttackRange = 65
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100
@@ -58,6 +111,10 @@ AccessorFunc( ENT, "fRunSpeed", "RunSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fAttackRange", "AttackRange", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
+
+--sounds
+AccessorFunc( ENT, "fNextPainSound", "NextPainSound", FORCE_NUMBER)
+AccessorFunc( ENT, "fNextAmbientSound", "NextAmbientSound", FORCE_NUMBER)
 
 --Stuck prevention
 AccessorFunc( ENT, "fLastPostionSave", "LastPostionSave", FORCE_NUMBER)
@@ -74,14 +131,13 @@ function ENT:Initialize()
 
 	self:SetModel( self.Models[math.random( #self.Models )] )
 
-	self.Breathing = CreateSound(self, self.BreathSounds[ math.random( #self.BreathSounds ) ] )
-	self.Breathing:Play()
-	self.Breathing:ChangePitch(60, 0)
-	self.Breathing:ChangeVolume(0.1, 0)
-
 	self:SetJumping( false )
 	self:SetLastJump( CurTime() + 3 ) --prevent jumping after spawn
 	self:SetLastTargetCheck( CurTime() )
+
+	--sounds
+	self:SetNextPainSound( CurTime() + 1 )
+	self:SetNextAmbientSound( CurTime() + 1 )
 
 	--stuck prevetion
 	self:SetLastPush( CurTime() )
@@ -169,7 +225,17 @@ function ENT:Think()
 			self:SetStuckAt( self:GetPos() )
 		end
 
+		--sounds
+		if CurTime() > self:GetNextAmbientSound() then
+			local soundName = self.AmbientSounds[ math.random(#self.AmbientSounds ) ]
+			self:EmitSound( soundName, 80 )
+			local nextSound = SoundDuration( soundName ) + math.random(0,2) + CurTime()
+			self:SetNextAmbientSound( nextSound )
+		end
 
+		if self:WaterLevel() == 3 then
+			self:RespawnAtRandom()
+		end
 
 	end
 	self:OnThink()
@@ -354,24 +420,26 @@ end
 
 function ENT:OnInjured( dmgInfo )
 	local attacker = dmgInfo:GetAttacker()
-	self:EmitSound( self.PainSounds[ math.random( #self.PainSounds ) ] , 50, math.random(50, 130))
 	if self:IsValidTarget( attacker ) then
 		self:SetTarget( attacker )
+	end
+	if CurTime() > self:GetNextPainSound() then
+		local soundName = self.PainSounds[ math.random( #self.PainSounds ) ]
+		self:EmitSound( soundName, 82 )
+		local nextSound = SoundDuration( soundName ) + math.random(0,0.2) + CurTime()
+		self:SetNextPainSound( nextSound )
 	end
 end
 
 function ENT:OnKilled(dmgInfo)
 
-	self:EmitSound(self.DeathSounds[ math.random( #self.DeathSounds ) ], 50, math.random(75, 130))
+	self:EmitSound( self.DeathSounds[ math.random( #self.DeathSounds ) ], 100)
 	self:BecomeRagdoll(dmgInfo)
 
 end
 
 function ENT:OnRemove()
-	if (self.Breathing) then
-		self.Breathing:Stop()
-		self.Breathing = nil
-	end
+
 end
 
 function ENT:OnStuck()
@@ -639,7 +707,7 @@ function ENT:Jump()
 	--self:SetSolidMask( MASK_NPCSOLID_BRUSHONLY )
 	self.loco:Jump()
 	--Boost them
-	--self.loco:SetVelocity( self:GetForward()*5 )
+	self:TimedEvent( 0.5, function() self.loco:SetVelocity( self:GetForward() * 5 ) end)
 end
 
 function ENT:Flames( state )

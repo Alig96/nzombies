@@ -1,7 +1,7 @@
-//
+--
 
 function RandomBox:Spawn(exclude)
-	//Get all spawns
+	--Get all spawns
 	local all = ents.FindByClass("random_box_spawns")
 	if exclude and IsValid(exclude) then
 		table.RemoveByValue(all, exclude)
@@ -29,9 +29,9 @@ function RandomBox:Spawn(exclude)
 end
 
 function RandomBox:Remove()
-	//Get all spawns
+	--Get all spawns
 	local all = ents.FindByClass("random_box")
-	//Loop just incase
+	--Loop just incase
 	for k,v in pairs(all) do
 		v.SpawnPoint.HasBox = false
 		v:Remove()
@@ -48,14 +48,14 @@ function RandomBox:DecideWep(ply)
 	local guns = {}
 	local blacklist = table.Copy(nz.Config.WeaponBlackList)
 
-	//Add all our current guns to the black list
+	--Add all our current guns to the black list
 	if ply:IsValid() then
 		for k,v in pairs( ply:GetWeapons() ) do
 			blacklist[v.ClassName] = true
 		end
 	end
 
-	//Add all guns with no model to the blacklist
+	--Add all guns with no model to the blacklist
 	for k,v in pairs( weapons.GetList() ) do
 		if !blacklist[v.ClassName] then
 			if v.WorldModel == nil then
