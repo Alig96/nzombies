@@ -31,7 +31,11 @@ function nz.Enemies.Functions.ValidSpawns()
 				-- If enable, then if the player is in the same area group as the spawnpoint
 				if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(ply, v2) then
 					if v2:GetPos():DistToSqr(ply:GetPos()) > 22500 then
-						table.insert(spawns, v2)
+						local nav = navmesh.GetNearestNavArea( v2:GetPos() )
+						--check if navmesh is close
+						if IsValid(nav) and nav:GetClosestPointOnArea( v2:GetPos() ):DistToSqr( v2:GetPos() ) < 10000 then
+							table.insert(spawns, v2)
+						end
 					end
 				end
 			end
