@@ -711,6 +711,7 @@ function ENT:Attack( data )
 			blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
 			blood:Spawn()
 			blood:Fire("EmitBlood")
+			SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
 		end
 	end)
 
