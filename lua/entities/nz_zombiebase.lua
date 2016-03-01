@@ -492,13 +492,27 @@ function ENT:ChaseTarget( options )
 		local scanDist
 		--this will probaly need asjustments to fit the zombies speed
 		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
+		--debug section
 		if GetConVar( "nz_zombie_debug" ):GetBool() then
 			debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self.loco:GetGroundMotionVector() * scanDist), 0.05, Color(0,0,255,0) )
 			local losColor  = Color(255,0,0)
 			if self:IsLineOfSightClear( self:GetTarget():GetPos() + Vector(0,0,35) ) then
 				losColor = Color(0,255,0)
 			end
-			debugoverlay.Line( self:EyePos(),  self:GetTarget():GetPos(), 0.05, losColor )
+			debugoverlay.Line( self:EyePos(),  self:GetTarget():GetPos() + Vector(0,0,35), 0.03, losColor )
+			local nav = navmesh.GetNearestNavArea( self:GetPos() )
+			if IsValid(nav) and nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) < 2500 then
+				debugoverlay.Line( nav:GetCorner( 0 ),  nav:GetCorner( 1 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 0 ),  nav:GetCorner( 3 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 1 ),  nav:GetCorner( 2 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 2 ),  nav:GetCorner( 3 ), 0.05, Color(255,0,0), true )
+				for _,v in pairs(nav:GetAdjacentAreas()) do
+					debugoverlay.Line( v:GetCorner( 0 ),  v:GetCorner( 1 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 0 ),  v:GetCorner( 3 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 1 ),  v:GetCorner( 2 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 2 ),  v:GetCorner( 3 ), 0.05, Color(150,80,0,80), true )
+				end
+			end
 		end
 		--print(self.loco:GetGroundMotionVector(), self:GetForward())
 		--local goal = path:GetCurrentGoal()
@@ -676,15 +690,27 @@ function ENT:Attack( data )
 
 	self:TimedEvent( data.dmgdelay, function()
 		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+			local dmgAmount = math.random( data.dmglow, data.dmghigh )
 			local dmgInfo = DamageInfo()
 				dmgInfo:SetAttacker( self )
-				dmgInfo:SetDamage( math.random( data.dmglow, data.dmghigh ) )
+				dmgInfo:SetDamage( dmgAmount )
 				dmgInfo:SetDamageType( data.dmgtype )
 				dmgInfo:SetDamageForce( data.dmgforce )
 			self:GetTarget():TakeDamageInfo(dmgInfo)
 			self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
 			self:GetTarget():ViewPunch( data.viewpunch )
 			self:GetTarget():SetVelocity( data.dmgforce )
+
+			local blood = ents.Create("env_blood")
+			blood:SetKeyValue("targetname", "carlbloodfx")
+			blood:SetKeyValue("parentname", "prop_ragdoll")
+			blood:SetKeyValue("spawnflags", 8)
+			blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
+			blood:SetKeyValue("amount", dmgAmount * 5)
+			blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
+			blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
+			blood:Spawn()
+			blood:Fire("EmitBlood")
 		end
 	end)
 
@@ -961,7 +987,7 @@ function ENT:RespawnAtRandom( cur )
 		return
 	end
 	local spawnpoint = valids[ math.random(#valids) ]
-	if IsVliad(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
+	if IsValid(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
 		return true
 	end
