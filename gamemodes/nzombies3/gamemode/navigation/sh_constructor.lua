@@ -29,10 +29,10 @@ function FloodSelectNavAreas(area)
 	//Clear tables to be ready for a new selection
 	NavFloodSelectedSet = {}
 	NavFloodAlreadySelected = {}
-	
+
 	//Start off on the current area
 	AddFloodSelectedToSet(area)
-	
+
 	return NavFloodSelectedSet
 end
 
@@ -43,7 +43,7 @@ function AddFloodSelectedToSet(area)
 	//Add it to the table and make sure it doesn't get reached again
 	NavFloodAlreadySelected[area:GetID()] = true
 	table.insert(NavFloodSelectedSet, area)
-	
+
 	//Loop through adjacent areas and do the same thing
 	for k,v in pairs(area:GetAdjacentAreas()) do
 		if !NavFloodAlreadySelected[v:GetID()] and v:IsConnected(area) then
@@ -54,10 +54,10 @@ end
 
 function nz.Nav.Functions.AddNavGroupIDToArea(area, id)
 	local id = string.lower(id)
-	
+
 	//Set the areas ID to the given one
 	nz.Nav.NavGroups[area:GetID()] = id
-	
+
 	//Create the entire group in the index table if it isn't already there
 	if !nz.Nav.NavGroupIDs[id] then
 		nz.Nav.NavGroupIDs[id] = {[id] = true}
@@ -69,7 +69,7 @@ function nz.Nav.Functions.RemoveNavGroupArea(area, deletegroup)
 	if deletegroup and nz.Nav.NavGroupIDs[nz.Nav.NavGroups[area:GetID()]] then
 		nz.Nav.NavGroupIDs[nz.Nav.NavGroups[area:GetID()]] = nil
 	end
-	
+
 	//Remove the group data behind the area itself
 	nz.Nav.NavGroups[area:GetID()] = nil
 end
@@ -77,7 +77,7 @@ end
 function nz.Nav.Functions.MergeNavGroups(id1, id2)
 	if !id1 or !nz.Nav.NavGroupIDs[id1] then Error("MergeNavGroups called with invalid id1!") return end
 	if !id2 or !nz.Nav.NavGroupIDs[id2] then Error("MergeNavGroups called with invalid id2!") return end
-	
+
 	local tbl = {}
 	for k,v in pairs(nz.Nav.NavGroupIDs[id1]) do
 		tbl[k] = true
@@ -87,7 +87,7 @@ function nz.Nav.Functions.MergeNavGroups(id1, id2)
 	end
 	tbl[id1] = true
 	tbl[id2] = true
-	
+
 	for k,v in pairs(tbl) do
 		nz.Nav.NavGroupIDs[k] = tbl
 	end
@@ -106,20 +106,20 @@ end
 function nz.Nav.Functions.IsInSameNavGroup(ent1, ent2)
 	local area1 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(ent1:GetPos()):GetID()]
 	if !area1 then return true end
-	
+
 	local area2 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(ent2:GetPos()):GetID()]
 	if !area2 then return true end
-	
+
 	return nz.Nav.NavGroupIDs[area1][area2] or false
 end
 
 function nz.Nav.Functions.IsPosInSameNavGroup(pos1, pos2)
 	local area1 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(pos1):GetID()]
 	if !area1 then return true end
-	
+
 	local area2 = nz.Nav.NavGroups[navmesh.GetNearestNavArea(pos2):GetID()]
 	if !area2 then return true end
-	
+
 	return nz.Nav.NavGroupIDs[area1][area2] or false
 end
 
@@ -167,7 +167,7 @@ function nz.Nav.Functions.AutoGenerateAutoMergeLinks()
 						nz.Nav.Functions.CreateAutoMergeLink(v2, k)
 						print("Linked navmesh "..k.." to door", v2)
 					end
-				end					
+				end
 			end
 		end
 	end
@@ -175,7 +175,7 @@ end
 
 function nz.Nav.Functions.OnNavMeshUnlocked(areaids)
 	local tbl = {}
-	
+
 	for k,v in pairs(areaids) do
 		local area = navmesh.GetNavAreaByID(v)
 		for k2,v2 in pairs(area:GetAdjacentAreas()) do

@@ -1,5 +1,8 @@
 AddCSLuaFile()
 
+--debug cvars
+CreateConVar( "nz_zombie_debug", "0", { FCVAR_REPLICATED, FCVAR_ARCHIVE, FCVAR_CHEAT } )
+
 --[[
 This Base is not really spawnable but it contains a lot of useful functions for it's children
 --]]
@@ -23,17 +26,11 @@ ENT.AttackHitSounds = {
 	"npc/zombie/zombie_hit.wav"
 }
 ENT.PainSounds = {
-	"nz/zombies/death/death_00.wav",
-	"nz/zombies/death/death_01.wav",
-	"nz/zombies/death/death_02.wav",
-	"nz/zombies/death/death_03.wav",
-	"nz/zombies/death/death_04.wav",
-	"nz/zombies/death/death_05.wav",
-	"nz/zombies/death/death_06.wav",
-	"nz/zombies/death/death_07.wav",
-	"nz/zombies/death/death_08.wav",
-	"nz/zombies/death/death_09.wav",
-	"nz/zombies/death/death_10.wav"
+	"physics/flesh/flesh_impact_bullet1.wav",
+	"physics/flesh/flesh_impact_bullet2.wav",
+	"physics/flesh/flesh_impact_bullet3.wav",
+	"physics/flesh/flesh_impact_bullet4.wav",
+	"physics/flesh/flesh_impact_bullet5.wav"
 }
 ENT.DeathSounds = {
 	"nz/zombies/death/death_00.wav",
@@ -113,7 +110,6 @@ AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
 
 --sounds
-AccessorFunc( ENT, "fNextPainSound", "NextPainSound", FORCE_NUMBER)
 AccessorFunc( ENT, "fNextAmbientSound", "NextAmbientSound", FORCE_NUMBER)
 
 --Stuck prevention
@@ -136,7 +132,6 @@ function ENT:Initialize()
 	self:SetLastTargetCheck( CurTime() )
 
 	--sounds
-	self:SetNextPainSound( CurTime() + 1 )
 	self:SetNextAmbientSound( CurTime() + 1 )
 
 	--stuck prevetion
@@ -288,6 +283,10 @@ function ENT:Draw()
 			render.DrawSprite( rightEye, 4, 4, white)
 		cam.End3D()
 	end
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
+		render.DrawWireframeSphere(self:GetPos(), self:GetAttackRange(), 10, 10, Color(255,165,0), true)
+	end
 end
 
 --[[
@@ -423,12 +422,8 @@ function ENT:OnInjured( dmgInfo )
 	if self:IsValidTarget( attacker ) then
 		self:SetTarget( attacker )
 	end
-	if CurTime() > self:GetNextPainSound() then
-		local soundName = self.PainSounds[ math.random( #self.PainSounds ) ]
-		self:EmitSound( soundName, 82 )
-		local nextSound = SoundDuration( soundName ) + math.random(0,0.2) + CurTime()
-		self:SetNextPainSound( nextSound )
-	end
+	local soundName = self.PainSounds[ math.random( #self.PainSounds ) ]
+	self:EmitSound( soundName, 90 )
 end
 
 function ENT:OnKilled(dmgInfo)
@@ -481,12 +476,15 @@ function ENT:ChaseTarget( options )
 
 	if ( !path:IsValid() ) then return "failed" end
 	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
+
+		path:Update( self )
+
 		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
 			return "timeout"
 		end
 		path:Update( self )	-- This function moves the bot along the path
-		if ( options.draw ) then
+		if options.draw or GetConVar( "nz_zombie_debug" ):GetBool() then
 			path:Draw()
 		end
 		--the jumping part simple and buggy
@@ -494,11 +492,32 @@ function ENT:ChaseTarget( options )
 		local scanDist
 		--this will probaly need asjustments to fit the zombies speed
 		if self:GetVelocity():Length2D() > 150 then scanDist = 30 else scanDist = 20 end
-		--debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), 0.1, Color(255,0,0,0), true )
-		--debugoverlay.Line( self:GetPos(),  path:GetPositionOnPath(path:GetCursorPosition() + scanDist), 0.1, Color(0,255,0,0), true )
+		--debug section
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			debugoverlay.Line( self:GetPos(),  path:GetClosestPosition(self:EyePos() + self.loco:GetGroundMotionVector() * scanDist), 0.05, Color(0,0,255,0) )
+			local losColor  = Color(255,0,0)
+			if self:IsLineOfSightClear( self:GetTarget():GetPos() + Vector(0,0,35) ) then
+				losColor = Color(0,255,0)
+			end
+			debugoverlay.Line( self:EyePos(),  self:GetTarget():GetPos() + Vector(0,0,35), 0.03, losColor )
+			local nav = navmesh.GetNearestNavArea( self:GetPos() )
+			if IsValid(nav) and nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) < 2500 then
+				debugoverlay.Line( nav:GetCorner( 0 ),  nav:GetCorner( 1 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 0 ),  nav:GetCorner( 3 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 1 ),  nav:GetCorner( 2 ), 0.05, Color(255,0,0), true )
+				debugoverlay.Line( nav:GetCorner( 2 ),  nav:GetCorner( 3 ), 0.05, Color(255,0,0), true )
+				for _,v in pairs(nav:GetAdjacentAreas()) do
+					debugoverlay.Line( v:GetCorner( 0 ),  v:GetCorner( 1 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 0 ),  v:GetCorner( 3 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 1 ),  v:GetCorner( 2 ), 0.05, Color(150,80,0,80), true )
+					debugoverlay.Line( v:GetCorner( 2 ),  v:GetCorner( 3 ), 0.05, Color(150,80,0,80), true )
+				end
+			end
+		end
+		--print(self.loco:GetGroundMotionVector(), self:GetForward())
 		--local goal = path:GetCurrentGoal()
-		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist).z) > 22 then
-			self:Jump(path:GetClosestPosition(self:EyePos() + self:EyeAngles():Forward() * scanDist), scanDist)
+		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self.loco:GetGroundMotionVector() * scanDist).z) > 22 then
+			self:Jump()
 		end
 
 		--[[if path:IsValid() and goal.type == 4 then
@@ -569,14 +588,14 @@ function ENT:ChaseTargetPath( options )
 			end
 			--compute distance traveled along path so far
 			local dist = 0
-			if ( IsValid( ladder ) ) then
+			--[[if ( IsValid( ladder ) ) then
 				dist = ladder:GetLength()
 			elseif ( length > 0 ) then
 				--optimization to avoid recomputing length
 				dist = length
 			else
 				dist = ( area:GetCenter() - fromArea:GetCenter() ):GetLength()
-			end
+			end]]--
 			local cost = dist + fromArea:GetCostSoFar()
 			--check height change
 			local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
@@ -593,7 +612,7 @@ function ENT:ChaseTargetPath( options )
 					return -1
 				end
 				--jumping is slower than flat ground
-				local jumpPenalty = 0
+				local jumpPenalty = 1.5
 				cost = cost + jumpPenalty * dist
 			elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
 				--too far to drop
@@ -671,21 +690,28 @@ function ENT:Attack( data )
 
 	self:TimedEvent( data.dmgdelay, function()
 		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+			local dmgAmount = math.random( data.dmglow, data.dmghigh )
 			local dmgInfo = DamageInfo()
 				dmgInfo:SetAttacker( self )
-				dmgInfo:SetDamage( math.random( data.dmglow, data.dmghigh ) )
+				dmgInfo:SetDamage( dmgAmount )
 				dmgInfo:SetDamageType( data.dmgtype )
 				dmgInfo:SetDamageForce( data.dmgforce )
 			self:GetTarget():TakeDamageInfo(dmgInfo)
 			self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
 			self:GetTarget():ViewPunch( data.viewpunch )
 			self:GetTarget():SetVelocity( data.dmgforce )
-		end
-	end)
 
-	self:TimedEvent( data.dmgdelay + 0.05, function()
-		if (IsValid(target) and !target:Alive()) then
-			self:RemoveTarget()
+			local blood = ents.Create("env_blood")
+			blood:SetKeyValue("targetname", "carlbloodfx")
+			blood:SetKeyValue("parentname", "prop_ragdoll")
+			blood:SetKeyValue("spawnflags", 8)
+			blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
+			blood:SetKeyValue("amount", dmgAmount * 5)
+			blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
+			blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
+			blood:Spawn()
+			blood:Fire("EmitBlood")
+			SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
 		end
 	end)
 
@@ -693,12 +719,42 @@ function ENT:Attack( data )
 		self:SetAttacking( false )
 	end)
 
-	self:PlaySequenceAndWait( data.attackseq, 1)
+	self:PlayAttackAndWait( data.attackseq, 1)
+end
+
+function ENT:PlayAttackAndWait( name, speed )
+
+	local len = self:SetSequence( name )
+	speed = speed or 1
+
+	self:ResetSequenceInfo()
+	self:SetCycle( 0 )
+	self:SetPlaybackRate( speed  );
+
+	local endtime = CurTime() + len / speed
+
+	while ( true ) do
+
+		if ( endtime < CurTime() ) then
+			self:StartActivity( ACT_WALK )
+			self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+			return
+		end
+		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() * 2  ) then
+			self.loco:SetDesiredSpeed( self:GetRunSpeed() / 3 )
+			self.loco:Approach( self:GetTarget():GetPos(), 10 )
+			self.loco:FaceTowards( self:GetTarget():GetPos() )
+		end
+
+		coroutine.yield()
+
+	end
+
 end
 
 --we do our own jump since the loco one is a bit weird.
 function ENT:Jump()
-	if CurTime() < self:GetLastJump() + 2 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
+	if CurTime() < self:GetLastJump() + 1.75 or navmesh.GetNavArea(self:GetPos(), 50):HasAttributes( NAV_MESH_NO_JUMP ) then return end
 	if !self:IsOnGround() then return end
 	self.loco:SetDesiredSpeed( 450 )
 	self.loco:SetAcceleration( 5000 )
@@ -932,7 +988,7 @@ function ENT:RespawnAtRandom( cur )
 		return
 	end
 	local spawnpoint = valids[ math.random(#valids) ]
-	if IsVliad(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
+	if IsValid(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
 		return true
 	end
