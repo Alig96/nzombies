@@ -8,10 +8,14 @@ ENT.AdminOnly			= true
 ENT.PrintName			= "Sky Editor"
 ENT.Category			= "Editors"
 
+local oldsky
+
 function ENT:Initialize()
 
 	BaseClass.Initialize( self )
 	self:SetMaterial( "gmod/edit_sky" )
+	
+	
 
 	--
 	-- Over-ride the sky controller with this.
@@ -23,6 +27,15 @@ function ENT:Initialize()
 		end
 
 		g_SkyPaint = self
+	else
+		
+		if !oldsky then oldsky = GetConVar("sv_skyname"):GetString() end
+		print(oldsky)
+		RunConsoleCommand("sv_skyname", "painted")
+		if !IsValid(ents.FindByClass("env_skypaint")[1]) then
+			local ent = ents.Create("env_skypaint")
+			ent:Spawn()
+		end
 
 	end
 
@@ -70,6 +83,13 @@ function ENT:SetupDataTables()
 
 end
 
+function ENT:OnRemove()
+	if SERVER then
+		if oldsky and #ents.FindByClass("edit_sky") <= 0 then
+			RunConsoleCommand("sv_skyname", oldsky)
+		end
+	end
+end
 
 --
 -- This edits something global - so always network - even wjen not in PVS

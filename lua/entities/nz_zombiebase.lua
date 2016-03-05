@@ -45,7 +45,7 @@ ENT.DeathSounds = {
 	"nz/zombies/death/death_09.wav",
 	"nz/zombies/death/death_10.wav"
 }
-ENT.AmbientSounds = {
+ENT.WalkSounds = {
 	"nz/zombies/ambient/ambient_00.wav",
 	"nz/zombies/ambient/ambient_01.wav",
 	"nz/zombies/ambient/ambient_02.wav",
@@ -69,6 +69,18 @@ ENT.AmbientSounds = {
 	"nz/zombies/ambient/ambient_20.wav"
 }
 
+ENT.RunSounds = {
+	"nz/zombies/sprint2/sprint0.wav",
+	"nz/zombies/sprint2/sprint1.wav",
+	"nz/zombies/sprint2/sprint2.wav",
+	"nz/zombies/sprint2/sprint3.wav",
+	"nz/zombies/sprint2/sprint4.wav",
+	"nz/zombies/sprint2/sprint5.wav",
+	"nz/zombies/sprint2/sprint6.wav",
+	"nz/zombies/sprint2/sprint7.wav",
+	"nz/zombies/sprint2/sprint8.wav"
+}
+
 for _,v in pairs(ENT.AttackSounds) do
 	util.PrecacheSound( v )
 end
@@ -85,7 +97,11 @@ for _,v in pairs(ENT.DeathSounds) do
 	util.PrecacheSound( v )
 end
 
-for _,v in pairs(ENT.AmbientSounds) do
+for _,v in pairs(ENT.WalkSounds) do
+	util.PrecacheSound( v )
+end
+
+for _,v in pairs(ENT.RunSounds) do
 	util.PrecacheSound( v )
 end
 
@@ -110,7 +126,7 @@ AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
 
 --sounds
-AccessorFunc( ENT, "fNextAmbientSound", "NextAmbientSound", FORCE_NUMBER)
+AccessorFunc( ENT, "fNextMoanSound", "NextMoanSound", FORCE_NUMBER)
 
 --Stuck prevention
 AccessorFunc( ENT, "fLastPostionSave", "LastPostionSave", FORCE_NUMBER)
@@ -132,7 +148,7 @@ function ENT:Initialize()
 	self:SetLastTargetCheck( CurTime() )
 
 	--sounds
-	self:SetNextAmbientSound( CurTime() + 1 )
+	self:SetNextMoanSound( CurTime() + 1 )
 
 	--stuck prevetion
 	self:SetLastPush( CurTime() )
@@ -221,11 +237,11 @@ function ENT:Think()
 		end
 
 		--sounds
-		if CurTime() > self:GetNextAmbientSound() then
-			local soundName = self.AmbientSounds[ math.random(#self.AmbientSounds ) ]
+		if CurTime() > self:GetNextMoanSound() then
+			local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
 			self:EmitSound( soundName, 80 )
-			local nextSound = SoundDuration( soundName ) + math.random(0,2) + CurTime()
-			self:SetNextAmbientSound( nextSound )
+			local nextSound = SoundDuration( soundName ) + math.random(0,4) + CurTime()
+			self:SetNextMoanSound( nextSound )
 		end
 
 		if self:WaterLevel() == 3 then
@@ -268,7 +284,7 @@ function ENT:RunBehaviour()
 end
 
 --Draw sppoky red eyes
-local eyeGlow =  Material ( "sprites/redglow1" )
+local eyeGlow =  Material( "sprites/redglow1" )
 local white = Color( 255, 255, 255, 255 )
 
 function ENT:Draw()
@@ -473,6 +489,8 @@ function ENT:ChaseTarget( options )
 	end
 
 	local path = self:ChaseTargetPath( options )
+	
+	if !path then Error("NZ: Zombie "..self:EntIndex().." has spawned on no navmesh! Zombie can't function!\n") end
 
 	if ( !path:IsValid() ) then return "failed" end
 	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
@@ -551,6 +569,9 @@ function ENT:ChaseTarget( options )
 end
 
 function ENT:ChaseTargetPath( options )
+
+	local nav = navmesh.GetNearestNavArea( self:GetPos() )
+	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then return nil end
 
 	options = options or {}
 

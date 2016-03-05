@@ -552,11 +552,11 @@ nz.Tools.Functions.CreateTool("elec", {
 	end,
 	
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.Electric(tr.HitPos, tr.HitNormal:Angle() - Angle( 270, 0, 0 ), nil, ply)
+		nz.Mapping.Functions.Electric(tr.HitPos + tr.HitNormal*5, tr.HitNormal:Angle(), nil, ply)
 	end,
 	
 	SecondaryAttack = function(wep, ply, tr, data)
-		if IsValid(tr.Entity) and tr.Entity:GetClass() == "button_elec" then
+		if IsValid(tr.Entity) and tr.Entity:GetClass() == "power_box" then
 			tr.Entity:Remove()
 		end
 	end,

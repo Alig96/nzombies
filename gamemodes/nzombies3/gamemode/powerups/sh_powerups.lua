@@ -93,9 +93,9 @@ end
 //Double Points
 nz.PowerUps.Functions.NewPowerUp("dp", {
 	name = "Double Points",
-	model = "models/props_c17/gravestone003a.mdl",
-	angle = Angle(45,0,0),
-	scale = 0.5,
+	model = "models/nzpowerups/x2.mdl",
+	angle = Angle(25,0,0),
+	scale = 1,
 	chance = 5,
 	duration = 30,
 	func = (function(self, ply)
@@ -123,9 +123,9 @@ nz.PowerUps.Functions.NewPowerUp("maxammo", {
 //Insta Kill
 nz.PowerUps.Functions.NewPowerUp("insta", {
 	name = "Insta Kill",
-	model = "models/Gibs/HGIBS.mdl",
+	model = "models/nzpowerups/insta.mdl",
 	angle = Angle(0,0,0),
-	scale = 3,
+	scale = 1,
 	chance = 5,
 	duration = 30,
 	func = (function(self, ply)
@@ -136,9 +136,9 @@ nz.PowerUps.Functions.NewPowerUp("insta", {
 //Nuke
 nz.PowerUps.Functions.NewPowerUp("nuke", {
 	name = "Nuke",
-	model = "models/props_junk/watermelon01.mdl",
-	angle = Angle(45,0,0),
-	scale = 1.5,
+	model = "models/nzpowerups/nuke.mdl",
+	angle = Angle(10,0,0),
+	scale = 1,
 	chance = 5,
 	duration = 0,
 	func = (function(self, ply)
@@ -164,9 +164,9 @@ nz.PowerUps.Functions.NewPowerUp("firesale", {
 //Carpenter
 nz.PowerUps.Functions.NewPowerUp("carpenter", {
 	name = "Carpenter",
-	model = "models/props/de_vostok/hammer01.mdl",
-	angle = Angle(45,0,-90),
-	scale = 2,
+	model = "models/nzpowerups/carpenter.mdl",
+	angle = Angle(45,0,0),
+	scale = 1,
 	chance = 5,
 	duration = 0,
 	func = (function(self, ply)

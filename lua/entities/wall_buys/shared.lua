@@ -48,16 +48,18 @@ function ENT:RecalculateModelOutlines()
 	self:RemoveOutline()
 	local num = GetConVar("nz_outlinedetail"):GetInt()
 	local curang = self:GetAngles()
+	local curpos = self:GetPos()
+	local model = self:GetModel()
 	if self.Flipped then
 		curang:RotateAroundAxis(curang:Right(), 90)
 	end
 	print(ang)
 	if num >= 1 then
-		self.Chalk1 = ClientsideModel(self:GetModel())
+		self.Chalk1 = ClientsideModel(model)
 		local offset = Vector(0,-0.5,0.5)
 		offset:Rotate(ang)
-		self.Chalk1:SetPos(self:GetPos() + offset)
-		self.Chalk1:SetAngles(self:GetAngles())
+		self.Chalk1:SetPos(curpos + offset)
+		self.Chalk1:SetAngles(curang)
 		self.Chalk1:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -70,11 +72,11 @@ function ENT:RecalculateModelOutlines()
 	end
 		
 	if num >= 2 then
-		self.Chalk2 = ClientsideModel(self:GetModel())
+		self.Chalk2 = ClientsideModel(model)
 		offset = Vector(0,0.5,-0.5)
 		offset:Rotate(ang)
-		self.Chalk2:SetPos(self:GetPos() + offset)
-		self.Chalk2:SetAngles(self:GetAngles())
+		self.Chalk2:SetPos(curpos + offset)
+		self.Chalk2:SetAngles(curang)
 		self.Chalk2:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -87,11 +89,11 @@ function ENT:RecalculateModelOutlines()
 	end
 		
 	if num >= 3 then
-		self.Chalk3 = ClientsideModel(self:GetModel())
+		self.Chalk3 = ClientsideModel(model)
 		offset = Vector(0,0.5,0.5)
 		offset:Rotate(ang)
-		self.Chalk3:SetPos(self:GetPos() + offset)
-		self.Chalk3:SetAngles(self:GetAngles())
+		self.Chalk3:SetPos(curpos + offset)
+		self.Chalk3:SetAngles(curang)
 		self.Chalk3:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -104,11 +106,11 @@ function ENT:RecalculateModelOutlines()
 	end
 		
 	if num >= 4 then
-		self.Chalk4 = ClientsideModel(self:GetModel())
+		self.Chalk4 = ClientsideModel(model)
 		offset = Vector(0,-0.5,-0.5)
 		offset:Rotate(ang)
-		self.Chalk4:SetPos(self:GetPos() + offset)
-		self.Chalk4:SetAngles(self:GetAngles())
+		self.Chalk4:SetPos(curpos + offset)
+		self.Chalk4:SetAngles(curang)
 		self.Chalk4:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -121,9 +123,9 @@ function ENT:RecalculateModelOutlines()
 	end
 		
 	if num >= 1 then
-		self.ChalkCenter = ClientsideModel(self:GetModel())
-		self.ChalkCenter:SetPos(self:GetPos())
-		self.ChalkCenter:SetAngles(self:GetAngles())
+		self.ChalkCenter = ClientsideModel(model)
+		self.ChalkCenter:SetPos(curpos)
+		self.ChalkCenter:SetAngles(curang)
 		self.ChalkCenter:SetMaterial(chalkmaterial)
 			
 		mat = Matrix()
@@ -235,6 +237,8 @@ if CLIENT then
 		end
 	end
 
+	local glow = Material ( "sprites/glow04_noz" )
+	local white = Color(0,200,255,50)
 	function ENT:Draw()
 		local num = math.Clamp(GetConVar("nz_outlinedetail"):GetInt(), 0, 4)
 		if num < 1 then
@@ -243,35 +247,41 @@ if CLIENT then
 			local pos = LocalPlayer():EyePos()+LocalPlayer():EyeAngles():Forward()*10
 			local ang = LocalPlayer():EyeAngles()
 			ang = Angle(ang.p+90,ang.y,0)
-			
+			if halo.RenderedEntity() != self then
 				render.ClearStencil()
 				render.SetStencilEnable(true)
-				render.SetStencilWriteMask(255)
-				render.SetStencilTestMask(255)
-				render.SetStencilReferenceValue(15)
-				render.SetStencilFailOperation(STENCILOPERATION_KEEP)
-				render.SetStencilZFailOperation(STENCILOPERATION_KEEP)
-				render.SetStencilPassOperation(STENCILOPERATION_REPLACE)
-				render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_ALWAYS)
-				render.SetBlend(0)
-				
-					for i = 1, num do
-						self["Chalk"..i]:DrawModel()
-					end
+					render.SetStencilWriteMask(255)
+					render.SetStencilTestMask(255)
+					render.SetStencilReferenceValue(15)
+					render.SetStencilFailOperation(STENCILOPERATION_KEEP)
+					render.SetStencilZFailOperation(STENCILOPERATION_KEEP)
+					render.SetStencilPassOperation(STENCILOPERATION_REPLACE)
+					render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_ALWAYS)
+					render.SetBlend(0)
 					
-				render.SetStencilPassOperation(STENCILOPERATION_ZERO) -- Make it deselect the center model
-				self.ChalkCenter:DrawModel()
-					
-				render.SetBlend(1)
-				render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
-				cam.Start3D2D(pos,ang,1)
-					--surface.SetDrawColor(0,0,0)
-					surface.SetDrawColor(255,255,255)
-					surface.DrawRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
-					surface.SetMaterial(chalkmaterial)
-					surface.DrawTexturedRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
-				cam.End3D2D()
-			render.SetStencilEnable(false)
+						for i = 1, num do
+							self["Chalk"..i]:DrawModel()
+						end
+						
+					render.SetStencilPassOperation(STENCILOPERATION_ZERO) -- Make it deselect the center model
+					self.ChalkCenter:DrawModel()
+						
+					render.SetBlend(1)
+					render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
+					cam.Start3D2D(pos,ang,1)
+						--surface.SetDrawColor(0,0,0)
+						surface.SetDrawColor(255,255,255)
+						surface.DrawRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
+						surface.SetMaterial(chalkmaterial)
+						surface.DrawTexturedRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
+					cam.End3D2D()
+				render.SetStencilEnable(false)
+			end
+			local spritepos = self:WorldSpaceCenter()
+			cam.Start3D()
+				render.SetMaterial( glow )
+				render.DrawSprite( spritepos + (pos-spritepos):GetNormalized()*5, 200, 100, white)
+			cam.End3D()
 			if self:GetBought() then
 				self:DrawModel()
 			end

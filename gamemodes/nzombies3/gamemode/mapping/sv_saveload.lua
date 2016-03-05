@@ -96,7 +96,7 @@ function nz.Mapping.Functions.SaveConfig(name)
 		table.insert(prop_effects, {
 		pos = v:GetPos(),
 		angle = v:GetAngles(),
-		model = v:GetModel(),
+		model = v.AttachedEntity:GetModel(),
 		})
 	end
 
@@ -436,6 +436,8 @@ function nz.Mapping.Functions.LoadConfig( name )
 
 		if data.PropEffects then
 			for k,v in pairs(data.PropEffects) do
+				PrintTable(v)
+				print("Effect")
 				nz.Mapping.Functions.SpawnEffect(v.pos, v.angle, v.model)
 			end
 		end

@@ -207,12 +207,12 @@ end
 
 function nz.Mapping.Functions.Electric(pos,ang,model,ply)
 	//THERE CAN ONLY BE ONE TRUE HERO
-	local prevs = ents.FindByClass("button_elec")
+	local prevs = ents.FindByClass("power_box")
 	if prevs[1] != nil then
 		prevs[1]:Remove()
 	end
 	
-	local ent = ents.Create( "button_elec" )
+	local ent = ents.Create( "power_box" )
 	ent:SetPos( pos )
 	ent:SetAngles( ang )
 	ent:Spawn()
