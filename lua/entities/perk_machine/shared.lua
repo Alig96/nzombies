@@ -25,15 +25,18 @@ function ENT:Initialize()
 end
 
 function ENT:TurnOn()
-	local perkData = nz.Perks.Functions.Get(self:GetPerkID())
-	self:SetModel(perkData.on_model)
+	self:Update()
 	self:SetActive(true)
 end
 
 function ENT:TurnOff()
+	self:Update()
+	self:SetActive(false)
+end
+
+function ENT:Update()
 	local perkData = nz.Perks.Functions.Get(self:GetPerkID())
 	self:SetModel(perkData.off_model)
-	self:SetActive(false)
 end
 
 function ENT:IsOn()

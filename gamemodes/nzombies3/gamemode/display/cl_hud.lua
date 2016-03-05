@@ -252,7 +252,7 @@ local function RoundHud()
 	else
 		text = round
 	end
-	draw.SimpleText(text, font, w, h, col, TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+	draw.SimpleText(text, font, w, h, col, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 
 end
 

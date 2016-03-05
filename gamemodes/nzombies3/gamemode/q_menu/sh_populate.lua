@@ -117,3 +117,7 @@ PropMenuAddEntity("edit_sky", "entities/edit_sky.png", "Sky Editor")
 PropMenuAddEntity("edit_sun", "entities/edit_sun.png", "Sun Editor")
 PropMenuAddEntity("edit_color", "gmod/demo.png", "Color Correction Editor")
 PropMenuAddEntity("nz_fire_effect", "icon16/fire.png", "Fire Effect")
+
+PropMenuAddModel("Scenery", "models/nzprops/zombies_power_lever.mdl")
+PropMenuAddModel("Scenery", "models/nzprops/zombies_power_lever_handle.mdl")
+PropMenuAddModel("Scenery", "models/nzprops/zombies_power_lever_short.mdl")

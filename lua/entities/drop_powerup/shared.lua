@@ -25,29 +25,21 @@ function ENT:Initialize()
 	self:SetSolid(SOLID_NONE)
 	if SERVER then
 		self:SetTrigger(true)
+		self:SetUseType(SIMPLE_USE)
+	else
+		self.NextParticle = CurTime()
 	end
 	self:UseTriggerBounds(true, 0)
 	self:SetMaterial("models/shiny.vtf")
 	self:SetColor( Color(255,200,0) )
 	--self:SetTrigger(true)
-	self.DeathTimer = 30
-	if SERVER then
-		self:SetUseType(SIMPLE_USE)
-		--[[local phys = self:GetPhysicsObject()
-		if (phys:IsValid()) then
-			phys:Wake()
-			--phys:EnableCollisions(false)
-		end]]
-	end
-	timer.Create( self:EntIndex().."_deathtimer", 0.1, 300, function()
-		if self:IsValid() then
-			self.DeathTimer = self.DeathTimer - 0.1
-			if self.DeathTimer <= 0 then
-				timer.Destroy(self:EntIndex().."_deathtimer")
-				if SERVER then
-					self:Remove()
-				end
-			end				
+	
+	timer.Create( self:EntIndex().."_deathtimer", 30, 1, function()
+		if IsValid(self) then
+			timer.Destroy(self:EntIndex().."_deathtimer")
+			if SERVER then
+				self:Remove()
+			end			
 		end
 	end)
 end
@@ -62,27 +54,27 @@ if SERVER then
 end
 
 if CLIENT then
-	function ENT:Draw()
+	--local glow = Material ( "sprites/glow04_noz" )
+	--local col = Color(0,200,255,255)
 	
-	local modi,modf = math.modf(self.DeathTimer)
-		if modi > 10 then
-			self:DrawModel()
-		elseif modi > 5 and modi <= 10 then
-			if modi % 2 == 0  then
-				self:DrawModel()
-			end
-		else
-			if math.Round(modf*10) % 2 == 0 then
-				self:DrawModel()
-			end
+	local particledelay = 0.1
+	
+	function ENT:Draw()
+		if CurTime() > self.NextParticle then
+			local effectdata = EffectData()
+			effectdata:SetOrigin( self:GetPos() )
+			util.Effect( "powerup_glow", effectdata )
+			self.NextParticle = CurTime() + particledelay
 		end
+		self:DrawModel()
 	end
-	local num = 0
+	
 	function ENT:Think()
 		if !self:GetRenderAngles() then self:SetRenderAngles(self:GetAngles()) end
 		self:SetRenderAngles(self:GetRenderAngles()+(Angle(0,50,0)*FrameTime()))
 	end
-	hook.Add( "PreDrawHalos", "drop_powerups_halos", function()
+	
+	--[[hook.Add( "PreDrawHalos", "drop_powerups_halos", function()
 		halo.Add( ents.FindByClass( "drop_powerup" ), Color( 0, 255, 0 ), 2, 2, 2 )
-	end )
+	end )]]
 end
