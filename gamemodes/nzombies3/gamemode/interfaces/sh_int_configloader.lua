@@ -10,7 +10,7 @@ if SERVER then
 	
 	function nz.Interfaces.Functions.ConfigLoaderHandler( ply, data )
 		if ply:IsSuperAdmin() then
-			nz.Mapping.Functions.LoadConfig( data.config )
+			Mapping:LoadConfig( data.config )
 		end
 	end
 end

@@ -64,8 +64,8 @@ function RandomBox:DecideWep(ply)
 		end
 	end
 
-	if nz.Config.UseMapWeaponList and nz.Mapping.MapSettings.rboxweps then
-		for k,v in pairs(nz.Mapping.MapSettings.rboxweps) do
+	if nz.Config.UseMapWeaponList and Mapping.Settings.rboxweps then
+		for k,v in pairs(Mapping.Settings.rboxweps) do
 			if !blacklist[v] then
 				table.insert(guns, v)
 			end

@@ -245,7 +245,7 @@ function Round:SetupGame()
 		ply:SetFrags( 0 ) --Reset all player kills
 	end
 
-	nz.Mapping.Functions.CleanUpMap()
+	Mapping:CleanUpMap()
 	Doors:LockAllDoors()
 
 	//Reset navigation attributes so they don't save into the actual .nav file.

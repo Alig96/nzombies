@@ -7,7 +7,7 @@ if CLIENT then
 		local entity = entity or false
 		net.Start( "nz.QMenu.Request" )
 			net.WriteString( model )
-			net.WriteBool( entity ) 
+			net.WriteBool( entity )
 		net.SendToServer()
 	end
 
@@ -28,12 +28,12 @@ if SERVER then
 				tr.mask = bit.bor( CONTENTS_SOLID, CONTENTS_MOVEABLE, CONTENTS_MONSTER, CONTENTS_WINDOW, CONTENTS_DEBRIS, CONTENTS_GRATE, CONTENTS_AUX )
 				local trace = util.TraceLine( tr )
 				if entity then
-					nz.Mapping.Functions.SpawnEntity(trace.HitPos, Angle(0,0,0), model, ply)
+					Mapping:SpawnEntity(trace.HitPos, Angle(0,0,0), model, ply)
 				else
 					if util.IsValidProp(model) then
-						nz.Mapping.Functions.PropBuy(trace.HitPos, Angle(0,0,0), model, nil, ply)
+						Mapping:PropBuy(trace.HitPos, Angle(0,0,0), model, nil, ply)
 					else
-						nz.Mapping.Functions.SpawnEffect(trace.HitPos, Angle(0,0,0), model, ply)
+						Mapping:SpawnEffect(trace.HitPos, Angle(0,0,0), model, ply)
 					end
 				end
 				//Since we're adding a prop, lets switch to the phys gun for convenience

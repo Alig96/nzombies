@@ -3,7 +3,7 @@
 if SERVER then
 	function nz.Interfaces.Functions.ConfigSaverHandler( ply, data )
 		if ply:IsSuperAdmin() then
-			nz.Mapping.Functions.SaveConfig( data.name )
+			Mapping:SaveConfig( data.name )
 		end
 	end
 end

@@ -160,8 +160,8 @@ function Revive:RespawnWithWhosWho(ply, pos)
 	ply:StripWeapons()
 	
 	-- Give starting weapons
-	if nz.Mapping.MapSettings.startwep then
-		ply:Give( nz.Mapping.MapSettings.startwep )
+	if Mapping.Settings.startwep then
+		ply:Give( Mapping.Settings.startwep )
 	elseif IsValid(ents.FindByClass("player_handler")[1]) then
 		local ent = ents.FindByClass("player_handler")[1]
 		ply:Give( ent:GetStartWep() )
