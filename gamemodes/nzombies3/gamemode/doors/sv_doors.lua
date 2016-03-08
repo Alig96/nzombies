@@ -37,7 +37,7 @@ function Doors:CreateLink( ent, flagsStr )
 	--self:RemoveLink( ent )
 	if ent:IsDoor() or ent:IsButton() then
 		self:CreateMapDoorLink( ent:DoorIndex(), flagsStr )
-	elseif ent:IsBuyableProp() then
+	elseif ent:IsBuyableProp() or ent:IsScriptBuyable() then
 		self:CreatePropDoorLink( ent, flagsStr )
 	end
 end
