@@ -81,7 +81,7 @@ util.AddNetworkString("nz_SaveConfig")
 NewChatCommand("/save", function(ply, text)
 	if ply:IsSuperAdmin() then
 		if Round:InState( ROUND_CREATE ) then
-			--nz.Mapping.Functions.SaveConfig()
+			--Mapping:SaveConfig()
 			net.Start("nz_SaveConfig")
 			net.Send(ply)
 		else

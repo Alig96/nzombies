@@ -489,7 +489,7 @@ function ENT:ChaseTarget( options )
 	end
 
 	local path = self:ChaseTargetPath( options )
-	
+
 	if !path then Error("NZ: Zombie "..self:EntIndex().." has spawned on no navmesh! Zombie can't function!\n") end
 
 	if ( !path:IsValid() ) then return "failed" end
@@ -890,7 +890,7 @@ function ENT:TeleportToTarget( silent )
 			if silent then
 				if !tr.Hit and nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(location):GetID()] == nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(self:GetPos()):GetID()] then
 					local inFOV = false
-					for _, ply in pairs( player.GetAll() ) do
+					for _, ply in pairs( player.GetAllPlayingAndAlive() ) do
 						--can player see us or the teleport location
 						if ply:Alive() and ply:IsLineOfSightClear( location ) or ply:IsLineOfSightClear( self ) then
 							inFOV = true
@@ -942,13 +942,13 @@ function ENT:BodyUpdate()
 
 	if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
 
-	if self:IsJumping() && self:WaterLevel() <= 0 then
+	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
 	end
 
 	if self:GetActivity() != self.CalcIdeal && !self:IsAttacking() then self:StartActivity(self.CalcIdeal) end
 
-	if ( self.CalcIdeal == ACT_RUN || self.CalcIdeal == ACT_WALK ) then
+	if ( self.CalcIdeal == ACT_RUN or self.CalcIdeal == ACT_WALK ) then
 
 		self:BodyMoveXY()
 
@@ -976,7 +976,7 @@ function ENT:GetClosestAvailableRespawnPoint()
 	for k,v in pairs(nz.Enemies.Data.RespawnableSpawnpoints) do
 		if IsValid(v) and (!nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(self, v)) then
 			local dist = self:GetRangeTo( v:GetPos() )
-			if ((dist < min_dist||min_dist==-1)) then
+			if ((dist < min_dist or min_dist == -1)) then
 				closest_target = v
 				min_dist = dist
 			end

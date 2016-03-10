@@ -7,13 +7,13 @@ function plyMeta:ReadyUp()
 		return false
 	end
 
-	if nz.Mapping.Functions.CheckSpawns() == false then
+	if Mapping:CheckSpawns() == false then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because no Zombie/Player spawns have been set.")
 		return false
 	end
 
 	--Check if we have enough player spawns
-	if nz.Mapping.Functions.CheckEnoughPlayerSpawns() == false then
+	if Mapping:CheckEnoughPlayerSpawns() == false then
 		PrintMessage( HUD_PRINTTALK, "Can't ready you up, because not enough player spawns have been set. We need " .. #player.GetAll() .. " but only have " .. #ents.FindByClass("player_spawns") .. "." )
 		return false
 	end

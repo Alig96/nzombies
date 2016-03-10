@@ -16,8 +16,8 @@ net.Receive("EasterEggSongStop", function()
 end)
 	
 function EasterEggData.ParseSong(play)
-	if !nz.Mapping.MapSettings.eeurl then return end
-	local url = string.lower(nz.Mapping.MapSettings.eeurl)
+	if !Mapping.Settings.eeurl then return end
+	local url = string.lower(Mapping.Settings.eeurl)
 	if url == nil or url == "" then return end
 		
 	local soundcloud = string.find(url, "soundcloud.com/")

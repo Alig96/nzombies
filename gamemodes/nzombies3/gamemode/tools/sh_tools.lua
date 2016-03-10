@@ -28,20 +28,20 @@ nz.Tools.Functions.CreateTool("default", {
 	condition = function(wep, ply)
 		return false
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 	end,
 	Reload = function(wep, ply, tr, data)
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Multitool",
@@ -56,7 +56,7 @@ nz.Tools.Functions.CreateTool("default", {
 		text:SetTextColor( Color(50, 50, 50) )
 		text:SizeToContents()
 		text:Center()
-		
+
 		return text
 	end,
 	//defaultdata = {}
@@ -71,8 +71,8 @@ nz.Tools.Functions.CreateTool("zspawn", {
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
 		//Create a new spawnpoint and set its data to the guns properties
-		local ent = nz.Mapping.Functions.ZedSpawn(tr.HitPos, nil, nil, ply)
-		
+		local ent = Mapping:ZedSpawn(tr.HitPos, nil, nil, ply)
+
 		ent.flag = data.flag
 		if tobool(data.flag) and ent.link != "" then
 			ent.link = data.link
@@ -88,7 +88,7 @@ nz.Tools.Functions.CreateTool("zspawn", {
 				table.insert(nz.Enemies.Data.RespawnableSpawnpoints, ent)
 			end
 		end
-		
+
 		//For the link displayer
 		if data.link then
 			ent:SetLink(data.link)
@@ -123,10 +123,10 @@ nz.Tools.Functions.CreateTool("zspawn", {
 		end
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, { //Switch on to the client table (interfaces, defaults, HUD elements)
 	displayname = "Zombie Spawn Creator",
@@ -143,7 +143,7 @@ nz.Tools.Functions.CreateTool("zspawn", {
 		valz["Row2"] = data.link
 		valz["Row3"] = data.spawnable
 		valz["Row4"] = data.respawnable
-		
+
 		local function UpdateData()
 			local str="nil"
 			if valz["Row1"] == 0 then
@@ -156,9 +156,9 @@ nz.Tools.Functions.CreateTool("zspawn", {
 			data.link = str
 			data.spawnable = valz["Row3"]
 			data.respawnable = valz["Row4"]
-			
+
 			PrintTable(data)
-			
+
 			nz.Tools.Functions.SendData(data, "zspawn")
 		end
 
@@ -174,7 +174,7 @@ nz.Tools.Functions.CreateTool("zspawn", {
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val UpdateData() end
-		
+
 		if nz.Tools.Advanced then
 			local Row3 = DProperties:CreateRow( "Advanced Zombie Spawn", "Spawnable at?" )
 			Row3:Setup( "Boolean" )
@@ -192,14 +192,14 @@ nz.Tools.Functions.CreateTool("zspawn", {
 			text:SizeToContents()
 			text:Center()
 		end
-		
+
 		return DProperties
 	end,
 	defaultdata = {
 		flag = 0,
 		link = 1,
 		spawnable = 1,
-		respawnable = 1, 
+		respawnable = 1,
 	}
 })
 
@@ -210,7 +210,7 @@ nz.Tools.Functions.CreateTool("pspawn", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.PlayerSpawn(tr.HitPos, ply)
+		Mapping:PlayerSpawn(tr.HitPos, ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "player_spawns" then
@@ -221,10 +221,10 @@ nz.Tools.Functions.CreateTool("pspawn", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Player Spawn Creator",
@@ -245,7 +245,7 @@ nz.Tools.Functions.CreateTool("barricade", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.BreakEntry(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2],0), ply)
+		Mapping:BreakEntry(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2],0), ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "breakable_entry" then
@@ -256,10 +256,10 @@ nz.Tools.Functions.CreateTool("barricade", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Barricade Creator",
@@ -280,7 +280,7 @@ nz.Tools.Functions.CreateTool("block", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.BlockSpawn(tr.HitPos,Angle(90,(tr.HitPos - ply:GetPos()):Angle()[2] + 90,90), data.model, ply)
+		Mapping:BlockSpawn(tr.HitPos,Angle(90,(tr.HitPos - ply:GetPos()):Angle()[2] + 90,90), data.model, ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "wall_block" then
@@ -293,10 +293,10 @@ nz.Tools.Functions.CreateTool("block", {
 		end
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Invisible Block Spawner",
@@ -306,7 +306,7 @@ nz.Tools.Functions.CreateTool("block", {
 	condition = function(wep, ply)
 		return true
 	end,
-	interface = function(frame, data) 
+	interface = function(frame, data)
 		local Scroll = vgui.Create( "DScrollPanel", frame )
 		Scroll:SetSize( 280, 300 )
 		Scroll:SetPos( 10, 10 )
@@ -316,13 +316,13 @@ nz.Tools.Functions.CreateTool("block", {
 		List:SetPos( 0, 0 )
 		List:SetSpaceY( 5 )
 		List:SetSpaceX( 5 )
-		
+
 		local function UpdateData()
 			nz.Tools.Functions.SendData( {model = data.model}, "block", {model = data.model})
 		end
-		
+
 		local models = util.KeyValuesToTable((file.Read("settings/spawnlist/default/023-general.txt", "MOD")))
-		
+
 		for k,v in pairs(models["contents"]) do
 			if v.model then
 				local Blockmodel = List:Add( "SpawnIcon" )
@@ -340,7 +340,7 @@ nz.Tools.Functions.CreateTool("block", {
 				end
 			end
 		end
-		
+
 		return Scroll
 	end,
 	defaultdata = {
@@ -380,10 +380,10 @@ nz.Tools.Functions.CreateTool("door", {
 		end
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Door Locker",
@@ -393,7 +393,7 @@ nz.Tools.Functions.CreateTool("door", {
 	condition = function(wep, ply)
 		return true
 	end,
-	interface = function(frame, data) 
+	interface = function(frame, data)
 		local valz = {}
 		valz["Row1"] = data.flag
 		valz["Row2"] = data.link
@@ -401,10 +401,10 @@ nz.Tools.Functions.CreateTool("door", {
 		valz["Row4"] = data.elec
 		valz["Row5"] = data.buyable
 		valz["Row6"] = data.rebuyable
-		
+
 		valz["Row7"] = data.navgroup1
 		valz["Row8"] = data.navgroup2
-		
+
 		local function UpdateData()
 			local function compileString(price, elec, flag, buyable, rebuyable, navgroup1, navgroup2)
 				local str = "price="..price..",elec="..elec
@@ -427,7 +427,7 @@ nz.Tools.Functions.CreateTool("door", {
 			end
 			local flagString = compileString(valz["Row3"], valz["Row4"], flag, valz["Row5"], valz["Row6"], valz["Row7"], valz["Row8"])
 			print(flagString)
-			
+
 			nz.Tools.Functions.SendData( {flags = flagString}, "door", {
 				flag = valz["Row1"],
 				link = valz["Row2"],
@@ -439,7 +439,7 @@ nz.Tools.Functions.CreateTool("door", {
 				navgroup2 = valz["Row8"],
 			})
 		end
-		
+
 		-- We call it immediately as it would otherwise auto-send our table to the server, not the compiled string
 		UpdateData()
 
@@ -463,7 +463,7 @@ nz.Tools.Functions.CreateTool("door", {
 		Row4:Setup( "Boolean" )
 		Row4:SetValue( valz["Row4"] )
 		Row4.DataChanged = function( _, val ) valz["Row4"] = val UpdateData() end
-		
+
 		if nz.Tools.Advanced then
 			local Row5 = DProperties:CreateRow( "Advanced Door Settings", "Purchaseable?" )
 			Row5:Setup( "Boolean" )
@@ -473,7 +473,7 @@ nz.Tools.Functions.CreateTool("door", {
 			Row6:Setup( "Boolean" )
 			Row6:SetValue( valz["Row6"] )
 			Row6.DataChanged = function( _, val ) valz["Row6"] = val UpdateData() end
-			
+
 			local Row7 = DProperties:CreateRow( "Nav Group Merging", "Group 1 ID" )
 			Row7:Setup( "Generic" )
 			Row7:SetValue( valz["Row7"] )
@@ -490,7 +490,7 @@ nz.Tools.Functions.CreateTool("door", {
 			text:SizeToContents()
 			text:Center()
 		end
-		
+
 		return DProperties
 	end,
 	defaultdata = {
@@ -501,7 +501,7 @@ nz.Tools.Functions.CreateTool("door", {
 		elec = 0,
 		buyable = 1,
 		rebuyable = 0,
-		
+
 		navgroup1 = "",
 		navgroup2 = "",
 	}
@@ -514,7 +514,7 @@ nz.Tools.Functions.CreateTool("ee", {
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.EasterEgg(tr.HitPos, Angle(0,0,0), "models/props_lab/huladoll.mdl", ply)
+		Mapping:EasterEgg(tr.HitPos, Angle(0,0,0), "models/props_lab/huladoll.mdl", ply)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "easter_egg" then
@@ -525,10 +525,10 @@ nz.Tools.Functions.CreateTool("ee", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Easter Egg Placer",
@@ -539,7 +539,7 @@ nz.Tools.Functions.CreateTool("ee", {
 		return true
 	end,
 	interface = function(frame, data)
-	
+
 	end,
 	//defaultdata = {}
 })
@@ -550,11 +550,11 @@ nz.Tools.Functions.CreateTool("elec", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.Electric(tr.HitPos + tr.HitNormal*5, tr.HitNormal:Angle(), nil, ply)
+		Mapping:Electric(tr.HitPos + tr.HitNormal*5, tr.HitNormal:Angle(), nil, ply)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "power_box" then
 			tr.Entity:Remove()
@@ -564,10 +564,10 @@ nz.Tools.Functions.CreateTool("elec", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Electricity Switch Placer",
@@ -578,7 +578,7 @@ nz.Tools.Functions.CreateTool("elec", {
 		return true
 	end,
 	interface = function(frame, data)
-	
+
 	end,
 	//defaultdata = {}
 })
@@ -596,7 +596,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 			if !IsValid(wep.Ent1) then wep.Owner:ChatPrint("You need to mark a door first to link an area.") return end
 			local navarea = navmesh.GetNearestNavArea(pos)
 			local id = navarea:GetID()
-			
+
 			nz.Nav.Data[id] = {
 				prev = navarea:GetAttributes(),
 				locked = true,
@@ -604,22 +604,22 @@ nz.Tools.Functions.CreateTool("navlock", {
 			}
 			//Purely to visualize, resets when game begins or shuts down
 			navarea:SetAttributes(NAV_MESH_STOP)
-			
+
 			wep.Owner:ChatPrint("Navmesh ["..id.."] locked to door "..wep.Ent1:GetClass().."["..wep.Ent1:EntIndex().."] with link ["..wep.Ent1:GetDoorData().link.."]!")
 			wep.Ent1:SetMaterial( "" )
 			nz.Nav.Functions.CreateAutoMergeLink(wep.Ent1, id)
 			wep.Ent1 = nil
 		return end
-		
+
 		local ent = tr.Entity
-		if !IsNavApplicable(ent) then 
+		if !IsNavApplicable(ent) then
 			wep.Owner:ChatPrint("Only buyable props, doors, and buyable buttons with LINKS can be linked to navareas.")
 		return end
-		
-		if IsValid(wep.Ent1) and wep.Ent1 != ent then 
+
+		if IsValid(wep.Ent1) and wep.Ent1 != ent then
 			wep.Ent1:SetMaterial( "" )
 		end
-		
+
 		wep.Ent1 = ent
 		ent:SetMaterial( "hunter/myplastic.vtf" )
 	end,
@@ -628,19 +628,19 @@ nz.Tools.Functions.CreateTool("navlock", {
 		local pos = tr.HitPos
 		local navarea = navmesh.GetNearestNavArea(pos)
 		local navid = navarea:GetID()
-		
+
 		if nz.Nav.Data[navid] then
 			navarea:SetAttributes(nz.Nav.Data[navid].prev)
 			wep.Owner:ChatPrint("Navmesh ["..navid.."] unlocked!")
 			nz.Nav.Data[navid] = nil
 		return end
-		
+
 		nz.Nav.Data[navid] = {
 			prev = navarea:GetAttributes(),
 			locked = true,
 			link = nil
 		}
-		
+
 		navarea:SetAttributes(NAV_MESH_AVOID)
 		wep.Owner:ChatPrint("Navmesh ["..navid.."] locked!")
 	end,
@@ -671,7 +671,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 	interface = function(frame, data)
 		local panel = vgui.Create("DPanel", frame)
 		panel:SetSize(frame:GetSize())
-		
+
 		local textw = vgui.Create("DLabel", panel)
 		textw:SetText("You need to be in a listen/local server to be")
 		textw:SetFont("Trebuchet18")
@@ -679,7 +679,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		textw:SizeToContents()
 		textw:SetPos(0, 20)
 		textw:CenterHorizontal()
-		
+
 		local textw2 = vgui.Create("DLabel", panel)
 		textw2:SetText("able to see the Navmeshes!")
 		textw2:SetFont("Trebuchet18")
@@ -687,7 +687,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		textw2:SizeToContents()
 		textw2:SetPos(0, 30)
 		textw2:CenterHorizontal()
-		
+
 		local textw3 = vgui.Create("DLabel", panel)
 		textw3:SetText("The tool can still be used blindly")
 		textw3:SetFont("Trebuchet18")
@@ -695,7 +695,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		textw3:SizeToContents()
 		textw3:SetPos(0, 40)
 		textw3:CenterHorizontal()
-		
+
 		local text = vgui.Create("DLabel", panel)
 		text:SetText("Right click on the ground to lock a Navmesh")
 		text:SetFont("Trebuchet18")
@@ -703,7 +703,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text:SizeToContents()
 		text:SetPos(0, 80)
 		text:CenterHorizontal()
-		
+
 		local text2 = vgui.Create("DLabel", panel)
 		text2:SetText("Left click a door to mark the door")
 		text2:SetFont("Trebuchet18")
@@ -711,7 +711,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text2:SizeToContents()
 		text2:SetPos(0, 120)
 		text2:CenterHorizontal()
-		
+
 		local text3 = vgui.Create("DLabel", panel)
 		text3:SetText("then left click the ground to link")
 		text3:SetFont("Trebuchet18")
@@ -719,7 +719,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text3:SizeToContents()
 		text3:SetPos(0, 130)
 		text3:CenterHorizontal()
-		
+
 		local text4 = vgui.Create("DLabel", panel)
 		text4:SetText("the Navmesh with the door")
 		text4:SetFont("Trebuchet18")
@@ -727,7 +727,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text4:SizeToContents()
 		text4:SetPos(0, 140)
 		text4:CenterHorizontal()
-		
+
 		local text5 = vgui.Create("DLabel", panel)
 		text5:SetText("Zombies can't pathfind through locked Navmeshes")
 		text5:SetFont("Trebuchet18")
@@ -735,7 +735,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text5:SizeToContents()
 		text5:SetPos(0, 180)
 		text5:CenterHorizontal()
-		
+
 		local text6 = vgui.Create("DLabel", panel)
 		text6:SetText("unless their door link is opened")
 		text6:SetFont("Trebuchet18")
@@ -743,7 +743,7 @@ nz.Tools.Functions.CreateTool("navlock", {
 		text6:SizeToContents()
 		text6:SetPos(0, 190)
 		text6:CenterHorizontal()
-		
+
 		return panel
 	end,
 	//defaultdata = {}
@@ -755,11 +755,11 @@ nz.Tools.Functions.CreateTool("perk", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.PerkMachine(tr.HitPos, Angle(0,(ply:GetPos() - tr.HitPos):Angle()[2],0), data.perk, ply)
+		Mapping:PerkMachine(tr.HitPos, Angle(0,(ply:GetPos() - tr.HitPos):Angle()[2],0), data.perk, ply)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "perk_machine" then
 			tr.Entity:Remove()
@@ -769,10 +769,10 @@ nz.Tools.Functions.CreateTool("perk", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Perk Machine Placer",
@@ -795,7 +795,7 @@ nz.Tools.Functions.CreateTool("perk", {
 			data.perk = id
 			nz.Tools.Functions.SendData( data, "perk" )
 		end
-		
+
 		return choices
 	end,
 	defaultdata = {perk = "jugg"},
@@ -807,11 +807,11 @@ nz.Tools.Functions.CreateTool("rbox", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
-		nz.Mapping.Functions.BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 90,0), ply)
+		Mapping:BoxSpawn(tr.HitPos, Angle(0,(tr.HitPos - ply:GetPos()):Angle()[2] - 90,0), ply)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "random_box_spawns" then
 			tr.Entity:Remove()
@@ -821,10 +821,10 @@ nz.Tools.Functions.CreateTool("rbox", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Random Box Spawnpoint",
@@ -835,7 +835,7 @@ nz.Tools.Functions.CreateTool("rbox", {
 		return true
 	end,
 	interface = function(frame, data)
-	
+
 	end,
 	//defaultdata = {}
 })
@@ -846,13 +846,13 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
 		local ang = tr.HitNormal:Angle()
 		ang:RotateAroundAxis(tr.HitNormal:Angle():Up()*-1, 90)
-		nz.Mapping.Functions.WallBuy(tr.HitPos + tr.HitNormal*0.5, data.class, tonumber(data.price), ang, nil, ply)
+		Mapping:WallBuy(tr.HitPos + tr.HitNormal*0.5, data.class, tonumber(data.price), ang, nil, ply)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "wall_buys" then
 			tr.Entity:Remove()
@@ -864,10 +864,10 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 		end
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Weapon Buy Placer",
@@ -881,7 +881,7 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 		local valz = {}
 		valz["Row1"] = data.class
 		valz["Row2"] = data.price
-		
+
 		local function UpdateData()
 		//Check the weapon class is fine first
 			if weapons.Get( valz["Row1"] ) then
@@ -896,14 +896,14 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 10 )
-		
+
 		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
 			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
 		end
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val UpdateData() end
-		
+
 		local Row2 = DProperties:CreateRow( "Weapon Settings", "Price" )
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )
@@ -923,11 +923,11 @@ nz.Tools.Functions.CreateTool("navladder", {
 	condition = function(wep, ply)
 		return nz.Tools.Advanced
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
 		ply:ConCommand( "nav_build_ladder" )
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 	end,
 	Reload = function(wep, ply, tr, data)
@@ -953,7 +953,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 	interface = function(frame, data)
 		local panel = vgui.Create("DPanel", frame)
 		panel:SetSize(frame:GetSize())
-		
+
 		local textw = vgui.Create("DLabel", panel)
 		textw:SetText("You need to be in a listen/local server to be")
 		textw:SetFont("Trebuchet18")
@@ -961,7 +961,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 		textw:SizeToContents()
 		textw:SetPos(0, 80)
 		textw:CenterHorizontal()
-		
+
 		local textw2 = vgui.Create("DLabel", panel)
 		textw2:SetText("able to see the Navmeshes!")
 		textw2:SetFont("Trebuchet18")
@@ -969,7 +969,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 		textw2:SizeToContents()
 		textw2:SetPos(0, 90)
 		textw2:CenterHorizontal()
-		
+
 		local textw3 = vgui.Create("DLabel", panel)
 		textw3:SetText("The tool can still be used blindly")
 		textw3:SetFont("Trebuchet18")
@@ -977,7 +977,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 		textw3:SizeToContents()
 		textw3:SetPos(0, 100)
 		textw3:CenterHorizontal()
-		
+
 		local text = vgui.Create("DLabel", panel)
 		text:SetText("Use nav_save to save changes into the map's .nav")
 		text:SetFont("Trebuchet18")
@@ -985,7 +985,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 		text:SizeToContents()
 		text:SetPos(0, 140)
 		text:CenterHorizontal()
-		
+
 		local text2 = vgui.Create("DLabel", panel)
 		text2:SetText("This requires sv_cheats 1!")
 		text2:SetFont("Trebuchet18")
@@ -993,7 +993,7 @@ nz.Tools.Functions.CreateTool("navladder", {
 		text2:SizeToContents()
 		text2:SetPos(0, 150)
 		text2:CenterHorizontal()
-		
+
 		return panel
 	end,
 	//defaultdata = {}
@@ -1005,7 +1005,7 @@ nz.Tools.Functions.CreateTool("settings", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
@@ -1025,14 +1025,14 @@ nz.Tools.Functions.CreateTool("settings", {
 		return true
 	end,
 	interface = function(frame, data)
-		local data = table.Copy(nz.Mapping.MapSettings)
+		local data = table.Copy(Mapping.Settings)
 		local valz = {}
 		valz["Row1"] = data.startwep or "Select ..."
 		valz["Row2"] = data.startpoints or 500
 		valz["Row3"] = data.maxwep or 2
 		valz["Row4"] = data.eeurl or ""
 		valz["RBoxWeps"] = data.RBoxWeps or {}
-		
+
 		local sheet = vgui.Create( "DPropertySheet", frame )
 		sheet:SetSize( 280, 250 )
 		sheet:SetPos( 10, 10 )
@@ -1041,7 +1041,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		DProperties:SetSize( 280, 250 )
 		DProperties:SetPos( 0, 0 )
 		sheet:AddSheet( "Map Properties", DProperties, "icon16/cog.png")
-		
+
 		local Row1 = DProperties:CreateRow( "Map Settings", "Starting Weapon" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
@@ -1052,19 +1052,19 @@ nz.Tools.Functions.CreateTool("settings", {
 			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
 			Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, true)
 		end
-		
+
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
-		
+
 		local Row2 = DProperties:CreateRow( "Map Settings", "Starting Points" )
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val end
-		
+
 		local Row3 = DProperties:CreateRow( "Map Settings", "Max Weapons" )
 		Row3:Setup( "Integer" )
 		Row3:SetValue( valz["Row3"] )
 		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
-		
+
 		local Row4 = DProperties:CreateRow( "Map Settings", "Easter Egg Song URL" )
 		Row4:Setup( "Generic" )
 		Row4:SetValue( valz["Row4"] )
@@ -1077,37 +1077,37 @@ nz.Tools.Functions.CreateTool("settings", {
 			if !valz["Row4"] or valz["Row4"] == "" then data.eeurl = nil else data.eeurl = valz["Row4"] end
 			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			PrintTable(data)
-			
-			nz.Mapping.Functions.SendMapData( data )
+
+			Mapping:SendMapData( data )
 		end
-		
+
 		local DermaButton = vgui.Create( "DButton", DProperties )
 		DermaButton:SetText( "Submit" )
 		DermaButton:SetPos( 0, 140 )
 		DermaButton:SetSize( 260, 30 )
 		DermaButton.DoClick = UpdateData
-		
+
 		if nz.Tools.Advanced then
 			local weplist = {}
 			local numweplist = 0
-			
+
 			local rboxpanel = vgui.Create("DPanel", sheet)
 			sheet:AddSheet( "Random Box Weapons", rboxpanel, "icon16/box.png")
 			rboxpanel.Paint = function() return end
-			
+
 			local rbweplist = vgui.Create("DScrollPanel", rboxpanel)
 			rbweplist:SetPos(0, 0)
 			rbweplist:SetSize(265, 150)
 			rbweplist:SetPaintBackground(true)
 			rbweplist:SetBackgroundColor( Color(200, 200, 200) )
-			
+
 			local function InsertWeaponToList(name, class)
 				if IsValid(weplist[class]) then return end
 				weplist[class] = vgui.Create("DPanel", rbweplist)
 				weplist[class]:SetSize(265, 16)
 				weplist[class]:SetPos(0, numweplist*16)
 				table.insert(valz["RBoxWeps"], class)
-				
+
 				local dname = vgui.Create("DLabel", weplist[class])
 				dname:SetText(name)
 				dname:SetTextColor(Color(50, 50, 50))
@@ -1128,12 +1128,12 @@ nz.Tools.Functions.CreateTool("settings", {
 					end
 					numweplist = numweplist - 1
 				end
-				
+
 				numweplist = numweplist + 1
 			end
-			
-			if nz.Mapping.MapSettings.rboxweps then
-				for k,v in pairs(nz.Mapping.MapSettings.rboxweps) do
+
+			if Mapping.Settings.rboxweps then
+				for k,v in pairs(Mapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
 					InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, v)
 				end
@@ -1146,7 +1146,7 @@ nz.Tools.Functions.CreateTool("settings", {
 					-- The rest are still available in the dropdown
 				end
 			end
-			
+
 			local wepentry = vgui.Create( "DComboBox", rboxpanel )
 			wepentry:SetPos( 0, 155 )
 			wepentry:SetSize( 203, 20 )
@@ -1156,7 +1156,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			end
 			wepentry.OnSelect = function( panel, index, value )
 			end
-			
+
 			local wepadd = vgui.Create( "DButton", rboxpanel )
 			wepadd:SetText( "Add" )
 			wepadd:SetPos( 207, 155 )
@@ -1165,7 +1165,7 @@ nz.Tools.Functions.CreateTool("settings", {
 				InsertWeaponToList(wepentry:GetSelected())
 				wepentry:SetValue( "Weapon..." )
 			end
-			
+
 			local DermaButton2 = vgui.Create( "DButton", rboxpanel )
 			DermaButton2:SetText( "Submit" )
 			DermaButton2:SetPos( 0, 180 )
@@ -1180,7 +1180,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			text:SetPos(0, 110)
 			text:CenterHorizontal()
 		end
-		
+
 		return sheet
 	end,
 	//defaultdata = {}
@@ -1189,16 +1189,16 @@ nz.Tools.Functions.CreateTool("settings", {
 if SERVER then
 	util.AddNetworkString("nz_NavMeshGrouping")
 	util.AddNetworkString("nz_NavMeshGroupRequest")
-	
+
 	net.Receive("nz_NavMeshGroupRequest", function(len, ply)
 		if !IsValid(ply) or !ply:IsSuperAdmin() then return end
-		
+
 		local delete = net.ReadBool()
 		local data = net.ReadTable()
-		
+
 		//Reselect all areas from the seed provided
 		local areas = FloodSelectNavAreas(navmesh.GetNavAreaByID(data.areaid))
-			
+
 		if delete then
 			for k,v in pairs(areas) do
 				//Remove nav area from group - add true to delete the group ID as well
@@ -1213,9 +1213,9 @@ if SERVER then
 	end)
 else
 	net.Receive("nz_NavMeshGrouping", function()
-	
+
 		local data = net.ReadTable()
-		
+
 		local frame = vgui.Create("DFrame")
 		frame:SetPos( 100, 100 )
 		frame:SetSize( 300, 450 )
@@ -1225,12 +1225,12 @@ else
 		frame:ShowCloseButton( true )
 		frame:MakePopup()
 		frame:Center()
-		
+
 		local numareas = vgui.Create( "DLabel", frame )
 		numareas:SetPos( 10, 30 )
 		numareas:SetSize( frame:GetWide() - 10, 10)
 		numareas:SetText( data.num.." areas selected" )
-		
+
 		local map = vgui.Create("DPanel", frame)
 		map:SetPos( 25, 50 )
 		map:SetSize( 250, 250 )
@@ -1243,7 +1243,7 @@ else
 					angles = Angle(90,0,0),
 					aspectratio = 1,
 					x = posx + 12,
-					y = posy + 100, 
+					y = posy + 100,
 					w = 275,
 					h = 275,
 					dopostprocess = false,
@@ -1257,7 +1257,7 @@ else
 				})
 			cam.End2D()
 		end
-		
+
 		local DProperties = vgui.Create( "DProperties", frame )
 		DProperties:SetSize( 280, 180 )
 		DProperties:SetPos( 10, 50 )
@@ -1266,7 +1266,7 @@ else
 		Row1:Setup( "Integer" )
 		Row1:SetValue( data.id )
 		Row1.DataChanged = function( _, val ) data.id = val end
-		
+
 		local Submit = vgui.Create( "DButton", frame )
 		Submit:SetText( "Submit" )
 		Submit:SetPos( 10, 410 )
@@ -1278,7 +1278,7 @@ else
 			net.SendToServer()
 			frame:Close()
 		end
-		
+
 		local Delete = vgui.Create( "DButton", frame )
 		Delete:SetText( "Delete Group" )
 		Delete:SetPos( 10, 380 )
@@ -1302,30 +1302,30 @@ nz.Tools.Functions.CreateTool("navgroup", {
 	PrimaryAttack = function(wep, ply, tr, data)
 		local nav = navmesh.GetNearestNavArea(tr.HitPos)
 		local areas = FloodSelectNavAreas(nav)
-		
+
 		net.Start("nz_NavMeshGrouping")
 			net.WriteTable({num = #areas, areaid = nav:GetID(), id = nz.Nav.NavGroups[nav:GetID()] or ""})
 		net.Send(ply)
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 	end,
-	
+
 	Reload = function(wep, ply, tr, data)
 	end,
-	
+
 	OnEquip = function(wep, ply, data)
 		if wep.Owner:IsListenServerHost() and GetConVar("sv_cheats"):GetBool() then
 			RunConsoleCommand("nav_edit", 1)
 		end
 	end,
-	
+
 	OnHolster = function(wep, ply, data)
 		if SERVER and wep.Owner:IsListenServerHost() and GetConVar("sv_cheats"):GetBool() then
 			RunConsoleCommand("nav_edit", 0)
 		end
 	end
-	
+
 }, {
 	displayname = "Nav Grouping Tool",
 	desc = "LMB: Create/Edit Nav Groups",
@@ -1338,7 +1338,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 	interface = function(frame, data)
 		local panel = vgui.Create("DPanel", frame)
 		panel:SetSize(frame:GetSize())
-		
+
 		local textw = vgui.Create("DLabel", panel)
 		textw:SetText("You need to be in a listen/local server to be")
 		textw:SetFont("Trebuchet18")
@@ -1346,7 +1346,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		textw:SizeToContents()
 		textw:SetPos(0, 20)
 		textw:CenterHorizontal()
-		
+
 		local textw2 = vgui.Create("DLabel", panel)
 		textw2:SetText("able to see the Navmeshes!")
 		textw2:SetFont("Trebuchet18")
@@ -1354,7 +1354,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		textw2:SizeToContents()
 		textw2:SetPos(0, 30)
 		textw2:CenterHorizontal()
-		
+
 		local textw3 = vgui.Create("DLabel", panel)
 		textw3:SetText("The tool can still be used blindly")
 		textw3:SetFont("Trebuchet18")
@@ -1362,7 +1362,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		textw3:SizeToContents()
 		textw3:SetPos(0, 40)
 		textw3:CenterHorizontal()
-		
+
 		local text = vgui.Create("DLabel", panel)
 		text:SetText("Click on the ground to open")
 		text:SetFont("Trebuchet18")
@@ -1370,7 +1370,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text:SizeToContents()
 		text:SetPos(0, 80)
 		text:CenterHorizontal()
-		
+
 		local text2 = vgui.Create("DLabel", panel)
 		text2:SetText("the Nav Grouping Interface of that area.")
 		text2:SetFont("Trebuchet18")
@@ -1378,7 +1378,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text2:SizeToContents()
 		text2:SetPos(0, 90)
 		text2:CenterHorizontal()
-		
+
 		local text3 = vgui.Create("DLabel", panel)
 		text3:SetText("Nav Groups are flood-selected but will")
 		text3:SetFont("Trebuchet18")
@@ -1386,7 +1386,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text3:SizeToContents()
 		text3:SetPos(0, 110)
 		text3:CenterHorizontal()
-		
+
 		local text4 = vgui.Create("DLabel", panel)
 		text4:SetText("be blocked by locked Navmeshes.")
 		text4:SetFont("Trebuchet18")
@@ -1394,7 +1394,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text4:SizeToContents()
 		text4:SetPos(0, 120)
 		text4:CenterHorizontal()
-		
+
 		local text5 = vgui.Create("DLabel", panel)
 		text5:SetText("Zombies can't target players in different")
 		text5:SetFont("Trebuchet18")
@@ -1402,7 +1402,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text5:SizeToContents()
 		text5:SetPos(0, 170)
 		text5:CenterHorizontal()
-		
+
 		local text6 = vgui.Create("DLabel", panel)
 		text6:SetText("navgroups unless one of them is in no navgroup.")
 		text6:SetFont("Trebuchet18")
@@ -1410,7 +1410,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text6:SizeToContents()
 		text6:SetPos(0, 180)
 		text6:CenterHorizontal()
-		
+
 		local text7 = vgui.Create("DLabel", panel)
 		text7:SetText("Use this in maps with completely seperate")
 		text7:SetFont("Trebuchet18")
@@ -1418,7 +1418,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text7:SizeToContents()
 		text7:SetPos(0, 200)
 		text7:CenterHorizontal()
-		
+
 		local text8 = vgui.Create("DLabel", panel)
 		text8:SetText("areas such as elevator-based maps.")
 		text8:SetFont("Trebuchet18")
@@ -1426,7 +1426,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text8:SizeToContents()
 		text8:SetPos(0, 210)
 		text8:CenterHorizontal()
-		
+
 		local text9 = vgui.Create("DLabel", panel)
 		text9:SetText("Use doors to merge groups.")
 		text9:SetFont("Trebuchet18")
@@ -1434,7 +1434,7 @@ nz.Tools.Functions.CreateTool("navgroup", {
 		text9:SizeToContents()
 		text9:SetPos(0, 230)
 		text9:CenterHorizontal()
-		
+
 		return panel
 	end,
 	//defaultdata = {}
@@ -1446,7 +1446,7 @@ nz.Tools.Functions.CreateTool("testzombie", {
 	condition = function(wep, ply)
 		return true
 	end,
-	
+
 	PrimaryAttack = function(wep, ply, tr, data)
 		local z = ents.Create("nz_zombie_walker")
 		z:SetPos(tr.HitPos)
@@ -1456,13 +1456,13 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		end
 		z:Spawn()
 		z:SetRunSpeed(50)
-		
+
 		undo.Create( "Test Zombie" )
 			undo.SetPlayer( ply )
 			undo.AddEntity( z )
 		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
 	end,
-	
+
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) and tr.Entity:GetClass() == "nz_zombie_walker" then
 			tr.Entity:Remove()
@@ -1472,10 +1472,10 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		//Nothing
 	end,
 	OnEquip = function(wep, ply, data)
-		
+
 	end,
 	OnHolster = function(wep, ply, data)
-		
+
 	end
 }, {
 	displayname = "Spawn Test Zombie",
@@ -1486,7 +1486,7 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		return nz.Tools.Advanced
 	end,
 	interface = function(frame, data)
-	
+
 	end,
 	//defaultdata = {}
 })

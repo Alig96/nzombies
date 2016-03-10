@@ -46,7 +46,7 @@ end)
 
 hook.Add("PlayerFullyInitialized", "PreloadEESongSpawn", function(ply)
 	//Send players the map settings - this will trigger the preload client-side
-	net.Start("nz.Mapping.SyncSettings")
-		net.WriteTable(nz.Mapping.MapSettings)
+	net.Start("Mapping.SyncSettings")
+		net.WriteTable(Mapping.Settings)
 	net.Send(ply)
 end)

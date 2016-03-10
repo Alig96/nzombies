@@ -17,9 +17,9 @@ end
 
 function PLAYER:Loadout()
 	//Give ammo and guns
-	
-	if nz.Mapping.MapSettings.startwep then
-		self.Player:Give( nz.Mapping.MapSettings.startwep )
+
+	if Mapping.Settings.startwep then
+		self.Player:Give( Mapping.Settings.startwep )
 	elseif IsValid(ents.FindByClass("player_handler")[1]) then
 		//A player handler exists, give those starting weapons
 		local ent = ents.FindByClass("player_handler")[1]
@@ -39,12 +39,12 @@ function PLAYER:Loadout()
 	end
 	self.Player:Give("nz_quickknife_crowbar")
 	self.Player:Give("nz_grenade")
-	
+
 end
 function PLAYER:Spawn()
 
-	if nz.Mapping.MapSettings.startpoints then
-		self.Player:SetPoints(nz.Mapping.MapSettings.startpoints)
+	if Mapping.Settings.startpoints then
+		self.Player:SetPoints(Mapping.Settings.startpoints)
 	elseif IsValid(ents.FindByClass("player_handler")[1]) then
 		local ent = ents.FindByClass("player_handler")[1]
 		if !self.Player:CanAfford(ent:GetStartPoints()) then

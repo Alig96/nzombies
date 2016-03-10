@@ -14,6 +14,7 @@ if SERVER then
 	end
 
 	function Round:SendState( state, ply )
+
 		net.Start( "nzRoundState" )
 			net.WriteUInt( state or ROUND_WAITING, 3 )
 		return ply and net.Send( ply ) or net.Broadcast()
@@ -46,27 +47,26 @@ if SERVER then
 
 	end
 
-	function Round:SendSync( ply )
+	function Round:SendSync(ply)
 		self:SendNumber( self:GetNumber(), ply )
-		self:SendSpecialRound( self:IsSpecial(), ply )
-		self:SendState( self:GetState(), ply )
+		self:SendSpecialRound( self:IsSpecial(), ply)
+		self:SendState(self:GetState(), ply)
 
-		for _, v in pairs( player.GetAll() ) do
-			self:SendReadyState( v, v:GetReady(), ply )
+		for _, v in pairs(player.GetAll()) do
+			self:SendReadyState(v, v:GetReady(), ply)
+			self:SendPlayingState(v, v:GetPlaying(), ply)
 		end
 
 		self:SetEndTime( self:GetEndTime() )
 
 	end
-	
+
 	FullSyncModules["Round"] = function(ply)
 		Round:SendSync(ply)
 	end
-
 end
 
 if CLIENT then
-
 	local function receiveRoundState()
 		local old = Round:GetState()
 		new = net.ReadUInt( 3 )
@@ -106,5 +106,4 @@ if CLIENT then
 		end
 	end
 	net.Receive( "nzPlayerPlayingState", receivePlayerPlayingState )
-
 end
