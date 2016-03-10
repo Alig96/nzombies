@@ -26,7 +26,7 @@ function ENT:Initialize()
 
 	if ( SERVER ) then
 
-		self.AttachedEntity = ents.Create( "prop_dynamic" )
+		self.AttachedEntity = ents.Create( "nz_prop_effect_attachment" )
 		self.AttachedEntity:SetModel( self:GetModel() )
 		self.AttachedEntity:SetAngles( self:GetAngles() )
 		self.AttachedEntity:SetPos( self:GetPos() )
@@ -58,7 +58,7 @@ function ENT:Initialize()
 		self.GripMaterial = Material( "sprites/grip" )
 
 		-- Get the attached entity so that clientside functions like properties can interact with it
-		local tab = ents.FindByClassAndParent( "prop_dynamic", self )
+		local tab = ents.FindByClassAndParent( "nz_prop_effect_attachment", self )
 		if ( tab && IsValid( tab[ 1 ] ) ) then self.AttachedEntity = tab[ 1 ] end
 
 	end

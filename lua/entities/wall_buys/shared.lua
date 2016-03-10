@@ -159,11 +159,17 @@ if SERVER then
 
 	function ENT:SetWeapon(weapon, price)
 		//Add a special check for FAS weps
-		if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
-			//self:SetModel( weapons.Get(weapon).WM )
-			self:SetModel( weapons.Get(weapon).WorldModel )
+		local wep = weapons.Get(weapon)
+		if !wep then
+			self:SetModel( "models/weapons/w_crowbar.mdl" )
 		else
-			self:SetModel( weapons.Get(weapon).WorldModel )
+			if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
+				//self:SetModel( weapons.Get(weapon).WM )
+				self:SetModel( weapons.Get(weapon).WorldModel )
+			else
+				self:SetModel( weapons.Get(weapon).WorldModel )
+			end
+			self:SetFlipped(false)
 		end
 		self:SetModelScale( 1.5, 0 )
 		self.WeaponGive = weapon

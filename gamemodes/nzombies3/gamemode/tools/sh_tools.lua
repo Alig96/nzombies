@@ -1031,6 +1031,8 @@ nz.Tools.Functions.CreateTool("settings", {
 		valz["Row2"] = data.startpoints or 500
 		valz["Row3"] = data.maxwep or 2
 		valz["Row4"] = data.eeurl or ""
+		valz["Row5"] = data.script or false
+		valz["Row6"] = data.scriptinfo or ""
 		valz["RBoxWeps"] = data.RBoxWeps or {}
 
 		local sheet = vgui.Create( "DPropertySheet", frame )
@@ -1069,12 +1071,29 @@ nz.Tools.Functions.CreateTool("settings", {
 		Row4:Setup( "Generic" )
 		Row4:SetValue( valz["Row4"] )
 		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
-
+		Row4:SetTooltip("Add a link to a SoundCloud track to play this when all easter eggs have been found")
+		
+		if nz.Tools.Advanced then
+			local Row5 = DProperties:CreateRow( "Map Settings", "Includes Map Script?" )
+			Row5:Setup( "Boolean" )
+			Row5:SetValue( valz["Row5"] )
+			Row5.DataChanged = function( _, val ) valz["Row5"] = val end
+			Row5:SetTooltip("Loads a .lua file with the same name as the config .txt from /lua/nzmapscripts - for advanced developers.")
+		
+			local Row6 = DProperties:CreateRow( "Map Settings", "Script Description" )
+			Row6:Setup( "Generic" )
+			Row6:SetValue( valz["Row6"] )
+			Row6.DataChanged = function( _, val ) valz["Row6"] = val end
+			Row6:SetTooltip("Sets the description displayed when attempting to load the script.")
+		end
+		
 		local function UpdateData()
 			if !weapons.Get( valz["Row1"] ) then data.startwep = nil else data.startwep = valz["Row1"] end
 			if !tonumber(valz["Row2"]) then data.startpoints = 500 else data.startpoints = tonumber(valz["Row2"]) end
 			if !tonumber(valz["Row3"]) then data.numweps = 2 else data.numweps = tonumber(valz["Row3"]) end
 			if !valz["Row4"] or valz["Row4"] == "" then data.eeurl = nil else data.eeurl = valz["Row4"] end
+			if !valz["Row5"] then data.script = nil else data.script = valz["Row5"] end
+			if !valz["Row6"] or valz["Row6"] == "" then data.scriptinfo = nil else data.scriptinfo = valz["Row6"] end
 			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			PrintTable(data)
 
@@ -1083,7 +1102,7 @@ nz.Tools.Functions.CreateTool("settings", {
 
 		local DermaButton = vgui.Create( "DButton", DProperties )
 		DermaButton:SetText( "Submit" )
-		DermaButton:SetPos( 0, 140 )
+		DermaButton:SetPos( 0, 180 )
 		DermaButton:SetSize( 260, 30 )
 		DermaButton.DoClick = UpdateData
 
@@ -1177,7 +1196,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			text:SetFont("Trebuchet18")
 			text:SetTextColor( Color(50, 50, 50) )
 			text:SizeToContents()
-			text:SetPos(0, 110)
+			text:SetPos(0, 140)
 			text:CenterHorizontal()
 		end
 

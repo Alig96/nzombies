@@ -49,11 +49,12 @@ if SERVER then
 		return ply and net.Send(ply) or net.Broadcast()
 	end
 	
-	function Doors:SendDoorOpened( door, ply )
+	function Doors:SendDoorOpened( door, rebuyable, ply )
 		net.Start("nzDoorOpened")
 			print(door:EntIndex(), door)
-			net.WriteBool(IsValid(door) and door:GetClass() == "prop_buys")
+			net.WriteBool(IsValid(door) and door:IsPropDoorType())
 			net.WriteInt(door:EntIndex(), 13)
+			net.WriteBool(rebuyable and rebuyable or false)
 		return ply and net.Send(ply) or net.Broadcast()
 	end
 	
@@ -145,7 +146,7 @@ if CLIENT then
 	local function ReceiveDoorOpened()
 		local prop = net.ReadBool()
 		local index = net.ReadInt(13)
-		Doors:SetLockedByID( index, prop, false )
+		Doors:SetLockedByID( index, prop, net.ReadBool() )
 		--local door = Entity(index)
 		--door:SetLocked(false)
 	end

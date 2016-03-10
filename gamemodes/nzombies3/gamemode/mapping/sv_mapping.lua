@@ -68,33 +68,28 @@ end
 
 function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
 
-	if weapons.Get(gun) != nil then
+	if IsValid(oldent) then oldent:Remove() end
 
-		if IsValid(oldent) then oldent:Remove() end
+	local ent = ents.Create("wall_buys")
+	ent:SetAngles(angle)
+	pos.z = pos.z - ent:OBBMaxs().z
+	ent:SetWeapon(gun, price)
+	ent:SetPos( pos )
+	ent:Spawn()
+	ent:PhysicsInit( SOLID_VPHYSICS )
 
-		local ent = ents.Create("wall_buys")
-		ent:SetAngles(angle)
-		pos.z = pos.z - ent:OBBMaxs().z
-		ent:SetWeapon(gun, price)
-		ent:SetPos( pos )
-		ent:Spawn()
-		ent:PhysicsInit( SOLID_VPHYSICS )
-
-		local phys = ent:GetPhysicsObject()
-		if phys:IsValid() then
-			phys:EnableMotion(false)
-		end
-
-		if ply then
-			undo.Create( "Wall Gun" )
-				undo.SetPlayer( ply )
-				undo.AddEntity( ent )
-			undo.Finish( "Effect (" .. tostring( model ) .. ")" )
-		end
-		return ent
-	else
-		print("SKIPPED: " .. gun .. ". Are you sure you have it installed?")
+	local phys = ent:GetPhysicsObject()
+	if phys:IsValid() then
+		phys:EnableMotion(false)
 	end
+
+	if ply then
+		undo.Create( "Wall Gun" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( ent )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return ent
 
 end
 
@@ -355,6 +350,7 @@ function Mapping:CleanUpMap()
 		"edit_sky",
 		"edit_sun",
 		"nz_prop_effect",
+		"nz_prop_effect_attachment",
 		"nz_fire_effect",
 		"edit_color",
 	})

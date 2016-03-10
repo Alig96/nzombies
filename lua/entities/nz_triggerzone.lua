@@ -10,12 +10,6 @@ ENT.Instructions	= ""
 
 ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
 
-function ENT:SetupDataTables()
-
-	self:NetworkVar( "Bool", 0, "Locked" )
-	
-end
-
 function ENT:Initialize()
 	if SERVER then
 		self:SetMoveType( MOVETYPE_NONE )
@@ -50,6 +44,11 @@ function ENT:SetBuyFunction(func)
 	self.BuyFunction = func
 end
 
+function ENT:SetBounds(w, l, h)
+	self:SetSolid( SOLID_BBOX )
+	self:SetCollisionBounds( Vector(-w/2, -l/2, -h/2), Vector(w/2, l/2, h/2) )
+end
+
 if CLIENT then
 	function ENT:Draw() 
 		if Round:InState( ROUND_CREATE ) then
@@ -61,10 +60,13 @@ end
 concommand.Add("nz_testbrush2", function(ply)
 	local ent = ents.Create("nz_triggerzone")
 	ent:SetPos(ply:GetPos())
-	--ent:SetBounds(10,10,10)
+	ent:SetBounds(1000,10,10)
 	ent:SetMaterial("debugtools/toolswhite")
 	ent:SetModel("models/hunter/blocks/cube4x4x4.mdl")
 	ent:Spawn()
+	ent:SetBuyFunction( function(ent)
+		ent:ChatPrint("Bought!")
+	end )
 	
 	undo.Create( "Test Brush 2" )
 		undo.SetPlayer( ply )

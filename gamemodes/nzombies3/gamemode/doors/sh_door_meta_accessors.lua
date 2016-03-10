@@ -67,6 +67,10 @@ function meta:IsBuyableProp()
 	return self:GetClass() == "prop_buys"
 end
 
+function meta:IsPropDoorType()
+	return self:IsScriptBuyable() or self:IsBuyableProp()
+end
+
 function meta:IsBuyableMapEntity()
 	return self:IsDoor() or self:IsButton() or self:IsBuyableProp() or self:IsScriptBuyable() or false
 end

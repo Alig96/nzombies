@@ -1,6 +1,15 @@
-function Doors:OpenDoor( ent )
+function Doors:OpenDoor( ent, ply )
+	local data = ent:GetDoorData()
+	local link = data.link
+	local rebuyable = data.rebuyable
+	
 	-- Open the door and any other door with the same link
-	if ent:IsButton() then
+	if ent:IsScriptBuyable() then
+		ent.BuyFunction(ply)
+		if !tobool(rebuyable) then
+			ent:SetLocked(false)
+		end
+	elseif ent:IsButton() then
 		ent:UnlockButton(tobool(ent.rebuyable))
 	else
 		ent:UnlockDoor()
@@ -15,20 +24,19 @@ function Doors:OpenDoor( ent )
 	end
 	
 	-- Sync
-	local link = ent:GetDoorData().link
 	if link != nil then
 		self.OpenedLinks[link] = true
 	end
-	hook.Call("OnDoorUnlocked", self, ent, link)
+	hook.Call("OnDoorUnlocked", self, ent, link, rebuyable, ply)
 end
 
-function Doors:OpenLinkedDoors( link )
+function Doors:OpenLinkedDoors( link, ply )
 	-- Go through all the doors
 	for k,v in pairs(self.MapDoors) do
 		if v.flags then
 			local doorlink = v.flags.link
 			if doorlink and doorlink == link then
-				self:OpenDoor( self:DoorIndexToEnt(k) )
+				self:OpenDoor( self:DoorIndexToEnt(k), ply )
 			end
 		end
 	end
@@ -37,7 +45,7 @@ function Doors:OpenLinkedDoors( link )
 		if v.flags then
 			local doorlink = v.flags.link
 			if doorlink and doorlink == link then
-				self:OpenDoor( Entity(k) )
+				self:OpenDoor( Entity(k), ply )
 			end
 		end
 	end
@@ -88,12 +96,10 @@ function Doors:BuyDoor( ply, ent )
 			-- If this door doesn't require electricity or if it does, then if the electricity is on at the same time
 			if (req_elec == 0 or (req_elec == 1 and IsElec())) then
 				ply:TakePoints(price)
-				if ent:IsScriptBuyable() then
-					ent.BuyFunction(ply)
-				elseif link == nil then
-					self:OpenDoor( ent )
+				if link == nil then
+					self:OpenDoor( ent, ply )
 				else
-					self:OpenLinkedDoors( link )
+					self:OpenLinkedDoors( link, ply )
 				end
 			end
 		end
