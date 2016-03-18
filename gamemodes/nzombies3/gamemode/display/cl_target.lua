@@ -156,6 +156,8 @@ end
 
 local function DrawTargetID( text )
 
+	if !text then return end
+
 	local font = "nz.display.hud.small"
 	surface.SetFont( font )
 	local w, h = surface.GetTextSize( text )

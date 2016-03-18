@@ -340,7 +340,7 @@ CreateMismatchCheck("Map Script", function()
 		txt3:CenterHorizontal()
 		
 		local txt4 = vgui.Create("DLabel", pnl)
-		txt4:SetText("as they can do anything any other addon or gamemode can")
+		txt4:SetText("anything any other addon or gamemode could potentially do.")
 		txt4:SetTextColor(Color(75,75,75))
 		txt4:SetFont("Trebuchet18")
 		txt4:SizeToContents()
