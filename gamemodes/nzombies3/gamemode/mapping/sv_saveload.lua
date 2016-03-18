@@ -232,6 +232,7 @@ function Mapping:ClearConfig()
 		["edit_color"] = true,
 		["edit_sun"] = true,
 		["nz_triggerzone"] = true,
+		["power_box"] = true,
 	}
 
 	--jsut loop once over all entities isntead of seperate findbyclass calls
