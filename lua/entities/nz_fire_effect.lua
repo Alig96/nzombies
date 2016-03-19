@@ -37,17 +37,11 @@ function ENT:Initialize()
 			phys:EnableGravity( false )
 			phys:EnableDrag( false )
 		end
+		
+		self:CreateFire()
 
 		self:DrawShadow( false )
 		self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
-		
-		self.FireEffect = ents.Create("env_fire")
-		self.FireEffect:SetPos( self:GetPos() )
-		self.FireEffect:SetParent( self )
-		self.FireEffect:Spawn()
-		self.FireEffect:Activate()
-		self.FireEffect:Fire("StartFire")
-		self.FireEffect:SetKeyValue("spawnflags", "1")
 
 	else
 
@@ -62,6 +56,16 @@ function ENT:Initialize()
 	-- Set collision bounds exactly
 	self:SetCollisionBounds( min, max )
 
+end
+
+function ENT:CreateFire()
+	self.FireEffect = ents.Create("env_fire")
+	self.FireEffect:SetPos( self:GetPos() )
+	self.FireEffect:SetParent( self )
+	self.FireEffect:Spawn()
+	self.FireEffect:Activate()
+	self.FireEffect:Fire("StartFire")
+	self.FireEffect:SetKeyValue("spawnflags", "1")
 end
 
 function ENT:Draw()
@@ -97,6 +101,12 @@ function ENT:PhysicsUpdate( physobj )
 	end
 
 end
+
+hook.Add("PostCleanupMap", "RestoreFireEffects", function()
+	for k,v in pairs(ents.FindByClass("nz_fire_effect")) do
+		v:CreateFire()
+	end
+end)
 
 
 	// Doesn't work :(
