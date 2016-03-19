@@ -48,7 +48,7 @@ ENT.AttackSounds = {
 	"nz/zombies/attack/attack_15.wav",
 	"nz/zombies/attack/attack_16.wav",
 	"nz/zombies/attack/attack_17.wav",
-	"nz/zombies/attack/attack_018.wav",
+	"nz/zombies/attack/attack_18.wav",
 	"nz/zombies/attack/attack_19.wav",
 	"nz/zombies/attack/attack_20.wav",
 	"nz/zombies/attack/attack_21.wav",
