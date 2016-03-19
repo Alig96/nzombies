@@ -1471,10 +1471,10 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		z:SetPos(tr.HitPos)
 		z:SetHealth(100)
 		z.SpecialInit = function(self)
-			self:SetRunSpeed(50)
+			self:SetRunSpeed(51)
 		end
 		z:Spawn()
-		z:SetRunSpeed(50)
+		z:SetRunSpeed(51)
 
 		undo.Create( "Test Zombie" )
 			undo.SetPlayer( ply )

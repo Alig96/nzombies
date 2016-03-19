@@ -99,11 +99,10 @@ function Mapping:SaveConfig(name)
 	end
 
 	local elec_spawn = {}
-	for _, v in pairs(ents.FindByClass("button_elec")) do
+	for _, v in pairs(ents.FindByClass("power_box")) do
 		table.insert(elec_spawn, {
 		pos = v:GetPos(),
 		angle = v:GetAngles( ),
-		model = v:GetModel(),
 		})
 	end
 
@@ -345,7 +344,7 @@ function Mapping:LoadConfig( name, loader )
 
 		if data.ElecSpawns then
 			for k,v in pairs(data.ElecSpawns) do
-				Mapping:Electric(v.pos, v.angle, v.model)
+				Mapping:Electric(v.pos, v.angle)
 			end
 		end
 
