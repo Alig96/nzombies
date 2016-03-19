@@ -102,11 +102,13 @@ function ENT:PhysicsUpdate( physobj )
 
 end
 
-hook.Add("PostCleanupMap", "RestoreFireEffects", function()
-	for k,v in pairs(ents.FindByClass("nz_fire_effect")) do
-		v:CreateFire()
-	end
-end)
+if SERVER then
+	hook.Add("PostCleanupMap", "RestoreFireEffects", function()
+		for k,v in pairs(ents.FindByClass("nz_fire_effect")) do
+			v:CreateFire()
+		end
+	end)
+end
 
 
 	// Doesn't work :(

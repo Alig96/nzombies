@@ -16,7 +16,7 @@ ENT.Spawnable = true
 ENT.AdminOnly = true
 
 --Zombie Stuffz
-ENT.Models = { "models/error.mdl"  }
+ENT.Models = { "models/error.mdl" }
 ENT.AttackSequences = { 
 	{seq = "nz_stand_attack1", dmgtimes = {1, 1.5}},
 	{seq = "nz_stand_attack2", dmgtimes = {0.4}},
