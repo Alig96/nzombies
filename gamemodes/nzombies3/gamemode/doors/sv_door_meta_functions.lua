@@ -1,17 +1,18 @@
 local meta = FindMetaTable("Entity")
 
 function meta:UnlockDoor()
-	//Delay opening the door by a second to stop the door from accidentally opening then closing forever.
-	//timer.Simple(1, function() 
 		if self:IsDoor() then
+			local data = self:GetDoorData()
+			if data.NextBuy and data.NextBuy > CurTime() then return end
 			print("Unlocking door ", self)
+			
 			self:Fire("unlock", "", 0)
 			self:Fire("Unlock", "", 0)
 			self:Fire("open", "", 0)	//Seems like some doors wanted it capitalized
 			self:Fire("Open", "", 0)
 			
 			//Doors that can be rebought should not be locked - only use this on doors with buttons that should close again!
-			if tobool(self.rebuyable) then return end
+			if tobool(data.rebuyable) then return end
 			
 			self:SetLocked(false)
 			
@@ -28,7 +29,6 @@ function meta:UnlockDoor()
 			self:SetLocked(false)
 			self:BlockUnlock()
 		end
-	//end)
 end
 
 function meta:UnlockButton(rebuyable)

@@ -6,11 +6,13 @@ ENT.Category = "Brainz"
 ENT.Author = "Lolle"
 
 ENT.Models = {
-	"models/half-dead/alcatraz/zombie_01.mdl",
-	"models/half-dead/alcatraz/zombie_02.mdl",
-	"models/half-dead/alcatraz/zombie_03.mdl",
-	"models/half-dead/alcatraz/zombie_04.mdl",
-	"models/half-dead/alcatraz/zombie_05.mdl",
+	--"models/half-dead/alcatraz/zombie_01.mdl",
+	--"models/half-dead/alcatraz/zombie_02.mdl",
+	--"models/half-dead/alcatraz/zombie_03.mdl",
+	--"models/half-dead/alcatraz/zombie_04.mdl",
+	--"models/half-dead/alcatraz/zombie_05.mdl",
+	
+	"models/nz_zombie/zombie_rig_animated.mdl",
 }
 
 for _,v in pairs(ENT.Models) do

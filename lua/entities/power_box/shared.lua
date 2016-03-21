@@ -23,7 +23,7 @@ function ENT:Initialize()
 		self:SetUseType( ONOFF_USE )
 		self:SetSwitch(false)
 		
-		self.Handle = ents.Create("prop_dynamic")
+		self.Handle = ents.Create("nz_prop_effect_attachment")
 		self.Handle:SetModel("models/nzprops/zombies_power_lever_handle.mdl")
 		self.Handle:SetAngles( self:GetAngles() )
 		self.Handle:SetPos(self:GetPos() + self:GetAngles():Up()*46 + self:GetAngles():Forward()*7)

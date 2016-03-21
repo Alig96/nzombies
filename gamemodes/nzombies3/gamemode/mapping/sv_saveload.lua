@@ -99,11 +99,10 @@ function Mapping:SaveConfig(name)
 	end
 
 	local elec_spawn = {}
-	for _, v in pairs(ents.FindByClass("button_elec")) do
+	for _, v in pairs(ents.FindByClass("power_box")) do
 		table.insert(elec_spawn, {
 		pos = v:GetPos(),
 		angle = v:GetAngles( ),
-		model = v:GetModel(),
 		})
 	end
 
@@ -215,24 +214,29 @@ function Mapping:ClearConfig()
 
 	--Entities to clear:
 	local entClasses = {
-		"zed_spawns",
-		"player_spawns",
-		"walll_buys",
-		"prop_buys",
-		"button_elec",
-		"wall_block",
-		"random_box_spawns",
-		"perk_machine",
-		"player_handler",
-		"random_box_handler",
-		"easter_egg",
-		"nz_prop_effect",
-		"breakable_entry",
+		["zed_spawns"] = true,
+		["player_spawns"] = true,
+		["wall_buys"] = true,
+		["prop_buys"] = true,
+		["button_elec"] = true,
+		["wall_block"] = true,
+		["random_box_spawns"] = true,
+		["perk_machine"] = true,
+		["easter_egg"] = true,
+		["nz_prop_effect"] = true,
+		["breakable_entry"] = true,
+		["edit_fog"] = true,
+		["edit_fog_special"] = true,
+		["edit_sky"] = true,
+		["edit_color"] = true,
+		["edit_sun"] = true,
+		["nz_triggerzone"] = true,
+		["power_box"] = true,
 	}
 
 	--jsut loop once over all entities isntead of seperate findbyclass calls
 	for k,v in pairs(ents.GetAll()) do
-		if table.HasValue(entClasses, v:GetClass()) then
+		if entClasses[v:GetClass()] then
 			v:Remove()
 		end
 	end
@@ -270,9 +274,11 @@ function Mapping:ClearConfig()
 	-- Clear all door data
 	net.Start("nzClearDoorData")
 	net.Broadcast()
+	
+	Mapping.CurrentConfig = nil
 end
 
-function Mapping:LoadConfig( name )
+function Mapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
 
@@ -280,10 +286,8 @@ function Mapping:LoadConfig( name )
 		print("[NZ] MAP CONFIG FOUND!")
 
 		-- Load a lua file for a specific map
-		-- Make sure every hooks are removed before adding the new ones
+		-- Make sure all hooks are removed before adding the new ones
 		Mapping:UnloadScript()
-		-- Load the file from the mapping/mapscripts directory if it existts. (same name as the config but .lua instead of .txt)
-		Mapping:LoadScript( name )
 
 		local data = util.JSONToTable( file.Read( filepath, "DATA" ) )
 
@@ -340,7 +344,7 @@ function Mapping:LoadConfig( name )
 
 		if data.ElecSpawns then
 			for k,v in pairs(data.ElecSpawns) do
-				Mapping:Electric(v.pos, v.angle, v.model)
+				Mapping:Electric(v.pos, v.angle)
 			end
 		end
 
@@ -435,6 +439,11 @@ function Mapping:LoadConfig( name )
 
 		-- Generate all auto navmesh merging so we don't have to save that manually
 		nz.Nav.Functions.AutoGenerateAutoMergeLinks()
+		
+		Mapping:CheckMismatch( loader )
+		
+		-- Set the current config name, we will use this to load scripts via mismatch window
+		Mapping.CurrentConfig = name
 
 		print("[NZ] Finished loading map config.")
 	else

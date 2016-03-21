@@ -9,6 +9,8 @@ if SERVER then
 		Mapping.Settings.startpoints = tonumber(tbl.startpoints) and tbl.startpoints or 500
 		Mapping.Settings.numweps = tonumber(tbl.numweps) and tbl.numweps or 2
 		Mapping.Settings.eeurl = tbl.eeurl and tbl.eeurl or nil
+		Mapping.Settings.script = tbl.script and tbl.script or nil
+		Mapping.Settings.scriptinfo = tbl.scriptinfo and tbl.scriptinfo or nil
 		Mapping.Settings.rboxweps = tbl.rboxweps and tbl.rboxweps[1] and tbl.rboxweps or nil
 
 		for k,v in pairs(player.GetAll()) do
@@ -36,8 +38,6 @@ if CLIENT then
 	local function receiveMapData()
 		local oldeeurl = Mapping.Settings.eeurl or ""
 		Mapping.Settings = net.ReadTable()
-
-		print(oldeeurl, Mapping.Settings.eeurl)
 
 		if !EEAudioChannel or (oldeeurl != Mapping.Settings.eeurl and Mapping.Settings.eeurl) then
 			EasterEggData.ParseSong()

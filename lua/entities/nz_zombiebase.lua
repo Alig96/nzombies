@@ -16,11 +16,43 @@ ENT.Spawnable = true
 ENT.AdminOnly = true
 
 --Zombie Stuffz
-ENT.Models = { "models/error.mdl"  }
-ENT.AttackSequences = { "swing" }
+ENT.Models = { "models/error.mdl" }
+ENT.AttackSequences = { 
+	{seq = "nz_stand_attack1", dmgtimes = {1, 1.5}},
+	{seq = "nz_stand_attack2", dmgtimes = {0.4}},
+	{seq = "nz_stand_attack3", dmgtimes = {1}},
+	{seq = "nz_stand_attack4", dmgtimes = {0.4, 0.8}},
+}
+ENT.WalkAttackSequences = { -- Not used yet
+	{seq = "nz_walk_attack1", dmgtimes = {1, 1.5}},
+	{seq = "nz_walk_attack2", dmgtimes = {0.4}},
+	{seq = "nz_walk_attack3", dmgtimes = {1}},
+	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.8}},
+}
 ENT.AttackSounds = {
-	"npc/vort/claw_swing1.wav",
-	"npc/vort/claw_swing2.wav"
+	"nz/zombies/attack/attack_00.wav",
+	"nz/zombies/attack/attack_01.wav",
+	"nz/zombies/attack/attack_02.wav",
+	"nz/zombies/attack/attack_03.wav",
+	"nz/zombies/attack/attack_04.wav",
+	"nz/zombies/attack/attack_05.wav",
+	"nz/zombies/attack/attack_06.wav",
+	"nz/zombies/attack/attack_07.wav",
+	"nz/zombies/attack/attack_08.wav",
+	"nz/zombies/attack/attack_09.wav",
+	"nz/zombies/attack/attack_10.wav",
+	"nz/zombies/attack/attack_11.wav",
+	"nz/zombies/attack/attack_12.wav",
+	"nz/zombies/attack/attack_13.wav",
+	"nz/zombies/attack/attack_14.wav",
+	"nz/zombies/attack/attack_15.wav",
+	"nz/zombies/attack/attack_16.wav",
+	"nz/zombies/attack/attack_17.wav",
+	"nz/zombies/attack/attack_18.wav",
+	"nz/zombies/attack/attack_19.wav",
+	"nz/zombies/attack/attack_20.wav",
+	"nz/zombies/attack/attack_21.wav",
+	"nz/zombies/attack/attack_22.wav",
 }
 ENT.AttackHitSounds = {
 	"npc/zombie/zombie_hit.wav"
@@ -325,7 +357,7 @@ function ENT:OnBarricadeBlocking( barricade )
 
 			end)
 
-			self:PlaySequenceAndWait( self.AttackSequences[ math.random( #self.AttackSequences ) ] , 1)
+			self:PlaySequenceAndWait( self.AttackSequences[ math.random( #self.AttackSequences ) ].seq , 1)
 		end
 	end
 end
@@ -689,7 +721,7 @@ end
 --A standart attack you can use it or create soemthing fancy urself
 function ENT:Attack( data )
 	data = data or {}
-	data.attackseq = data.attackseq or self.AttackSequences[ math.random( #self.AttackSequences ) ] or "swing"
+	data.attackseq = data.attackseq or self.AttackSequences[ math.random( #self.AttackSequences ) ] or {seq = "swing", dmgtimes = {1}}
 	data.attacksound = data.attacksound or self.AttackSounds[ math.random( #self.AttackSounds) ] or Sound( "npc/vort/claw_swing1.wav" )
 	data.hitsound = data.hitsound or self.AttackHitSounds[ math.random( #self.AttackHitSounds ) ]Sound( "npc/zombie/zombie_hit.wav" )
 	data.viewpunch = data.viewpunch or VectorRand():Angle() * 0.05
@@ -697,7 +729,7 @@ function ENT:Attack( data )
 	data.dmghigh = data.dmghigh or self.DamageHigh or 70
 	data.dmgtype = data.dmgtype or DMG_CLUB
 	data.dmgforce = data.dmgforce or self:GetTarget():GetAimVector() * -300 + Vector( 0, 0, 16 )
-	local seq, dur = self:LookupSequence( data.attackseq )
+	local seq, dur = self:LookupSequence( data.attackseq.seq )
 	data.attackdur = (seq != - 1 and dur) or 0.6
 	data.dmgdelay = ( ( data.attackdur != 0 ) and data.attackdur / 2 ) or 0.3
 
@@ -709,7 +741,7 @@ function ENT:Attack( data )
 		self:EmitSound( data.attacksound )
 	end)
 
-	self:TimedEvent( data.dmgdelay, function()
+	--[[self:TimedEvent( data.dmgdelay, function()
 		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
 			local dmgAmount = math.random( data.dmglow, data.dmghigh )
 			local dmgInfo = DamageInfo()
@@ -734,13 +766,41 @@ function ENT:Attack( data )
 			blood:Fire("EmitBlood")
 			SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
 		end
-	end)
+	end)]]
+	for k,v in pairs(data.attackseq.dmgtimes) do
+		self:TimedEvent( v, function()
+			if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+				local dmgAmount = math.random( data.dmglow, data.dmghigh )
+				local dmgInfo = DamageInfo()
+					dmgInfo:SetAttacker( self )
+					dmgInfo:SetDamage( dmgAmount )
+					dmgInfo:SetDamageType( data.dmgtype )
+					dmgInfo:SetDamageForce( data.dmgforce )
+				self:GetTarget():TakeDamageInfo(dmgInfo)
+				self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
+				self:GetTarget():ViewPunch( data.viewpunch )
+				self:GetTarget():SetVelocity( data.dmgforce )
+
+				local blood = ents.Create("env_blood")
+				blood:SetKeyValue("targetname", "carlbloodfx")
+				blood:SetKeyValue("parentname", "prop_ragdoll")
+				blood:SetKeyValue("spawnflags", 8)
+				blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
+				blood:SetKeyValue("amount", dmgAmount * 5)
+				blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
+				blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
+				blood:Spawn()
+				blood:Fire("EmitBlood")
+				SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
+			end
+		end)
+	end
 
 	self:TimedEvent( data.attackdur, function()
 		self:SetAttacking( false )
 	end)
 
-	self:PlayAttackAndWait( data.attackseq, 1)
+	self:PlayAttackAndWait( data.attackseq.seq, 1)
 end
 
 function ENT:PlayAttackAndWait( name, speed )
@@ -939,8 +999,10 @@ function ENT:BodyUpdate()
 	local velocity = self:GetVelocity()
 
 	local len2d = velocity:Length2D()
+	
+	--local len2d = self:GetRunSpeed()
 
-	if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
+	if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP

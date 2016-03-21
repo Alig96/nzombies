@@ -1,6 +1,15 @@
-function Doors:OpenDoor( ent )
+function Doors:OpenDoor( ent, ply )
+	local data = ent:GetDoorData()
+	local link = data.link
+	local rebuyable = data.rebuyable
+	
 	-- Open the door and any other door with the same link
-	if ent:IsButton() then
+	if ent:IsScriptBuyable() then
+		ent.BuyFunction(ply)
+		if !tobool(rebuyable) then
+			ent:SetLocked(false)
+		end
+	elseif ent:IsButton() then
 		ent:UnlockButton(tobool(ent.rebuyable))
 	else
 		ent:UnlockDoor()
@@ -15,20 +24,19 @@ function Doors:OpenDoor( ent )
 	end
 	
 	-- Sync
-	local link = ent:GetDoorData().link
 	if link != nil then
 		self.OpenedLinks[link] = true
 	end
-	hook.Call("OnDoorUnlocked", self, ent, link)
+	hook.Call("OnDoorUnlocked", self, ent, link, rebuyable, ply)
 end
 
-function Doors:OpenLinkedDoors( link )
+function Doors:OpenLinkedDoors( link, ply )
 	-- Go through all the doors
 	for k,v in pairs(self.MapDoors) do
 		if v.flags then
 			local doorlink = v.flags.link
 			if doorlink and doorlink == link then
-				self:OpenDoor( self:DoorIndexToEnt(k) )
+				self:OpenDoor( self:DoorIndexToEnt(k), ply )
 			end
 		end
 	end
@@ -37,7 +45,7 @@ function Doors:OpenLinkedDoors( link )
 		if v.flags then
 			local doorlink = v.flags.link
 			if doorlink and doorlink == link then
-				self:OpenDoor( Entity(k) )
+				self:OpenDoor( Entity(k), ply )
 			end
 		end
 	end
@@ -78,10 +86,10 @@ function Doors:BuyDoor( ply, ent )
 	local flags = ent:GetDoorData()
 	if !flags then return end
 	local price = tonumber(flags.price)
-	local req_elec = tonumber(flags.elec)
+	local req_elec = tonumber(flags.elec) or 0
 	local link = flags.link
-	local buyable = flags.buyable
-	--print("Entity info buying ", ent, link, req_elec, price, buyable)
+	local buyable = flags.buyable or 1
+	--print("Entity info buying ", ent, link, req_elec, price, buyable, ent:IsLocked())
 	-- If it has a price and it can be bought
 	if price != nil and tonumber(buyable) == 1 then
 		if ply:CanAfford(price) and ent:IsLocked() then
@@ -89,9 +97,9 @@ function Doors:BuyDoor( ply, ent )
 			if (req_elec == 0 or (req_elec == 1 and IsElec())) then
 				ply:TakePoints(price)
 				if link == nil then
-					self:OpenDoor( ent )
+					self:OpenDoor( ent, ply )
 				else
-					self:OpenLinkedDoors( link )
+					self:OpenLinkedDoors( link, ply )
 				end
 			end
 		end
@@ -114,7 +122,7 @@ function Doors.OnUseDoor( ply, ent )
 	-- Players can't use stuff while ysing special weapons! (Perk bottles, knives, etc)
 	if IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():IsSpecial() then return false end
 	
-	if ent:IsDoor() or ent:IsBuyableProp() or ent:IsButton() then
+	if ent:IsBuyableEntity() then
 		if ent.buyable == nil or tobool(ent.buyable) then
 			Doors:BuyDoor( ply, ent )
 		end
@@ -131,6 +139,12 @@ function Doors.CheckUseDoor(ply, ent)
 	
 	if IsValid(door) and door:IsDoor() then
 		return door
+	else
+		for k,v in pairs(ents.FindInSphere(ply:EyePos(), 1)) do
+			if v:GetClass() == "nz_triggerzone" then
+				return v
+			end
+		end
 	end
 	
 end

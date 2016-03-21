@@ -5,7 +5,7 @@ Doors.PropDoors = Doors.PropDoors or {}
 Doors.OpenedLinks = Doors.OpenedLinks or {}
 
 function meta:IsLocked() 
-	if self:IsBuyableProp() then
+	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		return Doors.PropDoors[self:EntIndex()].locked
 	else
 		return Doors.MapDoors[self:DoorIndex()].locked
@@ -13,7 +13,7 @@ function meta:IsLocked()
 end
 
 function meta:SetLocked( bool )
-	if self:IsBuyableProp() then
+	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		if !Doors.PropDoors[self:EntIndex()] then Doors.PropDoors[self:EntIndex()] = {} end
 		Doors.PropDoors[self:EntIndex()].locked = bool
 	else
@@ -29,11 +29,27 @@ local validdoors = {
 	["prop_dynamic"] = true,
 }
 
+local scriptbuyables = {
+	["nz_triggerzone"] = true,
+	["nz_triggerbutton"] = true,
+}
+
 function meta:IsDoor()
 	if not IsValid(self) then return false end
 	local class = self:GetClass()
 
 	return validdoors[class] or false
+end
+
+function meta:IsScriptBuyable()
+	if not IsValid(self) then return false end
+	local class = self:GetClass()
+
+	return scriptbuyables[class] or false
+end
+
+function meta:IsBuyableEntity()
+	return self:IsDoor() or self:IsBuyableProp() or self:IsButton() or self:IsScriptBuyable() or false
 end
 
 function meta:IsButton()
@@ -51,8 +67,12 @@ function meta:IsBuyableProp()
 	return self:GetClass() == "prop_buys"
 end
 
+function meta:IsPropDoorType()
+	return self:IsScriptBuyable() or self:IsBuyableProp()
+end
+
 function meta:IsBuyableMapEntity()
-	return self:IsDoor() or self:IsButton() or self:IsBuyableProp()
+	return self:IsDoor() or self:IsButton() or self:IsBuyableProp() or self:IsScriptBuyable() or false
 end
 
 function meta:DoorIndex()
@@ -65,7 +85,7 @@ function meta:DoorIndex()
 end
 
 function meta:GetDoorData()
-	if self:IsBuyableProp() then
+	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		if !Doors.PropDoors[self:EntIndex()] then return nil end
 		return Doors.PropDoors[self:EntIndex()].flags
 	else
@@ -75,7 +95,7 @@ function meta:GetDoorData()
 end
 
 function meta:SetDoorData( tbl )
-	if self:IsBuyableProp() then
+	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		if !Doors.PropDoors[self:EntIndex()] then Doors.PropDoors[self:EntIndex()] = {} end
 		Doors.PropDoors[self:EntIndex()].flags = tbl
 	else

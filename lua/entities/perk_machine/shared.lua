@@ -36,7 +36,7 @@ end
 
 function ENT:Update()
 	local perkData = nz.Perks.Functions.Get(self:GetPerkID())
-	self:SetModel(perkData.off_model)
+	self:SetModel(perkData and perkData.off_model or "")
 end
 
 function ENT:IsOn()

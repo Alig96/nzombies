@@ -26,6 +26,7 @@ function ENT:Initialize()
 	if SERVER then
 		self:SetMoveType( MOVETYPE_NONE )
 		self:SetSolid( SOLID_VPHYSICS )
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 		self:SetUseType(SIMPLE_USE)
 		self:SetFlipped(true) -- Apparently makes it work with default orientation?
 		--self:SetSolid( SOLID_OBB )
@@ -47,19 +48,19 @@ end
 function ENT:RecalculateModelOutlines()
 	self:RemoveOutline()
 	local num = GetConVar("nz_outlinedetail"):GetInt()
-	local curang = self:GetAngles()
+	local ang = self:GetAngles()
+	local curang = self:GetAngles() -- Modifies offset if flipped
 	local curpos = self:GetPos()
 	local model = self:GetModel()
 	if self.Flipped then
-		curang:RotateAroundAxis(curang:Right(), 90)
+		curang:RotateAroundAxis(curang:Up(), 90)
 	end
-	print(ang)
+	--print(curang, "HUDIASHUD")
 	if num >= 1 then
 		self.Chalk1 = ClientsideModel(model)
-		local offset = Vector(0,-0.5,0.5)
-		offset:Rotate(ang)
+		local offset = curang:Up()*0.5 + curang:Forward()*-0.5 --Vector(0,-0.5,0.5)
 		self.Chalk1:SetPos(curpos + offset)
-		self.Chalk1:SetAngles(curang)
+		self.Chalk1:SetAngles(ang)
 		self.Chalk1:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -73,10 +74,9 @@ function ENT:RecalculateModelOutlines()
 		
 	if num >= 2 then
 		self.Chalk2 = ClientsideModel(model)
-		offset = Vector(0,0.5,-0.5)
-		offset:Rotate(ang)
+		offset = curang:Up()*-0.5 + curang:Forward()*0.5
 		self.Chalk2:SetPos(curpos + offset)
-		self.Chalk2:SetAngles(curang)
+		self.Chalk2:SetAngles(ang)
 		self.Chalk2:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -90,10 +90,9 @@ function ENT:RecalculateModelOutlines()
 		
 	if num >= 3 then
 		self.Chalk3 = ClientsideModel(model)
-		offset = Vector(0,0.5,0.5)
-		offset:Rotate(ang)
+		offset = curang:Up()*0.5 + curang:Forward()*0.5
 		self.Chalk3:SetPos(curpos + offset)
-		self.Chalk3:SetAngles(curang)
+		self.Chalk3:SetAngles(ang)
 		self.Chalk3:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -107,10 +106,9 @@ function ENT:RecalculateModelOutlines()
 		
 	if num >= 4 then
 		self.Chalk4 = ClientsideModel(model)
-		offset = Vector(0,-0.5,-0.5)
-		offset:Rotate(ang)
+		offset = curang:Up()*-0.5 + curang:Forward()*-0.5
 		self.Chalk4:SetPos(curpos + offset)
-		self.Chalk4:SetAngles(curang)
+		self.Chalk4:SetAngles(ang)
 		self.Chalk4:SetMaterial(chalkmaterial)
 		--self.Chalk:SetModelScale(1.7)
 			
@@ -125,7 +123,7 @@ function ENT:RecalculateModelOutlines()
 	if num >= 1 then
 		self.ChalkCenter = ClientsideModel(model)
 		self.ChalkCenter:SetPos(curpos)
-		self.ChalkCenter:SetAngles(curang)
+		self.ChalkCenter:SetAngles(ang)
 		self.ChalkCenter:SetMaterial(chalkmaterial)
 			
 		mat = Matrix()
@@ -159,11 +157,17 @@ if SERVER then
 
 	function ENT:SetWeapon(weapon, price)
 		//Add a special check for FAS weps
-		if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
-			//self:SetModel( weapons.Get(weapon).WM )
-			self:SetModel( weapons.Get(weapon).WorldModel )
+		local wep = weapons.Get(weapon)
+		if !wep then
+			self:SetModel( "models/weapons/w_crowbar.mdl" )
 		else
-			self:SetModel( weapons.Get(weapon).WorldModel )
+			if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
+				//self:SetModel( weapons.Get(weapon).WM )
+				self:SetModel( weapons.Get(weapon).WorldModel )
+			else
+				self:SetModel( weapons.Get(weapon).WorldModel )
+			end
+			self:SetFlipped(false)
 		end
 		self:SetModelScale( 1.5, 0 )
 		self.WeaponGive = weapon
@@ -173,8 +177,11 @@ if SERVER then
 	end
 	
 	function ENT:ToggleRotate()
+		local ang = self:GetAngles()
 		self:SetFlipped(!self:GetFlipped())
-		self:SetAngles(self:GetAngles() + Angle(0,90,0))
+		--self:SetAngles(self:GetAngles() + Angle(0,90,0))
+		ang:RotateAroundAxis(ang:Up(), 90)
+		self:SetAngles(ang)
 		--print(self:GetFlipped())
 	end
 
@@ -240,6 +247,7 @@ if CLIENT then
 	local glow = Material ( "sprites/glow04_noz" )
 	local white = Color(0,200,255,50)
 	function ENT:Draw()
+		--self:DrawModel()
 		local num = math.Clamp(GetConVar("nz_outlinedetail"):GetInt(), 0, 4)
 		if num < 1 then
 			self:DrawModel()

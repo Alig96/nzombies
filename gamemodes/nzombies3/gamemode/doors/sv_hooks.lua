@@ -6,8 +6,8 @@ function Doors:OnAllDoorsLocked( )
 	self:SendAllDoorsLocked()
 end
 
-function Doors:OnDoorUnlocked( door, link )
-	self:SendDoorOpened( door )
+function Doors:OnDoorUnlocked( door, link, rebuyable, ply )
+	self:SendDoorOpened( door, rebuyable )
 end
 
 function Doors:OnMapDoorLinkCreated( door, flags, id )

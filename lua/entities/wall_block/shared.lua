@@ -69,8 +69,16 @@ function ENT:Initialize()
 	self:SetSolid( SOLID_VPHYSICS )
 	self:DrawShadow( false )
 	self:SetRenderMode( RENDERMODE_TRANSCOLOR )
+	--self:SetCustomCollisionCheck(true)
 	--self:SetFilter(true, true)
 end
+
+-- Doesn't work? :(
+--[[function ENT:TestCollision(startpos, delta, isbox, bounds)
+	--if !Round:InState( ROUND_CREATE ) then return end -- Makes traces ignore this entity
+	print("HDUIAHD", startpos, delta, isbox, bounds)
+	return
+end]]
 
 if CLIENT then
 	function ENT:Draw()
