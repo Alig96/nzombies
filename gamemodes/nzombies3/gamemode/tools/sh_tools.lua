@@ -900,7 +900,11 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
-			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			if v.Category and v.Category != "" then
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+			else
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			end
 		end
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val UpdateData() end
 
@@ -1047,12 +1051,20 @@ nz.Tools.Functions.CreateTool("settings", {
 		local Row1 = DProperties:CreateRow( "Map Settings", "Starting Weapon" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
-			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			if v.Category and v.Category != "" then
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+			else
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			end
 		end
 		if data.startwep then
 			local wep = weapons.Get(data.startwep)
 			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
-			Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, true)
+			if wep.Category and wep.Category != "" then
+				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, false)
+			else
+				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, false)
+			end
 		end
 
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
@@ -1154,13 +1166,21 @@ nz.Tools.Functions.CreateTool("settings", {
 			if Mapping.Settings.rboxweps then
 				for k,v in pairs(Mapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
-					InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, v)
+					if wep.Category and wep.Category != "" then
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.Category.." - "..wep.PrintName or wep.ClassName, v)
+					else
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, v)
+					end
 				end
 			else
 				for k,v in pairs(weapons.GetList()) do
 					-- By default, add all weapons that have print names unless they are blacklisted
-					if v.PrintName and v.PrintName != "" and !table.HasValue(nz.Config.WeaponBlackList, v.ClassName) then
-						InsertWeaponToList(v.PrintName, v.ClassName)
+					if v.PrintName and v.PrintName != "" and !nz.Config.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" then
+						if v.Category and v.Category != "" then
+							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+						else
+							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+						end
 					end
 					-- The rest are still available in the dropdown
 				end
@@ -1171,7 +1191,11 @@ nz.Tools.Functions.CreateTool("settings", {
 			wepentry:SetSize( 203, 20 )
 			wepentry:SetValue( "Weapon ..." )
 			for k,v in pairs(weapons.GetList()) do
-				wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+				if v.Category and v.Category != "" then
+					wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+				else
+					wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+				end
 			end
 			wepentry.OnSelect = function( panel, index, value )
 			end

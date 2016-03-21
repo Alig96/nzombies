@@ -98,7 +98,7 @@ nz.Perks.Functions.NewPerk("speed", {
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
-			if v:IsFAS2() then
+			if v:NZPerkSpecialTreatment() then
 				table.insert(tbl, v)
 			end
 		end
@@ -118,7 +118,7 @@ nz.Perks.Functions.NewPerk("speed", {
 	lostfunc = function(self, ply)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
-			if v:IsFAS2() then
+			if v:NZPerkSpecialTreatment() then
 				table.insert(tbl, v)
 			end
 		end

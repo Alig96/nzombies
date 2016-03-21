@@ -2,6 +2,7 @@ local playerMeta = FindMetaTable("Player")
 if SERVER then
 
 	function playerMeta:GivePerk(id, machine)
+		if self:HasPerk(id) then return end
 		local perkData = nz.Perks.Functions.Get(id)
 		if perkData == nil then return false end
 		

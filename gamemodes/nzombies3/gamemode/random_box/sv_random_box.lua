@@ -40,7 +40,7 @@ end
 
 function RandomBox:DecideWep(ply)
 
-	local teddychance = math.random(1, 15)
+	local teddychance = math.random(1, 12)
 	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") then
 		return "nz_box_teddy"
 	end
@@ -49,9 +49,11 @@ function RandomBox:DecideWep(ply)
 	local blacklist = table.Copy(nz.Config.WeaponBlackList)
 
 	--Add all our current guns to the black list
-	if ply:IsValid() then
+	if IsValid(ply) then
 		for k,v in pairs( ply:GetWeapons() ) do
-			blacklist[v.ClassName] = true
+			if v.ClassName then
+				blacklist[v.ClassName] = true
+			end
 		end
 	end
 

@@ -5,7 +5,7 @@ if SERVER then
 	
 	function ReplaceReloadFunction(wep)
 		//Either not a weapon, doesn't have a reload function, or is FAS2
-		if wep:IsFAS2() then return end
+		if wep:NZPerkSpecialTreatment() then return end
 		local oldreload = wep.Reload
 		if !oldreload then return end
 		
