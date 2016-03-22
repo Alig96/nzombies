@@ -57,12 +57,11 @@ This is an edited version featuring these changes:
 	- Set a SoundCloud link to the song to play on Easter Egg
 	- Decide starting weapon and points
 
-- Better Zombie AI
-	- Zombies can now jump (Thanks lolle!)
+- Better Zombie AI (Thanks Lolle!)
+	- Zombies can now jump
 	- Zombies now know which navmeshes are locked to doors and won't path through them
 	- Zombies can now know if there are players in the same area as them
 	- Zombies can now go back to respawn if they can't get to any players
-	- Zombies can now climb ladders!
 		
 - Weapon Carrying
 	- Max number weapons you can carry
@@ -95,13 +94,13 @@ This is an edited version featuring these changes:
 	- Zombie Spawnpoints can now be disabled so they don't spawn any zombies using "Spawnable at?"
 
 
-- To-do list:
-	- Invisible blockers to have blocking filters
-	- Fix random downing of players (Prop collision?)
+- Workshop Release To-do list:
+	- Monkey Bombs, a few other random wonder weapons
+	- Wonder Weapon system (Only one of them at a time)
+	- Implement all new animations for zombies
+	- Model pack system to replace models on a per-config basis
+	- Hellhounds (Yes, we're getting those)
+	- Mismatch system fully implemented (need random box weapons)
+	- Maps with no power switch has permanent power
 	- Modify curves to be better
-	- Fix Zombies getting stuck on corners a lot (plz) (Already fixed?)
-	- Support for free buttons/doors with custom text
-	- Change round handler function to not run every second; instead just on events
-	- General optimizations
-	- Real Nazi Zombie models and sounds for the zombies?
-	- More Wonder Weapons built-in?
+	- After all the above, 3-4 official high-quality configs
