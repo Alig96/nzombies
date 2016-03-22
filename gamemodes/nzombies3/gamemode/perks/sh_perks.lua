@@ -139,8 +139,10 @@ nz.Perks.Functions.NewPerk("pap", {
 		local wep = ply:GetActiveWeapon()
 		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
 			local reroll = (wep.pap and wep:IsCW2() and CustomizableWeaponry and true)
+			local cost = reroll and 2000 or 5000
 			
-			ply:TakePoints(reroll and 2000 or 5000)
+			if !ply:CanAfford(cost) then return end
+			ply:TakePoints(cost)
 			
 			machine:SetBeingUsed(true)
 			machine:EmitSound("nz/machines/pap_up.wav")

@@ -19,10 +19,13 @@ if (SERVER) then
 	function _PLAYER:SetPoints(amount)
 		amount = math.Round(amount, 2)
 		if nz.Config.PointNotifcationMode == NZ_POINT_NOTIFCATION_NET then
-			net.Start("nz_points_notification")
-				net.WriteInt(amount - self:GetPoints(), 20)
-				net.WriteEntity(self)
-			net.Broadcast()
+			local num = amount - self:GetPoints()
+			if num != 0 then -- 0 points doesn't get sent
+				net.Start("nz_points_notification")
+					net.WriteInt(num, 20)
+					net.WriteEntity(self)
+				net.Broadcast()
+			end
 		end
 		self:SetNWInt("points", amount)
 	end
