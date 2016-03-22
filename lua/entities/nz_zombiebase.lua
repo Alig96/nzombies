@@ -17,7 +17,7 @@ ENT.AdminOnly = true
 
 --Zombie Stuffz
 ENT.Models = { "models/error.mdl" }
-ENT.AttackSequences = { 
+ENT.AttackSequences = {
 	{seq = "nz_stand_attack1", dmgtimes = {1, 1.5}},
 	{seq = "nz_stand_attack2", dmgtimes = {0.4}},
 	{seq = "nz_stand_attack3", dmgtimes = {1}},
@@ -29,6 +29,15 @@ ENT.WalkAttackSequences = { -- Not used yet
 	{seq = "nz_walk_attack3", dmgtimes = {1}},
 	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.8}},
 }
+
+ENT.EmergeSequences = {
+	"nz_emerge1",
+	"nz_emerge2",
+	"nz_emerge3",
+	"nz_emerge4",
+	"nz_emerge5"
+}
+
 ENT.AttackSounds = {
 	"nz/zombies/attack/attack_00.wav",
 	"nz/zombies/attack/attack_01.wav",
@@ -156,6 +165,7 @@ AccessorFunc( ENT, "fRunSpeed", "RunSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fAttackRange", "AttackRange", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
+AccessorFunc( ENT, "fLastAtackk", "LastAttack", FORCE_NUMBER)
 
 --sounds
 AccessorFunc( ENT, "fNextMoanSound", "NextMoanSound", FORCE_NUMBER)
@@ -169,6 +179,10 @@ AccessorFunc( ENT, "vStuckAt", "StuckAt")
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
+
+function ENT:SetupDataTables()
+	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
+end
 
 --Init
 function ENT:Initialize()
@@ -189,6 +203,7 @@ function ENT:Initialize()
 	self:SetStuckCounter( 0 )
 
 	self:SetAttacking( false )
+	self:SetLastAttack( CurTime() )
 	self:SetAttackRange( self.AttackRange )
 
 	self:SetHealth( 75 ) --fallback
@@ -205,10 +220,31 @@ function ENT:Initialize()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.loco:SetAcceleration( self.Acceleration )
 		self.loco:SetJumpHeight( self.JumpHeight )
+
+		--Preselect the emerge sequnces for clientside useages
+		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
 	end
 
 	for i,v in ipairs(self:GetBodyGroups()) do
 		self:SetBodygroup( i-1, math.random(0, self:GetBodygroupCount(i-1) - 1))
+	end
+
+	if CLIENT then
+		--make them invisible for a really short duration to blend the emerge sequences
+		self:SetNoDraw(true)
+		self:TimedEvent( 0.15, function()
+			self:SetNoDraw(false)
+		end)
+
+		self:SetRenderClipPlaneEnabled( true )
+		self:SetRenderClipPlane(self:GetUp(), self:GetUp():Dot(self:GetPos()))
+
+		local _, dur = self:LookupSequence(self.EmergeSequences[self:GetEmergeSequenceIndex()])
+
+		self:TimedEvent( dur, function()
+			self:SetRenderClipPlaneEnabled(false)
+		end)
+
 	end
 
 end
@@ -286,6 +322,9 @@ function ENT:Think()
 end
 
 function ENT:RunBehaviour()
+
+	self:OnSpawn()
+
 	while (true) do
 		if !self:HasTarget() then self:SetTarget( self:GetPriorityTarget() ) end
 		if self:HasTarget() then
@@ -310,7 +349,6 @@ function ENT:RunBehaviour()
 			end
 		else
 			self:OnNoTarget()
-			coroutine.wait( 1 ) --This is just here to make sure nothing gets spammed, probably unnecessary.
 		end
 	end
 end
@@ -342,6 +380,26 @@ end
 	You can easily override them.
 	Todo: Add Hooks
 --]]
+
+function ENT:OnSpawn()
+	--BAIL if no navmesh is near
+	local nav = navmesh.GetNearestNavArea( self:GetPos() )
+	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then self:Remove() end
+
+	local seq = self.EmergeSequences[self:GetEmergeSequenceIndex()]
+	local _, dur = self:LookupSequence(seq)
+
+	--dust cloud
+	local effectData = EffectData()
+	effectData:SetStart( self:GetPos() )
+	effectData:SetOrigin( self:GetPos() )
+	effectData:SetMagnitude(dur)
+	util.Effect("zombie_spawn_dust", effectData)
+
+	--player emerge animationon spawn
+	self:PlaySequenceAndWait(seq)
+end
+
 function ENT:OnTargetInAttackRange()
 	self:Attack()
 end
@@ -351,7 +409,7 @@ function ENT:OnBarricadeBlocking( barricade )
 		if barricade:GetNumPlanks() > 0 then
 			timer.Simple(0.3, function()
 
-				barricade:EmitSound("physics/wood/wood_plank_break"..math.random(1, 4)..".wav", 100, math.random(90, 130))
+				barricade:EmitSound("physics/wood/wood_plank_break" .. math.random(1, 4) .. ".wav", 100, math.random(90, 130))
 
 				barricade:RemovePlank()
 
@@ -377,7 +435,7 @@ function ENT:OnNoTarget()
 		})
 
 		if (math.random(1, 8) == 2) then
-			self:EmitSound("npc/zombie/zombie_voice_idle"..math.random(2, 7)..".wav", 50, 60)
+			self:EmitSound("npc/zombie/zombie_voice_idle" .. math.random(2, 7) .. ".wav", 50, 60)
 			if (math.random(1, 2) == 2) then
 				self:PlaySequenceAndWait("scaredidle")
 			else
@@ -388,6 +446,7 @@ function ENT:OnNoTarget()
 		self:PlaySequenceAndWait("wave_smg1", 0.9)
 
 	else
+
 		local sPoint = self:GetClosestAvailableRespawnPoint()
 		if !sPoint then
 			-- Something is wrong remove this zombie
@@ -400,13 +459,18 @@ function ENT:OnNoTarget()
 				self:Remove()
 			end
 		else
-			self:ChaseTarget( {
-				maxage = 20,
-				draw = false,
-				target = sPoint,
-				tolerance = self:GetAttackRange() / 10
-			})
-			self:RespawnAtRandom( sPoint )
+			--if not visible to players respawn immediately
+			if !self:IsInSight() then
+				self:RespawnAtRandom( sPoint )
+			else
+				self:ChaseTarget( {
+					maxage = 20,
+					draw = false,
+					target = sPoint,
+					tolerance = self:GetAttackRange() / 10
+				})
+				self:RespawnAtRandom( sPoint )
+			end
 		end
 	end
 end
@@ -425,7 +489,7 @@ end
 
 --Default NEXTBOT Events
 function ENT:OnLandOnGround()
-	self:EmitSound("physics/flesh/flesh_impact_hard"..math.random(1, 6)..".wav")
+	self:EmitSound("physics/flesh/flesh_impact_hard" .. math.random(1, 6) .. ".wav")
 	self:SetJumping( false )
 	if self:HasTarget() then
 		self.loco:SetDesiredSpeed(self:GetRunSpeed())
@@ -494,14 +558,22 @@ end
 --Target and pathfidning
 function ENT:GetPriorityTarget()
 
-	local minDist, closestTarget = -1, nil
+	--mindist is squared sqr(midist) = 2000 units
+	local minDist, closestTarget = 4000000, nil
 
-	for _, target in pairs(player.GetAll()) do
+	local possibleTargets
+	if Round:InState(ROUND_CREATE) or GetConVar( "nz_zombie_debug" ):GetBool() then
+		possibleTargets = player.GetAll()
+	else
+		possibleTargets = player.GetAllPlayingAndAlive()
+	end
+
+	for _, target in pairs(possibleTargets) do
 		if self:IsValidTarget( target ) then
 			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
 				local pos = target:GetPos()
 				local distance = self:GetRangeSquaredTo( target:NearestPoint(pos) )
-				if minDist == -1 or minDist > distance then
+				if distance < minDist then
 					minDist = distance
 					closestTarget = target
 				end
@@ -522,9 +594,7 @@ function ENT:ChaseTarget( options )
 
 	local path = self:ChaseTargetPath( options )
 
-	if !path then Error("NZ: Zombie "..self:EntIndex().." has spawned on no navmesh! Zombie can't function!\n") end
-
-	if ( !path:IsValid() ) then return "failed" end
+	if ( !IsValid(path) ) then return "failed" end
 	while ( path:IsValid() and self:HasTarget() and !self:TargetInAttackRange() ) do
 
 		path:Update( self )
@@ -596,14 +666,17 @@ function ENT:ChaseTarget( options )
 
 	end
 
+	--if the zombie isnt engaged in combat, make a time out if the path duration was to small, to prevent repath spam.
+	if path:GetAge() < 0.3 and self:GetLastAttack() + 1 < CurTime() then
+		--target is probably not reachable wait a bit then try again
+		coroutine.wait(2)
+	end
+
 	return "ok"
 
 end
 
 function ENT:ChaseTargetPath( options )
-
-	local nav = navmesh.GetNearestNavArea( self:GetPos() )
-	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then return nil end
 
 	options = options or {}
 
@@ -796,11 +869,12 @@ function ENT:Attack( data )
 		end)
 	end
 
-	self:TimedEvent( data.attackdur, function()
-		self:SetAttacking( false )
+	self:TimedEvent(data.attackdur, function()
+		self:SetAttacking(false)
+		self:SetLastAttack(CurTime())
 	end)
 
-	self:PlayAttackAndWait( data.attackseq.seq, 1)
+	self:PlayAttackAndWait(data.attackseq.seq, 1)
 end
 
 function ENT:PlayAttackAndWait( name, speed )
@@ -851,7 +925,7 @@ function ENT:Flames( state )
 	if state then
 		self.FlamesEnt = ents.Create("env_fire")
 		if IsValid( self.FlamesEnt ) then
-			self.FlamesEnt:SetParent(self, 2)
+			self.FlamesEnt:SetParent(self)
 			self.FlamesEnt:SetOwner(self)
 			self.FlamesEnt:SetPos(self:GetPos()-Vector(0,0,-50))
 			--no glow + delete when out + start on + last forever
@@ -889,6 +963,17 @@ end
 
 function ENT:Kill()
 	self:TakeDamage( 10000, self, self )
+end
+
+function ENT:IsInSight()
+	for _, ply in pairs( player.GetAllPlayingAndAlive() ) do
+		--can player see us or the teleport location
+		if ply:Alive() and ply:IsLineOfSightClear( self ) then
+			if ply:GetEyeTrace().Entity == self then
+				return true
+			end
+		end
+	end
 end
 
 function ENT:TeleportToTarget( silent )
@@ -999,10 +1084,10 @@ function ENT:BodyUpdate()
 	local velocity = self:GetVelocity()
 
 	local len2d = velocity:Length2D()
-	
+
 	--local len2d = self:GetRunSpeed()
 
-	if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
+	if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
@@ -1050,6 +1135,7 @@ end
 function ENT:RespawnAtPos( point )
 	if nz.Enemies.Functions.CheckIfSuitable( point ) then
 		self:SetPos( point )
+		self:OnSpawn()
 		return true
 	end
 	return false
@@ -1059,6 +1145,7 @@ function ENT:RespawnAtSpawnpoint( ent )
 	--if ent:GetClass() != "zed_spawns" then return end
 	if nz.Enemies.Functions.CheckIfSuitable( ent:GetPos() ) then
 		self:SetPos( ent:GetPos() )
+		self:OnSpawn()
 		return true
 	end
 	return false
@@ -1073,6 +1160,7 @@ function ENT:RespawnAtRandom( cur )
 	local spawnpoint = valids[ math.random(#valids) ]
 	if IsValid(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
 		self:SetPos(spawnpoint:GetPos())
+		self:OnSpawn()
 		return true
 	end
 	return false
