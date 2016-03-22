@@ -17,7 +17,7 @@ function wepMeta:IsFAS2()
 end
 
 function wepMeta:IsCW2()
-	if self.Category == "CW 2.0" then
+	if self.Category == "CW 2.0" or self.Base == "cw_base" then
 		return true
 	end
 

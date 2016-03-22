@@ -53,12 +53,25 @@ local traceents = {
 		elseif ent:GetBeingUsed() then
 			text = "Currently in use."
 		else
-			local perkData = nz.Perks.Functions.Get(ent:GetPerkID())
-			-- Its on
-			text = "Press E to buy " .. perkData.name .. " for " .. perkData.price .. " points."
-			-- Check if they already own it
-			if LocalPlayer():HasPerk(ent:GetPerkID()) then
-				text = "You already own this perk."
+			if ent:GetPerkID() == "pap" then
+				local wep = LocalPlayer():GetActiveWeapon()
+				if wep.pap then
+					if wep:IsCW2() and CustomizableWeaponry then
+						text = "Press E to reroll attachments for 2000 points."
+					else
+						text = "This weapon is already upgraded."
+					end
+				else
+					text = "Press E to buy Pack-a-Punch for 5000 points."
+				end
+			else
+				local perkData = nz.Perks.Functions.Get(ent:GetPerkID())
+				-- Its on
+				text = "Press E to buy " .. perkData.name .. " for " .. perkData.price .. " points."
+				-- Check if they already own it
+				if LocalPlayer():HasPerk(ent:GetPerkID()) then
+					text = "You already own this perk."
+				end
 			end
 		end
 		

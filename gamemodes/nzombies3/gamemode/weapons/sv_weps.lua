@@ -145,14 +145,77 @@ function nz.Weps.Functions.ApplyPaP( ply, wep )
 		if wep.Primary and wep.Primary.ClipSize > 0 then
 			local newammo = wep.Primary.ClipSize + (wep.Primary.ClipSize*0.5)
 			newammo = math.Round(newammo/5)*5
+			if newammo <= 0 then newammo = 2 end
 			wep.Primary.ClipSize = newammo
 			data.primarydata = {}
 			data.primarydata.ClipSize = newammo
 			wep:SetClip1(newammo)
+			
+			if wep:IsCW2() then
+				wep.Primary.ClipSize_Orig = newammo
+				wep.Primary.ClipSize_ORIG_REAL = newammo
+				
+				-- Random attachments
+				if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
+					for k,v in pairs(wep.Attachments) do
+						if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+							local atts = {}
+							for k2,v2 in pairs(v.atts) do -- List all missing attachments
+								if !CustomizableWeaponry:hasAttachment(wep.Owner, v2) then
+									table.insert(atts, v2)
+								end
+							end
+							if #atts > 0 then
+								local newatt = math.random(#atts)
+								CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
+								wep:attach(k, newatt - 1)
+								if atts[newatt] then
+									print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 		nz.Weps.Functions.SendSync( ply, data )
+	else
+		-- Reroll attachments by buying again
+		if wep:IsCW2() and GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
+			for k,v in pairs(wep.Attachments) do
+				if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+					local atts = table.Copy(v.atts)
+					for k,v in pairs(atts) do -- Remove all already owned attachments
+						if CustomizableWeaponry:hasAttachment(wep.Owner, v) then
+							atts[k] = nil
+						end
+					end
+					if #atts > 0 then
+						local newatt = math.random(#atts)
+						CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
+						wep:attach(k, newatt - 1)
+						--print(k, newatt-1, atts[newatt])
+						--print("Here's the table:")
+						--PrintTable(atts)
+						--print("------- End of table --------")
+						if atts[newatt] then
+							print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+						end
+					end
+				end
+			end
+		end
 	end
 end
+if not ConVarExists("nz_papattachments") then CreateConVar("nz_papattachments", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_NOTIFY}, "Whether Pack-a-Punching a CW2.0 weapon will attach random attachments for each category. Will also strip players of attachments at the beginning of the game.") end
+
+hook.Add("PlayerSpawn", "RemoveCW2Attachments", function(ply)
+	if GetConVar("nz_papattachments"):GetBool() and CustomizableWeaponry then
+		for k,v in pairs(ply.CWAttachments) do
+			CustomizableWeaponry:removeAttachment(ply, k)
+		end
+	end
+end)
 
 --[[function nz.Weps.Functions.OnWepCreated( ent )
 	if ent:IsWeapon() and (nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG) then
