@@ -62,6 +62,10 @@ This is an edited version featuring these changes:
 	- Zombies now know which navmeshes are locked to doors and won't path through them
 	- Zombies can now know if there are players in the same area as them
 	- Zombies can now go back to respawn if they can't get to any players
+
+- Easy mismatch correction system
+	- Loading configs using weapons you may not have installed creates an easy menu to replace them
+	- Applies to wall buys, random box list, perks (if scripted in), and more as new stuff is added
 		
 - Weapon Carrying
 	- Max number weapons you can carry
@@ -91,7 +95,7 @@ This is an edited version featuring these changes:
 	- ValidEnemies table setup changed to allow more customizability
 	- Power Ups now just rotate and are golden
 	- Pack-a-Punch now a global hook, will work on all weapons
-	- Zombie Spawnpoints can now be disabled so they don't spawn any zombies using "Spawnable at?"
+	- Prop Search menu
 
 
 - Workshop Release To-do list:
@@ -100,7 +104,6 @@ This is an edited version featuring these changes:
 	- Implement all new animations for zombies
 	- Model pack system to replace models on a per-config basis
 	- Hellhounds (Yes, we're getting those)
-	- Mismatch system fully implemented (need random box weapons)
 	- Maps with no power switch has permanent power
 	- Modify curves to be better
 	- After all the above, 3-4 official high-quality configs
