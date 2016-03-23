@@ -49,7 +49,7 @@ function RandomBox:DecideWep(ply)
 	local blacklist = table.Copy(nz.Config.WeaponBlackList)
 
 	--Add all our current guns to the black list
-	if IsValid(ply) then
+	if IsValid(ply) and ply:IsPlayer() then
 		for k,v in pairs( ply:GetWeapons() ) do
 			if v.ClassName then
 				blacklist[v.ClassName] = true
@@ -57,10 +57,10 @@ function RandomBox:DecideWep(ply)
 		end
 	end
 
-	--Add all guns with no model to the blacklist
+	--Add all guns with no model or wonder weapons that are out to the blacklist
 	for k,v in pairs( weapons.GetList() ) do
 		if !blacklist[v.ClassName] then
-			if v.WorldModel == nil then
+			if v.WorldModel == nil or nz.Weps.Functions.IsWonderWeaponOut(v.ClassName) then
 				blacklist[v.ClassName] = true
 			end
 		end

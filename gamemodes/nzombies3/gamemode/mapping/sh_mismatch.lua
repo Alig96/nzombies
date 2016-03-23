@@ -113,7 +113,7 @@ function Mapping:CheckMismatch( loader )
 	
 	for k,v in pairs(self.Mismatch) do
 		local data = self.Mismatch[k].Check() -- Run the check function and save the data
-		if table.Count(data) > 0 then -- Empty tables don't get sent, no errors
+		if data and table.Count(data) > 0 then -- Empty tables don't get sent, no errors
 			net.Start("nzMappingMismatchData")
 				net.WriteString(k)
 				net.WriteTable(data)
@@ -155,7 +155,11 @@ end, function(frame)
 		choice:AddChoice( " Remove ...", "nz_removeweapon", true )
 		Mapping.MismatchData["Wall Buys"][k] = "nz_removeweapon"
 		for _, v2 in pairs(weapons.GetList()) do
-			choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.PrintName or v2.ClassName, v2.ClassName, false)
+			if v2.Category and v2.Category != "" then
+				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.Category.. " - "..v2.PrintName or v2.ClassName, v2.ClassName, false)
+			else
+				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.PrintName or v2.ClassName, v2.ClassName, false)
+			end
 		end
 		choice.DataChanged = function(self, val)
 			Mapping.MismatchData["Wall Buys"][k] = val
@@ -455,4 +459,71 @@ CreateMismatchCheck("Map Script", function()
 		end
 
 		Mapping.MismatchData["Map Script"] = nil
+end)
+
+CreateMismatchCheck("Random Box Weapons", function()
+	local tbl = {}
+	if Mapping.Settings.rboxweps and table.Count(Mapping.Settings.rboxweps) > 0 then
+		for k,v in pairs(Mapping.Settings.rboxweps) do
+			if !weapons.Get(v) then
+				print("Random Box has non-existant weapon class: " .. v .. "!")
+				tbl[v] = true
+			end
+		end
+	end
+	
+	return tbl -- Return the data you want to send to the client
+
+end, function(frame)
+
+	local pnl = vgui.Create("DPanel", frame)
+	pnl:SetPos(5, 5)
+	pnl:SetSize(380, 425)
+
+	local properties = vgui.Create("DProperties", pnl)
+	properties:SetPos(0, 0)
+	properties:SetSize(380, 420)
+
+	for k,v in pairs(Mapping.MismatchData["Random Box Weapons"]) do
+		local choice = properties:CreateRow( "Missing Box Weapons", k )
+		choice:Setup( "Combo", {} )
+		choice:AddChoice( " Remove ...", "nz_removeweapon", true )
+		Mapping.MismatchData["Random Box Weapons"][k] = "nz_removeweapon"
+		for _, v2 in pairs(weapons.GetList()) do
+			if v2.Category and v2.Category != "" then
+				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.Category.. " - "..v2.PrintName or v2.ClassName, v2.ClassName, false)
+			else
+				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.PrintName or v2.ClassName, v2.ClassName, false)
+			end
+		end
+		choice.DataChanged = function(self, val)
+			Mapping.MismatchData["Random Box Weapons"][k] = val
+		end
+	end
+
+	pnl.ReturnCorrectedData = function() -- Add the function to the returned panel so we can access it outside
+		net.Start("nzMappingMismatchData")
+			net.WriteString("Random Box Weapons")
+			net.WriteTable(Mapping.MismatchData["Random Box Weapons"])
+		net.SendToServer()
+		Mapping.MismatchData["Random Box Weapons"] = nil -- Clear the data
+	end
+
+	return pnl -- Return it to add it the the sheets
+
+end, function( data )
+	if Mapping.Settings.rboxweps and table.Count(Mapping.Settings.rboxweps) > 0 then
+		for k,v in pairs(Mapping.Settings.rboxweps) do
+			local new = data[v]
+			if new then
+				if new == "nz_removeweapon" then
+					table.RemoveByValue(Mapping.Settings.rboxweps, v)
+				else
+					Mapping.Settings.rboxweps[table.KeyFromValue(Mapping.Settings.rboxweps, v)] = new
+				end
+			end
+		end
+	end
+
+	Mapping.MismatchData["Wall Buys"] = nil -- Clear the data
 end)
