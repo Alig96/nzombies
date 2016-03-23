@@ -4,7 +4,7 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 	//Create a Frame to contain everything.
 	nz.QMenu.Data.MainFrame = vgui.Create( "DFrame" )
 	nz.QMenu.Data.MainFrame:SetTitle( "Props Menu" )
-	nz.QMenu.Data.MainFrame:SetSize( 375, 240 )
+	nz.QMenu.Data.MainFrame:SetSize( 475, 340 )
 	nz.QMenu.Data.MainFrame:Center()
 	nz.QMenu.Data.MainFrame:SetPopupStayAtBack(true)
 	nz.QMenu.Data.MainFrame:MakePopup()
@@ -13,7 +13,7 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 
 	local PropertySheet = vgui.Create( "DPropertySheet", nz.QMenu.Data.MainFrame )
 	PropertySheet:SetPos( 10, 30 )
-	PropertySheet:SetSize( 355, 200 )
+	PropertySheet:SetSize( 455, 300 )
 
 	//Loop to make all the tabs
 	local tabs = {}
@@ -22,11 +22,11 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 
 	for k,v in pairs(nz.QMenu.Data.Categories) do
 		tabs.Scrolls[k] = vgui.Create( "DScrollPanel", nz.QMenu.Data.MainFrame )
-		tabs.Scrolls[k]:SetSize( 355, 200 )
+		tabs.Scrolls[k]:SetSize( 455, 300 )
 		tabs.Scrolls[k]:SetPos( 10, 30 )
 
-		tabs.Lists[k]	= vgui.Create( "DIconLayout", tabs.Scrolls[k] )
-		tabs.Lists[k]:SetSize( 340, 200 )
+		tabs.Lists[k] = vgui.Create( "DIconLayout", tabs.Scrolls[k] )
+		tabs.Lists[k]:SetSize( 440, 300 )
 		tabs.Lists[k]:SetPos( 0, 0 )
 		tabs.Lists[k]:SetSpaceY( 5 ) //Sets the space in between the panels on the X Axis by 5
 		tabs.Lists[k]:SetSpaceX( 5 ) //Sets the space in between the panels on the Y Axis by 5
@@ -35,22 +35,71 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 	end
 	
 	tabs.Scrolls["Entities"] = vgui.Create( "DScrollPanel", nz.QMenu.Data.MainFrame )
-	tabs.Scrolls["Entities"]:SetSize( 355, 200 )
+	tabs.Scrolls["Entities"]:SetSize( 455, 300 )
 	tabs.Scrolls["Entities"]:SetPos( 10, 30 )
 
-	tabs.Lists["Entities"]	= vgui.Create( "DIconLayout", tabs.Scrolls["Entities"] )
-	tabs.Lists["Entities"]:SetSize( 340, 200 )
+	tabs.Lists["Entities"] = vgui.Create( "DIconLayout", tabs.Scrolls["Entities"] )
+	tabs.Lists["Entities"]:SetSize( 440, 300 )
 	tabs.Lists["Entities"]:SetPos( 0, 0 )
 	tabs.Lists["Entities"]:SetSpaceY( 5 )
 	tabs.Lists["Entities"]:SetSpaceX( 5 )
-	if v == true then v = nil end
 	PropertySheet:AddSheet( "Entities", tabs.Scrolls["Entities"], nil, false, false, v )
+	
+	tabs.Scrolls["Search"] = vgui.Create( "DPanel", nz.QMenu.Data.MainFrame )
+	tabs.Scrolls["Search"]:SetSize( 455, 300 )
+	tabs.Scrolls["Search"]:SetPos( 10, 30 )
+	
+	tabs.Scrolls["Search"].Warn = vgui.Create( "DLabel", tabs.Scrolls["Search"] )
+	tabs.Scrolls["Search"].Warn:SetSize( 420, 20 )
+	tabs.Scrolls["Search"].Warn:SetPos( 60, 5 )
+	tabs.Scrolls["Search"].Warn:SetTextColor( Color(0,0,0) )
+	tabs.Scrolls["Search"].Warn:SetText("Warning: May cause severe lag and/or crash. Be sure to save first.")
+	
+	tabs.Scrolls["Search"].Search = vgui.Create( "DTextEntry", tabs.Scrolls["Search"] )
+	tabs.Scrolls["Search"].Search:SetSize( 420, 20 )
+	tabs.Scrolls["Search"].Search:SetPos( 10, 25 )
+	tabs.Scrolls["Search"].Search.OnEnter = function() tabs.Scrolls["Search"]:RefreshResults() end
+	tabs.Scrolls["Search"].Search:SetTooltip("Press Enter to search/update results")
+	
+	tabs.Scrolls["Search"].Content = vgui.Create( "DScrollPanel", tabs.Scrolls["Search"] )
+	tabs.Scrolls["Search"].Content:SetSize( 430, 210 )
+	tabs.Scrolls["Search"].Content:SetPos( 0, 50 )
 
+	tabs.Lists["Search"] = vgui.Create( "DIconLayout", tabs.Scrolls["Search"].Content )
+	tabs.Lists["Search"]:SetSize( 440, 210 )
+	tabs.Lists["Search"]:SetPos( 10, 00 )
+	tabs.Lists["Search"]:SetSpaceY( 5 )
+	tabs.Lists["Search"]:SetSpaceX( 5 )
+	
+	function tabs.Scrolls.Search:RefreshResults() 
+		--print(self.Search:GetText(), "Refresh")
+		if ( self.Search:GetText() == "" ) then return end
+		local pnl = tabs.Lists["Search"]
+		pnl:Clear()
+		local results = search.GetResults( self.Search:GetText() )
+		--PrintTable(results)
+		for k,v in pairs(results) do
+			local ListItem = pnl:Add( "SpawnIcon" )
+			ListItem:SetSize( 45, 45 )
+			ListItem:SetModel(v)
+			ListItem.Model = v
+			ListItem.DoClick = function( item )
+				nz.QMenu.Functions.Request(item.Model)
+				surface.PlaySound( "ui/buttonclickrelease.wav" )
+			end
+		end
+	end
+	
+	PropertySheet:AddSheet( "Search", tabs.Scrolls["Search"], "icon16/magnifier.png", false, false, v )
 
+	hook.Add( "SearchUpdate", "SearchUpdate", function()
+		if ( !tabs.Scrolls["Search"]:IsVisible() ) then return end
+		tabs.Scrolls["Search"]:RefreshResults()
+	end)
 
 	for k,v in pairs(nz.QMenu.Data.Models) do //Make a loop to create a bunch of panels inside of the DIconLayout
 		local ListItem = tabs.Lists[v[1]]:Add( "SpawnIcon" ) //Add DPanel to the DIconLayout
-		ListItem:SetSize( 40, 40 ) //Set the size of it
+		ListItem:SetSize( 48, 48 ) //Set the size of it
 		ListItem:SetModel(v[2])
 		ListItem.Model = v[2]
 		ListItem.DoClick = function( item )
@@ -63,7 +112,7 @@ function nz.QMenu.Functions.CreatePropsMenu( )
 	
 	for k,v in pairs(nz.QMenu.Data.Entities) do //Make a loop to create a bunch of panels inside of the DIconLayout
 		local ListItem = tabs.Lists["Entities"]:Add( "DImageButton" ) //Add DPanel to the DIconLayout
-		ListItem:SetSize( 40, 40 ) //Set the size of it
+		ListItem:SetSize( 48, 48 ) //Set the size of it
 		ListItem:SetImage(v[2])
 		ListItem.Entity = v[1]
 		ListItem.DoClick = function( item )
