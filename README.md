@@ -4,9 +4,11 @@ nZombies
 A GM13 Nazi Zombies style (WIP) gamemode
 
 Download folder and place it in garrysmod/garrysmod/addons
-If it for some reason doesn't work, refer to the Fallback branch using the old structure (installed differently)
+Make sure the structure has a path to addon.json like this: garrysmod/garrysmod/addons/nzombies/addon.json
 
-This is an edited version featuring these changes:
+If you have bugs, suggestions, or general improvements, open up an issue with the issue button at the top. If you want to help, feel free to create pull requests with your changes. If you have questions, add me on steam :)
+
+This is an edited version from Aligs original featuring these changes:
 
 - Revival System & Health
 	- You get downed by losing all HP
