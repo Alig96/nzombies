@@ -86,13 +86,19 @@ if CLIENT then
 		sheet:AddSheet("All config files", OldConfigs, "icon16/database_table.png")
 		
 		local ConfigList = vgui.Create("DListLayout", ConfigsScroll)
-		ConfigList:SetPos(0,0)
-		ConfigList:SetSize(380, 420)
+		ConfigList:SetPos(0,150)
+		ConfigList:SetSize(370, 420)
 		ConfigList:SetPaintBackground(true)
 		ConfigList:SetBackgroundColor(Color(255,255,255))
 		
+		local CurMapConfigList = vgui.Create("DListLayout", ConfigsScroll)
+		CurMapConfigList:SetPos(0,0)
+		CurMapConfigList:SetSize(370, 120)
+		CurMapConfigList:SetPaintBackground(true)
+		CurMapConfigList:SetBackgroundColor(Color(255,255,255))
+		
 		for k,v in pairs(configs) do
-			local config = vgui.Create("DPanel", ConfigList)
+			local config = vgui.Create("DPanel", v.map == game.GetMap() and CurMapConfigList or ConfigList)
 			config:SetPos(0,0)
 			config:SetSize(380, 50)
 			config:SetPaintBackground(true)
@@ -134,7 +140,7 @@ if CLIENT then
 			mapstatus:SetText(status and "Installed" or "Not installed" )
 			mapstatus:SetTextColor(status and Color(20, 200, 20) or Color(200, 20, 20))
 			mapstatus:SizeToContents()
-			mapstatus:SetPos(370 - mapstatus:GetWide(), 18)
+			mapstatus:SetPos(360 - mapstatus:GetWide(), 18)
 			
 			local click = vgui.Create("DButton", config)
 			click:SetText("")
@@ -155,5 +161,19 @@ if CLIENT then
 			end
 			
 		end
+		
+		local curmapcount = table.Count(CurMapConfigList:GetChildren())
+		if curmapcount <= 0 then
+			local txtpnl = vgui.Create("DPanel", CurMapConfigList)
+			txtpnl:SetSize(380,50)
+			
+			local txt = vgui.Create("DLabel", txtpnl)
+			txt:SetText("No configs found for the current map.")
+			txt:SizeToContents()
+			txt:Center()
+			txt:SetTextColor(Color(0,0,0))
+			curmapcount = 1
+		end
+		ConfigList:SetPos(0,curmapcount*50 + 20)
 	end
 end

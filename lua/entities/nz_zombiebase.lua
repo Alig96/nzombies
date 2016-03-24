@@ -23,11 +23,17 @@ ENT.AttackSequences = {
 	{seq = "nz_stand_attack3", dmgtimes = {1}},
 	{seq = "nz_stand_attack4", dmgtimes = {0.4, 0.8}},
 }
-ENT.WalkAttackSequences = { -- Not used yet
-	{seq = "nz_walk_attack1", dmgtimes = {1, 1.5}},
-	{seq = "nz_walk_attack2", dmgtimes = {0.4}},
-	{seq = "nz_walk_attack3", dmgtimes = {1}},
-	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.8}},
+ENT.WalkAttackSequences = {
+	{seq = "nz_walk_attack1", dmgtimes = {0.3}},
+	{seq = "nz_walk_attack2", dmgtimes = {0.4, 1}},
+	{seq = "nz_walk_attack3", dmgtimes = {0.6}},
+	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.9}},
+}
+ENT.RunAttackSequences = {
+	{seq = "nz_run_attack1", dmgtimes = {0.4}},
+	{seq = "nz_run_attack2", dmgtimes = {0.3, 0.8}},
+	{seq = "nz_run_attack3", dmgtimes = {0.3, 0.7}},
+	{seq = "nz_run_attack4", dmgtimes = {0.4, 0.9}},
 }
 
 ENT.EmergeSequences = {
@@ -120,6 +126,33 @@ ENT.RunSounds = {
 	"nz/zombies/sprint2/sprint6.wav",
 	"nz/zombies/sprint2/sprint7.wav",
 	"nz/zombies/sprint2/sprint8.wav"
+}
+
+local actdata = {
+	[ACT_WALK] = {
+		minspeed = 5,
+		bodymovexy = true,
+		attackanims = "AttackSequences",
+		sounds = "WalkSounds",
+	},
+	[ACT_WALK_ANGRY] = {
+		minspeed = 50,
+		bodymovexy = true,
+		attackanims = "WalkAttackSequences",
+		sounds = "WalkSounds",
+	},
+	[ACT_RUN] = {
+		minspeed = 120,
+		bodymovexy = true,
+		attackanims = "RunAttackSequences",
+		sounds = "RunSounds",
+	},
+	[ACT_SPRINT] = {
+		minspeed = 160,
+		bodymovexy = true,
+		attackanims = "RunAttackSequences",
+		sounds = "RunSounds",
+	},
 }
 
 for _,v in pairs(ENT.AttackSounds) do
@@ -306,7 +339,9 @@ function ENT:Think()
 
 		--sounds
 		if CurTime() > self:GetNextMoanSound() then
-			local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
+			--local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
+			local soundtbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].sounds] or self.WalkSounds
+			local soundName = soundtbl[math.random(#soundtbl)]
 			self:EmitSound( soundName, 80 )
 			local nextSound = SoundDuration( soundName ) + math.random(0,4) + CurTime()
 			self:SetNextMoanSound( nextSound )
@@ -667,7 +702,7 @@ function ENT:ChaseTarget( options )
 	end
 
 	--if the zombie isnt engaged in combat, make a time out if the path duration was to small, to prevent repath spam.
-	if path:GetAge() < 0.3 and self:GetLastAttack() + 1 < CurTime() then
+	if path:GetAge() < 0.3 and self:GetLastAttack() + 1 < CurTime() and !self:TargetInAttackRange() then
 		--target is probably not reachable wait a bit then try again
 		coroutine.wait(2)
 	end
@@ -738,7 +773,7 @@ function ENT:ChaseTargetPath( options )
 					return -1
 				end
 				--jumping is slower than flat ground
-				local jumpPenalty = 1.5
+				local jumpPenalty = 1.1
 				cost = cost + jumpPenalty * dist
 			elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
 				--too far to drop
@@ -793,8 +828,12 @@ end
 
 --A standart attack you can use it or create soemthing fancy urself
 function ENT:Attack( data )
+
+	self:SetLastAttack(CurTime())
+
 	data = data or {}
-	data.attackseq = data.attackseq or self.AttackSequences[ math.random( #self.AttackSequences ) ] or {seq = "swing", dmgtimes = {1}}
+	local attacktbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].attackanims] or self.AttackSequences
+	data.attackseq = data.attackseq or attacktbl[math.random(#attacktbl)] or {seq = "swing", dmgtimes = {1}}
 	data.attacksound = data.attacksound or self.AttackSounds[ math.random( #self.AttackSounds) ] or Sound( "npc/vort/claw_swing1.wav" )
 	data.hitsound = data.hitsound or self.AttackHitSounds[ math.random( #self.AttackHitSounds ) ]Sound( "npc/zombie/zombie_hit.wav" )
 	data.viewpunch = data.viewpunch or VectorRand():Angle() * 0.05
@@ -1087,15 +1126,22 @@ function ENT:BodyUpdate()
 
 	--local len2d = self:GetRunSpeed()
 
-	if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
+	--if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
 
+	for k,v in pairs(actdata) do
+		if len2d > v.minspeed then
+			self.CalcIdeal = k
+			break
+		end
+	end
+	
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
 	end
 
 	if self:GetActivity() != self.CalcIdeal && !self:IsAttacking() then self:StartActivity(self.CalcIdeal) end
 
-	if ( self.CalcIdeal == ACT_RUN or self.CalcIdeal == ACT_WALK ) then
+	if ( actdata[self.CalcIdeal] and !self:GetAttacking() ) then
 
 		self:BodyMoveXY()
 
