@@ -242,6 +242,16 @@ if CLIENT then
 		matScreen:SetTexture( "$basetexture", RTTexture )
 
 		local OldRT = render.GetRenderTarget()
+		local text = "Toolgun"
+		if nz.Tools.ToolData[self.ToolMode] then
+			text = nz.Tools.ToolData[self.ToolMode].displayname
+			if nz.Tools.SavedData[self.ToolMode] then
+				for k,v in pairs(nz.Tools.SavedData[self.ToolMode]) do
+					text = text .."    -    "..k..": "..v
+				end
+				text = text .. "    - "
+			end
+		end
 
 		-- Set up our view for drawing to the texture
 		render.SetRenderTarget( RTTexture )
@@ -254,7 +264,7 @@ if CLIENT then
 			surface.DrawTexturedRect( 0, 0, TEX_SIZE, TEX_SIZE )
 
 			surface.SetFont( "GModToolScreen" )
-			DrawScrollingText( nz.Tools.ToolData[self.ToolMode].displayname or "Toolgun", 104, TEX_SIZE )
+			DrawScrollingText( text, 104, TEX_SIZE )
 
 		cam.End2D()
 		render.SetRenderTarget( OldRT )

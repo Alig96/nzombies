@@ -180,7 +180,7 @@ for _,v in pairs(ENT.RunSounds) do
 end
 
 
-ENT.RedEyes = false
+ENT.RedEyes = true
 
 ENT.DeathDropHeight = 700
 ENT.StepHeight = 22 --Default is 18 but it makes things easier
@@ -395,9 +395,12 @@ local white = Color( 255, 255, 255, 255 )
 function ENT:Draw()
 	self:DrawModel()
 	if self.RedEyes then
-		local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
-		local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
-		local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
+		--local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
+		--local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
+		--local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
+		
+		local leftEye = self:GetAttachment(self:LookupAttachment("lefteye")).Pos
+		local rightEye = self:GetAttachment(self:LookupAttachment("righteye")).Pos
 		cam.Start3D(EyePos(),EyeAngles())
 			render.SetMaterial( eyeGlow )
 			render.DrawSprite( leftEye, 4, 4, white)
