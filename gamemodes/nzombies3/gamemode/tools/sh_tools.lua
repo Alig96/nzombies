@@ -1167,9 +1167,9 @@ nz.Tools.Functions.CreateTool("settings", {
 				for k,v in pairs(Mapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
 					if wep.Category and wep.Category != "" then
-						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.Category.." - "..wep.PrintName or wep.ClassName, v)
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
 					else
-						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, v)
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
 					end
 				end
 			else
@@ -1205,7 +1205,12 @@ nz.Tools.Functions.CreateTool("settings", {
 			wepadd:SetPos( 207, 155 )
 			wepadd:SetSize( 53, 20 )
 			wepadd.DoClick = function()
-				InsertWeaponToList(wepentry:GetSelected())
+				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
+				if v.Category and v.Category != "" then
+					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+				else
+					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+				end
 				wepentry:SetValue( "Weapon..." )
 			end
 

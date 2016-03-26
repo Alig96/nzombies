@@ -36,6 +36,13 @@ ENT.RunAttackSequences = {
 	{seq = "nz_run_attack4", dmgtimes = {0.4, 0.9}},
 }
 
+ENT.ElectrocutionSequences = {
+	"nz_electrocuted1",
+	"nz_electrocuted2",
+	"nz_electrocuted3",
+	"nz_electrocuted4",
+	"nz_electrocuted5",
+}
 ENT.EmergeSequences = {
 	"nz_emerge1",
 	"nz_emerge2",
@@ -212,6 +219,7 @@ AccessorFunc( ENT, "vStuckAt", "StuckAt")
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
+AccessorFunc( ENT, "bStop", "Stop", FORCE_BOOL)
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
@@ -303,7 +311,7 @@ function ENT:Think()
 
 		--this is a very costly operation so we only do it every 1 seconds
 		if self:GetLastTargetCheck() + 1 < CurTime() then
-			self:GetPriorityTarget()
+			self:SetTarget(self:GetPriorityTarget())
 		end
 
 		if self:GetLastPostionSave() + 4 < CurTime() then
@@ -338,7 +346,7 @@ function ENT:Think()
 		end
 
 		--sounds
-		if CurTime() > self:GetNextMoanSound() then
+		if CurTime() > self:GetNextMoanSound() and !self:GetStop() then
 			--local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
 			local soundtbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].sounds] or self.WalkSounds
 			local soundName = soundtbl[math.random(#soundtbl)]
@@ -361,6 +369,7 @@ function ENT:RunBehaviour()
 	self:OnSpawn()
 
 	while (true) do
+		if !self:GetStop() then
 		if !self:HasTarget() then self:SetTarget( self:GetPriorityTarget() ) end
 		if self:HasTarget() then
 			local pathResult = self:ChaseTarget( {
@@ -385,7 +394,16 @@ function ENT:RunBehaviour()
 		else
 			self:OnNoTarget()
 		end
+		else
+			coroutine.wait(2)
+			coroutine.yield()
+		end
 	end
+end
+
+function ENT:Stop()
+	self:SetStop(true)
+	self:SetTarget(nil)
 end
 
 --Draw sppoky red eyes
@@ -492,6 +510,7 @@ function ENT:OnNoTarget()
 				repath = 3,
 				maxage = 2
 			})
+			
 			-- Wander a bit, then check again
 			if !self:GetClosestAvailableRespawnPoint() then
 				self:Remove()
@@ -578,8 +597,23 @@ end
 
 function ENT:OnKilled(dmgInfo)
 
-	self:EmitSound( self.DeathSounds[ math.random( #self.DeathSounds ) ], 100)
-	self:BecomeRagdoll(dmgInfo)
+	if dmgInfo:GetDamageType() == DMG_SHOCK then
+		self:SetRunSpeed(0)
+		self.loco:SetVelocity(Vector(0,0,0))
+		self:Stop()
+		local seq, dur = self:LookupSequence(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
+		self:ResetSequence(seq)
+		self:SetCycle(0)
+		-- Emit electrocution scream here when added
+		timer.Simple(dur, function()
+			if IsValid(self) then
+				self:BecomeRagdoll(dmgInfo)
+			end
+		end)
+	else
+		self:EmitSound( self.DeathSounds[ math.random( #self.DeathSounds ) ], 100)
+		self:BecomeRagdoll(dmgInfo)
+	end
 
 end
 
@@ -600,10 +634,15 @@ function ENT:GetPriorityTarget()
 	local minDist, closestTarget = 4000000, nil
 
 	local possibleTargets
-	if Round:InState(ROUND_CREATE) or GetConVar( "nz_zombie_debug" ):GetBool() then
-		possibleTargets = player.GetAll()
+	local attract = ents.FindByClass("nz_monkeybomb")
+	if IsValid(attract[1]) then
+		possibleTargets = attract
 	else
-		possibleTargets = player.GetAllPlayingAndAlive()
+		if Round:InState(ROUND_CREATE) or GetConVar( "nz_zombie_debug" ):GetBool() then
+			possibleTargets = player.GetAll()
+		else
+			possibleTargets = player.GetAllPlayingAndAlive()
+		end
 	end
 
 	for _, target in pairs(possibleTargets) do
@@ -618,7 +657,10 @@ function ENT:GetPriorityTarget()
 			end
 		end
 	end
-
+	
+	self:SetLastTargetCheck( CurTime() )
+	
+	print(closestTarget)
 	return closestTarget
 end
 
@@ -798,7 +840,9 @@ function ENT:TargetInAttackRange()
 end
 
 function ENT:TargetInRange( range )
-	return self:GetRangeTo( self:GetTarget():GetPos() ) < range
+	local target = self:GetTarget()
+	if !IsValid(target) then return false end
+	return self:GetRangeTo( target:GetPos() ) < range
 end
 
 function ENT:CheckForBarricade()
@@ -829,10 +873,12 @@ function ENT:CheckForBarricade()
 
 end
 
---A standart attack you can use it or create soemthing fancy urself
+--A standard attack you can use it or create something fancy yourself
 function ENT:Attack( data )
 
 	self:SetLastAttack(CurTime())
+	
+	--if self:Health() <= 0 then coroutine.yield() return end
 
 	data = data or {}
 	local attacktbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].attackanims] or self.AttackSequences
@@ -843,72 +889,48 @@ function ENT:Attack( data )
 	data.dmglow = data.dmglow or self.DamageLow or 50
 	data.dmghigh = data.dmghigh or self.DamageHigh or 70
 	data.dmgtype = data.dmgtype or DMG_CLUB
-	data.dmgforce = data.dmgforce or self:GetTarget():GetAimVector() * -300 + Vector( 0, 0, 16 )
+	data.dmgforce = data.dmgforce or (self:GetTarget():GetPos() - self:GetPos()) * 300 + Vector( 0, 0, 16 )
 	local seq, dur = self:LookupSequence( data.attackseq.seq )
 	data.attackdur = (seq != - 1 and dur) or 0.6
 	data.dmgdelay = ( ( data.attackdur != 0 ) and data.attackdur / 2 ) or 0.3
 
-	self:EmitSound("npc/zombie_poison/pz_throw2.wav", 50, math.random(75, 125)) -- whatever this is!? i will keep it for now
+	self:EmitSound("npc/zombie_poison/pz_throw2.wav", 50, math.random(75, 125)) -- whatever this is!? I will keep it for now
 
 	self:SetAttacking( true )
 
 	self:TimedEvent(0.1, function()
 		self:EmitSound( data.attacksound )
 	end)
+	
+	if self:GetTarget():IsPlayer() then
+		for k,v in pairs(data.attackseq.dmgtimes) do
+			self:TimedEvent( v, function()
+				if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+					local dmgAmount = math.random( data.dmglow, data.dmghigh )
+					local dmgInfo = DamageInfo()
+						dmgInfo:SetAttacker( self )
+						dmgInfo:SetDamage( dmgAmount )
+						dmgInfo:SetDamageType( data.dmgtype )
+						dmgInfo:SetDamageForce( data.dmgforce )
+					self:GetTarget():TakeDamageInfo(dmgInfo)
+					self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
+					self:GetTarget():ViewPunch( data.viewpunch )
+					self:GetTarget():SetVelocity( data.dmgforce )
 
-	--[[self:TimedEvent( data.dmgdelay, function()
-		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
-			local dmgAmount = math.random( data.dmglow, data.dmghigh )
-			local dmgInfo = DamageInfo()
-				dmgInfo:SetAttacker( self )
-				dmgInfo:SetDamage( dmgAmount )
-				dmgInfo:SetDamageType( data.dmgtype )
-				dmgInfo:SetDamageForce( data.dmgforce )
-			self:GetTarget():TakeDamageInfo(dmgInfo)
-			self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
-			self:GetTarget():ViewPunch( data.viewpunch )
-			self:GetTarget():SetVelocity( data.dmgforce )
-
-			local blood = ents.Create("env_blood")
-			blood:SetKeyValue("targetname", "carlbloodfx")
-			blood:SetKeyValue("parentname", "prop_ragdoll")
-			blood:SetKeyValue("spawnflags", 8)
-			blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
-			blood:SetKeyValue("amount", dmgAmount * 5)
-			blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
-			blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
-			blood:Spawn()
-			blood:Fire("EmitBlood")
-			SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
+					local blood = ents.Create("env_blood")
+					blood:SetKeyValue("targetname", "carlbloodfx")
+					blood:SetKeyValue("parentname", "prop_ragdoll")
+					blood:SetKeyValue("spawnflags", 8)
+					blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
+					blood:SetKeyValue("amount", dmgAmount * 5)
+					blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
+					blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
+					blood:Spawn()
+					blood:Fire("EmitBlood")
+					SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
+				end
+			end)
 		end
-	end)]]
-	for k,v in pairs(data.attackseq.dmgtimes) do
-		self:TimedEvent( v, function()
-			if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
-				local dmgAmount = math.random( data.dmglow, data.dmghigh )
-				local dmgInfo = DamageInfo()
-					dmgInfo:SetAttacker( self )
-					dmgInfo:SetDamage( dmgAmount )
-					dmgInfo:SetDamageType( data.dmgtype )
-					dmgInfo:SetDamageForce( data.dmgforce )
-				self:GetTarget():TakeDamageInfo(dmgInfo)
-				self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
-				self:GetTarget():ViewPunch( data.viewpunch )
-				self:GetTarget():SetVelocity( data.dmgforce )
-
-				local blood = ents.Create("env_blood")
-				blood:SetKeyValue("targetname", "carlbloodfx")
-				blood:SetKeyValue("parentname", "prop_ragdoll")
-				blood:SetKeyValue("spawnflags", 8)
-				blood:SetKeyValue("spraydir", math.random(500) .. " " .. math.random(500) .. " " .. math.random(500))
-				blood:SetKeyValue("amount", dmgAmount * 5)
-				blood:SetCollisionGroup( COLLISION_GROUP_WORLD )
-				blood:SetPos( self:GetTarget():GetPos() + self:GetTarget():OBBCenter() + Vector( 0, 0, 10 ) )
-				blood:Spawn()
-				blood:Fire("EmitBlood")
-				SafeRemoveEntityDelayed( blood, 2) --just to make sure everything gets cleaned
-			end
-		end)
 	end
 
 	self:TimedEvent(data.attackdur, function()
@@ -926,15 +948,17 @@ function ENT:PlayAttackAndWait( name, speed )
 
 	self:ResetSequenceInfo()
 	self:SetCycle( 0 )
-	self:SetPlaybackRate( speed  );
+	self:SetPlaybackRate( speed )
 
 	local endtime = CurTime() + len / speed
 
 	while ( true ) do
 
 		if ( endtime < CurTime() ) then
-			self:StartActivity( ACT_WALK )
-			self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+			if !self:GetStop() then
+				self:StartActivity( ACT_WALK )
+				self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+			end
 			return
 		end
 		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() * 2  ) then
@@ -1142,7 +1166,7 @@ function ENT:BodyUpdate()
 		self.CalcIdeal = ACT_JUMP
 	end
 
-	if self:GetActivity() != self.CalcIdeal && !self:IsAttacking() then self:StartActivity(self.CalcIdeal) end
+	if self:GetActivity() != self.CalcIdeal and !self:IsAttacking() and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
 	if ( actdata[self.CalcIdeal] and !self:GetAttacking() ) then
 
@@ -1235,7 +1259,7 @@ end
 
 --Targets
 function ENT:HasTarget()
-	return IsValid( self:GetTarget() ) and self:GetTarget():IsPlayer() and self:GetTarget():Alive() and self:GetTarget():GetNotDowned()
+	return self:IsValidTarget( self:GetTarget() )
 end
 
 function ENT:GetTarget()
@@ -1255,7 +1279,8 @@ function ENT:RemoveTarget()
 end
 
 function ENT:IsValidTarget( ent )
-	return IsValid( ent ) and ent:IsPlayer() and ent:Alive() and ent:GetNotDowned() and (!ent.vulturegas or ent.vulturegas < CurTime())
+	if !ent then return false end
+	return IsValid( ent ) and (ent:IsPlayer() and ent:Alive() and ent:GetNotDowned() and (!ent.vulturegas or ent.vulturegas < CurTime())) or ent.WillAttractZombie and ent:WillAttractZombie(self)
 end
 
 --AccessorFuncs

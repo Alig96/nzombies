@@ -73,10 +73,10 @@ function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
 	local ent = ents.Create("wall_buys")
 	ent:SetAngles(angle)
 	pos.z = pos.z - ent:OBBMaxs().z
-	ent:SetWeapon(gun, price)
 	ent:SetPos( pos )
+	ent:SetWeapon(gun, price)
 	ent:Spawn()
-	ent:PhysicsInit( SOLID_VPHYSICS )
+	--ent:PhysicsInit( SOLID_VPHYSICS )
 
 	local phys = ent:GetPhysicsObject()
 	if phys:IsValid() then
@@ -392,9 +392,15 @@ function Mapping:SpawnEntity(pos, ang, ent, ply)
 end
 
 //Physgun Hooks
+local ghostentities = {
+	["prop_buys"] = true,
+	["wall_block"] = true,
+	["breakable_entry"] = true,
+	--["wall_buys"] = true,
+}
 local function onPhysgunPickup( ply, ent )
 	local class = ent:GetClass()
-	if ( class == "prop_buys" or class == "wall_block" or class == "breakable_entry" ) then
+	if ghostentities[class] then
 		//Ghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(false)
@@ -404,7 +410,7 @@ end
 
 local function onPhysgunDrop( ply, ent )
 	local class = ent:GetClass()
-	if ( class == "prop_buys" or class == "wall_block" or class == "breakable_entry" ) then
+	if ghostentities[class] then
 		//Unghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(true)

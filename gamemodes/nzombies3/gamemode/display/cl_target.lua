@@ -2,7 +2,7 @@
 
 local traceents = {
 	["wall_buys"] = function(ent)
-		local wepclass = ent:GetEntName()
+		local wepclass = ent:GetWepClass()
 		local price = ent:GetPrice()
 		local wep = weapons.Get(wepclass)
 		if !wep then return "INVALID WEAPON" end
