@@ -645,7 +645,7 @@ function ENT:GetPriorityTarget()
 
 	local bestTarget = nil
 	local highestPriority = TARGET_PRIORITY_NONE
-	local targetDist = 8000000
+	local targetDist = self:GetTargetCheckRange() * self:GetTargetCheckRange() + 10
 
 	local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
