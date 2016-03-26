@@ -1,6 +1,10 @@
 
 -- Crowbar test melee weapon
 SpecialWeapons:CreateCategory("knife", 0)
+SpecialWeapons:CreateCategory("specialgrenade", IN_GRENADE2, true)
+SpecialWeapons:CreateCategory("grenade", IN_GRENADE1, true)
+SpecialWeapons:CreateCategory("display", 0)
+
 SpecialWeapons:AddWeapon( "nz_quickknife_crowbar", "knife", function(ply, wep)
 	if SERVER then
 		local prevwep = ply:GetActiveWeapon():GetClass()
@@ -48,34 +52,6 @@ end, function(ply, wep)
 	end
 end)
 
-SpecialWeapons:CreateCategory("specialgrenade", IN_GRENADE2, true)
-SpecialWeapons:AddWeapon( "monkey_bomb", "specialgrenade", function(ply)
-	if SERVER then
-		if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end
-		local prevwep = ply:GetActiveWeapon():GetClass()
-		ply.UsingSpecialWep = true
-		ply:SelectWeapon("monkey_bomb")
-		timer.Simple(0.3, function()
-			if IsValid(ply) then
-				local wep = ply:GetActiveWeapon()
-				wep:Throw()
-				ply:DoAttackEvent()
-				wep:SendWeaponAnim(ACT_VM_THROW)
-				ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
-			end
-		end)
-		timer.Simple(1, function()
-			if IsValid(ply) then
-				ply.UsingSpecialWep = nil
-				ply:SelectWeapon(prevwep)
-			end
-		end)
-	end
-end, function(ply)
-	ply:SetAmmo(2, "nz_specialgrenade")
-end)
-
-SpecialWeapons:CreateCategory("grenade", IN_GRENADE1, true)
 SpecialWeapons:AddWeapon( "nz_grenade", "grenade", function(ply) -- Use function
 	if SERVER then
 		if ply:GetAmmoCount("nz_grenade") <= 0 then return end
@@ -110,9 +86,8 @@ end, function(ply) -- Max Ammo function
 	ply:SetAmmo(4, "nz_grenade")
 end)
 
-SpecialWeapons:CreateCategory("perkbottles", 0)
 -- Does nothing, just needs to count as special
-SpecialWeapons:AddWeapon( "nz_perk_bottle", "perkbottles", nil, function(ply, wep)
+SpecialWeapons:AddWeapon( "nz_perk_bottle", "display", nil, function(ply, wep)
 	if SERVER then
 		ply.UsingSpecialWep = true
 		ply:SelectWeapon("nz_perk_bottle")

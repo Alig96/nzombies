@@ -92,6 +92,10 @@ nz.Config.AddWeaponToBlacklist( "fas2_base" )
 nz.Config.AddWeaponToBlacklist( "fas2_ammobox" )
 nz.Config.AddWeaponToBlacklist( "fas2_ifak" )
 nz.Config.AddWeaponToBlacklist( "nz_multi_tool" )
+nz.Config.AddWeaponToBlacklist( "nz_grenade" )
+nz.Config.AddWeaponToBlacklist( "nz_perk_bottle" )
+nz.Config.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
+nz.Config.AddWeaponToBlacklist( "nz_tool_base" )
 
 nz.Config.WeaponWhiteList = {
 	"fas2_", "m9k_",

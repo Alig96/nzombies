@@ -237,7 +237,7 @@ function Round:SetupGame()
 
 	self:SetNumber( 0 )
 
-	--Store a session of all our players
+	-- Store a session of all our players
 	for _, ply in pairs(player.GetAll()) do
 		if ply:IsValid() and ply:IsReady() then
 			ply:SetPlaying( true )
@@ -248,12 +248,12 @@ function Round:SetupGame()
 	Mapping:CleanUpMap()
 	Doors:LockAllDoors()
 
-	//Reset navigation attributes so they don't save into the actual .nav file.
+	-- Reset navigation attributes so they don't save into the actual .nav file.
 	for k,v in pairs(nz.Nav.Data) do
 		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
 	end
 
-	//Open all doors with no price and electricity requirement
+	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsDoor() or v:IsBuyableProp() then
 			if v.price == 0 and v.elec == 0 then
@@ -266,14 +266,14 @@ function Round:SetupGame()
 		end
 	end
 
-	//Empty the link table
+	-- Empty the link table
 	table.Empty(Doors.OpenedLinks)
 
-	//All doors with Link 0 (No Link)
+	-- All doors with Link 0 (No Link)
 	Doors.OpenedLinks[0] = true
 	--nz.Doors.Functions.SendSync()
 
-	//Spawn a random box
+	-- Spawn a random box
 	RandomBox:Spawn()
 
 end

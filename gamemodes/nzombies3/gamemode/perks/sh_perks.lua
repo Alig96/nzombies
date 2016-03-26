@@ -98,7 +98,7 @@ nz.Perks.Functions.NewPerk("speed", {
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
-			if v:IsFAS2() then
+			if v:NZPerkSpecialTreatment() then
 				table.insert(tbl, v)
 			end
 		end
@@ -118,7 +118,7 @@ nz.Perks.Functions.NewPerk("speed", {
 	lostfunc = function(self, ply)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
-			if v:IsFAS2() then
+			if v:NZPerkSpecialTreatment() then
 				table.insert(tbl, v)
 			end
 		end
@@ -134,10 +134,16 @@ nz.Perks.Functions.NewPerk("pap", {
 	name = "Pack-a-Punch",
 	off_model = "models/alig96/perks/packapunch/packapunch.mdl", //Find a new model.
 	on_model = "models/alig96/perks/packapunch/packapunch.mdl",
-	price = 5000,
+	price = 0,
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
-		if wep.pap != true and !machine:GetBeingUsed() then
+		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
+			local reroll = (wep.pap and wep:IsCW2() and CustomizableWeaponry and true)
+			local cost = reroll and 2000 or 5000
+			
+			if !ply:CanAfford(cost) then return end
+			ply:TakePoints(cost)
+			
 			machine:SetBeingUsed(true)
 			machine:EmitSound("nz/machines/pap_up.wav")
 			local class = wep:GetClass()
@@ -177,7 +183,8 @@ nz.Perks.Functions.NewPerk("pap", {
 					wep:SetGravity(0.000001)
 					wep:SetLocalVelocity(machine:GetAngles():Forward()*30)
 					--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
-					wep:CreateTriggerZone()
+					wep:CreateTriggerZone(reroll)
+					print(reroll)
 				end
 			end)
 			timer.Simple(4.2, function()

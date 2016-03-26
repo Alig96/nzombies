@@ -323,6 +323,7 @@ end
 local grenade_icon = Material("grenade-256.png", "unlitgeneric smooth")
 local function DrawGrenadeHud()
 	local num = LocalPlayer():GetAmmoCount("nz_grenade")
+	local numspecial = LocalPlayer():GetAmmoCount("nz_specialgrenade")
 	local scale = (ScrW()/1920 + 1)/2
 
 	--print(num)
@@ -332,6 +333,14 @@ local function DrawGrenadeHud()
 		for i = num, 1, -1 do
 			--print(i)
 			surface.DrawTexturedRect(ScrW() - 250*scale - i*10*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+		end
+	end
+	if numspecial > 0 then
+		surface.SetMaterial(grenade_icon)
+		surface.SetDrawColor(255,100,100)
+		for i = numspecial, 1, -1 do
+			--print(i)
+			surface.DrawTexturedRect(ScrW() - 300*scale - i*10*scale, ScrH() - 90*scale, 30*scale, 30*scale)
 		end
 	end
 	--surface.DrawTexturedRect(ScrW()/2, ScrH()/2, 100, 100)

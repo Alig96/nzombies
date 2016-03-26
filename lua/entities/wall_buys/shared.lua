@@ -9,14 +9,14 @@ ENT.Purpose			= ""
 ENT.Instructions	= ""
 
 function ENT:SetupDataTables()
-	self:NetworkVar( "String", 0, "EntName" )
+	self:NetworkVar( "String", 0, "WepClass" )
 	self:NetworkVar( "String", 1, "Price" )
 	self:NetworkVar( "Bool", 0, "Bought" )
 	self:NetworkVar( "Bool", 1, "Flipped" )
 end
 
-local normalscale = Vector(1.5, 0.01, 1.5) 	-- Decides on which axis it flattens the outline
-local flipscale = Vector(0.01, 1.5, 1.5) 	-- based on the bool self:GetFlipped()
+local flipscale = Vector(1.5, 0.01, 1.5) 	-- Decides on which axis it flattens the outline
+local normalscale = Vector(0.01, 1.5, 1.5) 	-- based on the bool self:GetFlipped()
 
 CreateClientConVar("nz_outlinedetail", "4") -- Controls the outline creation
 
@@ -25,14 +25,15 @@ chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
 function ENT:Initialize()
 	if SERVER then
 		self:SetMoveType( MOVETYPE_NONE )
-		self:SetSolid( SOLID_VPHYSICS )
+		--self:SetSolid( SOLID_VPHYSICS )
 		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 		self:SetUseType(SIMPLE_USE)
 		self:SetFlipped(true) -- Apparently makes it work with default orientation?
-		--self:SetSolid( SOLID_OBB )
+		self:SetSolid( SOLID_OBB )
+		self:PhysicsInit( SOLID_OBB )
 	else
-		self:RecalculateModelOutlines()
 		self.Flipped = self:GetFlipped()
+		self:RecalculateModelOutlines()
 	end
 	self:SetRenderMode(RENDERMODE_TRANSALPHA)
 	self:DrawShadow(false)
@@ -45,17 +46,41 @@ function ENT:OnRemove()
 	end
 end
 
+--[[function ENT:RecalculateModelBounds()
+	local curang = self:GetAngles() -- Modifies offset if flipped
+	local curpos = self:GetPos()
+	
+	local vec1, vec2 = self:GetCollisionBounds()
+	print(vec1, vec2)
+	if !self.Flipped then
+		curang:RotateAroundAxis(curang:Up(), 90)
+	end
+	if !self.Flipped then
+		vec1[1] = 0.1
+		vec2[1] = -0.1
+	else
+		vec1[2] = 0.1
+		vec2[2] = -0.1
+	end
+	print(vec1, vec2)
+	
+	self:PhysicsInitBox(vec1, vec2)
+end]]
+
 function ENT:RecalculateModelOutlines()
 	self:RemoveOutline()
 	local num = GetConVar("nz_outlinedetail"):GetInt()
 	local ang = self:GetAngles()
 	local curang = self:GetAngles() -- Modifies offset if flipped
 	local curpos = self:GetPos()
-	local model = self:GetModel()
-	if self.Flipped then
+	local wep = weapons.Get(self:GetWepClass())
+	local model = wep.WM or wep.WorldModel
+	self.modelclass = self:GetWepClass()
+	
+	if !self.Flipped then
 		curang:RotateAroundAxis(curang:Up(), 90)
 	end
-	--print(curang, "HUDIASHUD")
+	--print(curang, "HUDIASHUD", self.Flipped)
 	if num >= 1 then
 		self.Chalk1 = ClientsideModel(model)
 		local offset = curang:Up()*0.5 + curang:Forward()*-0.5 --Vector(0,-0.5,0.5)
@@ -158,21 +183,18 @@ if SERVER then
 	function ENT:SetWeapon(weapon, price)
 		//Add a special check for FAS weps
 		local wep = weapons.Get(weapon)
+		local model
 		if !wep then
-			self:SetModel( "models/weapons/w_crowbar.mdl" )
+			model = "models/weapons/w_crowbar.mdl"
 		else
-			if weapons.Get(weapon).Category == "FA:S 2 Weapons" then
-				//self:SetModel( weapons.Get(weapon).WM )
-				self:SetModel( weapons.Get(weapon).WorldModel )
-			else
-				self:SetModel( weapons.Get(weapon).WorldModel )
-			end
-			self:SetFlipped(false)
+			model = wep.WM or wep.WorldModel
+			--self:SetFlipped(false)
 		end
+		self:SetModel(model)
 		self:SetModelScale( 1.5, 0 )
 		self.WeaponGive = weapon
 		self.Price = price
-		self:SetEntName(weapon)
+		self:SetWepClass(weapon)
 		self:SetPrice(price)
 	end
 	
@@ -238,8 +260,13 @@ if CLIENT then
 
 	function ENT:Think()
 		if self.Flipped != self:GetFlipped() then
-			self:RecalculateModelOutlines()
 			self.Flipped = self:GetFlipped()
+			self:RecalculateModelOutlines()
+			--print(self.Flipped)
+		end
+		if self.modelclass != self:GetWepClass() then
+			self.modelclass = self:GetWepClass()
+			self:RecalculateModelOutlines()
 			--print(self.Flipped)
 		end
 	end

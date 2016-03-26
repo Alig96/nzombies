@@ -1,17 +1,21 @@
 //Functions
-function nz.Weps.Functions.CalculateMaxAmmo(class)
+function nz.Weps.Functions.CalculateMaxAmmo(class, pap)
 	local wep = weapons.Get(class)
 	local clip = wep.Primary.ClipSize
-
-	return clip * 10
+	
+	if pap then
+		return math.Round((clip *1.5)/5)* 5 * 10
+	else
+		return clip * 10
+	end
 end
 
-function nz.Weps.Functions.GiveMaxAmmoWep(ply, class)
+function nz.Weps.Functions.GiveMaxAmmoWep(ply, class, papoverwrite)
 
 	local wep = weapons.Get(class)
 	if wep == nil then return end
 	local ammo_type = wep.Primary.Ammo
-	local max_ammo = nz.Weps.Functions.CalculateMaxAmmo(class)
+	local max_ammo = nz.Weps.Functions.CalculateMaxAmmo(class, (IsValid(ply:GetWeapon(class)) and ply:GetWeapon(class).pap) or papoverwrite)
 
 	local ply_weps = ply:GetWeapons()
 	local multi = 0

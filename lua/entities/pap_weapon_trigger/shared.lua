@@ -29,7 +29,9 @@ function ENT:Use( activator, caller )
 	if activator == self.Owner then
 		local class = self:GetWepClass()
 		local weapon = activator:Give(class)
-		nz.Weps.Functions.GiveMaxAmmoWep(activator, class)
+		if !self.RerollingAtts then -- A 2000 point reroll should not give max ammo
+			nz.Weps.Functions.GiveMaxAmmoWep(activator, class, true) -- We give pap ammo count
+		end
 		timer.Simple(0, function()
 			if IsValid(weapon) and IsValid(activator) then
 				if activator:HasPerk("speed") and weapon:IsFAS2() then

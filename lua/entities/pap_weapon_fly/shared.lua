@@ -32,13 +32,14 @@ function ENT:SetWepClass(class)
 	end
 end
 
-function ENT:CreateTriggerZone()
+function ENT:CreateTriggerZone(reroll)
 	if SERVER then
 		self.button = ents.Create("pap_weapon_trigger")
 		self.button:SetPos(self.TriggerPos)
 		self.button:SetAngles(self:GetAngles() - Angle(90,90,0))
 		self.button:Spawn()
 		self.button:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
+		self.button.RerollingAtts = reroll
 		self.button.Owner = self.Owner
 		self.button.wep = self
 		self.button:SetWepClass(self.WepClass)

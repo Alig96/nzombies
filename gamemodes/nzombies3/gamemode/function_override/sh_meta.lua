@@ -5,7 +5,7 @@ if SERVER then
 	
 	function ReplaceReloadFunction(wep)
 		//Either not a weapon, doesn't have a reload function, or is FAS2
-		if wep:IsFAS2() then return end
+		if wep:NZPerkSpecialTreatment() then return end
 		local oldreload = wep.Reload
 		if !oldreload then return end
 		
@@ -117,21 +117,15 @@ if SERVER then
 					})
 					--print(pct)
 					local zombies = ents.FindInSphere(ply:GetPos(), 200*pct)
+					local d = DamageInfo()
+					d:SetDamage( 100*pct )
+					d:SetDamageType( DMG_SHOCK )
+					d:SetAttacker(ply)
+					d:SetInflictor(ply)
+					
 					for k,v in pairs(zombies) do
 						if nz.Config.ValidEnemies[v:GetClass()] then
-							v:TakeDamage(100*pct, ply, ply)
-							--[[timer.Create("Cherry"..v:EntIndex(), 0.1, 5, function()
-								if IsValid(v) then
-									print("effect here")
-									local effectdata = EffectData()
-									effectdata:SetOrigin( v:GetPos() )
-									effectdata:SetNormal( v:GetAimVector() )
-									effectdata:SetMagnitude( 8 )
-									effectdata:SetScale( 1 )
-									effectdata:SetRadius( 16 )
-									util.Effect( "TeslaHitBoxes", effectdata )
-								end
-							end)]]
+							v:TakeDamageInfo(d)
 						end
 					end
 				end

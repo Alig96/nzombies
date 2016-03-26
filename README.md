@@ -4,9 +4,11 @@ nZombies
 A GM13 Nazi Zombies style (WIP) gamemode
 
 Download folder and place it in garrysmod/garrysmod/addons
-If it for some reason doesn't work, refer to the Fallback branch using the old structure (installed differently)
+Make sure the structure has a path to addon.json like this: garrysmod/garrysmod/addons/nzombies/addon.json
 
-This is an edited version featuring these changes:
+If you have bugs, suggestions, or general improvements, open up an issue with the issue button at the top. If you want to help, feel free to create pull requests with your changes. If you have questions, add me on steam :)
+
+This is an edited version from Aligs original featuring these changes:
 
 - Revival System & Health
 	- You get downed by losing all HP
@@ -57,12 +59,15 @@ This is an edited version featuring these changes:
 	- Set a SoundCloud link to the song to play on Easter Egg
 	- Decide starting weapon and points
 
-- Better Zombie AI
-	- Zombies can now jump (Thanks lolle!)
+- Better Zombie AI (Thanks Lolle!)
+	- Zombies can now jump
 	- Zombies now know which navmeshes are locked to doors and won't path through them
 	- Zombies can now know if there are players in the same area as them
 	- Zombies can now go back to respawn if they can't get to any players
-	- Zombies can now climb ladders!
+
+- Easy mismatch correction system
+	- Loading configs using weapons you may not have installed creates an easy menu to replace them
+	- Applies to wall buys, random box list, perks (if scripted in), and more as new stuff is added
 		
 - Weapon Carrying
 	- Max number weapons you can carry
@@ -92,16 +97,15 @@ This is an edited version featuring these changes:
 	- ValidEnemies table setup changed to allow more customizability
 	- Power Ups now just rotate and are golden
 	- Pack-a-Punch now a global hook, will work on all weapons
-	- Zombie Spawnpoints can now be disabled so they don't spawn any zombies using "Spawnable at?"
+	- Prop Search menu
 
 
-- To-do list:
-	- Invisible blockers to have blocking filters
-	- Fix random downing of players (Prop collision?)
+- Workshop Release To-do list:
+	- Monkey Bombs, a few other random wonder weapons
+	- Wonder Weapon system (Only one of them at a time)
+	- Implement all new animations for zombies
+	- Model pack system to replace models on a per-config basis
+	- Hellhounds (Yes, we're getting those)
+	- Maps with no power switch has permanent power
 	- Modify curves to be better
-	- Fix Zombies getting stuck on corners a lot (plz) (Already fixed?)
-	- Support for free buttons/doors with custom text
-	- Change round handler function to not run every second; instead just on events
-	- General optimizations
-	- Real Nazi Zombie models and sounds for the zombies?
-	- More Wonder Weapons built-in?
+	- After all the above, 3-4 official high-quality configs

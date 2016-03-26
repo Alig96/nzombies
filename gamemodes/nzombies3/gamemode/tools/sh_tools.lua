@@ -900,7 +900,11 @@ nz.Tools.Functions.CreateTool("wallbuy", {
 		local Row1 = DProperties:CreateRow( "Weapon Settings", "Weapon Class" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
-			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			if v.Category and v.Category != "" then
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+			else
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			end
 		end
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val UpdateData() end
 
@@ -1047,12 +1051,20 @@ nz.Tools.Functions.CreateTool("settings", {
 		local Row1 = DProperties:CreateRow( "Map Settings", "Starting Weapon" )
 		Row1:Setup( "Combo" )
 		for k,v in pairs(weapons.GetList()) do
-			Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			if v.Category and v.Category != "" then
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+			else
+				Row1:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+			end
 		end
 		if data.startwep then
 			local wep = weapons.Get(data.startwep)
 			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
-			Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, true)
+			if wep.Category and wep.Category != "" then
+				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, false)
+			else
+				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, wep.ClassName, false)
+			end
 		end
 
 		Row1.DataChanged = function( _, val ) valz["Row1"] = val end
@@ -1154,13 +1166,21 @@ nz.Tools.Functions.CreateTool("settings", {
 			if Mapping.Settings.rboxweps then
 				for k,v in pairs(Mapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
-					InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName or wep.ClassName, v)
+					if wep.Category and wep.Category != "" then
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
+					else
+						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+					end
 				end
 			else
 				for k,v in pairs(weapons.GetList()) do
 					-- By default, add all weapons that have print names unless they are blacklisted
-					if v.PrintName and v.PrintName != "" and !table.HasValue(nz.Config.WeaponBlackList, v.ClassName) then
-						InsertWeaponToList(v.PrintName, v.ClassName)
+					if v.PrintName and v.PrintName != "" and !nz.Config.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" then
+						if v.Category and v.Category != "" then
+							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+						else
+							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+						end
 					end
 					-- The rest are still available in the dropdown
 				end
@@ -1171,7 +1191,11 @@ nz.Tools.Functions.CreateTool("settings", {
 			wepentry:SetSize( 203, 20 )
 			wepentry:SetValue( "Weapon ..." )
 			for k,v in pairs(weapons.GetList()) do
-				wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+				if v.Category and v.Category != "" then
+					wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
+				else
+					wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, false)
+				end
 			end
 			wepentry.OnSelect = function( panel, index, value )
 			end
@@ -1181,7 +1205,12 @@ nz.Tools.Functions.CreateTool("settings", {
 			wepadd:SetPos( 207, 155 )
 			wepadd:SetSize( 53, 20 )
 			wepadd.DoClick = function()
-				InsertWeaponToList(wepentry:GetSelected())
+				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
+				if v.Category and v.Category != "" then
+					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+				else
+					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+				end
 				wepentry:SetValue( "Weapon..." )
 			end
 
@@ -1467,14 +1496,15 @@ nz.Tools.Functions.CreateTool("testzombie", {
 	end,
 
 	PrimaryAttack = function(wep, ply, tr, data)
+		data = data or {speed = 51}
 		local z = ents.Create("nz_zombie_walker")
 		z:SetPos(tr.HitPos)
 		z:SetHealth(100)
 		z.SpecialInit = function(self)
-			self:SetRunSpeed(51)
+			self:SetRunSpeed(data.speed)
 		end
 		z:Spawn()
-		z:SetRunSpeed(51)
+		z:SetRunSpeed(data.speed)
 
 		undo.Create( "Test Zombie" )
 			undo.SetPlayer( ply )
@@ -1505,7 +1535,46 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		return nz.Tools.Advanced
 	end,
 	interface = function(frame, data)
-
+	
+		local pnl = vgui.Create("DPanel", frame)
+		pnl:Dock(FILL)
+		
+		local txt = vgui.Create("DLabel", pnl)
+		txt:SetText("Zombie Speed")
+		txt:SizeToContents()
+		txt:SetTextColor(Color(0,0,0))
+		txt:SetPos(120, 30)
+	
+		local slider = vgui.Create("DNumberScratch", pnl)
+		slider:SetSize(100, 20)
+		slider:SetPos(130, 50)
+		slider:SetMin(0)
+		slider:SetMax(300)
+		slider:SetValue(data.speed)
+		
+		local num = vgui.Create("DNumberWang", pnl)
+		num:SetValue(data.speed)
+		num:SetMinMax(0, 300)
+		num:SetPos(90, 50)
+		
+		local function UpdateData()
+			nz.Tools.Functions.SendData( data, "testzombie" )
+		end
+		
+		slider.OnValueChanged = function(self, val)
+			data.speed = val
+			num:SetValue(val)
+			UpdateData()
+		end
+		num.OnValueChanged = function(self, val)
+			data.speed = val
+			slider:SetValue(val)
+			UpdateData()
+		end
+		
+		return pnl
 	end,
-	//defaultdata = {}
+	defaultdata = {
+		speed = 51,
+	}
 })
