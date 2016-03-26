@@ -205,7 +205,9 @@ AccessorFunc( ENT, "fRunSpeed", "RunSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fAttackRange", "AttackRange", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastJump", "LastJump", FORCE_NUMBER)
 AccessorFunc( ENT, "fLastTargetCheck", "LastTargetCheck", FORCE_NUMBER)
-AccessorFunc( ENT, "fLastAtackk", "LastAttack", FORCE_NUMBER)
+AccessorFunc( ENT, "fLastAtack", "LastAttack", FORCE_NUMBER)
+AccessorFunc( ENT, "fLastTargetChange", "LastTargetChange", FORCE_NUMBER)
+AccessorFunc( ENT, "fTargetCheckRange", "TargetCheckRange", FORCE_NUMBER)
 
 --sounds
 AccessorFunc( ENT, "fNextMoanSound", "NextMoanSound", FORCE_NUMBER)
@@ -233,6 +235,7 @@ function ENT:Initialize()
 	self:SetJumping( false )
 	self:SetLastJump( CurTime() + 3 ) --prevent jumping after spawn
 	self:SetLastTargetCheck( CurTime() )
+	self:SetLastTargetChange( CurTime() )
 
 	--sounds
 	self:SetNextMoanSound( CurTime() + 1 )
@@ -246,6 +249,7 @@ function ENT:Initialize()
 	self:SetAttacking( false )
 	self:SetLastAttack( CurTime() )
 	self:SetAttackRange( self.AttackRange )
+	self:SetTargetCheckRange(2000)
 
 	self:SetHealth( 75 ) --fallback
 
@@ -370,30 +374,29 @@ function ENT:RunBehaviour()
 
 	while (true) do
 		if !self:GetStop() then
-		if !self:HasTarget() then self:SetTarget( self:GetPriorityTarget() ) end
-		if self:HasTarget() then
-			local pathResult = self:ChaseTarget( {
-				maxage = 1,
-				draw = false,
-				tolerance = ((self:GetAttackRange() -20) > 0 ) and self:GetAttackRange() - 10
-			} )
-			if pathResult == "ok" then
-				if self:TargetInAttackRange() then
-					self:OnTargetInAttackRange()
-				end
-			elseif pathResult == "timeout" then --asume pathing timedout, maybe we are stuck maybe we are blocked by barricades
-				local barricade = self:CheckForBarricade()
-				if barricade then
-					self:OnBarricadeBlocking( barricade )
+			if self:HasTarget() then
+				local pathResult = self:ChaseTarget( {
+					maxage = 1,
+					draw = false,
+					tolerance = ((self:GetAttackRange() -20) > 0 ) and self:GetAttackRange() - 10
+				} )
+				if pathResult == "ok" then
+					if self:TargetInAttackRange() then
+						self:OnTargetInAttackRange()
+					end
+				elseif pathResult == "timeout" then --asume pathing timedout, maybe we are stuck maybe we are blocked by barricades
+					local barricade = self:CheckForBarricade()
+					if barricade then
+						self:OnBarricadeBlocking( barricade )
+					else
+						self:OnPathTimeOut()
+					end
 				else
-					self:OnPathTimeOut()
+					--path failed what should we do :/?
 				end
 			else
-				--path failed what should we do :/?
+				self:OnNoTarget()
 			end
-		else
-			self:OnNoTarget()
-		end
 		else
 			coroutine.wait(2)
 			coroutine.yield()
@@ -416,7 +419,7 @@ function ENT:Draw()
 		--local eyes = self:GetAttachment(self:LookupAttachment("eyes")).Pos
 		--local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
 		--local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
-		
+
 		local leftEye = self:GetAttachment(self:LookupAttachment("lefteye")).Pos
 		local rightEye = self:GetAttachment(self:LookupAttachment("righteye")).Pos
 		cam.Start3D(EyePos(),EyeAngles())
@@ -510,7 +513,7 @@ function ENT:OnNoTarget()
 				repath = 3,
 				maxage = 2
 			})
-			
+
 			-- Wander a bit, then check again
 			if !self:GetClosestAvailableRespawnPoint() then
 				self:Remove()
@@ -574,7 +577,7 @@ function ENT:OnContact( ent )
 		--self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000,1000)
 		local phys = ent:GetPhysicsObject()
 		if IsValid(phys) then
-			local force = -physenv.GetGravity().z * phys:GetMass()/12 * ent:GetFriction()
+			local force = -physenv.GetGravity().z * phys:GetMass() / 12 * ent:GetFriction()
 			local dir = ent:GetPos() - self:GetPos()
 			dir:Normalize()
 			phys:ApplyForceCenter( dir * force )
@@ -629,39 +632,42 @@ end
 
 --Target and pathfidning
 function ENT:GetPriorityTarget()
+	--this is important i dont know why it wasnt her until now XD
+	self:SetLastTargetCheck( CurTime() )
 
-	--mindist is squared sqr(midist) = 2000 units
-	local minDist, closestTarget = 4000000, nil
-
-	local possibleTargets
-	local attract = ents.FindByClass("nz_monkeybomb")
-	if IsValid(attract[1]) then
-		possibleTargets = attract
-	else
-		if Round:InState(ROUND_CREATE) or GetConVar( "nz_zombie_debug" ):GetBool() then
-			possibleTargets = player.GetAll()
-		else
-			possibleTargets = player.GetAllPlayingAndAlive()
+	--if you really would want something that atracts the zombies from everywhere you would need something like this
+	local allEnts = ents.GetAll()
+	for _, ent in pairs(allEnts) do
+		if ent:GetTargetPriority() == TARGET_PRIORITY_ALWAYS and self:IsValidTarget(ent) then
+			return ent
 		end
 	end
+
+	local bestTarget = nil
+	local highestPriority = TARGET_PRIORITY_NONE
+	local targetDist = 8000000
+
+	local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
 	for _, target in pairs(possibleTargets) do
-		if self:IsValidTarget( target ) then
-			if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(target, self) then
-				local pos = target:GetPos()
-				local distance = self:GetRangeSquaredTo( target:NearestPoint(pos) )
-				if distance < minDist then
-					minDist = distance
-					closestTarget = target
+		if self:IsValidTarget(target) then
+			local dist = self:GetRangeSquaredTo( target:GetPos() )
+			local priority = target:GetTargetPriority()
+			if target:GetTargetPriority() > highestPriority then
+				highestPriority = priority
+				bestTarget = target
+				targetDist = dist
+			elseif target:GetTargetPriority() == highestPriority then
+				if targetDist > dist then
+					highestPriority = priority
+					bestTarget = target
+					targetDist = dist
 				end
-			end
+		  	end
 		end
 	end
-	
-	self:SetLastTargetCheck( CurTime() )
-	
-	print(closestTarget)
-	return closestTarget
+
+	return bestTarget
 end
 
 function ENT:ChaseTarget( options )
@@ -747,7 +753,7 @@ function ENT:ChaseTarget( options )
 	end
 
 	--if the zombie isnt engaged in combat, make a time out if the path duration was to small, to prevent repath spam.
-	if path:GetAge() < 0.3 and self:GetLastAttack() + 1 < CurTime() and !self:TargetInAttackRange() then
+	if path:GetAge() < 0.3 and self:GetLastAttack() + 1 < CurTime() and !self:TargetInAttackRange() and self:GetLastTargetChange() + 1 < CurTime() then
 		--target is probably not reachable wait a bit then try again
 		coroutine.wait(2)
 	end
@@ -849,7 +855,7 @@ function ENT:CheckForBarricade()
 	--we try a line trace first since its more efficient
 	local dataL = {}
 	dataL.start = self:GetPos() + Vector( 0, 0, self:OBBCenter().z )
-	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward()*64
+	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward() * 64
 	dataL.filter = self
 	dataL.ignoreworld = true
 	local trL = util.TraceLine( dataL )
@@ -860,7 +866,7 @@ function ENT:CheckForBarricade()
 	--perform a hull trace if line didnt hit just to make sure
 	local dataH = {}
 	dataH.start = self:GetPos()
-	dataH.endpos = self:GetPos() + self:GetForward()*64
+	dataH.endpos = self:GetPos() + self:GetForward() * 64
 	dataH.filter = self
 	dataH.mins = self:OBBMins() * 0.65
 	dataH.maxs = self:OBBMaxs() * 0.65
@@ -877,7 +883,7 @@ end
 function ENT:Attack( data )
 
 	self:SetLastAttack(CurTime())
-	
+
 	--if self:Health() <= 0 then coroutine.yield() return end
 
 	data = data or {}
@@ -889,7 +895,8 @@ function ENT:Attack( data )
 	data.dmglow = data.dmglow or self.DamageLow or 50
 	data.dmghigh = data.dmghigh or self.DamageHigh or 70
 	data.dmgtype = data.dmgtype or DMG_CLUB
-	data.dmgforce = data.dmgforce or (self:GetTarget():GetPos() - self:GetPos()) * 300 + Vector( 0, 0, 16 )
+	data.dmgforce = data.dmgforce or (self:GetTarget():GetPos() - self:GetPos()) * 7 + Vector( 0, 0, 16 )
+	data.dmgforce.z = math.Clamp(data.dmgforce.z, 1, 16)
 	local seq, dur = self:LookupSequence( data.attackseq.seq )
 	data.attackdur = (seq != - 1 and dur) or 0.6
 	data.dmgdelay = ( ( data.attackdur != 0 ) and data.attackdur / 2 ) or 0.3
@@ -901,7 +908,7 @@ function ENT:Attack( data )
 	self:TimedEvent(0.1, function()
 		self:EmitSound( data.attacksound )
 	end)
-	
+
 	if self:GetTarget():IsPlayer() then
 		for k,v in pairs(data.attackseq.dmgtimes) do
 			self:TimedEvent( v, function()
@@ -993,7 +1000,7 @@ function ENT:Flames( state )
 		if IsValid( self.FlamesEnt ) then
 			self.FlamesEnt:SetParent(self)
 			self.FlamesEnt:SetOwner(self)
-			self.FlamesEnt:SetPos(self:GetPos()-Vector(0,0,-50))
+			self.FlamesEnt:SetPos(self:GetPos() - Vector(0, 0, -50))
 			--no glow + delete when out + start on + last forever
 			self.FlamesEnt:SetKeyValue("spawnflags", tostring(128 + 32 + 4 + 2 + 1))
 			self.FlamesEnt:SetKeyValue("firesize", (1 * math.Rand(0.7, 1.1)))
@@ -1161,7 +1168,7 @@ function ENT:BodyUpdate()
 			break
 		end
 	end
-	
+
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
 	end
@@ -1268,6 +1275,9 @@ end
 
 function ENT:SetTarget( target )
 	self.Target = target
+	if self.Target != target then
+		self:SetLastTargetChange(CurTime())
+	end
 end
 
 function ENT:IsTarget( ent )
@@ -1280,7 +1290,7 @@ end
 
 function ENT:IsValidTarget( ent )
 	if !ent then return false end
-	return IsValid( ent ) and (ent:IsPlayer() and ent:Alive() and ent:GetNotDowned() and (!ent.vulturegas or ent.vulturegas < CurTime())) or ent.WillAttractZombie and ent:WillAttractZombie(self)
+	return IsValid( ent ) and ent:GetTargetPriority() != TARGET_PRIORITY_NONE
 end
 
 --AccessorFuncs
@@ -1291,7 +1301,6 @@ end
 function ENT:IsClimbing()
 	return self:GetClimbing()
 end
-
 
 function ENT:IsAttacking()
 	return self:GetAttacking()

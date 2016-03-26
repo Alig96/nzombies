@@ -23,6 +23,8 @@ function ENT:Initialize()
 			phys:Wake()
 		end
 	end
+	--special target priority will make zombies prioritize this enittiy
+	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 end
 
 
@@ -69,10 +71,4 @@ end
 
 function ENT:Draw()
 	self:DrawModel()
-end
-
--- Add this function to allow this entity to be targeted by zombies
-
-function ENT:WillAttractZombie( z ) -- Whether to attract the zombie or not
-	return true -- No condition or fancy distance check, always do
 end

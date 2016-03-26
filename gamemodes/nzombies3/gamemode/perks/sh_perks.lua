@@ -86,7 +86,7 @@ nz.Perks.Functions.NewPerk("revive", {
 			return true
 	end,
 	lostfunc = function(self, ply)
-	
+
 	end,
 })
 
@@ -140,14 +140,14 @@ nz.Perks.Functions.NewPerk("pap", {
 		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
 			local reroll = (wep.pap and wep:IsCW2() and CustomizableWeaponry and true)
 			local cost = reroll and 2000 or 5000
-			
+
 			if !ply:CanAfford(cost) then return end
 			ply:TakePoints(cost)
-			
+
 			machine:SetBeingUsed(true)
 			machine:EmitSound("nz/machines/pap_up.wav")
 			local class = wep:GetClass()
-			
+
 			wep:Remove()
 			local wep = ents.Create("pap_weapon_fly")
 			wep:SetPos(machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3)
@@ -160,7 +160,7 @@ nz.Perks.Functions.NewPerk("pap", {
 			wep.machine = machine
 			wep.Owner = ply
 			wep:SetMoveType( MOVETYPE_FLY )
-			
+
 			--wep:SetNotSolid(true)
 			--wep:SetGravity(0.000001)
 			--wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
@@ -208,7 +208,7 @@ nz.Perks.Functions.NewPerk("pap", {
 					machine:SetBeingUsed(false)
 				end
 			end)
-			
+
 			--nz.Weps.Functions.ApplyPaP( ply, wep )
 			timer.Simple(2, function() ply:RemovePerk("pap") end)
 			return true
@@ -218,7 +218,7 @@ nz.Perks.Functions.NewPerk("pap", {
 		end
 	end,
 	lostfunc = function(self, ply)
-	
+
 	end,
 })
 
@@ -355,7 +355,7 @@ nz.Perks.Functions.NewPerk("cherry", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("vulture", {
+nz.Perks.Functions.NewPerk("vulte", {
 	name = "Vulture Aid Elixir",
 	off_model = "models/alig96/perks/vulture/vultureaid.mdl",
 	on_model = "models/alig96/perks/vulture/vultureaid.mdl",
