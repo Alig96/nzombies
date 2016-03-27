@@ -21,7 +21,7 @@ if SERVER then
 	end
 	
 	function nz.Curves.Functions.GenerateHealthCurve(round)
-		return math.Round(nz.Config.BaseDifficultyHealthCurve*math.pow(round,nz.Config.DifficultyHealthCurve))
+		return math.Round(nz.Config.BaseDifficultyHealthCurve*math.pow(nz.Config.DifficultyHealthCurve,round - 1))
 	end
 	
 	function nz.Curves.Functions.GenerateMaxZombies(round)
