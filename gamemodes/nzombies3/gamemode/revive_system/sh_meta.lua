@@ -8,6 +8,9 @@ if SERVER then
 		Revive.Players[id] = {}
 		Revive.Players[id].DownTime = CurTime()
 
+		-- downed players are not targeted
+		self:SetTargetPriority(TARGET_PRIORITY_NONE)
+
 		if self:HasPerk("whoswho") then
 			self.HasWhosWho = true
 			timer.Simple(5, function()
@@ -29,7 +32,7 @@ if SERVER then
 
 		hook.Call("PlayerDowned", Revive, self)
 
-		// Equip the first pistol found in inventory - unless a pistol is already equipped
+		-- Equip the first pistol found in inventory - unless a pistol is already equipped
 		local wep = self:GetActiveWeapon()
 		if IsValid(wep) and wep:GetHoldType() == "pistol" or wep:GetHoldType() == "duel" or wep.HoldType == "pistol" or wep.HoldType == "duel" then
 			return
@@ -51,6 +54,7 @@ if SERVER then
 		if !nosync then
 			hook.Call("PlayerRevived", Revive, self)
 		end
+		ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 		self.HasWhosWho = nil
 	end
 

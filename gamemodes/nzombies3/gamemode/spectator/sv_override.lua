@@ -6,6 +6,7 @@ end
 
 function GM:PlayerDeath( ply, wep, killer )
 	ply:SetSpectator()
+	ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 end
 
 function GM:PlayerDeathThink( ply )
@@ -35,11 +36,11 @@ function GM:PlayerDeathThink( ply )
 	end
 end
 
-hook.Add( "PlayerUse", "disableDeadUse", disableDeadUse)
-
 local function disableDeadUse( ply, ent )
 	if !ply:Alive() then return false end
 end
+
+hook.Add( "PlayerUse", "disableDeadUse", disableDeadUse)
 
 local function disableDeadPickups( ply, ent )
 	if !ply:Alive() then return false end
