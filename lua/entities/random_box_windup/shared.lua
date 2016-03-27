@@ -40,6 +40,7 @@ function ENT:Initialize()
 				self:SetAngles( self:GetParent():GetAngles() + Angle(-90,90,0) )
 				nz.Notifications.Functions.PlaySound("nz/randombox/teddy_bear_laugh.wav", 0)
 				self:SetIsTeddy(true)
+				if IsValid(self.Buyer) then self.Buyer:GivePoints(950) end -- Refund please
 			else
 				self:SetModel(weapons.Get(self:GetWepClass()).WorldModel)
 			end

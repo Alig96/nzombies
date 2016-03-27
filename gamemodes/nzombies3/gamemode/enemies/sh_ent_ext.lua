@@ -19,3 +19,15 @@ end
 function meta:SetTargetPriority(value)
 	self.iTargetPriority = value
 end
+
+function meta:SetDefaultTargetPriority()
+	if self:IsPlayer() then
+		if self:GetNotDowned() and self:IsPlaying() then
+			self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+		else
+			self:SetTargetPriority(TARGET_PRIORITY_NONE)
+		end
+	else
+		self:SetTargetPriority(TARGET_PRIORITY_NONE) -- By default all entities are non-targetable
+	end
+end

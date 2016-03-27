@@ -64,7 +64,7 @@ local vulturedrops = {
 			ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 			timer.Simple(3, function()
 				if IsValid(ply) then
-					ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+					ply:SetDefaultTargetPriority()
 				end
 			end)
 		end,

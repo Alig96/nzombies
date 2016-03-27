@@ -88,7 +88,7 @@ function SWEP:OnRemove()
 	
 end
 
-if SpecialWeapons then
+if engine.ActiveGamemode() == "nzombies3" then 
 	SpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
 		if SERVER then
 			if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end

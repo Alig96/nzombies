@@ -3,9 +3,12 @@
 function RandomBox:Spawn(exclude)
 	--Get all spawns
 	local all = ents.FindByClass("random_box_spawns")
-	if exclude and IsValid(exclude) then
+	if IsValid(exclude) then
 		table.RemoveByValue(all, exclude)
-		print("Excluded ", exclude)
+		--print("Excluded ", exclude)
+		if table.Count(all) <= 0 then
+			all = {exclude} -- Should there be nothing left, reuse the old excluded one
+		end
 	end
 
 	local rand = all[ math.random( #all ) ]
@@ -40,8 +43,8 @@ end
 
 function RandomBox:DecideWep(ply)
 
-	local teddychance = math.random(1, 12)
-	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") then
+	local teddychance = math.random(1, 1)
+	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") and table.Count(ents.FindByClass("random_box_spawns")) > 1 then
 		return "nz_box_teddy"
 	end
 

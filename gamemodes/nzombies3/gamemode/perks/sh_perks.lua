@@ -355,7 +355,7 @@ nz.Perks.Functions.NewPerk("cherry", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("vulte", {
+nz.Perks.Functions.NewPerk("vulture", {
 	name = "Vulture Aid Elixir",
 	off_model = "models/alig96/perks/vulture/vultureaid.mdl",
 	on_model = "models/alig96/perks/vulture/vultureaid.mdl",

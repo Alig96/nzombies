@@ -51,6 +51,7 @@ function ENT:BuyWeapon(ply)
       		ply:TakePoints(nz.PowerUps.Functions.IsPowerupActive("firesale") and 10 or 950)
       		self:Open()
       		local wep = self:SpawnWeapon( ply, class )
+			wep.Buyer = ply
         else
             ply:PrintMessage( HUD_PRINTTALK, "No available weapons left!")
         end
