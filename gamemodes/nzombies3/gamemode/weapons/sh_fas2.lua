@@ -214,5 +214,28 @@ hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 			end
 		end
 		weapons.Register(cw2, "cw_base")
+		
+		-- We overwrite this slowdown function from CW2 here to take our sprinting system into account
+		-- But only if the cw2 weapon is even existant
+		function CW_Move(ply, m)
+			if ply:Crouching() then
+				m:SetMaxSpeed(ply:GetWalkSpeed() * ply:GetCrouchedWalkSpeed())
+			else
+				wep = ply:GetActiveWeapon()
+				
+				if IsValid(wep) and wep.CW20Weapon then
+					if wep.dt and wep.dt.State == CW_AIMING then
+						m:SetMaxSpeed((ply:GetWalkSpeed() - wep.SpeedDec) * 0.75)
+					else
+						m:SetMaxSpeed(ply:GetMaxRunSpeed() - wep.SpeedDec)
+					end
+				else
+					m:SetMaxSpeed(ply:GetRunSpeed())
+				end
+			end
+		end
+		hook.Add("Move", "CW_Move", CW_Move)
+	
 	end
+	
 end)
