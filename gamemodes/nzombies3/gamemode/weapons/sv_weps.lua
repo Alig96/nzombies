@@ -126,6 +126,60 @@ function nz.Weps.Functions.RemoveDTap( ply, wep )
 	end
 end
 
+-- A copy of the FAS2 function, slightly modified to not require the costumization menu
+local function AttachFAS2Attachment(ply, wep, group, att)
+	if not (IsValid(ply) and ply:Alive() and ply:IsPlaying()) then
+		return
+	end
+	
+	if not IsValid(wep) or not wep.IsFAS2Weapon then
+		return
+	end
+	
+	ply:FAS2_PickUpAttachment(att, false) -- Silently add the attachment
+	
+	if not group or not att or not wep.Attachments or wep.NoAttachmentMenu or not table.HasValue(ply.FAS2Attachments, att) then
+		return
+	end
+	
+	t = wep.Attachments[group]
+	
+	if t then
+		found = false
+		
+		for k, v in pairs(t.atts) do
+			if v == att then
+				found = true
+			end
+		end
+		
+		if t.lastdeattfunc then
+			t.lastdeattfunc(ply, wep)
+			t.lastdeattfunc = nil
+		end
+		
+		if found then
+			t.last = att
+			
+			t2 = FAS2_Attachments[att]
+			
+			if t2.attfunc then
+				t2.attfunc(ply, wep)
+			end
+				
+			if t2.deattfunc then
+				t.lastdeattfunc = t2.deattfunc
+			end
+			
+			umsg.Start("FAS2_ATTACHPAP", ply)
+				umsg.Short(group)
+				umsg.String(att)
+				umsg.Entity(wep)
+			umsg.End()
+		end
+	end
+end
+
 function nz.Weps.Functions.ApplyPaP( ply, wep )
 	if wep.pap != true then
 		print("Applying PaP to: " .. wep.ClassName)
@@ -176,30 +230,71 @@ function nz.Weps.Functions.ApplyPaP( ply, wep )
 						end
 					end
 				end
+			elseif wep:IsFAS2() then
+				-- Random attachments
+				if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
+					for k,v in pairs(wep.Attachments) do
+						if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+							local atts = {}
+							for k2,v2 in pairs(v.atts) do -- List all missing attachments
+								if !table.HasValue(ply.FAS2Attachments, v2) then
+									table.insert(atts, v2)
+								end
+							end
+							if #atts > 0 then
+								local newatt = atts[math.random(#atts)]
+								AttachFAS2Attachment(ply, wep, k, newatt)
+								if atts[newatt] then
+									print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+								end
+							end
+						end
+					end
+				end
 			end
 		end
 		nz.Weps.Functions.SendSync( ply, data )
 	else
 		-- Reroll attachments by buying again
-		if wep:IsCW2() and GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
-			for k,v in pairs(wep.Attachments) do
-				if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
-					local atts = table.Copy(v.atts)
-					for k,v in pairs(atts) do -- Remove all already owned attachments
-						if CustomizableWeaponry:hasAttachment(wep.Owner, v) then
-							atts[k] = nil
+		if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
+			if wep:IsCW2() then
+				for k,v in pairs(wep.Attachments) do
+					if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+						local atts = table.Copy(v.atts)
+						for k,v in pairs(atts) do -- Remove all already owned attachments
+							if CustomizableWeaponry:hasAttachment(wep.Owner, v) then
+								atts[k] = nil
+							end
+						end
+						if #atts > 0 then
+							local newatt = math.random(#atts)
+							CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
+							wep:attach(k, newatt - 1)
+							--print(k, newatt-1, atts[newatt])
+							--print("Here's the table:")
+							--PrintTable(atts)
+							--print("------- End of table --------")
+							if atts[newatt] then
+								print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+							end
 						end
 					end
-					if #atts > 0 then
-						local newatt = math.random(#atts)
-						CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
-						wep:attach(k, newatt - 1)
-						--print(k, newatt-1, atts[newatt])
-						--print("Here's the table:")
-						--PrintTable(atts)
-						--print("------- End of table --------")
-						if atts[newatt] then
-							print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+				end
+			elseif wep:IsFAS2() then
+				for k,v in pairs(wep.Attachments) do
+					if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+						local atts = {}
+						for k2,v2 in pairs(v.atts) do -- List all missing attachments
+							if !table.HasValue(ply.FAS2Attachments, v2) then
+								table.insert(atts, v2)
+							end
+						end
+						if #atts > 0 then
+							local newatt = atts[math.random(#atts)]
+							AttachFAS2Attachment(ply, wep, k, newatt)
+							if atts[newatt] then
+								print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+							end
 						end
 					end
 				end
@@ -216,20 +311,6 @@ hook.Add("PlayerSpawn", "RemoveCW2Attachments", function(ply)
 		end
 	end
 end)
-
---[[function nz.Weps.Functions.OnWepCreated( ent )
-	if ent:IsWeapon() and (nz.Rounds.Data.CurrentState == ROUND_PREP or nz.Rounds.Data.CurrentState == ROUND_PROG) then
-		timer.Simple(1, function()
-			local ply = ent.Owner
-			if ply:HasPerk("speed") then
-				nz.Weps.Functions.ApplySleight( ply, ent )
-			end
-			if ply:HasPerk("dtap") or ply:HasPerk("dtap2") then
-				nz.Weps.Functions.ApplyDTap( ply, ent )
-			end
-		end)
-	end
-end]]
 
 --hook.Add("OnEntityCreated", "nz.Weps.OnEntityCreated", nz.Weps.Functions.OnWepCreated)
 function GetPriorityWeaponSlot(ply)

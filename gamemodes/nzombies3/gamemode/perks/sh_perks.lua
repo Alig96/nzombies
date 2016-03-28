@@ -138,7 +138,7 @@ nz.Perks.Functions.NewPerk("pap", {
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
 		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
-			local reroll = (wep.pap and wep:IsCW2() and CustomizableWeaponry and true)
+			local reroll = (wep.pap and wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2()) and true or false)
 			local cost = reroll and 2000 or 5000
 
 			if !ply:CanAfford(cost) then return end
