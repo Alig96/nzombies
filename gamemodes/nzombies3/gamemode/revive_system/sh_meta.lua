@@ -54,7 +54,7 @@ if SERVER then
 		if !nosync then
 			hook.Call("PlayerRevived", Revive, self)
 		end
-		ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+		self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 		self.HasWhosWho = nil
 	end
 
