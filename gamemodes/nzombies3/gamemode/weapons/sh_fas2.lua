@@ -79,6 +79,47 @@ function FAS2_PlayAnim(wep, anim, speed, cyc, time)
 	end
 end
 
+if CLIENT then
+	-- A copy using a slightly different usermessage. This one generates the missing tables (which would otherwise require the C-menu)
+	local function FAS2_Attach(um)
+		local group = um:ReadShort()
+		local att = um:ReadString()
+		local wep = um:ReadEntity()
+		
+		ply = LocalPlayer()
+		
+		if IsValid(wep) and wep.IsFAS2Weapon then
+			t = wep.Attachments[group]
+			
+			t.active = att
+			if !t.last then t.last = {} end
+			t.last[att] = true
+			t2 = FAS2_Attachments[att]
+			
+			if t2.aimpos then
+				wep.AimPos = wep[t2.aimpos]
+				wep.AimAng = wep[t2.aimang]
+				wep.AimPosName = t2.aimpos
+				wep.AimAngName = t2.aimang
+			end
+			
+			if t.lastdeattfunc then
+				t.lastdeattfunc(ply, wep)
+			end
+			
+			if t2.clattfunc then
+				t2.clattfunc(ply, wep)
+			end
+			
+			t.lastdeattfunc = t2.cldeattfunc
+			
+			wep:AttachBodygroup(att)
+			surface.PlaySound("cstm/attach.wav")
+		end
+	end
+	usermessage.Hook("FAS2_ATTACHPAP", FAS2_Attach)
+end
+
 hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 	local cw2 = weapons.Get("cw_base")
 	if cw2 then
@@ -173,5 +214,28 @@ hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 			end
 		end
 		weapons.Register(cw2, "cw_base")
+		
+		-- We overwrite this slowdown function from CW2 here to take our sprinting system into account
+		-- But only if the cw2 weapon is even existant
+		function CW_Move(ply, m)
+			if ply:Crouching() then
+				m:SetMaxSpeed(ply:GetWalkSpeed() * ply:GetCrouchedWalkSpeed())
+			else
+				wep = ply:GetActiveWeapon()
+				
+				if IsValid(wep) and wep.CW20Weapon then
+					if wep.dt and wep.dt.State == CW_AIMING then
+						m:SetMaxSpeed((ply:GetWalkSpeed() - wep.SpeedDec) * 0.75)
+					else
+						m:SetMaxSpeed(ply:GetMaxRunSpeed() - wep.SpeedDec)
+					end
+				else
+					m:SetMaxSpeed(ply:GetRunSpeed())
+				end
+			end
+		end
+		hook.Add("Move", "CW_Move", CW_Move)
+	
 	end
+	
 end)

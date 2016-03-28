@@ -212,6 +212,8 @@ function Round:Create()
 				ply:SetReady( false )
 			end
 		end
+		
+		Mapping:CleanUpMap()
 
 		--Re-enable navmesh visualization
 		for k,v in pairs(nz.Nav.Data) do
@@ -255,12 +257,12 @@ function Round:SetupGame()
 
 	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
-		if v:IsDoor() or v:IsBuyableProp() then
-			if v.price == 0 and v.elec == 0 then
+		if v:IsBuyableEntity() then
+			if tonumber(v.price == 0) and tobool(v.elec) == false then
 				Doors:OpenDoor( v )
 			end
 		end
-		//Setup barricades
+		-- Setup barricades
 		if v:GetClass() == "breakable_entry" then
 			v:ResetPlanks()
 		end
@@ -275,5 +277,10 @@ function Round:SetupGame()
 
 	-- Spawn a random box
 	RandomBox:Spawn()
+	
+	local power = ents.FindByClass("power_box")
+	if !IsValid(power[1]) then -- No power switch D:
+		nz.Elec.Functions.Activate(true) -- Silently turn on the power
+	end
 
 end

@@ -109,6 +109,16 @@ NewChatCommand("/load", function(ply, text)
 	end
 end)
 
+NewChatCommand("/clean", function(ply, text)
+	if ply:IsSuperAdmin() then
+		if Round:InState( ROUND_CREATE) or Round:InState( ROUND_WAITING ) then
+			Mapping:ClearConfig()
+		else
+			ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't clean while playing!" )
+		end
+	end
+end)
+
 //Tests
 
 NewChatCommand("/spectate", function(ply, text)

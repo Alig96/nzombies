@@ -96,6 +96,7 @@ nz.Config.AddWeaponToBlacklist( "nz_grenade" )
 nz.Config.AddWeaponToBlacklist( "nz_perk_bottle" )
 nz.Config.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
 nz.Config.AddWeaponToBlacklist( "nz_tool_base" )
+nz.Config.AddWeaponToBlacklist( "nz_one_inch_punch" ) -- Nope! You gotta give this with special map scripts
 
 nz.Config.WeaponWhiteList = {
 	"fas2_", "m9k_",
@@ -120,7 +121,7 @@ if SERVER then
 	nz.Config.DifficultySpawnRateCurve = 1.01
 	//Health Curve
 	nz.Config.BaseDifficultyHealthCurve = 75
-	nz.Config.DifficultyHealthCurve = 0.3
+	nz.Config.DifficultyHealthCurve = 1.1 -- +10% each round
 	//Speed curve
 	nz.Config.BaseDifficultySpeedCurve = 60
 	nz.Config.DifficultySpeedCurve = 0.5

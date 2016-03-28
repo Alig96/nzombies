@@ -88,28 +88,30 @@ function SWEP:OnRemove()
 	
 end
 
-SpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
-	if SERVER then
-		if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end
-		local prevwep = ply:GetActiveWeapon():GetClass()
-		ply.UsingSpecialWep = true
-		ply:SelectWeapon("nz_monkey_bomb")
-		timer.Simple(0.5, function()
-			if IsValid(ply) then
-				local wep = ply:GetActiveWeapon()
-				wep:ThrowBomb(700)
-				ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
-			end
-		end)
-		timer.Simple(1, function()
-			if IsValid(ply) then
-				ply.UsingSpecialWep = nil
-				ply:SelectWeapon(prevwep)
-			end
-		end)
-	end
-end, function(ply) -- Equip Function
-	ply:SetAmmo(3, "nz_specialgrenade")
-end, function(ply) -- Max Ammo function
-	ply:SetAmmo(3, "nz_specialgrenade")
-end)
+if engine.ActiveGamemode() == "nzombies3" then 
+	SpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
+		if SERVER then
+			if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end
+			local prevwep = ply:GetActiveWeapon():GetClass()
+			ply.UsingSpecialWep = true
+			ply:SelectWeapon("nz_monkey_bomb")
+			timer.Simple(0.5, function()
+				if IsValid(ply) then
+					local wep = ply:GetActiveWeapon()
+					wep:ThrowBomb(700)
+					ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
+				end
+			end)
+			timer.Simple(1, function()
+				if IsValid(ply) then
+					ply.UsingSpecialWep = nil
+					ply:SelectWeapon(prevwep)
+				end
+			end)
+		end
+	end, function(ply) -- Equip Function
+		ply:SetAmmo(3, "nz_specialgrenade")
+	end, function(ply) -- Max Ammo function
+		ply:SetAmmo(3, "nz_specialgrenade")
+	end)
+end

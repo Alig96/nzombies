@@ -39,6 +39,11 @@ if SERVER then
 			timer.Simple(0, function()
 				local ply = wep:GetOwner()
 				if IsValid(ply) then
+					local oldwep = ply:GetSpecialWeaponFromCategory( wep:GetSpecialCategory() )
+					print(wep, oldwep)
+					if IsValid(oldwep) then
+						ply:StripWeapon(oldwep:GetClass())
+					end
 					ply:AddSpecialWeapon(wep)
 				end		
 			end)

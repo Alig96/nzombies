@@ -1,4 +1,4 @@
-Mapping.Version = 382 --Note to Ali; Any time you make an update to the way this is saved, increment this.
+Mapping.Version = 400 --Note to Ali; Any time you make an update to the way this is saved, increment this.
 
 function Mapping:SaveConfig(name)
 
@@ -47,6 +47,14 @@ function Mapping:SaveConfig(name)
 		pos = v:GetPos(),
 		link = v.link,
 		respawnable = v.respawnable
+		})
+	end
+	
+	local zed_special_spawns = {}
+	for _, v in pairs(ents.FindByClass("zed_special_spawns")) do
+		table.insert(zed_special_spawns, {
+		pos = v:GetPos(),
+		link = v.link
 		})
 	end
 
@@ -170,6 +178,7 @@ function Mapping:SaveConfig(name)
 	--PrintTable(special_entities)
 
 	main["ZedSpawns"] = zed_spawns
+	main["ZedSpecialSpawns"] = zed_special_spawns
 	main["PlayerSpawns"] = player_spawns
 	main["WallBuys"] = wall_buys
 	main["BuyablePropSpawns"] = buyableprop_spawns
@@ -215,6 +224,7 @@ function Mapping:ClearConfig()
 	--Entities to clear:
 	local entClasses = {
 		["zed_spawns"] = true,
+		["zed_special_spawns"] = true,
 		["player_spawns"] = true,
 		["wall_buys"] = true,
 		["prop_buys"] = true,
@@ -321,6 +331,12 @@ function Mapping:LoadConfig( name, loader )
 		if data.ZedSpawns then
 			for k,v in pairs(data.ZedSpawns) do
 				Mapping:ZedSpawn(v.pos, v.link, v.respawnable)
+			end
+		end
+		
+		if data.ZedSpecialSpawns then
+			for k,v in pairs(data.ZedSpecialSpawns) do
+				Mapping:ZedSpecialSpawn(v.pos, v.link)
 			end
 		end
 

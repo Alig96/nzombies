@@ -138,7 +138,7 @@ nz.Perks.Functions.NewPerk("pap", {
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
 		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
-			local reroll = (wep.pap and wep:IsCW2() and CustomizableWeaponry and true)
+			local reroll = (wep.pap and wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2()) and true or false)
 			local cost = reroll and 2000 or 5000
 
 			if !ply:CanAfford(cost) then return end
@@ -154,7 +154,8 @@ nz.Perks.Functions.NewPerk("pap", {
 			wep:SetAngles(machine:GetAngles() + Angle(0,90,0))
 			wep.WepClass = class
 			wep:Spawn()
-			local model = weapons.Get(class) and weapons.Get(class).WorldModel or "models/weapons/w_rif_ak47.mdl"
+			local weapon = weapons.Get(class)
+			local model = weapon and weapon.WM or weapon.WorldModel or "models/weapons/w_rif_ak47.mdl"
 			if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
 			wep:SetModel(model)
 			wep.machine = machine
@@ -184,7 +185,7 @@ nz.Perks.Functions.NewPerk("pap", {
 					wep:SetLocalVelocity(machine:GetAngles():Forward()*30)
 					--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
 					wep:CreateTriggerZone(reroll)
-					print(reroll)
+					--print(reroll)
 				end
 			end)
 			timer.Simple(4.2, function()
@@ -355,7 +356,7 @@ nz.Perks.Functions.NewPerk("cherry", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("vulte", {
+nz.Perks.Functions.NewPerk("vulture", {
 	name = "Vulture Aid Elixir",
 	off_model = "models/alig96/perks/vulture/vultureaid.mdl",
 	on_model = "models/alig96/perks/vulture/vultureaid.mdl",

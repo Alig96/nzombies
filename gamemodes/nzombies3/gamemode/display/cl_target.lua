@@ -56,7 +56,7 @@ local traceents = {
 			if ent:GetPerkID() == "pap" then
 				local wep = LocalPlayer():GetActiveWeapon()
 				if wep.pap then
-					if wep:IsCW2() and CustomizableWeaponry then
+					if wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2()) then
 						text = "Press E to reroll attachments for 2000 points."
 					else
 						text = "This weapon is already upgraded."

@@ -5,7 +5,7 @@ local PLAYER = {}
 --
 -- See gamemodes/base/player_class/player_default.lua for all overridable variables
 --
-PLAYER.WalkSpeed 			= 150
+PLAYER.WalkSpeed 			= 200
 PLAYER.RunSpeed				= 300
 PLAYER.CanUseFlashlight     = true
 
@@ -20,19 +20,15 @@ function PLAYER:Loadout()
 
 	if Mapping.Settings.startwep then
 		self.Player:Give( Mapping.Settings.startwep )
-	elseif IsValid(ents.FindByClass("player_handler")[1]) then
-		-- A player handler exists, give those starting weapons
-		local ent = ents.FindByClass("player_handler")[1]
-		self.Player:Give( ent:GetStartWep() )
 	else
-		-- A handler does not exist, give default starting weapons
+		-- A setting does not exist, give default starting weapons
 		for k,v in pairs(nz.Config.BaseStartingWeapons) do
 			self.Player:Give( v )
 		end
 	end
 	nz.Weps.Functions.GiveMaxAmmo(self.Player)
 
-	if FAS2_Attachments != nil then
+	if !GetConVar("nz_papattachments"):GetBool() and FAS2_Attachments != nil then
 		for k,v in pairs(FAS2_Attachments) do
 			self.Player:FAS2_PickUpAttachment(v.key)
 		end

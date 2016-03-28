@@ -141,20 +141,44 @@ function Revive:RespawnWithWhosWho(ply, pos)
 	local pos = pos or nil
 	
 	if !pos then
-		local areas = {}
+		local spawns = {}
 		local plypos = ply:GetPos()
-		for k,v in pairs(navmesh.Find(plypos, 1250, 100, 100)) do
-			if nz.Nav.Functions.IsPosInSameNavGroup(plypos, v:GetCenter()) then
-				table.insert(areas, v:GetID())
-			end
-		end
-		for k,v in pairs(navmesh.Find(plypos, 750, 100, 100)) do
-			if table.HasValue(areas, v:GetID()) then
-				table.RemoveByValue(areas, v:GetID())
-			end
-		end
+		local maxdist = 1500^2
+		local mindist = 500^2
 		
-		pos = navmesh.GetNavAreaByID(table.Random(areas)):GetRandomPoint() + Vector(0,0,20)
+		local available = ents.FindByClass("zed_special_spawns")
+		if IsValid(available[1]) then
+			for k,v in pairs(available) do
+				local dist = plypos:DistToSqr(v:GetPos())
+				if v.link == nil or Doors.OpenedLinks[tonumber(v.link)] then -- Only for rooms that are opened (using links)
+					if dist < maxdist and dist > mindist then -- Within the range we set above
+						if nz.Enemies.Functions.CheckIfSuitable(v:GetPos()) then -- And nothing is blocking it
+							table.insert(spawns, v)
+						end
+					end
+				end
+			end
+			if !IsValid(spawns[1]) then
+				for k,v in pairs(available) do -- Retry, but without the range check (just use all of them)
+					local dist = plypos:DistToSqr(v:GetPos())
+					if v.link == nil or Doors.OpenedLinks[tonumber(v.link)] then
+						if nz.Enemies.Functions.CheckIfSuitable(v:GetPos()) then
+							table.insert(spawns, v)
+						end
+					end
+				end
+			end
+			if !IsValid(spawns[1]) then -- Still no open linked ones?! Spawn at a random player spawnpoint
+				local pspawns = ents.FindByClass("player_spawns")
+				pos = pspawns[math.random(#pspawns)]:GetPos()
+			else
+				pos = spawns[math.random(#spawns)]:GetPos()
+			end
+		else
+			-- There exists no special spawnpoints - Use regular player spawns
+			local pspawns = ents.FindByClass("player_spawns")
+			pos = pspawns[math.random(#pspawns)]:GetPos()
+		end
 	end
 	ply:RevivePlayer()
 	ply:StripWeapons()

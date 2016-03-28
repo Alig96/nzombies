@@ -249,7 +249,7 @@ function ENT:Initialize()
 	self:SetAttacking( false )
 	self:SetLastAttack( CurTime() )
 	self:SetAttackRange( self.AttackRange )
-	self:SetTargetCheckRange(2000)
+	self:SetTargetCheckRange(0) -- 0 for no distance restriction (infinite)
 
 	self:SetHealth( 75 ) --fallback
 
@@ -505,31 +505,36 @@ function ENT:OnNoTarget()
 		self:PlaySequenceAndWait("wave_smg1", 0.9)
 
 	else
-
-		local sPoint = self:GetClosestAvailableRespawnPoint()
-		if !sPoint then
-			-- Something is wrong remove this zombie
-			self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
-				repath = 3,
-				maxage = 2
-			})
-
-			-- Wander a bit, then check again
-			if !self:GetClosestAvailableRespawnPoint() then
-				self:Remove()
-			end
+		-- Start off by checking for a new target
+		local newtarget = self:GetPriorityTarget()
+		if self:IsValidTarget(newtarget) then 
+			self:SetTarget(newtarget)
 		else
-			--if not visible to players respawn immediately
-			if !self:IsInSight() then
-				self:RespawnAtRandom( sPoint )
-			else
-				self:ChaseTarget( {
-					maxage = 20,
-					draw = false,
-					target = sPoint,
-					tolerance = self:GetAttackRange() / 10
+			local sPoint = self:GetClosestAvailableRespawnPoint()
+			if !sPoint then
+				-- Something is wrong remove this zombie
+				self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
+					repath = 3,
+					maxage = 2
 				})
-				self:RespawnAtRandom( sPoint )
+
+				-- Wander a bit, then check again
+				if !self:GetClosestAvailableRespawnPoint() then
+					self:Remove()
+				end
+			else
+				--if not visible to players respawn immediately
+				if !self:IsInSight() then
+					self:RespawnAtRandom( sPoint )
+				else
+					self:ChaseTarget( {
+						maxage = 20,
+						draw = false,
+						target = sPoint,
+						tolerance = self:GetAttackRange() / 10
+					})
+					self:RespawnAtRandom( sPoint )
+				end
 			end
 		end
 	end
@@ -632,38 +637,45 @@ end
 
 --Target and pathfidning
 function ENT:GetPriorityTarget()
-	--this is important i dont know why it wasnt her until now XD
+
 	self:SetLastTargetCheck( CurTime() )
 
 	--if you really would want something that atracts the zombies from everywhere you would need something like this
 	local allEnts = ents.GetAll()
-	for _, ent in pairs(allEnts) do
+	--[[for _, ent in pairs(allEnts) do
 		if ent:GetTargetPriority() == TARGET_PRIORITY_ALWAYS and self:IsValidTarget(ent) then
 			return ent
 		end
-	end
+	end]]
+	
+	-- Disabled the above for for now since it just might be better to use that same loop for everything
 
 	local bestTarget = nil
 	local highestPriority = TARGET_PRIORITY_NONE
-	local targetDist = self:GetTargetCheckRange() * self:GetTargetCheckRange() + 10
+	local maxdistsqr = self:GetTargetCheckRange()^2
+	local targetDist = maxdistsqr + 10
 
-	local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
+	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
-	for _, target in pairs(possibleTargets) do
+	for _, target in pairs(allEnts) do
 		if self:IsValidTarget(target) then
+			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
 			local dist = self:GetRangeSquaredTo( target:GetPos() )
-			local priority = target:GetTargetPriority()
-			if target:GetTargetPriority() > highestPriority then
-				highestPriority = priority
-				bestTarget = target
-				targetDist = dist
-			elseif target:GetTargetPriority() == highestPriority then
-				if targetDist > dist then
+			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
+				local priority = target:GetTargetPriority()
+				if target:GetTargetPriority() > highestPriority then
 					highestPriority = priority
 					bestTarget = target
 					targetDist = dist
+				elseif target:GetTargetPriority() == highestPriority then
+					if targetDist > dist then
+						highestPriority = priority
+						bestTarget = target
+						targetDist = dist
+					end
 				end
-		  	end
+				--print(highestPriority, bestTarget, targetDist, maxdistsqr)
+			end
 		end
 	end
 
