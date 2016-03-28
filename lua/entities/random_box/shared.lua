@@ -82,7 +82,8 @@ function ENT:SpawnWeapon(activator, class)
 	wep:Spawn()
 	wep:SetPos( self:GetPos( ) - Vector(0,0,-10) )
 	wep.Buyer = activator
-	wep:SetParent( self )
+	--wep:SetParent( self )
+	wep.Box = self
 	wep:SetAngles( self:GetAngles() )
 	wep:SetWepClass(class)
 	self:EmitSound("nz/randombox/random_box_jingle.wav")
