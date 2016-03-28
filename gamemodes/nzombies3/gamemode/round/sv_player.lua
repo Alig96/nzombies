@@ -20,7 +20,7 @@ function plyMeta:ReadyUp()
 
 	if Round:InState( ROUND_WAITING ) or Round:InState( ROUND_INIT ) then
 		if !self:IsReady() then
-			PrintMessage( HUD_PRINTTALK, self:Nick().." is ready!" )
+			PrintMessage( HUD_PRINTTALK, self:Nick() .. " is ready!" )
 			self:SetReady( true )
 			self:SetTeam(TEAM_PLAYERS)
 			hook.Call( "OnPlayerReady", Round, self )
@@ -55,10 +55,16 @@ end
 
 function plyMeta:DropIn()
 	if nz.Config.AllowDropins == true and !self:IsPlaying() then
-		PrintMessage( HUD_PRINTTALK, self:Nick().." will be dropping in next round!" )
+		self:SetReady( true )
 		self:SetPlaying( true )
 		self:SetTeam( TEAM_PLAYERS )
 		hook.Call( "OnPlayerDropIn", Round, self )
+		if Round:GetNumber() == 1 and Round:InState(ROUND_PREP) then
+			PrintMessage( HUD_PRINTTALK, self:Nick() .. " is dropping in!" )
+			self:ReSpawn()
+		else
+			PrintMessage( HUD_PRINTTALK, self:Nick() .. " will be dropping in next round!" )
+		end
 	else
 		self:PrintMessage( HUD_PRINTTALK, "You are already in queue or dropins are not allowed on this Server." )
 	end
