@@ -2,9 +2,9 @@ AddCSLuaFile( )
 
 ENT.Type = "anim"
  
-ENT.PrintName		= "zed_spawns"
-ENT.Author			= "Alig96"
-ENT.Contact			= "Don't"
+ENT.PrintName		= "zed_special_spawns"
+ENT.Author			= "Zet0r"
+ENT.Contact			= "youtube.com/Zet0r"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
@@ -19,14 +19,8 @@ function ENT:Initialize()
 	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
 	self:SetCollisionGroup( COLLISION_GROUP_WEAPON )
-	self:SetColor(Color(0, 255, 0))
+	self:SetColor(Color(255, 0, 0))
 	self:DrawShadow( false )
-end
-
-function ENT:OnRemove()
-	if SERVER and table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, self) then
-		table.RemoveByValue(nz.Enemies.Data.RespawnableSpawnpoints, self)
-	end
 end
 
 if CLIENT then

@@ -28,6 +28,27 @@ function Mapping:ZedSpawn(pos, link, respawnable, ply)
 	return ent
 end
 
+function Mapping:ZedSpecialSpawn(pos, link, ply)
+
+	local ent = ents.Create("zed_special_spawns")
+	pos.z = pos.z - ent:OBBMaxs().z
+	ent:SetPos( pos )
+	ent:Spawn()
+	ent.link = tonumber(link)
+	//For the link displayer
+	if link != nil then
+		ent:SetLink(link)
+	end
+
+	if ply then
+		undo.Create( "Special Zombie Spawnpoint" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( ent )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return ent
+end
+
 function Mapping:PlayerSpawn(pos, ply)
 
 	local ent = ents.Create("player_spawns")
@@ -344,6 +365,7 @@ function Mapping:CleanUpMap()
 		"wall_block",
 		"wall_buys",
 		"zed_spawns",
+		"zed_special_spawns",
 		"easter_egg",
 		"edit_fog",
 		"edit_fog_special",
