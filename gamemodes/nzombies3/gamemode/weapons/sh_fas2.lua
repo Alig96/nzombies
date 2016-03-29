@@ -217,7 +217,20 @@ hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 		
 		-- We overwrite this slowdown function from CW2 here to take our sprinting system into account
 		-- But only if the cw2 weapon is even existant
+		local MaxRunSpeed = debug.getregistry().Player.GetMaxRunSpeed
 		function CW_Move(ply, m)
+			local maxspeed
+			if MaxRunSpeed then
+				maxspeed = MaxRunSpeed(ply)
+			else
+				local class = player_manager.GetPlayerClass(ply)
+				if class and class then
+					maxspeed = baseclass.Get(class).RunSpeed
+				else
+					maxspeed = ply:GetRunSpeed()
+				end
+			end
+			if !maxspeed then maxspeed = 300 end -- Fallback
 			if ply:Crouching() then
 				m:SetMaxSpeed(ply:GetWalkSpeed() * ply:GetCrouchedWalkSpeed())
 			else
@@ -227,11 +240,12 @@ hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 					if wep.dt and wep.dt.State == CW_AIMING then
 						m:SetMaxSpeed((ply:GetWalkSpeed() - wep.SpeedDec) * 0.75)
 					else
-						m:SetMaxSpeed(ply:GetMaxRunSpeed() - wep.SpeedDec)
+						m:SetMaxSpeed(maxspeed - wep.SpeedDec)
 					end
 				else
-					m:SetMaxSpeed(ply:GetRunSpeed())
+					m:SetMaxSpeed(maxspeed)
 				end
+				--print(m:GetMaxSpeed())
 			end
 		end
 		hook.Add("Move", "CW_Move", CW_Move)
