@@ -220,14 +220,14 @@ hook.Add("InitPostEntity", "ReplaceCW2BaseFunctions", function()
 		local MaxRunSpeed = debug.getregistry().Player.GetMaxRunSpeed
 		function CW_Move(ply, m)
 			local maxspeed
-			if MaxRunSpeed then
+			if MaxRunSpeed then -- If the GetMaxRunSpeed function exists (server side)
 				maxspeed = MaxRunSpeed(ply)
 			else
-				local class = player_manager.GetPlayerClass(ply)
-				if class and class then
+				local class = player_manager.GetPlayerClass(ply) -- Else, get the player class
+				if class then -- If it exists, get the class table's RunSpeed value
 					maxspeed = baseclass.Get(class).RunSpeed
 				else
-					maxspeed = ply:GetRunSpeed()
+					maxspeed = ply:GetRunSpeed() -- Otherwise, just set to normal run speed
 				end
 			end
 			if !maxspeed then maxspeed = 300 end -- Fallback

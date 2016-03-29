@@ -119,6 +119,12 @@ NewChatCommand("/clean", function(ply, text)
 	end
 end)
 
+NewChatCommand("/revive", function(ply, text)
+	if ply:IsSuperAdmin() and Round:InState( ROUND_CREATE) and !ply:GetNotDowned() then
+		ply:RevivePlayer()
+	end
+end)
+
 //Tests
 
 NewChatCommand("/spectate", function(ply, text)
