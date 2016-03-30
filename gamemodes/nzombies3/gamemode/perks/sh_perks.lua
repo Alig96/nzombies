@@ -13,6 +13,16 @@ function nz.Perks.Functions.Get(id)
 	return nz.Perks.Data[id]
 end
 
+function nz.Perks.Functions.GetByName(name)
+	for _, perk in pairs(nz.Perks.Data) do
+		if perk.name == name then
+			return perk
+		end
+	end
+
+	return nil
+end
+
 function nz.Perks.Functions.GetList()
 	local tbl = {}
 
