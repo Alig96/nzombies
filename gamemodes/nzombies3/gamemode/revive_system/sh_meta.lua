@@ -29,6 +29,9 @@ if SERVER then
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
 
 		self:RemovePerks()
+		
+		self.DownPoints = math.Round(self:GetPoints()*0.05, -1)
+		self:TakePoints(self.DownPoints)
 
 		hook.Call("PlayerDowned", Revive, self)
 
@@ -46,16 +49,20 @@ if SERVER then
 		end
 	end
 
-	function playerMeta:RevivePlayer(nosync)
+	function playerMeta:RevivePlayer(revivor, nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end
 		self:AnimResetGestureSlot(GESTURE_SLOT_GRENADE)
 		Revive.Players[id] = nil
 		if !nosync then
-			hook.Call("PlayerRevived", Revive, self)
+			hook.Call("PlayerRevived", Revive, self, revivor)
 		end
 		self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 		self.HasWhosWho = nil
+		if IsValid(revivor) and revivor:IsPlayer() and self.DownPoints then
+			revivor:GivePoints(self.DownPoints)
+		end
+		self.DownPoints = nil
 	end
 
 	function playerMeta:StartRevive(revivor, nosync)
@@ -91,6 +98,10 @@ if SERVER then
 		end
 		if !nosync then hook.Call("PlayerKilled", Revive, self) end
 		self.HasWhosWho = nil
+		self.DownPoints = nil
+		for k,v in pairs(player.GetAllPlayingAndAlive()) do
+			v:TakePoints(math.Round(v:GetPoints()*0.1, -1))
+		end
 	end
 
 end
