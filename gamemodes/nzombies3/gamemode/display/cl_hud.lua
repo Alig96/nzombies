@@ -137,7 +137,7 @@ end)
 
 local function DrawPointsNotification()
 
-	if nz.Config.PointNotifcationMode == NZ_POINT_NOTIFCATION_CLIENT then
+	if GetConVar("nz_point_notification_clientside"):GetBool() then
 		for k,v in pairs(player.GetAll()) do
 			if v:GetPoints() >= 0 then
 				if !v.LastPoints then v.LastPoints = 0 end

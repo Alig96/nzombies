@@ -29,7 +29,7 @@ function nz.Enemies.Functions.ValidSpawns()
 		for _,v2 in pairs(ents.FindInSphere(ply:GetPos(), 1500)) do
 			if v2:GetClass() == "zed_spawns" and (v2.spawnable == nil or tobool(v2.spawnable)) then
 				-- If enable, then if the player is in the same area group as the spawnpoint
-				if !nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(ply, v2) then
+				if !GetConVar("nz_nav_grouptargeting"):GetBool() or nz.Nav.Functions.IsInSameNavGroup(ply, v2) then
 					if v2:GetPos():DistToSqr(ply:GetPos()) > 22500 then
 						local nav = navmesh.GetNearestNavArea( v2:GetPos() )
 						--check if navmesh is close
@@ -66,7 +66,7 @@ function nz.Enemies.Functions.TotalCurrentEnemies()
 end
 
 function nz.Enemies.Functions.SpawnZombie(spawnpoint)
-	if nz.Enemies.Functions.TotalCurrentEnemies() < nz.Config.MaxZombiesSim then
+	if nz.Enemies.Functions.TotalCurrentEnemies() < GetConVar("nz_difficulty_max_zombies_alive"):GetInt() then
 		local ent = "nz_zombie_walker"
 
 		-- Get the latest round number from the table

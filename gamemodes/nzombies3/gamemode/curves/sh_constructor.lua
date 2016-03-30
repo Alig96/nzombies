@@ -12,20 +12,20 @@ if SERVER then
 
 	//Generate Curve
 	function nz.Curves.Functions.GenerateCurve()
-		for i=1, nz.Config.MaxRounds do
-			nz.Curves.Data.SpawnRate[i-1] = math.Round(nz.Config.BaseDifficultySpawnRateCurve*math.pow(i-1,nz.Config.DifficultySpawnRateCurve))
-			nz.Curves.Data.Health[i-1] = math.Round(nz.Config.BaseDifficultyHealthCurve*math.pow(i-1,nz.Config.DifficultyHealthCurve))
-			nz.Curves.Data.Speed[i-1] = math.Round(nz.Config.BaseDifficultySpeedCurve*math.pow(i-1,nz.Config.DifficultySpeedCurve))
+		for i=1, GetConVar("nz_round_limit"):GetInt() do
+			nz.Curves.Data.SpawnRate[i-1] = math.Round(GetConVar("nz_difficulty_zombie_amount_base"):GetInt()*math.pow(i-1,GetConVar("nz_difficulty_zombie_amount_scale"):GetFloat()))
+			nz.Curves.Data.Health[i-1] = math.Round(GetConVar("nz_difficulty_zombie_health_base"):GetFloat()*math.pow(i-1,GetConVar("nz_difficulty_zombie_health_scale"):GetFloat()))
+			nz.Curves.Data.Speed[i-1] = math.Round(GetConVar("nz_difficulty_zombie_speed_base"):GetFloat()*math.pow(i-1,GetConVar("nz_difficulty_zombie_speed_scale"):GetFloat()))
 		end
 		//PrintTable(nz.Curves.Data)
 	end
-	
+
 	function nz.Curves.Functions.GenerateHealthCurve(round)
-		return math.Round(nz.Config.BaseDifficultyHealthCurve*math.pow(nz.Config.DifficultyHealthCurve,round - 1))
+		return math.Round(GetConVar("nz_difficulty_zombie_health_base"):GetFloat()*math.pow(GetConVar("nz_difficulty_zombie_health_scale"):GetFloat(),round - 1))
 	end
-	
+
 	function nz.Curves.Functions.GenerateMaxZombies(round)
-		return math.Round(nz.Config.BaseDifficultySpawnRateCurve*math.pow(round,nz.Config.DifficultySpawnRateCurve))
+		return math.Round(GetConVar("nz_difficulty_zombie_amount_base"):GetInt()*math.pow(round,GetConVar("nz_difficulty_zombie_amount_scale"):GetFloat()))
 	end
 
 	function nz.Curves.Functions.GenerateSpeedTable(round)
@@ -36,7 +36,7 @@ if SERVER then
 		local max = 300 -- Maximum speed
 		local maxround = 25 -- The round at which the 300 speed has its tip
 		local steps = ((max-min)/maxround) -- The different speed steps speed can exist in
-		
+
 		print("Generating round speeds with steps of "..steps.."...")
 		for i = -range, range do
 			local speed = (min - steps + steps*round) + (steps*i)

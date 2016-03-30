@@ -3,7 +3,7 @@ if SERVER then
 	hook.Add("Think", "CheckDownedPlayersTime", function()
 		for k,v in pairs(Revive.Players) do
 			//The time it takes for a downed player to die - Prevent dying if being revived
-			if CurTime() - v.DownTime >= nz.Config.DownTime and !v.ReviveTime then
+			if CurTime() - v.DownTime >= GetConVar("nz_downtime"):GetFloat() and !v.ReviveTime then
 				Entity(k):KillDownedPlayer()
 			end
 		end
