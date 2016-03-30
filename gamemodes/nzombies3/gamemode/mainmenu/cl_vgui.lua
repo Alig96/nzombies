@@ -246,6 +246,7 @@ function MenuSettingsList:Init()
 	self:AddButton( "Load Map config", "say", "/load" )
 	self:AddButton( "Save Map config", "say", "/save" )
 	self:AddButton( "Generate Navmesh", "say", "/generate" )
+	self:AddButton( "Cheats (Beta)", "say", "/cheats" )
 end
 
 function MenuSettingsList:AddButton( lbl, cmd, args )
