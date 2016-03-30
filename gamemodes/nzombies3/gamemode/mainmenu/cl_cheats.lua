@@ -76,6 +76,7 @@ local CheatInputPlayer = {}
 AccessorFunc(CheatInputPlayer, "sCheatData", "CheatData", FORCE_STRING)
 
 function CheatInputPlayer:Init()
+	self:SetValue("Player")
 	self:SetWide(128)
 	self:SetTall(24)
 	for _,ply in pairs(player.GetAll()) do
@@ -134,6 +135,7 @@ local CheatInputWeapon = {}
 AccessorFunc(CheatInputWeapon, "sCheatData", "CheatData", FORCE_STRING)
 
 function CheatInputWeapon:Init()
+	self:SetValue("Weapon")
 	self:SetWide(128)
 	self:SetTall(24)
 	for _,wep in pairs(weapons.GetList()) do
@@ -154,6 +156,7 @@ local CheatInputPerk = {}
 AccessorFunc(CheatInputPerk, "iCheatData", "CheatData", FORCE_STRING)
 
 function CheatInputPerk:Init()
+	self:SetValue("Perk")
 	self:SetWide(128)
 	self:SetTall(24)
 	for id, perk in pairs(nz.Perks.Data) do
