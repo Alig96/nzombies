@@ -54,7 +54,7 @@ function plyMeta:UnReady()
 end
 
 function plyMeta:DropIn()
-	if nz.Config.AllowDropins == true and !self:IsPlaying() then
+	if GetConVar("nz_round_dropins_allow"):GetBool() == true and !self:IsPlaying() then
 		self:SetReady( true )
 		self:SetPlaying( true )
 		self:SetTeam( TEAM_PLAYERS )

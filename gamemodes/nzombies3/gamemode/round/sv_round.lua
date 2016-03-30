@@ -67,10 +67,10 @@ function Round:Prepare()
 	CurRoundOverSpawned = false
 
 	--Start the next round
-	timer.Simple(nz.Config.PrepareTime, function() self:Start() end )
+	timer.Simple(GetConVar("nz_round_prep_time"):GetFloat(), function() self:Start() end )
 
 	if self:IsSpecial() then
-		self:SetNextSpecialRound( self:GetNumber() + nz.Config.SpecialRoundInterval )
+		self:SetNextSpecialRound( self:GetNumber() + GetConVar("nz_round_special_interval"):GetInt() )
 	end
 
 end
@@ -212,7 +212,7 @@ function Round:Create()
 				ply:SetReady( false )
 			end
 		end
-		
+
 		Mapping:CleanUpMap()
 
 		--Re-enable navmesh visualization
@@ -277,7 +277,7 @@ function Round:SetupGame()
 
 	-- Spawn a random box
 	RandomBox:Spawn()
-	
+
 	local power = ents.FindByClass("power_box")
 	if !IsValid(power[1]) then -- No power switch D:
 		nz.Elec.Functions.Activate(true) -- Silently turn on the power

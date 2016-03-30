@@ -47,9 +47,9 @@ function PLAYER:Spawn()
 			self.Player:SetPoints(ent:GetStartPoints())
 		end
 	else
-		if !self.Player:CanAfford(nz.Config.BaseStartingPoints) then -- Has less than 500 points
+		if !self.Player:CanAfford(GetConVar("nz_difficulty_starting_points"):GetInt()) then -- Has less than 500 points
 			-- Poor guy has no money, lets start him off
-			self.Player:SetPoints(nz.Config.BaseStartingPoints)
+			self.Player:SetPoints(GetConVar("nz_difficulty_starting_points"):GetInt())
 		end
 	end
 
