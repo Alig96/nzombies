@@ -258,8 +258,11 @@ function Round:SetupGame()
 	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsBuyableEntity() then
-			if tonumber(v.price == 0) and tobool(v.elec) == false then
-				Doors:OpenDoor( v )
+			local data = v:GetDoorData()
+			if data then
+				if tonumber(data.price) == 0 and tobool(data.elec) == false then
+					Doors:OpenDoor( v )
+				end
 			end
 		end
 		-- Setup barricades

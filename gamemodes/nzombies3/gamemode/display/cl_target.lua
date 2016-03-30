@@ -110,7 +110,13 @@ local function GetDoorText( ent )
 	local door_data = ent:GetDoorData()
 	local text = ""
 	
-	if door_data and tonumber(door_data.buyable) == 1 then
+	if door_data and tonumber(door_data.price) == 0 and Round:InState(ROUND_CREATE) then
+		if tobool(door_data.elec) then 
+			text = "This door will open when electricity is turned on."
+		else
+			text = "This door will open on game start."
+		end
+	elseif door_data and tonumber(door_data.buyable) == 1 then
 		local price = tonumber(door_data.price)
 		local req_elec = tobool(door_data.elec)
 		local link = door_data.link
