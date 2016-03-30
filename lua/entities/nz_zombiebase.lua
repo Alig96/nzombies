@@ -455,8 +455,11 @@ function ENT:OnSpawn()
 	effectData:SetMagnitude(dur)
 	util.Effect("zombie_spawn_dust", effectData)
 
-	--player emerge animationon spawn
-	self:PlaySequenceAndWait(seq)
+	-- player emerge animationon spawn
+	-- if we have a coroutine else jsut spawn the zombie without emerging for now.
+	if coroutine.running() then
+		self:PlaySequenceAndWait(seq)
+	end
 end
 
 function ENT:OnTargetInAttackRange()
@@ -507,7 +510,7 @@ function ENT:OnNoTarget()
 	else
 		-- Start off by checking for a new target
 		local newtarget = self:GetPriorityTarget()
-		if self:IsValidTarget(newtarget) then 
+		if self:IsValidTarget(newtarget) then
 			self:SetTarget(newtarget)
 		else
 			local sPoint = self:GetClosestAvailableRespawnPoint()
@@ -647,7 +650,7 @@ function ENT:GetPriorityTarget()
 			return ent
 		end
 	end]]
-	
+
 	-- Disabled the above for for now since it just might be better to use that same loop for everything
 
 	local bestTarget = nil

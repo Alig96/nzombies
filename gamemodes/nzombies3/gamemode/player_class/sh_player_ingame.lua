@@ -63,12 +63,8 @@ function PLAYER:Spawn()
 	-- Get player number
 	for k,v in pairs(player.GetAll()) do
 		if v == self.Player then
-			if spawns[k]:IsValid() then
+			if IsValid(spawns[k]) then
 				v:SetPos(spawns[k]:GetPos())
-				-- Set a players owner room to the one he spawns in
-				if IsValid(spawns[k].OwnerRoom) then
-					v.CurrentRoom = spawns[k].OwnerRoom
-				end
 			else
 				print("No spawn set for player: " .. v:Nick())
 			end

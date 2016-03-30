@@ -27,6 +27,7 @@ SWEP.Instructions	= "Let the gamemode give you it"
 
 SWEP.Spawnable			= false
 SWEP.AdminSpawnable		= false
+SWEP.WorldModel 		= Model( "models/effects/combineball.mdl" )
 
 function SWEP:PostDrawViewModel()
 
