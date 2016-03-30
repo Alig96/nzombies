@@ -69,13 +69,13 @@ function RandomBox:DecideWep(ply)
 		end
 	end
 
-	if nz.Config.UseMapWeaponList and Mapping.Settings.rboxweps then
+	if GetConVar("nz_randombox_maplist"):GetBool() and Mapping.Settings.rboxweps then
 		for k,v in pairs(Mapping.Settings.rboxweps) do
 			if !blacklist[v] then
 				table.insert(guns, v)
 			end
 		end
-	elseif nz.Config.UseWhiteList then
+	elseif GetConVar("nz_randombox_whitelist"):GetBool() then
 		-- Load only weapons that have a prefix from the whitelist
 		for k,v in pairs( weapons.GetList() ) do
 			if !blacklist[v.ClassName] then

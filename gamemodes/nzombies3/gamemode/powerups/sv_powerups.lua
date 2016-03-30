@@ -94,7 +94,7 @@ function nz.PowerUps.Functions.Carpenter(nopoints)
 	-- Repair them all
 	for k,v in pairs(ents.FindByClass("breakable_entry")) do
 		if v:IsValid() then
-			for i=1, nz.Config.MaxPlanks do
+			for i=1, GetConVar("nz_difficulty_barricade_planks_max"):GetInt() do
 				if i > #v.Planks then
 					v:AddPlank()
 				end

@@ -63,17 +63,17 @@ function ENT:RemovePlank()
 end
 
 function ENT:ResetPlanks(nosoundoverride)
-	for i=1, nz.Config.MaxPlanks do
+	for i=1, GetConVar("nz_difficulty_barricade_planks_max"):GetInt() do
 		self:RemovePlank()
 	end
-	for i=1, nz.Config.MaxPlanks do
+	for i=1, GetConVar("nz_difficulty_barricade_planks_max"):GetInt() do
 		self:AddPlank(!nosoundoverride)
 	end
 end
 
 function ENT:Use( activator, caller )
 	if CurTime() > self.NextPlank then
-		if self:GetNumPlanks() < nz.Config.MaxPlanks then
+		if self:GetNumPlanks() < GetConVar("nz_difficulty_barricade_planks_max"):GetInt() then
 			self:AddPlank()
                   activator:GivePoints(10)
 				  activator:EmitSound("nz/effects/repair_ching.wav")

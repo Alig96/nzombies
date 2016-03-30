@@ -16,7 +16,7 @@ local function nzNewHalo(class, colour, createOnly)
 end
 
 //Hooks
-if nz.Config.Halos == true then
+if GetConVar("nz_performance_halos"):GetBool() == true then
 	hook.Add( "PreDrawHalos", "nz_halos", function()
 		//Create
 		if nz.Rounds.Data.CurrentState == ROUND_CREATE then

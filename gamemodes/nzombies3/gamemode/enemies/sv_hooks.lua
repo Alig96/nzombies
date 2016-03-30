@@ -22,7 +22,7 @@ function nz.Enemies.Functions.OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 
 		-- Chance a powerup spawning
 		if nz.PowerUps.Functions.IsPowerupActive("insta") == false and enemy:IsValid() then -- Don't spawn powerups during instakill
-			if math.random(1, nz.Config.PowerUpChance) == 1 then -- 1 in 100 chance - you can change this in config
+			if math.random(1, 100 / GetConVar("nz_difficulty_powerup_chance"):GetFloat()) == 1 then -- 1 in 100 chance - you can change this in config
 				nz.PowerUps.Functions.SpawnPowerUp(enemy:GetPos())
 			end
 		end

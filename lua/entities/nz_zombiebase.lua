@@ -1216,7 +1216,7 @@ function ENT:GetClosestAvailableRespawnPoint()
 	local pos = self:GetPos()
 	local min_dist, closest_target = -1, nil
 	for k,v in pairs(nz.Enemies.Data.RespawnableSpawnpoints) do
-		if IsValid(v) and (!nz.Config.NavGroupTargeting or nz.Nav.Functions.IsInSameNavGroup(self, v)) then
+		if IsValid(v) and (!GetConVar("nz_nav_grouptargeting"):GetBool() or nz.Nav.Functions.IsInSameNavGroup(self, v)) then
 			local dist = self:GetRangeTo( v:GetPos() )
 			if ((dist < min_dist or min_dist == -1)) then
 				closest_target = v
