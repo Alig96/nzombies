@@ -1,6 +1,6 @@
 if SERVER then
 	AddCSLuaFile("nz_grenade.lua")
-	SWEP.Weight			= 5
+	SWEP.Weight			= 1
 	SWEP.AutoSwitchTo	= false
 	SWEP.AutoSwitchFrom	= true	
 end
@@ -65,7 +65,7 @@ function SWEP:EndGrenadeModel()
 end
 
 function SWEP:PrimaryAttack()
-	self:ThrowGrenade(1000)
+	--self:ThrowGrenade(1000)
 end
 
 function SWEP:ThrowGrenade(force)
