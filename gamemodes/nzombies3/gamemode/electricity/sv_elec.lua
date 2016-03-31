@@ -7,9 +7,12 @@ function nz.Elec.Functions.Activate(nochat)
 	
 	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
-		if v:IsDoor() or v:IsBuyableProp() then
-			if v.price == 0 and v.elec == 1 then 
-				Doors:OpenDoor( v )
+		if v:IsBuyableEntity() then
+			local data = v:GetDoorData()
+			if data then
+				if tonumber(data.price) == 0 and tobool(data.elec) == true then
+					Doors:OpenDoor( v )
+				end
 			end
 		end
 	end
@@ -31,8 +34,8 @@ function nz.Elec.Functions.Reset()
 	nz.Elec.Data.Active = false
 	-- Reset the button aswell
 	local prevs = ents.FindByClass("power_box")
-	if prevs[1] != nil then
-		prevs[1]:SetSwitch(false)
+	for k,v in pairs(prevs) do
+		v:SetSwitch(false)
 	end
 	
 	nz.Elec.Functions.SendSync()

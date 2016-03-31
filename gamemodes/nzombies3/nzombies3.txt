@@ -17,28 +17,20 @@
 		1
 		{
 			"name"		"nz_downtime"
-			"text"		"The downtime before death"
+			"text"		"Bleedout Time"
 			"help"		"How long time in seconds until you die from not being revived while downed."
 			"type"		"Numeric"
 			"default"	"45"
 		}
 		2
 		{
-			"name"		"nz_randombox_whitelist"
-			"text"		"Use weapons whitelist"
-			"help"		"Whether to load only from the whitelist in "gamemode/config/sh_constructor.lua" (still bans from the blacklist)"
-			"type"		"CheckBox"
-			"default"	"1"
-		}
-		3
-		{
 			"name"		"nz_randombox_maplist"
-			"text"		"Use the map configs weapon list"
+			"text"		"Use maps Weapon List"
 			"help"		"Whether to replace the white- and blacklist with the config's Map Settings list - turn off to always use the above lists"
 			"type"		"CheckBox"
 			"default"	"1"
 		}
-		4
+		3
 		{
 			"name"		"nz_nav_grouptargeting"
 			"text"		"Use navgroups if available"
@@ -46,15 +38,7 @@
 			"type"		"CheckBox"
 			"default"	"1"
 		}
-		5
-		{
-			"name"		"nz_round_limit"
-			"text"		"Round limit"
-			"help"		"How many rounds should the gamemode load?"
-			"type"		"Numeric"
-			"default"	"100"
-		}
-		6
+		4
 		{
 			"name"		"nz_round_special_interval"
 			"text"		"Special round interval."
@@ -62,7 +46,7 @@
 			"type"		"Numeric"
 			"default"	"6"
 		}
-		7
+		5
 		{
 			"name"		"nz_round_prep_time"
 			"text"		"Round preparation duration"
@@ -70,79 +54,55 @@
 			"type"		"Numeric"
 			"default"	"10"
 		}
-		8
+		6
 		{
 			"name"		"nz_round_dropins_allow"
-			"text"		"Allow droppins"
-			"help"		"Allow ne player droppins after a round."
+			"text"		"Allow dropins"
+			"help"		"Allow player droppins after a round."
 			"type"		"CheckBox"
 			"default"	"1"
 		}
-		9
+		7
 		{
 			"name"		"nz_difficulty_zombie_amount_base"
-			"text"		"1st round zombie amount"
+			"text"		"Base Zombie amount"
 			"help"		"The base amount of zombies."
 			"type"		"Numeric"
 			"default"	"5"
 		}
-		10
+		8
 		{
 			"name"		"nz_difficulty_zombie_amount_scale"
-			"text"		"Scale factor for the zombie amount"
-			"help"		"How much should the zombie amount increase in later rounds."
+			"text"		"Zombie amount scale"
+			"help"		"How much the Zombie amount increases each round."
 			"type"		"Numeric"
 			"default"	"1.01"
 		}
-		11
+		9
 		{
 			"name"		"nz_difficulty_zombie_health_base"
-			"text"		"1st round zombie health."
+			"text"		"Base Zombie health"
 			"help"		"The base health of the zombies."
 			"type"		"Numeric"
 			"default"	"75"
 		}
-		12
+		10
 		{
 			"name"		"nz_difficulty_zombie_health_scale"
-			"text"		"Scale factor for the zombie health"
-			"help"		"How much should the zombie health increase in later rounds."
+			"text"		"Zombie health scale"
+			"help"		"How much the Zombie health increases each round."
 			"type"		"Numeric"
 			"default"	"1.1"
 		}
-		13
-		{
-			"name"		"nz_difficulty_zombie_speed_base"
-			"text"		"1st round zombie speed"
-			"help"		"The base speed of the zombies."
-			"type"		"Numeric"
-			"default"	"60"
-		}
-		14
-		{
-			"name"		"nz_difficulty_zombie_speed_scale"
-			"text"		"Scale factor for the zombie speed"
-			"help"		"How much should the zombie speed increase in later rounds."
-			"type"		"Numeric"
-			"default"	"0.5"
-		}
-		15
-		{
-			"name"		"nz_difficulty_starting_points"
-			"text"		"Starting points"
-			"help"		"How many starting points a player should get."
-			"type"		"Numeric"
-			"default"	"500"
-		}
-		16
+		11
 		{
 			"name"		"nz_difficulty_max_zombies_alive"
 			"text"		"Maximum zombies"
 			"help"		"The maximum amount of zombies alive at a time."
 			"type"		"Numeric"
-			"default"	"100"
+			"default"	"35"
 		}
-		17
+		12
 		{
 			"name"		"nz_difficulty_barricade_planks_max"
 			"text"		"Barricade plank amount"
@@ -150,7 +110,7 @@
 			"type"		"Numeric"
 			"default"	"6"
 		}
-		18
+		13
 		{
 			"name"		"nz_difficulty_powerup_chance"
 			"text"		"Powerup drop chance in %"
@@ -158,7 +118,7 @@
 			"type"		"Numeric"
 			"default"	"2"
 		}
-		19
+		14
 		{
 			"name"		"nz_difficulty_perks_max"
 			"text"		"Maximum buyable perks"
@@ -166,18 +126,10 @@
 			"type"		"Numeric"
 			"default"	"4"
 		}
-		20
-		{
-			"name"		"nz_performance_halos"
-			"text"		"Draw Halos (decrepit)"
-			"help"		"Wether to draw halos or not."
-			"type"		"CheckBox"
-			"default"	"0"
-		}
-		21
+		15
 		{
 			"name"		"nz_point_notification_clientside"
-			"text"		"Client Side point calculation"
+			"text"		"Client Side point difference calculation"
 			"help"		"Might improve server peformance a little, but its not recommended."
 			"type"		"CheckBox"
 			"default"	"0"

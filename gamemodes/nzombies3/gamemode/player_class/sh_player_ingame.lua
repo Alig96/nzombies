@@ -40,16 +40,13 @@ end
 function PLAYER:Spawn()
 
 	if Mapping.Settings.startpoints then
-		self.Player:SetPoints(Mapping.Settings.startpoints)
-	elseif IsValid(ents.FindByClass("player_handler")[1]) then
-		local ent = ents.FindByClass("player_handler")[1]
-		if !self.Player:CanAfford(ent:GetStartPoints()) then
-			self.Player:SetPoints(ent:GetStartPoints())
+		if !self.Player:CanAfford(Mapping.Settings.startpoints) then
+			self.Player:SetPoints(Mapping.Settings.startpoints)
 		end
 	else
-		if !self.Player:CanAfford(GetConVar("nz_difficulty_starting_points"):GetInt()) then -- Has less than 500 points
+		if !self.Player:CanAfford(500) then -- Has less than 500 points
 			-- Poor guy has no money, lets start him off
-			self.Player:SetPoints(GetConVar("nz_difficulty_starting_points"):GetInt())
+			self.Player:SetPoints(500)
 		end
 	end
 

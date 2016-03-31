@@ -30,8 +30,8 @@ function Revive.HandleRevive(ply, ent)
 				-- print(CurTime() - Revive.Players[id].ReviveTime)
 				
 				if ply:HasPerk("revive") and CurTime() - Revive.Players[id].ReviveTime >= 2 //With quick-revive
-				or CurTime() - Revive.Players[id].ReviveTime >= 5 then	//5 is the time it takes to revive
-					dply:RevivePlayer()
+				or CurTime() - Revive.Players[id].ReviveTime >= 4 then	//4 is the time it takes to revive
+					dply:RevivePlayer(ply)
 					ply.Reviving = nil
 				end
 			end

@@ -1,29 +1,31 @@
-//Main Tables
+-- Main Tables
 nz.Config = {}
-//nz.Config.Functions = {}
-//nz.Config.Data = {}
+-- nz.Config.Functions = {}
+-- nz.Config.Data = {}
 
-// Defaults
+--  Defaults
 
-//Zombie table - Moved to shared area for client collision prediction (barricades)
+if not ConVarExists("nz_randombox_whitelist") then CreateConVar("nz_randombox_whitelist", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+
+-- Zombie table - Moved to shared area for client collision prediction (barricades)
 nz.Config.ValidEnemies = {
 	["nz_zombie_walker"] = {
-		//Set to false to disable the spawning of this zombie
+		-- Set to false to disable the spawning of this zombie
 		Valid = true,
-		//Allow you to scale damage on a per-hitgroup basis
+		-- Allow you to scale damage on a per-hitgroup basis
 		ScaleDMG = function(zombie, hitgroup, dmginfo)
-			//Headshots for double damage
+			-- Headshots for double damage
 			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
 		end,
-		//Function runs whenever the zombie is damaged (NOT when killed)
+		-- Function runs whenever the zombie is damaged (NOT when killed)
 		OnHit = function(zombie, dmginfo, hitgroup)
 			local attacker = dmginfo:GetAttacker()
-			//If player is playing and is not downed, give points
+			-- If player is playing and is not downed, give points
 			if attacker:IsPlayer() and attacker:GetNotDowned() then
 				attacker:GivePoints(10)
 			end
 		end,
-		//Function is run whenever the zombie is killed
+		-- Function is run whenever the zombie is killed
 		OnKilled = function(zombie, dmginfo, hitgroup)
 			local attacker = dmginfo:GetAttacker()
 			if attacker:IsPlayer() and attacker:GetNotDowned() then
@@ -63,7 +65,7 @@ nz.Config.ValidEnemies = {
 	}
 }
 
-//Random Box
+-- Random Box
 
 nz.Config.WeaponBlackList = {}
 function nz.Config.AddWeaponToBlacklist( class, remove )
@@ -89,13 +91,15 @@ nz.Config.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
 nz.Config.AddWeaponToBlacklist( "nz_tool_base" )
 nz.Config.AddWeaponToBlacklist( "nz_one_inch_punch" ) -- Nope! You gotta give this with special map scripts
 
+nz.Config.AddWeaponToBlacklist( "cw_base" )
+
 nz.Config.WeaponWhiteList = {
-	"fas2_", "m9k_",
+	"fas2_", "m9k_", "cw_",
 }
 
 if SERVER then
 
-	//Enemies
+	-- Enemies
 	nz.Config.SpecialRoundData = {
 		types = {
 			["nz_zombie_special_burning"] = {
@@ -178,11 +182,11 @@ if SERVER then
 	nz.Config.EnemyTypes[13] = {["nz_zombie_walker"] = 80, ["nz_zombie_special_burning"] = 20}
 	nz.Config.EnemyTypes[18] = {["nz_zombie_special_burning"] = 100}
 	nz.Config.EnemyTypes[19] = {["nz_zombie_walker"] = 70, ["nz_zombie_special_burning"] = 30}
-	//nz.Config.EnemyTypes[4] = {["hellhounds"] = 100}
-	//nz.Config.EnemyTypes[4] = {["nz_zombie_walker"] = 80, ["hellhounds"] = 20}]]
+	-- nz.Config.EnemyTypes[4] = {["hellhounds"] = 100}
+	-- nz.Config.EnemyTypes[4] = {["nz_zombie_walker"] = 80, ["hellhounds"] = 20}]]
 
-	//Player Class
-	nz.Config.BaseStartingWeapons = {"fas2_glock20"} //"fas2_p226", "fas2_ots33", "fas2_glock20" "weapon_pistol"
-	//nz.Config.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
+	-- Player Class
+	nz.Config.BaseStartingWeapons = {"fas2_glock20"} -- "fas2_p226", "fas2_ots33", "fas2_glock20" "weapon_pistol"
+	-- nz.Config.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
 
 end

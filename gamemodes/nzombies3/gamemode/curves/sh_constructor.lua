@@ -10,16 +10,6 @@ if SERVER then
 	nz.Curves.Data.Health = {}
 	nz.Curves.Data.Speed = {}
 
-	//Generate Curve
-	function nz.Curves.Functions.GenerateCurve()
-		for i=1, GetConVar("nz_round_limit"):GetInt() do
-			nz.Curves.Data.SpawnRate[i-1] = math.Round(GetConVar("nz_difficulty_zombie_amount_base"):GetInt()*math.pow(i-1,GetConVar("nz_difficulty_zombie_amount_scale"):GetFloat()))
-			nz.Curves.Data.Health[i-1] = math.Round(GetConVar("nz_difficulty_zombie_health_base"):GetFloat()*math.pow(i-1,GetConVar("nz_difficulty_zombie_health_scale"):GetFloat()))
-			nz.Curves.Data.Speed[i-1] = math.Round(GetConVar("nz_difficulty_zombie_speed_base"):GetFloat()*math.pow(i-1,GetConVar("nz_difficulty_zombie_speed_scale"):GetFloat()))
-		end
-		//PrintTable(nz.Curves.Data)
-	end
-
 	function nz.Curves.Functions.GenerateHealthCurve(round)
 		return math.Round(GetConVar("nz_difficulty_zombie_health_base"):GetFloat()*math.pow(GetConVar("nz_difficulty_zombie_health_scale"):GetFloat(),round - 1))
 	end
@@ -50,8 +40,5 @@ if SERVER then
 		end
 		return tbl
 	end
-
-
-	nz.Curves.Functions.GenerateCurve()
 
 end
