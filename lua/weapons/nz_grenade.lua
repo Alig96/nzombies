@@ -65,7 +65,7 @@ function SWEP:EndGrenadeModel()
 end
 
 function SWEP:PrimaryAttack()
-	
+	self:ThrowGrenade(1000)
 end
 
 function SWEP:ThrowGrenade(force)
@@ -103,5 +103,10 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	
+	self:EndGrenadeModel()
+end
+
+function SWEP:Holster( wep )
+	if not IsFirstTimePredicted() then return end
+	self:EndGrenadeModel()
 end

@@ -354,7 +354,13 @@ function PlayerList:Paint(w, h)
 			surface.SetMaterial(bloodline_points)
 			surface.SetDrawColor(200,0,0)
 			surface.DrawTexturedRect(0, h / 2 - n * 17.5 + 35 * c, 300, 40)
-			if ply:IsReady() then text = "Ready" else text = "Not ready" end
+			if ply:IsReady() then text = "Ready" else
+				if Round:InState(ROUND_CREATE) and ply:Alive() then
+					text = "In Creative"
+				else
+					text = "Not ready"
+				end
+			end
 			draw.SimpleText(ply:Nick() .. " - " .. text, "nz.display.hud.small", 25, h / 2 - n * 17.5 + 35 * c + 15, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 			c = c + 1
 		end
