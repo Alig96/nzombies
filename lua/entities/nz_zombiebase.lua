@@ -273,6 +273,7 @@ function ENT:Initialize()
 	for i,v in ipairs(self:GetBodyGroups()) do
 		self:SetBodygroup( i-1, math.random(0, self:GetBodygroupCount(i-1) - 1))
 	end
+	self:SetSkin( math.random(self:SkinCount()) - 1 )
 
 	if CLIENT then
 		--make them invisible for a really short duration to blend the emerge sequences
