@@ -2,8 +2,9 @@
 function Revive.DoPlayerDeath(ply, dmg)
 
 	if IsValid(ply) and ply:IsPlayer() and ply:Health() - dmg:GetDamage() <= 0 then
-		local prevent = hook.Call("PlayerShouldTakeDamage", nil, ply, dmg:GetAttacker())
-		if hook.Call("PlayerShouldTakeDamage", nil, ply, dmg:GetAttacker()) then
+		local allow = hook.Call("PlayerShouldTakeDamage", nil, ply, dmg:GetAttacker())
+		print(allow, "Allowed or not")
+		if allow != false then -- Only false should prevent it (not nil)
 			if ply:GetNotDowned() then
 				print(ply:Nick() .. " got downed!")
 				ply:DownPlayer()
