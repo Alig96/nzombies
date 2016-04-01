@@ -6,14 +6,29 @@ ENT.Author = "Zet0r"
 ENT.Spawnable = false
 ENT.AdminSpawnable = false
 
+ENT.ExplosionSounds = {
+	"nz/monkey/voice_explosion/explo_vox_00.wav",
+	"nz/monkey/voice_explosion/explo_vox_01.wav",
+	"nz/monkey/voice_explosion/explo_vox_02.wav",
+	"nz/monkey/voice_explosion/explo_vox_03.wav",
+	"nz/monkey/voice_explosion/explo_vox_04.wav",
+	"nz/monkey/voice_explosion/explo_vox_05.wav",
+	"nz/monkey/voice_explosion/explo_vox_06.wav",
+	"nz/monkey/voice_explosion/explo_vox_07.wav",
+	"nz/monkey/voice_explosion/explo_vox_08.wav",
+	"nz/monkey/voice_explosion/explo_vox_09.wav",
+	"nz/monkey/voice_explosion/explo_vox_10.wav",
+	"nz/monkey/voice_explosion/explo_vox_11.wav",
+}
+
 if SERVER then
 	AddCSLuaFile()
 end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetModel("models/weapons/w_eq_fraggrenade_thrown.mdl") -- Change later
-		self:PhysicsInitSphere(2, "metal_bouncy")
+		self:SetModel("models/nzprops/monkey_bomb.mdl") -- Change later
+		self:PhysicsInitSphere(1, "metal_bouncy")
 		self:SetMoveType(MOVETYPE_VPHYSICS)
 		self:SetCollisionGroup(COLLISION_GROUP_NONE)
 		self:SetSolid(SOLID_VPHYSICS)
@@ -23,8 +38,6 @@ function ENT:Initialize()
 			phys:Wake()
 		end
 	end
-	--special target priority will make zombies prioritize this enittiy
-	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 end
 
 
@@ -41,17 +54,36 @@ function ENT:PhysicsCollide(data, physobj)
 
 		LastSpeed = math.max( NewVelocity:Length(), LastSpeed )
 
-		local TargetVelocity = NewVelocity * LastSpeed * 0.6
+		local TargetVelocity = NewVelocity * LastSpeed * 0.75
 
 		physobj:SetVelocity( TargetVelocity )
-		self:SetLocalAngularVelocity( AngleRand() )
+		
+		if vel <= 75 then
+			self:SetMoveType(MOVETYPE_NONE)
+			self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+			self:ResetSequence("anim_play")
+			self:SetExplosionTimer(8)
+		end
 	end
 end
 
 function ENT:SetExplosionTimer( time )
 
-	SafeRemoveEntityDelayed( self, time +1 ) --fallback
+	-- Make Zombies target this over players
+	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 
+	SafeRemoveEntityDelayed( self, time +1 ) --fallback
+	
+	self:EmitSound("nz/monkey/music/song"..math.random(1,3)..".wav", 100)
+	self.NextCymbal = CurTime()
+
+	timer.Simple(time - 1.5, function()
+		if IsValid(self) then
+			local sound = self.ExplosionSounds[math.random(1,#self.ExplosionSounds)]
+			self:EmitSound(sound, 85)
+		end
+	end)
+	
 	timer.Simple(time, function()
 		if IsValid(self) then
 			local pos = self:GetPos()
@@ -71,4 +103,13 @@ end
 
 function ENT:Draw()
 	self:DrawModel()
+end
+
+function ENT:Think()
+	if SERVER then
+		if self.NextCymbal and self.NextCymbal < CurTime() then
+			self:EmitSound("nz/monkey/cymbals/monk_cymb_m.wav")
+			self.NextCymbal = CurTime() + 0.2
+		end
+	end
 end
