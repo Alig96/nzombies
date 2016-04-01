@@ -285,5 +285,7 @@ function Round:SetupGame()
 	if !IsValid(power[1]) then -- No power switch D:
 		nz.Elec.Functions.Activate(true) -- Silently turn on the power
 	end
+	
+	nz.Perks.Functions.UpdateQuickRevive()
 
 end

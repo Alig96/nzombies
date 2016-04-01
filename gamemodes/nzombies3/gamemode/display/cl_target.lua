@@ -67,7 +67,7 @@ local traceents = {
 			else
 				local perkData = nz.Perks.Functions.Get(ent:GetPerkID())
 				-- Its on
-				text = "Press E to buy " .. perkData.name .. " for " .. perkData.price .. " points."
+				text = "Press E to buy " .. perkData.name .. " for " .. ent:GetPrice() .. " points."
 				-- Check if they already own it
 				if LocalPlayer():HasPerk(ent:GetPerkID()) then
 					text = "You already own this perk."

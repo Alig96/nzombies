@@ -91,7 +91,14 @@ nz.Perks.Functions.NewPerk("revive", {
 	on_model = "models/alig96/perks/revive/revive_on.mdl",
 	price = 1500,
 	func = function(self, ply, machine)
-			print(self)
+			if #player.GetAllPlaying() <= 1 then
+				if !ply.SoloRevive or ply.SoloRevive < 3 then
+					ply:ChatPrint("You got Quick Revive (Solo)!")
+				else 
+					ply:ChatPrint("You can only get Quick Revive Solo 3 times.")
+					return false
+				end
+			end
 			--ply:PrintMessage( HUD_PRINTTALK, "You've got Quick Revive!")
 			return true
 	end,

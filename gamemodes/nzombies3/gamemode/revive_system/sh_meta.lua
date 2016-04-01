@@ -25,6 +25,17 @@ if SERVER then
 		if self:HasPerk("tombstone") then
 			Revive.Players[id].tombstone = true
 		end
+		if #player.GetAllPlaying() <= 1 and self:HasPerk("revive") and (!self.SoloRevive or self.SoloRevive < 3) then
+			self.SoloRevive = self.SoloRevive and self.SoloRevive + 1 or 1
+			self.DownedWithSoloRevive = true
+			self:StartRevive(self)
+			timer.Simple(8, function()
+				if IsValid(self) and !self:GetNotDowned() then
+					self:RevivePlayer(self)
+				end
+			end)
+			print(self, "Downed with solo revive")
+		end
 
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
 
@@ -63,6 +74,8 @@ if SERVER then
 			revivor:GivePoints(self.DownPoints)
 		end
 		self.DownPoints = nil
+		self.HasWhosWho = nil
+		self.DownedWithSoloRevive = nil
 	end
 
 	function playerMeta:StartRevive(revivor, nosync)
@@ -73,6 +86,8 @@ if SERVER then
 		Revive.Players[id].ReviveTime = CurTime()
 		Revive.Players[id].RevivePlayer = revivor
 		revivor.Reviving = self
+		
+		print("Started revive", self, revivor)
 
 		if !nosync then hook.Call("PlayerBeingRevived", Revive, self, revivor) end
 	end
@@ -83,6 +98,8 @@ if SERVER then
 
 		Revive.Players[id].ReviveTime = nil
 		Revive.Players[id].RevivePlayer = nil
+		
+		print("Stopped revive", self)
 
 		if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
 	end
@@ -99,6 +116,7 @@ if SERVER then
 		if !nosync then hook.Call("PlayerKilled", Revive, self) end
 		self.HasWhosWho = nil
 		self.DownPoints = nil
+		self.DownedWithSoloRevive = nil
 		for k,v in pairs(player.GetAllPlayingAndAlive()) do
 			v:TakePoints(math.Round(v:GetPoints()*0.1, -1))
 		end
