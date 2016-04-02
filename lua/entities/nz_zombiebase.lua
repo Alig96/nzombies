@@ -273,6 +273,7 @@ function ENT:Initialize()
 	for i,v in ipairs(self:GetBodyGroups()) do
 		self:SetBodygroup( i-1, math.random(0, self:GetBodygroupCount(i-1) - 1))
 	end
+	self:SetSkin( math.random(self:SkinCount()) - 1 )
 
 	if CLIENT then
 		--make them invisible for a really short duration to blend the emerge sequences
@@ -290,6 +291,10 @@ function ENT:Initialize()
 			self:SetRenderClipPlaneEnabled(false)
 		end)
 
+	end
+	
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Now spawning")
 	end
 
 end
@@ -316,11 +321,17 @@ function ENT:Think()
 		--this is a very costly operation so we only do it every 1 seconds
 		if self:GetLastTargetCheck() + 1 < CurTime() then
 			self:SetTarget(self:GetPriorityTarget())
+			if GetConVar( "nz_zombie_debug" ):GetBool() then
+				print(self, "Retargeting from Think.")
+			end
 		end
 
 		if self:GetLastPostionSave() + 4 < CurTime() then
 			if self:GetPos():Distance( self:GetStuckAt() ) < 10 then
 				self:SetStuckCounter( self:GetStuckCounter() + 1)
+				if GetConVar( "nz_zombie_debug" ):GetBool() then
+				print(self, "Adding up stuck counter. Now at "..self:GetStuckCounter())
+			end
 			else
 				self:SetStuckCounter( 0 )
 			end
@@ -335,6 +346,9 @@ function ENT:Think()
 				if self:GetStuckCounter() > 3 and self:GetStuckCounter() <= 5 then
 					--try to unstuck via jump
 					self:Jump()
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Jumping because stuck counter is 3 or 5.")
+					end
 				end
 
 				if self:GetStuckCounter() > 5 then
@@ -342,6 +356,9 @@ function ENT:Think()
 					--respawn the zombie after 32 seconds with no postion change
 					self:RespawnAtRandom()
 					self:SetStuckCounter( 0 )
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Respawned because stuck counter is over 5.")
+					end
 				end
 
 			end
@@ -359,8 +376,11 @@ function ENT:Think()
 			self:SetNextMoanSound( nextSound )
 		end
 
-		if self:WaterLevel() == 3 then
+		if self:ZombieWaterLevel() == 3 then
 			self:RespawnAtRandom()
+			if GetConVar( "nz_zombie_debug" ):GetBool() then
+				print(self, "Respawning because submerged in water.")
+			end
 		end
 
 	end
@@ -373,6 +393,9 @@ function ENT:RunBehaviour()
 	self:OnSpawn()
 
 	while (true) do
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			print(self, "Performing a Run Behaviour loop.")
+		end
 		if !self:GetStop() then
 			if self:HasTarget() then
 				local pathResult = self:ChaseTarget( {
@@ -407,6 +430,9 @@ end
 function ENT:Stop()
 	self:SetStop(true)
 	self:SetTarget(nil)
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Stopping all behaviour and removing target.")
+	end
 end
 
 --Draw sppoky red eyes
@@ -463,11 +489,17 @@ function ENT:OnSpawn()
 end
 
 function ENT:OnTargetInAttackRange()
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Attacking", self:GetTarget())
+	end
 	self:Attack()
 end
 
 function ENT:OnBarricadeBlocking( barricade )
 	if (IsValid(barricade) and barricade:GetClass() == "breakable_entry" ) then
+		if GetConVar( "nz_zombie_debug" ):GetBool() then
+			print(self, "Attacking barricade", barricade)
+		end
 		if barricade:GetNumPlanks() > 0 then
 			timer.Simple(0.3, function()
 
@@ -482,8 +514,15 @@ function ENT:OnBarricadeBlocking( barricade )
 	end
 end
 
-function ENT:OnPathTimeOut()
+function ENT:TimeOut(time)
+	self:OnPathTimeOut()
+	coroutine.wait(time)
+end
 
+function ENT:OnPathTimeOut()
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Path timed out.")
+	end
 end
 
 function ENT:OnNoTarget()
@@ -513,6 +552,9 @@ function ENT:OnNoTarget()
 		if self:IsValidTarget(newtarget) then
 			self:SetTarget(newtarget)
 		else
+			if GetConVar( "nz_zombie_debug" ):GetBool() then
+				print(self, "Tried to retarget in OnNoTarget, but got no valid target.")
+			end
 			local sPoint = self:GetClosestAvailableRespawnPoint()
 			if !sPoint then
 				-- Something is wrong remove this zombie
@@ -523,11 +565,17 @@ function ENT:OnNoTarget()
 
 				-- Wander a bit, then check again
 				if !self:GetClosestAvailableRespawnPoint() then
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Removing because no valid target.")
+					end
 					self:Remove()
 				end
 			else
 				--if not visible to players respawn immediately
 				if !self:IsInSight() then
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Respawning from no valid target and not in sight.")
+					end
 					self:RespawnAtRandom( sPoint )
 				else
 					self:ChaseTarget( {
@@ -536,6 +584,9 @@ function ENT:OnNoTarget()
 						target = sPoint,
 						tolerance = self:GetAttackRange() / 10
 					})
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Respawning from no valid target and having walked around.")
+					end
 					self:RespawnAtRandom( sPoint )
 				end
 			end
@@ -636,10 +687,17 @@ function ENT:OnStuck()
 	--
 	--self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000, 1000 )
 	--print("Now I'm stuck", self)
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Now stuck.")
+	end
 end
 
 --Target and pathfidning
 function ENT:GetPriorityTarget()
+
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Retargeting")
+	end
 
 	self:SetLastTargetCheck( CurTime() )
 
@@ -1054,7 +1112,7 @@ function ENT:Kill()
 end
 
 function ENT:IsInSight()
-	for _, ply in pairs( player.GetAllPlayingAndAlive() ) do
+	for _, ply in pairs( player.GetAllPlaying() ) do
 		--can player see us or the teleport location
 		if ply:Alive() and ply:IsLineOfSightClear( self ) then
 			if ply:GetEyeTrace().Entity == self then
@@ -1250,6 +1308,7 @@ function ENT:RespawnAtRandom( cur )
 	local valids = nz.Enemies.Functions.ValidRespawns( cur )
 	if valids[1] == nil then
 		print("No valid spawns were found - Couldn't respawn!")
+		self:TimeOut(1) -- Timeout for 1 second if it didn't work
 		return
 	end
 	local spawnpoint = valids[ math.random(#valids) ]
@@ -1258,6 +1317,7 @@ function ENT:RespawnAtRandom( cur )
 		self:OnSpawn()
 		return true
 	end
+	self:TimeOut(1) -- Woah! This shouldn't happen
 	return false
 end
 
@@ -1277,6 +1337,22 @@ function ENT:ApplyRandomPush( power )
 	vec.z = math.random( 100 )
 	self.loco:SetVelocity( vec )
 	self:SetLastPush( CurTime() )
+end
+
+function ENT:ZombieWaterLevel()
+	local pos1 = self:GetPos()
+	local halfSize = self:OBBCenter()
+	local pos2 = pos1 + halfSize
+	local pos3 = pos2 + halfSize
+	if ( bit.band( util.PointContents( pos3 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 3
+	elseif ( bit.band( util.PointContents( pos2 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 2
+	elseif ( bit.band( util.PointContents( pos1 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 1
+	end
+
+	return 0
 end
 
 --Targets

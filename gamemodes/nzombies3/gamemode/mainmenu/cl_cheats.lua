@@ -15,6 +15,7 @@ function CheatFrame:Init()
 	list:AddCheat("Give Perk", "/giveperk", "Player", "Perk")
 	list:AddCheat("Activate electricity", "/activateelec")
 	list:AddCheat("Revive", "/revive", "Player")
+	list:AddCheat("Target Priority", "/targetpriority", "PlayerEntity", "Priority")
 end
 
 vgui.Register( "NZCheatFrame", CheatFrame, "DFrame")
@@ -48,7 +49,7 @@ function CheatList:AddCheat(label, command, input1, input2, input3)
 	cheatSubmit:SetSize(128, 24)
 	cheatSubmit:SetPos(384,0)
 	cheatSubmit:SetText("Submit")
-	function cheatSubmit:Think()
+	--[[function cheatSubmit:Think()
 		if input1 and input1:GetCheatData() and input1:GetCheatData() != "" then
 			if input2 and input2:GetCheatData() and input2:GetCheatData() != "" then
 				cheatSubmit:SetConsoleCommand("say", command .. " " .. input1:GetCheatData() .. " " .. input2:GetCheatData())
@@ -57,6 +58,17 @@ function CheatList:AddCheat(label, command, input1, input2, input3)
 			end
 		else
 			cheatSubmit:SetConsoleCommand("say", command)
+		end
+	end]]
+	cheatSubmit.DoClick = function()
+		if input1 and input1:GetCheatData() and input1:GetCheatData() != "" then
+			if input2 and input2:GetCheatData() and input2:GetCheatData() != "" then
+				RunConsoleCommand("say", command .. " " .. input1:GetCheatData() .. " " .. input2:GetCheatData())
+			else
+				RunConsoleCommand( "say", command .. " " .. input1:GetCheatData() )
+			end
+		else
+			RunConsoleCommand("say", command)
 		end
 	end
 
@@ -170,6 +182,53 @@ end
 
 vgui.Register("NZCheatInputPerk", CheatInputPerk, "DComboBox")
 
+local CheatInputPriority = {}
+
+AccessorFunc(CheatInputPriority, "iCheatData", "CheatData", FORCE_STRING)
+
+function CheatInputPriority:Init()
+	self:SetValue("Target")
+	self:SetWide(128)
+	self:SetTall(24)
+	
+	self:AddChoice("None (0)", "0")
+	self:AddChoice("Player (1)", "1")
+	self:AddChoice("Special (2)", "2")
+	self:AddChoice("Max (3)", "3")
+	self:AddChoice("Always (10)", "10")
+end
+
+function CheatInputPriority:OnSelect(index, value, data)
+	self:SetCheatData(data)
+end
+
+vgui.Register("NZCheatInputPriority", CheatInputPriority, "DComboBox")
+
+
+local CheatInputPlayerEntity = {}
+
+AccessorFunc(CheatInputPlayerEntity, "sCheatData", "CheatData", FORCE_STRING)
+
+function CheatInputPlayerEntity:Init()
+	self:SetValue("Entity")
+	self:SetWide(128)
+	self:SetTall(24)
+	for _,ply in pairs(player.GetAll()) do
+		self:AddChoice(ply:Nick())
+	end
+	local ent = LocalPlayer():GetEyeTrace().Entity
+	if IsValid(ent) then
+		self:AddChoice("Entity ["..ent:EntIndex().."] ["..ent:GetClass().."]", "entity("..ent:EntIndex()..")")
+	else
+		self:AddChoice("Look at an entity to target that.", "")
+	end
+end
+
+function CheatInputPlayerEntity:OnSelect(index, value, data)
+	self:SetCheatData(data or value)
+end
+
+vgui.Register("NZCheatInputPlayerEntity", CheatInputPlayerEntity, "DComboBox")
 
 
 chatcommand.Add("/cheats", function(ply, text)

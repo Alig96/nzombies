@@ -130,7 +130,7 @@ chatcommand.Add("/givepoints", function(ply, text)
 		points = tonumber(text[2])
 	end
 
-	if IsValid(plyToGiv) and plyToGiv:Alive() and plyToGiv:IsPlaying() then
+	if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or Round:InState(ROUND_CREATE)) then
 		if points then
 			plyToGiv:GivePoints(points)
 		else
@@ -152,7 +152,7 @@ chatcommand.Add("/giveweapon", function(ply, text)
 	else
 		wep = weapons.Get(text[2])
 	end
-	if IsValid(plyToGiv) and plyToGiv:Alive() and plyToGiv:IsPlaying() then
+	if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or Round:InState(ROUND_CREATE)) then
 		if wep then
 			plyToGiv:Give(wep.ClassName)
 		else
@@ -174,11 +174,43 @@ chatcommand.Add("/giveperk", function(ply, text)
 	else
 		perk = text[2]
 	end
-	if IsValid(plyToGiv) and plyToGiv:Alive() and plyToGiv:IsPlaying() then
+	if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or Round:InState(ROUND_CREATE)) then
 		if nz.Perks.Functions.Get(perk) then
 			plyToGiv:GivePerk(perk)
 		else
 			ply:ChatPrint("No valid perk provided.")
+		end
+	else
+		ply:ChatPrint("They player you have selected is either not valid or not alive.")
+	end
+end)
+
+chatcommand.Add("/targetpriority", function(ply, text)
+	local plyToGiv
+	local strstart, strend = string.find(text[1], "entity(", 1, true)
+	if strstart then
+		local _, strstop = string.find(text[1], ")", strend, true)
+		local ent = string.sub(text[1], strend + 1, strstop - 1)
+		if ent and IsValid(Entity(ent)) then
+			plyToGiv = Entity(ent)
+		end
+	else
+		plyToGiv = player.GetByName(text[1])
+	end
+
+	local priority
+
+	if !plyToGiv then
+		priority = tonumber(text[1])
+		plyToGiv = ply
+	else
+		priority = tonumber(text[2])
+	end
+	if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or Round:InState(ROUND_CREATE)) then
+		if priority then
+			plyToGiv:SetTargetPriority(priority)
+		else
+			ply:ChatPrint("No valid priority provided.")
 		end
 	else
 		ply:ChatPrint("They player you have selected is either not valid or not alive.")

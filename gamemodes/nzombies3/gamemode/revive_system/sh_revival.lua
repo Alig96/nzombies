@@ -39,9 +39,7 @@ function Revive.HandleRevive(ply, ent)
 			if IsValid(ply.Reviving) and ply.Reviving != dply then -- Holding E on another player or no player
 				local id = ply.Reviving:EntIndex()
 				if Revive.Players[id] then 
-					if Revive.Players[id].ReviveTime then 
-						Revive.Players[id].ReviveTime = nil
-						Revive.Players[id].RevivePlayer = nil
+					if Revive.Players[id].ReviveTime then
 						--ply:SetMoveType(MOVETYPE_WALK)
 						ply.Reviving:StopRevive()
 						ply.Reviving = nil
@@ -55,9 +53,7 @@ function Revive.HandleRevive(ply, ent)
 			if IsValid(ply.Reviving) and (ply.Reviving:IsPlayer() or ply.Reviving:GetClass() == "whoswho_downed_clone") then
 				local id = ply.Reviving:EntIndex()
 				if Revive.Players[id] then 
-					if Revive.Players[id].ReviveTime then 
-						Revive.Players[id].ReviveTime = nil
-						Revive.Players[id].RevivePlayer = nil
+					if Revive.Players[id].ReviveTime then
 						--ply:SetMoveType(MOVETYPE_WALK)
 						ply.Reviving:StopRevive()
 						ply.Reviving = nil
@@ -182,19 +178,7 @@ function Revive:RespawnWithWhosWho(ply, pos)
 	end
 	ply:RevivePlayer()
 	ply:StripWeapons()
-	
-	-- Give starting weapons
-	if Mapping.Settings.startwep then
-		ply:Give( Mapping.Settings.startwep )
-	elseif IsValid(ents.FindByClass("player_handler")[1]) then
-		local ent = ents.FindByClass("player_handler")[1]
-		ply:Give( ent:GetStartWep() )
-	else
-		for k,v in pairs(nz.Config.BaseStartingWeapons) do
-			ply:Give( v )
-		end
-	end
-	nz.Weps.Functions.GiveMaxAmmo(ply)
+	player_manager.RunClass(ply, "Loadout") -- Rearm them
 	
 	ply:SetPos(pos)
 

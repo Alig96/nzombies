@@ -68,7 +68,7 @@ if SERVER then
 			if wep:IsFAS2() then return end
 			//With double tap, reduce the delay for next primary fire to 2/3
 			if wep.Owner:HasPerk("dtap") or wep.Owner:HasPerk("dtap2") then
-				local delay = (wep:GetNextPrimaryFire() - CurTime())*0.66
+				local delay = (wep:GetNextPrimaryFire() - CurTime())*0.80
 				wep:SetNextPrimaryFire(CurTime() + delay)
 			end
 		end
@@ -116,7 +116,7 @@ if SERVER then
 						intervalMax = 0.02,
 					})
 					--print(pct)
-					local zombies = ents.FindInSphere(ply:GetPos(), 200*pct)
+					local zombies = ents.FindInSphere(ply:GetPos(), 250*pct)
 					local d = DamageInfo()
 					d:SetDamage( 100*pct )
 					d:SetDamageType( DMG_SHOCK )
@@ -137,7 +137,7 @@ if SERVER then
 		local dmg = speed / 10
 		if ply:HasPerk("phd") and dmg >= 50 then
 			if ply:Crouching() then
-				local zombies = ents.FindInSphere(ply:GetPos(), 200)
+				local zombies = ents.FindInSphere(ply:GetPos(), 250)
 				for k,v in pairs(zombies) do
 					if nz.Config.ValidEnemies[v:GetClass()] then
 						v:TakeDamage(150, ply, ply)

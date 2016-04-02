@@ -68,6 +68,7 @@ SpecialWeapons:AddWeapon( "nz_grenade", "grenade", function(ply) -- Use function
 		timer.Simple(1, function()
 			if IsValid(ply) then
 				ply.UsingSpecialWep = nil
+				ply:SetActiveWeapon(nil)
 				ply:SelectWeapon(prevwep)
 			end
 		end)
