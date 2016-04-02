@@ -42,7 +42,11 @@ if SERVER then
 		self:RemovePerks()
 		
 		self.DownPoints = math.Round(self:GetPoints()*0.05, -1)
-		self:TakePoints(self.DownPoints)
+		if self.DownPoints >= self:GetPoints() then
+			self:SetPoints(0)
+		else
+			self:TakePoints(self.DownPoints, true)
+		end
 
 		hook.Call("PlayerDowned", Revive, self)
 
@@ -70,8 +74,11 @@ if SERVER then
 		end
 		self:SetTargetPriority(TARGET_PRIORITY_PLAYER)
 		self.HasWhosWho = nil
-		if IsValid(revivor) and revivor:IsPlayer() and self.DownPoints then
-			revivor:GivePoints(self.DownPoints)
+		if IsValid(revivor) and revivor:IsPlayer() then
+			if self.DownPoints then
+				revivor:GivePoints(self.DownPoints)
+			end
+			revivor:StripWeapon("nz_revive_morphine") -- Remove the viewmodel again
 		end
 		self.DownPoints = nil
 		self.HasWhosWho = nil
@@ -88,6 +95,10 @@ if SERVER then
 		revivor.Reviving = self
 		
 		print("Started revive", self, revivor)
+		
+		if revivor:GetNotDowned() then -- You can revive yourself while downed with Solo Quick Revive
+			revivor:Give("nz_revive_morphine") -- Give them the viewmodel
+		end
 
 		if !nosync then hook.Call("PlayerBeingRevived", Revive, self, revivor) end
 	end
@@ -95,6 +106,11 @@ if SERVER then
 	function playerMeta:StopRevive(nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end -- Not even downed
+		
+		local revivor = Revive.Players[id].RevivePlayer
+		if IsValid(revivor) then
+			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors viewmodel
+		end
 
 		Revive.Players[id].ReviveTime = nil
 		Revive.Players[id].RevivePlayer = nil
@@ -107,6 +123,12 @@ if SERVER then
 	function playerMeta:KillDownedPlayer(silent, nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end
+		
+		local revivor = Revive.Players[id].RevivePlayer
+		if IsValid(revivor) then -- This shouldn't happen as players can't die if they are currently being revived
+			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors if someone was reviving viewmodel
+		end
+		
 		Revive.Players[id] = nil
 		if silent then
 			self:KillSilent()

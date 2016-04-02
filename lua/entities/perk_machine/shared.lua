@@ -66,6 +66,8 @@ function ENT:Use(activator, caller)
 						if !MachinesNoDrink[self:GetPerkID()] then
 							local wep = activator:Give("nz_perk_bottle")
 							wep:SetPerk(self:GetPerkID())
+						else
+							activator:Give("nz_packapunch_arms")
 						end
 						self:EmitSound("nz/machines/jingle/"..self:GetPerkID().."_get.wav", 75)
 					end
