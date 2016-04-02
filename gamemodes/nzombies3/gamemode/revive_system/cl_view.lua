@@ -122,7 +122,7 @@ local function DrawRevivalProgress()
 	local dply = tr.Entity
 	local id = dply:EntIndex()
 	
-	local revtime = LocalPlayer():HasPerk("revive") and 2 or 5
+	local revtime = LocalPlayer():HasPerk("revive") and 2 or 4
 	
 	if IsValid(dply) and Revive.Players[id] and Revive.Players[id].RevivePlayer == LocalPlayer() then
 		surface.SetDrawColor(0,0,0)

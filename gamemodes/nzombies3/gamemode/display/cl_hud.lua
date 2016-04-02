@@ -359,3 +359,39 @@ hook.Add("HUDPaint", "grenadeHUD", DrawGrenadeHud )
 
 hook.Add("OnRoundPreperation", "BeginRoundHUDChange", StartChangeRound)
 hook.Add("OnRoundStart", "EndRoundHUDChange", EndChangeRound)
+
+local blockedweps = {
+	["nz_revive_morphine"] = true,
+	["nz_packapunch_arms"] = true,
+	["nz_perk_bottle"] = true,
+}
+
+function GM:HUDWeaponPickedUp( wep )
+
+	if ( !IsValid( LocalPlayer() ) || !LocalPlayer():Alive() ) then return end
+	if ( !IsValid( wep ) ) then return end
+	if ( !isfunction( wep.GetPrintName ) ) then return end
+	if blockedweps[wep:GetClass()] then return end
+		
+	local pickup = {}
+	pickup.time			= CurTime()
+	pickup.name			= wep:GetPrintName()
+	pickup.holdtime		= 5
+	pickup.font			= "DermaDefaultBold"
+	pickup.fadein		= 0.04
+	pickup.fadeout		= 0.3
+	pickup.color		= Color( 255, 200, 50, 255 )
+	
+	surface.SetFont( pickup.font )
+	local w, h = surface.GetTextSize( pickup.name )
+	pickup.height		= h
+	pickup.width		= w
+
+	if ( self.PickupHistoryLast >= pickup.time ) then
+		pickup.time = self.PickupHistoryLast + 0.05
+	end
+	
+	table.insert( self.PickupHistory, pickup )
+	self.PickupHistoryLast = pickup.time
+
+end

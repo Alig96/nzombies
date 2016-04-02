@@ -341,6 +341,7 @@ end
 local function OnWeaponAdded( weapon )
 
 	if !weapon:IsSpecial() then
+		weapon.Weight = 10000
 		-- 0 seconds timer for the next tick, where the weapon's owner will be valid
 		timer.Simple(0, function()
 			local ply = weapon:GetOwner()

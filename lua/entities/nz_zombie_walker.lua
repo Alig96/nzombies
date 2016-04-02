@@ -12,7 +12,7 @@ ENT.Models = {
 	--"models/half-dead/alcatraz/zombie_04.mdl",
 	--"models/half-dead/alcatraz/zombie_05.mdl",
 	
-	"models/nz_zombie/zombie_rig_animated.mdl",
+	"models/nz_zombie/zombie_rerig_animated.mdl",
 }
 
 for _,v in pairs(ENT.Models) do
