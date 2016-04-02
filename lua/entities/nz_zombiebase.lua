@@ -359,7 +359,7 @@ function ENT:Think()
 			self:SetNextMoanSound( nextSound )
 		end
 
-		if self:WaterLevel() == 3 then
+		if self:ZombieWaterLevel() == 3 then
 			self:RespawnAtRandom()
 		end
 
@@ -1277,6 +1277,22 @@ function ENT:ApplyRandomPush( power )
 	vec.z = math.random( 100 )
 	self.loco:SetVelocity( vec )
 	self:SetLastPush( CurTime() )
+end
+
+function ENT:ZombieWaterLevel()
+	local pos1 = self:GetPos()
+	local halfSize = self:OBBCenter()
+	local pos2 = pos1 + halfSize
+	local pos3 = pos2 + halfSize
+	if ( bit.band( util.PointContents( pos3 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 3
+	elseif ( bit.band( util.PointContents( pos2 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 2
+	elseif ( bit.band( util.PointContents( pos1 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+		return 1
+	end
+
+	return 0
 end
 
 --Targets
