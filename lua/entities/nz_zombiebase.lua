@@ -292,7 +292,7 @@ function ENT:Initialize()
 		end)
 
 	end
-	
+
 	if GetConVar( "nz_zombie_debug" ):GetBool() then
 		print(self, "Now spawning")
 	end
@@ -516,7 +516,9 @@ end
 
 function ENT:TimeOut(time)
 	self:OnPathTimeOut()
-	coroutine.wait(time)
+	if coroutine.running() then
+		coroutine.wait(time)
+	end
 end
 
 function ENT:OnPathTimeOut()
