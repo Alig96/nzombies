@@ -4,8 +4,8 @@ chatcommand = {}
 chatcommand.commands = {}
 
 -- Functions
-function chatcommand.Add(text, func, adminOnly)
-	table.insert(chatcommand.commands, {text, func, adminOnly or true})
+function chatcommand.Add(text, func, allowAll)
+	table.insert(chatcommand.commands, {text, func, allowAll and true or false})
 end
 
 -- Hooks
@@ -14,7 +14,7 @@ if SERVER then
 		text = string.lower(text)
 		for k,v in pairs(chatcommand.commands) do
 			if (string.sub(text, 1, string.len(v[1])) == v[1]) then
-				if v[3] and !ply:IsSuperAdmin() then
+				if !v[3] and !ply:IsSuperAdmin() then
 					ply:ChatPrint("This command can only be used by administrators.")
 					return false
 				end

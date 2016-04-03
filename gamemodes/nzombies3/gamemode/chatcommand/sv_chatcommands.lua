@@ -2,19 +2,19 @@
 
 chatcommand.Add("/ready", function(ply, text)
 	ply:ReadyUp()
-end, false)
+end, true)
 
 chatcommand.Add("/unready", function(ply, text)
 	ply:UnReady()
-end, false)
+end, true)
 
 chatcommand.Add("/dropin", function(ply, text)
 	ply:DropIn()
-end, false)
+end, true)
 
 chatcommand.Add("/dropout", function(ply, text)
 	ply:DropOut()
-end, false)
+end, true)
 
 chatcommand.Add("/create", function(ply, text)
 	Round:Create()
@@ -94,7 +94,7 @@ chatcommand.Add("/spectate", function(ply, text)
 	else
 		ply:SetSpectator()
 	end
-end, false)
+end, true)
 
 chatcommand.Add("/soundcheck", function(ply, text)
 	if ply:IsSuperAdmin() then
@@ -107,7 +107,7 @@ chatcommand.Add("/soundcheck", function(ply, text)
 		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 9)
 		nz.Notifications.Functions.PlaySound("nz/round/game_over_4.mp3", 21)
 	end
-end, false)
+end, true)
 
 --cheats
 chatcommand.Add("/revive", function(ply, text)
