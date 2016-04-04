@@ -62,7 +62,7 @@ local PLAYER_LINE = {
 		self.Kills:SetFont( "ScoreboardDefault" )
 		self.Kills:SetTextColor( Color( 255, 255, 255 ) )
 		self.Kills:SetContentAlignment( 5 )
-		
+
 		self.Points = self:Add( "DLabel" )
 		self.Points:Dock( RIGHT )
 		self.Points:SetWidth( 100 )
@@ -102,7 +102,7 @@ local PLAYER_LINE = {
 			self.PName = self.Player:Nick()
 			self.Name:SetText( self.PName )
 		end
-		
+
 		if ( self.NumKills == nil || self.NumKills != self.Player:Frags() ) then
 			self.NumKills = self.Player:Frags()
 			self.Kills:SetText( self.NumKills )
@@ -117,7 +117,7 @@ local PLAYER_LINE = {
 			self.NumPing = self.Player:Ping()
 			self.Ping:SetText( self.NumPing )
 		end
-		
+
 		if ( self.NumPoints == nil || self.NumPoints != self.Player:GetPoints() ) then
 			self.NumPoints = self.Player:GetPoints()
 			self.Points:SetText( self.NumPoints )
@@ -165,18 +165,18 @@ local PLAYER_LINE = {
 		--
 		-- We draw our background a different colour based on the status of the player
 		--
-		
+
 		--if ( !self.Player:Alive() ) then
 			--draw.RoundedBox( 4, 0, 0, w, h, Color( pColor[1] * 150, pColor[2] * 150, pColor[3] * 150, 255 ) )
 			--return
 		--end
 
 		--draw.RoundedBox( 4, 0, 0, w, h, Color( pColor[1] * 100 + 155, pColor[2] * 100 + 155, pColor[3] * 100 + 155, 255 ) )
-		
+
 		surface.SetMaterial(bloodline_scoreboard)
 		surface.SetDrawColor(255,255,255)
 		surface.DrawTexturedRect(0, 0, w, h)
-		
+
 	end
 }
 
