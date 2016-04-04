@@ -79,7 +79,7 @@ nz.Config.ValidEnemies = {
 				end
 			end
 		end
-	}
+	},
 }
 
 -- Random Box

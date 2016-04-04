@@ -3,4 +3,10 @@
      "$basetexture" "models/weapons/monkey_bomb_c"
      "$bumpmap" "models/weapons/monkey_bomb_n"
      "$model" 1
+	 
+	"$phong" "1"
+	"$phongexponent" "100"
+	"$phongboost" "0.3"
+	"$phongfresnelranges" "[0.2 0.5 1]"
+	"$phongalbedotint" "1"	
 }

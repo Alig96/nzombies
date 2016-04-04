@@ -20,8 +20,8 @@ end
 
 function ENT:OnTargetInAttackRange()
     local atkData = {}
-    atkData.dmglow = 0
-    atkData.dmghigh = 0
+    atkData.dmglow = 20
+    atkData.dmghigh = 30
     atkData.dmgforce = Vector( 0, 0, 0 )
     self:Attack( atkData )
     self:TimedEvent( 0.45, function()

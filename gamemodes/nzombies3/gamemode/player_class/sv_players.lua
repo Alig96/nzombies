@@ -14,7 +14,7 @@ end
 
 function nz.Players.Functions.FullSync( ply )
 	--Electric
-	nz.Elec.Functions.SendSync()
+	--Elec:SendSync()
 	--PowerUps
 	nz.PowerUps.Functions.SendSync()
 	--Doors

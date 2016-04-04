@@ -89,7 +89,7 @@ if CLIENT then
 		local path = net.ReadString()
 		print(path)
 		
-		if !file.Exists( path, "LUA") then return false end
+		if !file.Exists( path, "LUA") then return end
 
 		Mapping.ScriptHooks = include( path )
 		

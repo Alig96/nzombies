@@ -1,10 +1,10 @@
 //
 nzDisplay = {}
 
-local bloodline_points = Material("bloodline_score.png", "unlitgeneric smooth")
+local bloodline_points = Material("bloodline_score2.png", "unlitgeneric smooth")
 local bloodline_gun = Material("cod_hud.png", "unlitgeneric smooth")
 
-local bloodDecals = {
+--[[local bloodDecals = {
 	Material("decals/blood1"),
 	Material("decals/blood2"),
 	Material("decals/blood3"),
@@ -12,80 +12,83 @@ local bloodDecals = {
 	Material("decals/blood5"),
 	Material("decals/blood6"),
 	Material("decals/blood7"),
-	Material("decals/blood8")
-}
-
-bloodDecals[#bloodDecals] = nil
+	Material("decals/blood8"),
+	nil
+}]]
 
 CreateClientConVar( "nz_hud_points_show_names", "1", true, false )
 
 local function StatesHud()
-	local text = ""
-	local font = "nz.display.hud.main"
-	local w = ScrW() / 2
-	if Round:InState( ROUND_WAITING ) then
-		text = "Waiting for players. Type /ready to ready up."
-		font = "nz.display.hud.small"
-	elseif Round:InState( ROUND_CREATE ) then
-		text = "Creative Mode"
-	elseif Round:InState( ROUND_GO ) then
-		text = "Game Over"
+	if GetConVar("cl_drawhud"):GetBool() then
+		local text = ""
+		local font = "nz.display.hud.main"
+		local w = ScrW() / 2
+		if Round:InState( ROUND_WAITING ) then
+			text = "Waiting for players. Type /ready to ready up."
+			font = "nz.display.hud.small"
+		elseif Round:InState( ROUND_CREATE ) then
+			text = "Creative Mode"
+		elseif Round:InState( ROUND_GO ) then
+			text = "Game Over"
+		end
+		draw.SimpleText(text, font, w, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
-	draw.SimpleText(text, font, w, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 end
 
+local tbl = {Entity(3), Entity(1), Entity(3), Entity(4), Entity(5),}
+
 local function ScoreHud()
+	if GetConVar("cl_drawhud"):GetBool() then
+		if true then --Round:InProgress() then
 
+			local scale = (ScrW() / 1920 + 1) / 2
+			local offset = 0
 
+			for k,v in pairs(tbl) do
+				local hp = v:Health()
+				if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
+				if v:GetPoints() >= 0 then
 
-	if Round:InProgress() then
-
-		local scale = (ScrW() / 1920 + 1) / 2
-		local offset = 0
-
-		for k,v in pairs(player.GetAll()) do
-			local hp = v:Health()
-			if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
-			if v:GetPoints() >= 0 then
-
-				local text
-				if GetConVar("nz_hud_points_show_names"):GetBool() then
-					local nick
-					if #v:Nick() >= 20 then
-						nick = string.sub(v:Nick(), 1, 20)  -- limit name to 20 chars
-					else
-						nick = v:Nick()
+					local text = ""
+					local nameoffset = 0
+					if GetConVar("nz_hud_points_show_names"):GetBool() then
+						local nick
+						if #v:Nick() >= 20 then
+							nick = string.sub(v:Nick(), 1, 20)  -- limit name to 20 chars
+						else
+							nick = v:Nick()
+						end
+						text = nick
+						nameoffset = 10
 					end
-					text = v:GetPoints() .. " " .. nick
-				else
-					text = v:GetPoints()
-				end
 
-				local font
+					local font = "nz.display.hud.small"
+					
+					surface.SetFont(font)
 
-				if LocalPlayer() == v then
-					font = "nz.display.hud.medium"
-				else
-					font = "nz.display.hud.small"
-				end
+					local textW, textH = surface.GetTextSize(text)
+					
+					if LocalPlayer() == v then
+						offset = offset + textH + 5 -- change this if you change the size of nz.display.hud.medium
+					else
+						offset = offset + textH
+					end
 
-				surface.SetFont(font)
-
-				local textW, textH = surface.GetTextSize(text)
-				surface.SetDrawColor(255,0,0)
-				local index = v:EntIndex()
-				for i = 0, 3 do
-					surface.SetMaterial(bloodDecals[((index + i - 1) % #bloodDecals) + 1 ])
-					surface.DrawTexturedRect(ScrW() - textW - 80, ScrH() - 300 * scale - offset, textW + 10, 40)
-				end
-				--surface.DrawTexturedRect(ScrW() - 325*scale - numname * 10, ScrH() - 285*scale - (30*k), 250 + numname*10, 35)
-				draw.SimpleText(text, font, ScrW() - textW - 70, ScrH() - 285 * scale - offset, player.GetColorByIndex(v:EntIndex()), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-				v.PointsSpawnPosition = {x = ScrW() - textW - 70, y = ScrH() - 285 * scale - offset}
-
-				if LocalPlayer() == v then
-					offset = offset + textH - 8 -- change this if you change the size of nz.display.hud.medium
-				else
-					offset = offset + textH
+					surface.SetDrawColor(200,200,200)
+					local index = v:EntIndex()
+					local color, blood = player.GetColorBloodByIndex(v:EntIndex())
+					--for i = 0, 8 do
+						--surface.SetMaterial(bloodDecals[((index + i - 1) % #bloodDecals) + 1 ])
+						surface.SetMaterial(blood)
+						surface.DrawTexturedRect(ScrW() - textW - 180, ScrH() - 275 * scale - offset, textW + 150, 45)
+					--end
+					--surface.DrawTexturedRect(ScrW() - 325*scale - numname * 10, ScrH() - 285*scale - (30*k), 250 + numname*10, 35)
+					if text then draw.SimpleText(text, font, ScrW() - textW - 60, ScrH() - 255 * scale - offset, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER) end
+					if LocalPlayer() == v then
+						font = "nz.display.hud.medium"
+					end
+					draw.SimpleText(v:GetPoints(), font, ScrW() - textW - 60 - nameoffset, ScrH() - 255 * scale - offset, color, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+					v.PointsSpawnPosition = {x = ScrW() - textW - 170, y = ScrH() - 255 * scale - offset}
 				end
 			end
 		end
@@ -93,30 +96,32 @@ local function ScoreHud()
 end
 
 local function GunHud()
-	if !LocalPlayer():IsNZMenuOpen() then
-		local wep = LocalPlayer():GetActiveWeapon()
-		local scale = ((ScrW()/1920)+1)/2
+	if GetConVar("cl_drawhud"):GetBool() then
+		if !LocalPlayer():IsNZMenuOpen() then
+			local wep = LocalPlayer():GetActiveWeapon()
+			local scale = ((ScrW()/1920)+1)/2
 
-		surface.SetMaterial(bloodline_gun)
-		surface.SetDrawColor(100,100,100)
-		surface.DrawTexturedRect(ScrW() - 630*scale, ScrH() - 225*scale, 600*scale, 225*scale)
-		if IsValid(wep) then
-			if wep:GetClass() == "nz_multi_tool" then
-				draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 125*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-				draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 2, Color(0,0,0))
-			else
-				local name = wep:GetPrintName()
-				local clip = wep:Clip1()
-				if !name or name == "" then name = wep:GetClass() end
-				if wep.pap then
-					name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
-				end
-				if clip >= 0 then
-					draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-					draw.SimpleTextOutlined(clip, "nz.display.hud.ammo", ScrW() - 315*scale, ScrH() - 115*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-					draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+			surface.SetMaterial(bloodline_gun)
+			surface.SetDrawColor(200,200,200)
+			surface.DrawTexturedRect(ScrW() - 630*scale, ScrH() - 225*scale, 600*scale, 225*scale)
+			if IsValid(wep) then
+				if wep:GetClass() == "nz_multi_tool" then
+					draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 125*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+					draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 				else
-					draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 250*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+					local name = wep:GetPrintName()
+					local clip = wep:Clip1()
+					if !name or name == "" then name = wep:GetClass() end
+					if wep.pap then
+						name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
+					end
+					if clip >= 0 then
+						draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+						draw.SimpleTextOutlined(clip, "nz.display.hud.ammo", ScrW() - 315*scale, ScrH() - 115*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+						draw.SimpleTextOutlined("/"..LocalPlayer():GetAmmoCount(wep:GetPrimaryAmmoType()), "nz.display.hud.ammo2", ScrW() - 310*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+					else
+						draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 250*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+					end
 				end
 			end
 		end
@@ -209,9 +214,9 @@ local function DrawPointsNotification()
 		local fade = math.Clamp((CurTime()-v.time), 0, 1)
 		if !v.ply.PointsSpawnPosition then return end
 		if v.amount >= 0 then
-			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,255,0,255-255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,255,0,255-255*fade), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 		else
-			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,0,0,255-255*fade), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(v.amount, font, v.ply.PointsSpawnPosition.x - 50*fade, v.ply.PointsSpawnPosition.y + v.diry*fade, Color(255,0,0,255-255*fade), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 		end
 		if fade >= 1 then
 			table.remove(PointsNotifications, k)
@@ -401,11 +406,11 @@ local function DrawGrenadeHud()
 end
 
 //Hooks
+hook.Add("HUDPaint", "pointsNotifcationHUD", DrawPointsNotification )
 hook.Add("HUDPaint", "roundHUD", StatesHud )
 hook.Add("HUDPaint", "scoreHUD", ScoreHud )
 hook.Add("HUDPaint", "gunHUD", GunHud )
 hook.Add("HUDPaint", "powerupHUD", PowerUpsHud )
-hook.Add("HUDPaint", "pointsNotifcationHUD", DrawPointsNotification )
 hook.Add("HUDPaint", "perksHUD", PerksHud )
 hook.Add("HUDPaint", "vultureVision", VultureVision )
 hook.Add("HUDPaint", "roundnumHUD", RoundHud )

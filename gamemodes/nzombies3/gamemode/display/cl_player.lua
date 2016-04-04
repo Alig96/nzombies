@@ -11,7 +11,16 @@ local playerColors = {
 	Color(255,171,145),
 	Color(161,136,127),
 	Color(224,224,224),
-	Color(144,164,174)
+	Color(144,164,174),
+	nil
+}
+
+local blooddecals = {
+	Material("bloodline_score1.png", "unlitgeneric smooth"),
+	Material("bloodline_score2.png", "unlitgeneric smooth"),
+	Material("bloodline_score3.png", "unlitgeneric smooth"),
+	Material("bloodline_score4.png", "unlitgeneric smooth"),
+	nil
 }
 
 --shuffle the colors on map start
@@ -26,6 +35,16 @@ while n > 2 do
 	n = n - 1
 end
 
-function player.GetColorByIndex(index)
-	return playerColors[((index - 1) % #playerColors) + 1]
+n = #blooddecals
+
+while n > 2 do
+
+	local k = rand(n) -- 1 <= k <= n
+
+	blooddecals[n], blooddecals[k] = blooddecals[k], blooddecals[n]
+	n = n - 1
+end
+
+function player.GetColorBloodByIndex(index)
+	return playerColors[((index - 1) % #playerColors) + 1], blooddecals[((index - 1) % #blooddecals) + 1]
 end

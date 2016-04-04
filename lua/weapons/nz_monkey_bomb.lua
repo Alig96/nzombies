@@ -150,7 +150,7 @@ if engine.ActiveGamemode() == "nzombies3" then
 					if wep:GetClass() == "nz_monkey_bomb" then
 						if !ply:KeyDown(IN_GRENADE2) then
 							wep:ThrowBomb(700)
-							--ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
+							ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
 							timer.Simple(1, function()
 								if IsValid(ply) then
 									ply.UsingSpecialWep = nil
@@ -161,7 +161,7 @@ if engine.ActiveGamemode() == "nzombies3" then
 							hook.Add("KeyRelease", "CheckMonkeyRelease"..ply:EntIndex(), function(kply, key)
 								if kply == ply and key == IN_GRENADE2 then
 									wep:ThrowBomb(700)
-									--ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
+									ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
 									timer.Simple(1, function()
 										if IsValid(ply) then
 											ply.UsingSpecialWep = nil

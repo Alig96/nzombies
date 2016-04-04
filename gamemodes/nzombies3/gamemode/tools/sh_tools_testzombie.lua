@@ -6,8 +6,9 @@ nz.Tools.Functions.CreateTool("testzombie", {
 	end,
 
 	PrimaryAttack = function(wep, ply, tr, data)
-		data = data or {speed = 51}
-		local z = ents.Create("nz_zombie_walker")
+		data = data or {speed = 51, type = "nz_zombie_walker"}
+		PrintTable(data)
+		local z = ents.Create(data.type)
 		z:SetPos(tr.HitPos)
 		z:SetHealth(100)
 		z.SpecialInit = function(self)
@@ -67,6 +68,19 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		num:SetMinMax(0, 300)
 		num:SetPos(90, 50)
 		
+		local txt2 = vgui.Create("DLabel", pnl)
+		txt2:SetText("Zombie Type")
+		txt2:SizeToContents()
+		txt2:SetTextColor(Color(0,0,0))
+		txt2:SetPos(120, 90)
+		
+		local drop = vgui.Create("DComboBox", pnl)
+		drop:SetPos(50, 110)
+		drop:SetSize(200, 20)
+		for k,v in pairs(nz.Config.ValidEnemies) do
+			drop:AddChoice(k, k, data.type == k and true or false)
+		end
+		
 		local function UpdateData()
 			nz.Tools.Functions.SendData( data, "testzombie" )
 		end
@@ -81,10 +95,15 @@ nz.Tools.Functions.CreateTool("testzombie", {
 			slider:SetValue(val)
 			UpdateData()
 		end
+		drop.OnSelect = function(self, index, val, id)
+			data.type = id
+			UpdateData()
+		end
 		
 		return pnl
 	end,
 	defaultdata = {
 		speed = 51,
+		type = "nz_zombie_walker",
 	}
 })

@@ -1,9 +1,9 @@
 //
 
-function nz.Elec.Functions.Activate(nochat)
+function Elec:Activate(nochat)
 
-	nz.Elec.Data.Active = true
-	nz.Elec.Functions.SendSync()
+	self.Active = true
+	self:SendSync()
 	
 	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
@@ -25,19 +25,28 @@ function nz.Elec.Functions.Activate(nochat)
 	-- Inform players
 	if !nochat then
 		PrintMessage(HUD_PRINTTALK, "[NZ] Electricity is on!")
+		net.Start("nz.Elec.Sound")
+			net.WriteBool(true)
+		net.Broadcast()
 	end
 	
 end
 
-function nz.Elec.Functions.Reset()
+function Elec:Reset(nochat)
 	
-	nz.Elec.Data.Active = false
+	self.Active = false
 	-- Reset the button aswell
 	local prevs = ents.FindByClass("power_box")
 	for k,v in pairs(prevs) do
 		v:SetSwitch(false)
 	end
 	
-	nz.Elec.Functions.SendSync()
+	self:SendSync()
+	
+	if !nochat then
+		net.Start("nz.Elec.Sound")
+			net.WriteBool(false)
+		net.Broadcast()
+	end
 	
 end
