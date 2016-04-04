@@ -72,7 +72,7 @@ function ENT:SetExplosionTimer( time )
 	-- Make Zombies target this over players
 	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
 	
-	UpdateAllZombieTargets()
+	UpdateAllZombieTargets(self)
 
 	SafeRemoveEntityDelayed( self, time +1 ) --fallback
 	

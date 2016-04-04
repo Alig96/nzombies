@@ -33,10 +33,12 @@ function meta:SetDefaultTargetPriority()
 end
 
 if SERVER then
-	function UpdateAllZombieTargets()
-		for k,v in pairs(ents.GetAll()) do
-			if nz.Config.ValidEnemies[v:GetClass()] then
-				v:SetTarget(v:GetPriorityTarget())
+	function UpdateAllZombieTargets(target)
+		if IsValid(target) then
+			for k,v in pairs(ents.GetAll()) do
+				if nz.Config.ValidEnemies[v:GetClass()] then
+					v:SetTarget(target)
+				end
 			end
 		end
 	end
