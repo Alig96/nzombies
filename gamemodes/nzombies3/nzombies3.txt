@@ -4,6 +4,7 @@
     "title"  "nZombies 3"
     "version"   "3.0"
     "menusystem"	"1"
+    "maps"	"^nz_"
 
     "author_name"   "Alig96, Zet0r, Lolle"
     "author_email"  ""
