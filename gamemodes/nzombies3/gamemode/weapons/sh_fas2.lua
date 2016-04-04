@@ -11,12 +11,12 @@ function FAS2_PlayAnim(wep, anim, speed, cyc, time)
 	
 	if wep.Owner:HasPerk("speed") then
 		if string.find(anim, "reload") != nil or string.find(anim, "insert") != nil then
-			speed = 2
+			speed = speed * 1.33 -- For some reason this fits perfectly to a double reload speed?
 		end
 	end
 	if wep.Owner:HasPerk("dtap") or wep.Owner:HasPerk("dtap2") then
 		if string.find(anim, "fire") != nil or string.find(anim, "cock") != nil or string.find(anim, "pump") != nil then
-			speed = 1.25
+			speed = speed * 1.33
 		end
 	end
 
@@ -74,6 +74,8 @@ function FAS2_PlayAnim(wep, anim, speed, cyc, time)
 		if vm then
 			vm:SetCycle(cyc)
 			vm:SetSequence(anim)
+			--print(vm:SequenceDuration(vm:LookupSequence(anim))/speed)
+			--print(LocalPlayer():GetActiveWeapon():GetNextPrimaryFire() - CurTime())
 			vm:SetPlaybackRate(speed)
 		end
 	end

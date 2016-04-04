@@ -45,7 +45,7 @@ function ENT:PhysicsCollide(data, physobj)
 	if SERVER then
 		local vel = physobj:GetVelocity():Length()
 		if vel > 100 then
-			self:EmitSound("weapons/hegrenade/he_bounce-1.wav", 75, 100)
+			self:EmitSound("nz/monkey/voice_bounce/land_0"..math.random(0,3)..".wav", 75, 100)
 		end
 
 		local LastSpeed = math.max( data.OurOldVelocity:Length(), data.Speed )
@@ -58,7 +58,7 @@ function ENT:PhysicsCollide(data, physobj)
 
 		physobj:SetVelocity( TargetVelocity )
 		
-		if vel <= 75 then
+		if vel < 100 then
 			self:SetMoveType(MOVETYPE_NONE)
 			self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 			self:ResetSequence("anim_play")
@@ -71,6 +71,8 @@ function ENT:SetExplosionTimer( time )
 
 	-- Make Zombies target this over players
 	self:SetTargetPriority(TARGET_PRIORITY_SPECIAL)
+	
+	UpdateAllZombieTargets()
 
 	SafeRemoveEntityDelayed( self, time +1 ) --fallback
 	

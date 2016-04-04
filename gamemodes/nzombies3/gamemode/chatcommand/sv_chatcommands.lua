@@ -218,5 +218,5 @@ chatcommand.Add("/targetpriority", function(ply, text)
 end)
 
 chatcommand.Add("/activateelec", function(ply, text)
-	nz.Elec.Functions.Activate()
+	Elec:Activate()
 end)

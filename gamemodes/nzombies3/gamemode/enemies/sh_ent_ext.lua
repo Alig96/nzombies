@@ -31,3 +31,13 @@ function meta:SetDefaultTargetPriority()
 		self:SetTargetPriority(TARGET_PRIORITY_NONE) -- By default all entities are non-targetable
 	end
 end
+
+if SERVER then
+	function UpdateAllZombieTargets()
+		for k,v in pairs(ents.GetAll()) do
+			if nz.Config.ValidEnemies[v:GetClass()] then
+				v:SetTarget(v:GetPriorityTarget())
+			end
+		end
+	end
+end

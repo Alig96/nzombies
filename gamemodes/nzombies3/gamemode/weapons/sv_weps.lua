@@ -5,19 +5,34 @@ function nz.Weps.Functions.ApplySpeed( ply, wep )
 		local data = {}
 		data.wepdata = {}
 		//Normal
-		data.wepdata["ReloadTime"] = true
-		data.wepdata["ReloadTime_Nomen"] = true
-		data.wepdata["ReloadTime_Empty"] = true
-		data.wepdata["ReloadTime_Empty_Nomen"] = true
+		data.wepdata["ReloadTime"] = 2
+		data.wepdata["ReloadTime_Nomen"] = 2
+		data.wepdata["ReloadTime_Empty"] = 2
+		data.wepdata["ReloadTime_Empty_Nomen"] = 2
 		//BiPod
-		data.wepdata["ReloadTime_Bipod"] = true
-		data.wepdata["ReloadTime_Bipod_Nomen"] = true
-		data.wepdata["ReloadTime_Bipod_Empty"] = true
-		data.wepdata["ReloadTime_Bipod_Empty_Nomen"] = true
+		data.wepdata["ReloadTime_Bipod"] = 2
+		data.wepdata["ReloadTime_Bipod_Nomen"] = 2
+		data.wepdata["ReloadTime_Bipod_Empty"] = 2
+		data.wepdata["ReloadTime_Bipod_Empty_Nomen"] = 2
+		//Shotguns
+		data.wepdata["ReloadStartTime"] = 2
+		data.wepdata["ReloadStartTime_Nomen"] = 2
+		data.wepdata["ReloadEndTime"] = 2
+		data.wepdata["ReloadEndTime_Nomen"] = 2
+		data.wepdata["ReloadAbortTime"] = 2
+		data.wepdata["ReloadAdvanceTimeEmpty"] = 2
+		data.wepdata["ReloadAdvanceTimeEmpty_Nomen"] = 2
+		data.wepdata["ReloadAdvanceTimeLast"] = 2
+		data.wepdata["ReloadAdvanceTimeLast_Nomen"] = 2
+		data.wepdata["InsertTime"] = 2
+		data.wepdata["InsertTime_Nomen"] = 2
+		data.wepdata["InsertEmpty"] = 2
+		data.wepdata["InsertEmpty_Nomen"] = 2
+		
 		local oldtbl = {}
 		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
-				local val = wep[k] / 2
+				local val = wep[k] / v
 				local old = wep[k]
 				-- Save the old so we can remove it later
 				wep["old_"..k] = old
@@ -47,11 +62,17 @@ function nz.Weps.Functions.ApplyDTap( ply, wep )
 		local data = {}
 		data.wepdata = {}
 		//Normal
-		data.wepdata["FireDelay"] = true
+		data.wepdata["FireDelay"] = 1.2
+		//Shotgun Cocking and Sniper Bolting
+		data.wepdata["CockTime"] = 1.5
+		data.wepdata["CockTime_Nomen"] = 1.5
+		data.wepdata["CockTime_Bipod"] = 1.5
+		data.wepdata["CockTime_Bipod_Nomen"] = 1.5
+		
 		local oldtbl = {}
 		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
-				local val = wep[k] * 0.66
+				local val = wep[k] / v
 				local old = wep[k]
 				wep["old_"..k] = old
 				wep[k] = val
@@ -87,6 +108,20 @@ function nz.Weps.Functions.RemoveSpeed( ply, wep )
 		data.wepdata["ReloadTime_Bipod_Nomen"] = true
 		data.wepdata["ReloadTime_Bipod_Empty"] = true
 		data.wepdata["ReloadTime_Bipod_Empty_Nomen"] = true
+		//Shotguns
+		data.wepdata["ReloadStartTime"] = true
+		data.wepdata["ReloadStartTime_Nomen"] = true
+		data.wepdata["ReloadEndTime"] = true
+		data.wepdata["ReloadEndTime_Nomen"] = true
+		data.wepdata["ReloadAbortTime"] = true
+		data.wepdata["ReloadAdvanceTimeEmpty"] = true
+		data.wepdata["ReloadAdvanceTimeEmpty_Nomen"] = true
+		data.wepdata["ReloadAdvanceTimeLast"] = true
+		data.wepdata["ReloadAdvanceTimeLast_Nomen"] = true
+		data.wepdata["InsertTime"] = true
+		data.wepdata["InsertTime_Nomen"] = true
+		data.wepdata["InsertEmpty"] = true
+		data.wepdata["InsertEmpty_Nomen"] = true
 		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				wep[k] = wep["old_"..k]
@@ -110,6 +145,11 @@ function nz.Weps.Functions.RemoveDTap( ply, wep )
 		data.wepdata = {}
 		//Normal
 		data.wepdata["FireDelay"] = true
+		//Shotgun Cocking and Sniper Bolting
+		data.wepdata["CockTime"] = true
+		data.wepdata["CockTime_Nomen"] = true
+		data.wepdata["CockTime_Bipod"] = true
+		data.wepdata["CockTime_Bipod_Nomen"] = true
 		for k,v in pairs(data.wepdata) do
 			if wep[k] != nil then
 				wep[k] = wep["old_"..k]

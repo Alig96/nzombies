@@ -143,6 +143,7 @@ function Round:ResetGame()
 	--Reset all downed players' downed status
 	for k,v in pairs( player.GetAll() ) do
 		v:KillDownedPlayer( true )
+		v.SoloRevive = nil -- Reset Solo Revive counter
 	end
 
 	--Remove all enemies
@@ -158,7 +159,7 @@ function Round:ResetGame()
 	end
 
 	--Reset the electricity
-	nz.Elec.Functions.Reset()
+	Elec:Reset(true)
 
 	--Remove the random box
 	RandomBox:Remove()
@@ -283,7 +284,9 @@ function Round:SetupGame()
 
 	local power = ents.FindByClass("power_box")
 	if !IsValid(power[1]) then -- No power switch D:
-		nz.Elec.Functions.Activate(true) -- Silently turn on the power
+		Elec:Activate(true) -- Silently turn on the power
+	else
+		Elec:Reset() -- Reset with no value to play the power down sound
 	end
 	
 	nz.Perks.Functions.UpdateQuickRevive()

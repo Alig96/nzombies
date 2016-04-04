@@ -10,7 +10,7 @@ function nz.Perks.Functions.UpdateQuickRevive()
 		for k,v in pairs(ents.FindByClass("perk_machine")) do
 			if v:GetPerkID() == "revive" then
 				v:SetPrice(1500) -- Reset to default 1500 and turn off if power is not on
-				if !nz.Elec.Data.Active then
+				if !IsElec() then
 					v:TurnOff()
 				else
 					v:TurnOn()
