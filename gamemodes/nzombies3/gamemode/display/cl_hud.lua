@@ -39,7 +39,7 @@ local tbl = {Entity(3), Entity(1), Entity(3), Entity(4), Entity(5),}
 
 local function ScoreHud()
 	if GetConVar("cl_drawhud"):GetBool() then
-		if true then --Round:InProgress() then
+		if Round:InProgress() then
 
 			local scale = (ScrW() / 1920 + 1) / 2
 			local offset = 0
