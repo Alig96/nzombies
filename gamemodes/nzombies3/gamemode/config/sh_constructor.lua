@@ -22,6 +22,8 @@ if not ConVarExists("nz_difficulty_powerup_chance") then CreateConVar("nz_diffic
 if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_perks_max", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_point_notification_clientside") then CreateConVar("nz_point_notification_clientside", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 
+if not ConVarExists("nz_test_hellhounds") then CreateConVar("nz_test_hellhounds", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED, FCVAR_NOTIFY}) end
+
 
 
 -- Zombie table - Moved to shared area for client collision prediction (barricades)
@@ -82,6 +84,7 @@ nz.Config.ValidEnemies = {
 	},
 	["nz_zombie_special_dog"] = {
 		Valid = true,
+		SpecialSpawn = true,
 		ScaleDMG = function(zombie, hitgroup, dmginfo)
 			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
 		end,

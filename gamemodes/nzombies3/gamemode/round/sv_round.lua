@@ -34,8 +34,12 @@ function Round:Prepare()
 	if nz.Config.EnemyTypes[ self:GetNumber() ] then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
 	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
-		self:SetZombieData( nz.Config.SpecialRoundData.types )
-		self:SetZombiesMax( nz.Config.SpecialRoundData.modifycount(self:GetZombiesMax()) )
+		if GetConVar("nz_test_hellhounds"):GetBool() then
+			self:SetZombieData( {["nz_zombie_special_dog"] = {chance = 100,}} )
+		else
+			self:SetZombieData( nz.Config.SpecialRoundData.types )
+			self:SetZombiesMax( nz.Config.SpecialRoundData.modifycount(self:GetZombiesMax()) )
+		end
 	end
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
 

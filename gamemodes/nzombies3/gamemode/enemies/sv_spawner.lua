@@ -22,12 +22,16 @@ end
 function nz.Enemies.Functions.ValidSpawns()
 
 	local spawns = {}
+	local spawntype = "zed_spawns"
+	if Round:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool() then
+		spawntype = "zed_special_spawns"
+	end
 
 	-- Make a table of spawns
 	for _, ply in pairs(player.GetAllPlayingAndAlive()) do
 		-- Get all spawns in the range
 		for _,v2 in pairs(ents.FindInSphere(ply:GetPos(), 1500)) do
-			if v2:GetClass() == "zed_spawns" and (v2.spawnable == nil or tobool(v2.spawnable)) then
+			if v2:GetClass() == spawntype and (v2.spawnable == nil or tobool(v2.spawnable)) then
 				-- If enable, then if the player is in the same area group as the spawnpoint
 				if !GetConVar("nz_nav_grouptargeting"):GetBool() or nz.Nav.Functions.IsInSameNavGroup(ply, v2) then
 					if v2:GetPos():DistToSqr(ply:GetPos()) > 22500 then
