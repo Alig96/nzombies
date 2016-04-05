@@ -80,6 +80,30 @@ nz.Config.ValidEnemies = {
 			end
 		end
 	},
+	["nz_zombie_special_dog"] = {
+		Valid = true,
+		ScaleDMG = function(zombie, hitgroup, dmginfo)
+			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
+		end,
+		OnHit = function(zombie, dmginfo, hitgroup)
+			local attacker = dmginfo:GetAttacker()
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				attacker:GivePoints(10)
+			end
+		end,
+		OnKilled = function(zombie, dmginfo, hitgroup)
+			local attacker = dmginfo:GetAttacker()
+			if attacker:IsPlayer() and attacker:GetNotDowned() then
+				if dmginfo:GetDamageType() == DMG_CLUB then
+					attacker:GivePoints(130)
+				elseif hitgroup == HITGROUP_HEAD then
+					attacker:GivePoints(100)
+				else
+					attacker:GivePoints(50)
+				end
+			end
+		end
+	},
 }
 
 -- Random Box

@@ -11,7 +11,7 @@ nz.Tools.Functions.CreateTool("testzombie", {
 		local z = ents.Create(data.type)
 		z:SetPos(tr.HitPos)
 		z:SetHealth(100)
-		z.SpecialInit = function(self)
+		z.StatsInit = function(self)
 			self:SetRunSpeed(data.speed)
 		end
 		z:Spawn()

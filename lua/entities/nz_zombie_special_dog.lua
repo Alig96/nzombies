@@ -53,11 +53,21 @@ ENT.WalkSounds = {
 }
 
 ENT.PainSounds = {
-	"nz/hellhound/death/death0.wav"
+	"physics/flesh/flesh_impact_bullet1.wav",
+	"physics/flesh/flesh_impact_bullet2.wav",
+	"physics/flesh/flesh_impact_bullet3.wav",
+	"physics/flesh/flesh_impact_bullet4.wav",
+	"physics/flesh/flesh_impact_bullet5.wav"
 }
 
 ENT.DeathSounds = {
-	"nz/hellhound/death/death0.wav"
+	"nz/hellhound/death2/death0.wav",
+	"nz/hellhound/death2/death1.wav",
+	"nz/hellhound/death2/death2.wav",
+	"nz/hellhound/death2/death3.wav",
+	"nz/hellhound/death2/death4.wav",
+	"nz/hellhound/death2/death5.wav",
+	"nz/hellhound/death2/death6.wav",
 }
 
 function ENT:StatsInit()

@@ -4,6 +4,11 @@ chatcommand = {}
 chatcommand.commands = {}
 
 -- Functions
+--[[ 	chatcommand.Add 
+	text [string]: The text you put in chat to trigger this command
+	func [function]: The function to run when the command is issued. It runs the function with the player as the first argument, then all arguments in the chat seperated by space
+	allowAll [boolean]: If set to true, will allow even non-admins to run this command
+	--]]
 function chatcommand.Add(text, func, allowAll)
 	table.insert(chatcommand.commands, {text, func, allowAll and true or false})
 end
