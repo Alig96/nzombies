@@ -5,8 +5,7 @@ ENT.PrintName = "Burning Walker"
 ENT.Category = "Brainz"
 ENT.Author = "Lolle"
 
-function ENT:SpecialInit()
-    self:SetSkin(math.random(0, self:SkinCount() - 1))
+function ENT:StatsInit()
     if SERVER then
         local speeds = Round:GetZombieData().nz_zombie_special_burning and Round:GetZombieData().nz_zombie_special_burning.speeds or Round:GetZombieSpeeds()
 		if speeds then
