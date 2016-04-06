@@ -111,24 +111,6 @@ nz.Tools.Functions.CreateTool("zspawn", {
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val UpdateData() end
 
-		if nz.Tools.Advanced then
-			local Row3 = DProperties:CreateRow( "Advanced Zombie Spawn", "Spawnable at?" )
-			Row3:Setup( "Boolean" )
-			Row3:SetValue( valz["Row3"] )
-			Row3.DataChanged = function( _, val ) valz["Row3"] = val UpdateData() end
-			local Row4 = DProperties:CreateRow( "Advanced Zombie Spawn", "Respawn from?" )
-			Row4:Setup( "Boolean" )
-			Row4:SetValue( valz["Row4"] )
-			Row4.DataChanged = function( _, val ) valz["Row4"] = val UpdateData() end
-		else
-			local text = vgui.Create("DLabel", DProperties)
-			text:SetText("Enable Advanced Mode for more options.")
-			text:SetFont("Trebuchet18")
-			text:SetTextColor( Color(50, 50, 50) )
-			text:SizeToContents()
-			text:Center()
-		end
-
 		return DProperties
 	end,
 	defaultdata = {
