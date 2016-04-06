@@ -1,5 +1,5 @@
 nz.Tools.Functions.CreateTool("zspecialspawn", {
-	displayname = "Special Zombie Spawn Creator",
+	displayname = "Special Spawn Creator",
 	desc = "LMB: Place Spawnpoint, RMB: Remove Spawnpoint, R: Apply New Properties",
 	condition = function(wep, ply)
 		-- Function to check whether a player can access this tool - always accessible
@@ -43,7 +43,7 @@ nz.Tools.Functions.CreateTool("zspecialspawn", {
 
 	end
 }, {
-	displayname = "Special Zombie Spawn Creator",
+	displayname = "Special Spawn Creator",
 	desc = "LMB: Place Spawnpoint, RMB: Remove Spawnpoint, R: Apply New Properties",
 	icon = "icon16/user_red.png",
 	weight = 2,

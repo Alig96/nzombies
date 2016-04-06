@@ -20,27 +20,6 @@ function Mapping:SaveConfig(name)
 		})
 	end
 
-	local player_handler = {}
-	for _, v in pairs(ents.FindByClass("player_handler")) do
-		table.insert(player_handler, {
-		pos = v:GetPos(),
-		startwep = v:GetStartWep(),
-		startpoints = v:GetStartPoints(),
-		numweps = v:GetNumWeps(),
-		eeurl = v:GetEEURL(),
-		angle = v:GetAngles( ),
-		})
-	end
-
-	local random_box_handler = {}
-	for _, v in pairs(ents.FindByClass("random_box_handler")) do
-		table.insert(random_box_handler, {
-		pos = v:GetPos(),
-		guns = v:GetWeaponsList(),
-		angle = v:GetAngles( ),
-		})
-	end
-
 	local zed_spawns = {}
 	for _, v in pairs(ents.FindByClass("zed_spawns")) do
 		table.insert(zed_spawns, {
@@ -188,8 +167,6 @@ function Mapping:SaveConfig(name)
 	main["PerkMachineSpawns"] = perk_machinespawns
 	main["DoorSetup"] = door_setup
 	main["BreakEntry"] = break_entry
-	main["RBoxHandler"] = random_box_handler
-	main["PlayerHandler"] = player_handler
 	main["EasterEggs"] = easter_eggs
 	main["PropEffects"] = prop_effects
 	main["SpecialEntities"] = special_entities
@@ -379,12 +356,6 @@ function Mapping:LoadConfig( name, loader )
 		if data.PerkMachineSpawns then
 			for k,v in pairs(data.PerkMachineSpawns) do
 				Mapping:PerkMachine(v.pos, v.angle, v.id)
-			end
-		end
-
-		if data.RBoxHandler then
-			for k,v in pairs(data.RBoxHandler) do
-				Mapping:RBoxHandler(v.pos, v.guns, v.angle)
 			end
 		end
 

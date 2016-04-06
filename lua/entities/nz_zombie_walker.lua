@@ -184,7 +184,8 @@ function ENT:SpecialInit()
 		self:SetRenderClipPlaneEnabled( true )
 		self:SetRenderClipPlane(self:GetUp(), self:GetUp():Dot(self:GetPos()))
 
-		local _, dur = self:LookupSequence(self.EmergeSequences[self:GetEmergeSequenceIndex()])
+		--local _, dur = self:LookupSequence(self.EmergeSequences[self:GetEmergeSequenceIndex()])
+		local _, dur = self:LookupSequence(self.EmergeSequences[math.random(1,#self.EmergeSequences)])
 
 		self:TimedEvent( dur, function()
 			self:SetRenderClipPlaneEnabled(false)
@@ -206,7 +207,7 @@ end
 
 function ENT:OnSpawn()
 
-	local seq = self.EmergeSequences[self:GetEmergeSequenceIndex()]
+	local seq = self.EmergeSequences[math.random(1,#self.EmergeSequences)]
 	local _, dur = self:LookupSequence(seq)
 
 	--dust cloud

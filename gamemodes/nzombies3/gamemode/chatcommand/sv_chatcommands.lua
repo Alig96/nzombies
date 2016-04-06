@@ -220,3 +220,7 @@ end)
 chatcommand.Add("/activateelec", function(ply, text)
 	Elec:Activate()
 end)
+
+chatcommand.Add("/navflush", function(ply, text)
+	nz.Nav.Functions.FlushAllNavModifications()
+end)

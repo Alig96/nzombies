@@ -5,19 +5,23 @@ ENT.PrintName = "Hellhound"
 ENT.Category = "Brainz"
 ENT.Author = "Lolle"
 
-ENT.Models = { "models/boz/killmeplease.mdl" }
+--ENT.Models = { "models/boz/killmeplease.mdl" }
+ENT.Models = { "models/nz_zombie/zombie_hellhound.mdl" }
 
 ENT.AttackRange = 80
+ENT.DamageLow = 30
+ENT.DamageHigh = 40
 
 ENT.AttackSequences = {
-	"attack"
+	"nz_attack1",
+	"nz_attack2",
+	"nz_attack3",
 }
 
 ENT.DeathSequences = {
-	"death1",
-	"death2",
-	"death3",
-	"death4"
+	"nz_death1",
+	"nz_death2",
+	"nz_death3",
 }
 
 ENT.AttackSounds = {
@@ -53,18 +57,28 @@ ENT.WalkSounds = {
 }
 
 ENT.PainSounds = {
-	"nz/hellhound/death/death0.wav"
+	"physics/flesh/flesh_impact_bullet1.wav",
+	"physics/flesh/flesh_impact_bullet2.wav",
+	"physics/flesh/flesh_impact_bullet3.wav",
+	"physics/flesh/flesh_impact_bullet4.wav",
+	"physics/flesh/flesh_impact_bullet5.wav"
 }
 
 ENT.DeathSounds = {
-	"nz/hellhound/death/death0.wav"
+	"nz/hellhound/death2/death0.wav",
+	"nz/hellhound/death2/death1.wav",
+	"nz/hellhound/death2/death2.wav",
+	"nz/hellhound/death2/death3.wav",
+	"nz/hellhound/death2/death4.wav",
+	"nz/hellhound/death2/death5.wav",
+	"nz/hellhound/death2/death6.wav",
 }
 
 function ENT:StatsInit()
 	if SERVER then
 		--self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
 
-		self:SetRunSpeed( 200)
+		self:SetRunSpeed(250)
 
 		self:SetHealth( 100 )
 
@@ -72,7 +86,7 @@ function ENT:StatsInit()
 	self:SetSolid(SOLID_OBB)
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 48))
 
-	PrintTable(self:GetSequenceList())
+	--PrintTable(self:GetSequenceList())
 end
 
 function ENT:OnSpawn()
@@ -112,7 +126,7 @@ function ENT:BodyUpdate()
 
 	local len2d = velocity:Length2D()
 
-	if ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
+	if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP

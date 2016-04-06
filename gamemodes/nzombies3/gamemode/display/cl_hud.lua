@@ -39,12 +39,12 @@ local tbl = {Entity(3), Entity(1), Entity(3), Entity(4), Entity(5),}
 
 local function ScoreHud()
 	if GetConVar("cl_drawhud"):GetBool() then
-		if true then --Round:InProgress() then
+		if Round:InProgress() then
 
 			local scale = (ScrW() / 1920 + 1) / 2
 			local offset = 0
 
-			for k,v in pairs(tbl) do
+			for k,v in pairs(player.GetAll()) do
 				local hp = v:Health()
 				if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
 				if v:GetPoints() >= 0 then
