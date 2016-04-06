@@ -54,3 +54,14 @@ function player.GetAllNonSpecs()
 
 	return result
 end
+
+function player.GetAllTargetable()
+	local result = {}
+	for _, ply in pairs(player.GetAll()) do
+		if ply:GetTargetPriority() > 0 then
+			table.insert( result, ply )
+		end
+	end
+	
+	return result
+end

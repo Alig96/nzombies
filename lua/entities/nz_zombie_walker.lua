@@ -156,16 +156,16 @@ ENT.RunSounds = {
 	"nz/zombies/sprint2/sprint8.wav"
 }
 
-function ENT:StatsInit()
+function ENT:StatsInitialize()
 	if SERVER then
 		--self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
-		local speeds = Round:GetZombieData().nz_zombie_walker and Round:GetZombieData().nz_zombie_walker.speeds or Round:GetZombieSpeeds()
+		local speeds = Round:GetZombieData() and Round:GetZombieData().nz_zombie_walker and Round:GetZombieData().nz_zombie_walker.speeds or Round:GetZombieSpeeds()
 		if speeds then
 			self:SetRunSpeed( nz.Misc.Functions.WeightedRandom(speeds) )
 		else
-			self:SetRunSpeed( nz.Curves.Data.Speed[ Round:GetNumber() ] )
+			self:SetRunSpeed( 100 )
 		end
-		self:SetHealth( Round:GetZombieHealth() )
+		self:SetHealth( Round:GetZombieHealth() or 75 )
 
 		--Preselect the emerge sequnces for clientside use
 		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
@@ -185,7 +185,7 @@ function ENT:SpecialInit()
 		self:SetRenderClipPlane(self:GetUp(), self:GetUp():Dot(self:GetPos()))
 
 		--local _, dur = self:LookupSequence(self.EmergeSequences[self:GetEmergeSequenceIndex()])
-		local _, dur = self:LookupSequence(self.EmergeSequences[math.random(1,#self.EmergeSequences)])
+		local _, dur = self:LookupSequence(self.EmergeSequences[self:GetEmergeSequenceIndex()])
 
 		self:TimedEvent( dur, function()
 			self:SetRenderClipPlaneEnabled(false)
@@ -207,7 +207,7 @@ end
 
 function ENT:OnSpawn()
 
-	local seq = self.EmergeSequences[math.random(1,#self.EmergeSequences)]
+	local seq = self.EmergeSequences[self:GetEmergeSequenceIndex()]
 	local _, dur = self:LookupSequence(seq)
 
 	--dust cloud

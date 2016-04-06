@@ -74,14 +74,35 @@ ENT.DeathSounds = {
 	"nz/hellhound/death2/death6.wav",
 }
 
-function ENT:StatsInit()
+ENT.SprintSounds = {
+	"nz/hellhound/close/close_00.wav",
+	"nz/hellhound/close/close_01.wav",
+	"nz/hellhound/close/close_02.wav",
+	"nz/hellhound/close/close_03.wav",
+}
+
+function ENT:StatsInitialize()
 	if SERVER then
-		--self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
-
+		local ply
+		local lowest
+		local players = player.GetAllTargetable()
+		
+		-- Loop through all targetable players
+		for k,v in pairs(players) do
+			if !lowest then lowest = v.hellhoundtarget end -- Set the lowest variable if not yet
+			if lowest and (!v.hellhoundtarget or v.hellhoundtarget <= lowest) then -- If the variable exists and this player is on par with that amount
+				ply = v -- Mark him for the potential target
+				lowest = v.hellhoundtarget -- And set the new lowest to continue the loop with
+			end
+		end
+		if !lowest then -- If no players had any target values (lowest was never set)
+			ply = players[math.random(#players)] -- Then pick a random player
+		end
+		ply.hellhoundtarget = ply.hellhoundtarget and ply.hellhoundtarget + 1 or 1
+		self.playertarget = ply -- Set the target
+		
 		self:SetRunSpeed(250)
-
 		self:SetHealth( 100 )
-
 	end
 	self:SetSolid(SOLID_OBB)
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 48))
@@ -98,6 +119,8 @@ function ENT:OnSpawn()
 	-- duration
 	effectData:SetMagnitude( 1 )
 	util.Effect("lightning_strike", effectData)
+	
+	Round:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
 end
 
 function ENT:OnKilled(dmgInfo)
@@ -105,6 +128,7 @@ function ENT:OnKilled(dmgInfo)
 	self:SetRunSpeed(0)
 	self.loco:SetVelocity(Vector(0,0,0))
 	self:Stop()
+	self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	local seq, dur = self:LookupSequence(self.DeathSequences[math.random(#self.DeathSequences)])
 	self:ResetSequence(seq)
 	self:SetCycle(0)
@@ -142,4 +166,82 @@ function ENT:BodyUpdate()
 
 	self:FrameAdvance()
 
+end
+
+function ENT:OnTargetInAttackRange()
+    local atkData = {}
+    atkData.dmglow = 20
+    atkData.dmghigh = 30
+    atkData.dmgforce = Vector( 0, 0, 0 )
+	atkData.dmgdelay = 0.3
+    self:Attack( atkData )
+end
+
+-- Hellhounds target differently
+function ENT:GetPriorityTarget()
+
+	if GetConVar( "nz_zombie_debug" ):GetBool() then
+		print(self, "Retargeting")
+	end
+
+	self:SetLastTargetCheck( CurTime() )
+
+	-- Well if he exists and he is targetable, just target this guy!
+	if IsValid(self.playertarget) and self.playertarget:GetTargetPriority() > 0 then
+		local dist = self:GetRangeSquaredTo( self.playertarget:GetPos() )
+		if dist < 1000 then
+			if !self.sprinting then
+				self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
+				self.sprinting = true
+			end
+			self:SetRunSpeed(250)
+			self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+		elseif !self.sprinting then
+			self:SetRunSpeed(100)
+			self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+		end
+		return self.playertarget
+	end
+	
+	-- Otherwise, we just loop through all to try and target again
+	local allEnts = ents.GetAll()
+
+	local bestTarget = nil
+	local maxdistsqr = self:GetTargetCheckRange()^2
+	local targetDist = maxdistsqr + 10
+
+	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
+
+	for _, target in pairs(allEnts) do
+		if self:IsValidTarget(target) then
+			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
+			local dist = self:GetRangeSquaredTo( target:GetPos() )
+			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
+				local priority = target:GetTargetPriority()
+				if priority == TARGET_PRIORITY_PLAYER then -- We can only target players (and ALWAYS-targets)!
+					if targetDist > dist then
+						highestPriority = priority
+						bestTarget = target
+						targetDist = dist
+					end
+				end
+				--print(highestPriority, bestTarget, targetDist, maxdistsqr)
+			end
+		end
+	end
+	
+	if IsValid(bestTarget) then
+		if targetDist < 1000 then
+			self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
+			self.sprinting = true
+			self:SetRunSpeed(250)
+		else
+			self:SetRunSpeed(100)
+			self.sprinting = nil
+		end
+		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
+		self.playertarget = bestTarget
+	end
+
+	return bestTarget
 end
