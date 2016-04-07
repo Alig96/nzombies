@@ -313,6 +313,20 @@ function Mapping:CleanUpMap()
 	for k,v in pairs(ents.FindByClass("wall_buys")) do
 		v:SetBought(false)
 	end
+	
+	if self.MarkedProps then
+		if !Round:InState( ROUND_CREATE ) then
+			for k,v in pairs(self.MarkedProps) do
+				local ent = ents.GetMapCreatedEntity(k)
+				if IsValid(ent) then ent:Remove() end
+			end
+		else
+			for k,v in pairs(self.MarkedProps) do
+				local ent = ents.GetMapCreatedEntity(k)
+				if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
+			end
+		end
+	end
 end
 
 function Mapping:SpawnEntity(pos, ang, ent, ply)

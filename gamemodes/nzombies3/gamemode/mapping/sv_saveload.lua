@@ -179,6 +179,7 @@ function Mapping:SaveConfig(name)
 
 	--Save this map's configuration
 	main["MapSettings"] = self.Settings
+	main["RemoveProps"] = self.MarkedProps
 
 	local configname
 	if name and name != "" then
@@ -194,6 +195,9 @@ end
 
 function Mapping:ClearConfig()
 	print("[NZ] Clearing current map")
+	
+	-- ALWAYS do this first!
+	Mapping:UnloadScript()
 
 	--Resets spawnpoints ther should be a function/accessor for this rather than jsu a table reset
 	nz.Enemies.Data.RespawnableSpawnpoints = {}
@@ -251,6 +255,7 @@ function Mapping:ClearConfig()
 	nz.QMenu.Data.SpawnedEntities = {}
 
 	Mapping.Settings = {}
+	Mapping.MarkedProps = {}
 
 	Doors.MapDoors = {}
 	Doors.PropDoors = {}
@@ -263,6 +268,8 @@ function Mapping:ClearConfig()
 	net.Broadcast()
 	
 	Mapping.CurrentConfig = nil
+	
+	Mapping:CleanUpMap()
 end
 
 function Mapping:LoadConfig( name, loader )
@@ -421,6 +428,21 @@ function Mapping:LoadConfig( name, loader )
 			Mapping.Settings = data.MapSettings
 			for k,v in pairs(player.GetAll()) do
 				Mapping:SendMapData(v)
+			end
+		end
+		
+		if data.RemoveProps then
+			Mapping.MarkedProps = data.RemoveProps
+			if !Round:InState( ROUND_CREATE ) then
+				for k,v in pairs(Mapping.MarkedProps) do
+					local ent = ents.GetMapCreatedEntity(k)
+					if IsValid(ent) then ent:Remove() end
+				end
+			else
+				for k,v in pairs(Mapping.MarkedProps) do
+					local ent = ents.GetMapCreatedEntity(k)
+					if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
+				end
 			end
 		end
 
