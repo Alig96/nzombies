@@ -130,7 +130,7 @@ function ENT:Initialize()
 
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
 
-	self:StatsInit()
+	self:StatsInitialize()
 	self:SpecialInit()
 
 	if SERVER then
@@ -153,6 +153,10 @@ end
 
 --init for class related attributes hooks etc...
 function ENT:SpecialInit()
+	--print("PLEASE Override the base class!")
+end
+
+function ENT:StatsInit()
 	--print("PLEASE Override the base class!")
 end
 
@@ -794,7 +798,7 @@ function ENT:Attack( data )
 	data.dmgforce.z = math.Clamp(data.dmgforce.z, 1, 16)
 	local seq, dur = self:LookupSequence( data.attackseq )
 	data.attackdur = (seq != - 1 and dur) or 0.6
-	data.dmgdelay = ( ( data.attackdur != 0 ) and data.attackdur / 2 ) or 0.3
+	data.dmgdelay = data.dmgdelay or ( ( data.attackdur != 0 ) and data.attackdur / 2 ) or 0.3
 
 	self:EmitSound("npc/zombie_poison/pz_throw2.wav", 50, math.random(75, 125)) -- whatever this is!? I will keep it for now
 

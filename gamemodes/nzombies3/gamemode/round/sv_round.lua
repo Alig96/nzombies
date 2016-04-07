@@ -31,22 +31,23 @@ function Round:Prepare()
 	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
 	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
 
-	if nz.Config.EnemyTypes[ self:GetNumber() ] then
+	-- Quickly make sure that a special round with the convar on does not use the config (temporarily)
+	if nz.Config.EnemyTypes[ self:GetNumber() ] and !(self:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool()) then
 		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
+		if nz.Config.EnemyTypes[ self:GetNumber() ].count then
+			self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
+		end
 	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
 		if GetConVar("nz_test_hellhounds"):GetBool() then
-			self:SetZombieData( {["nz_zombie_special_dog"] = {chance = 100,}} )
+			self:SetSpecialZombieData( {["nz_zombie_special_dog"] = {chance = 100}} )
+			self:SetZombiesMax( self:GetZombiesMax() * 0.5 )
 		else
-			self:SetZombieData( nz.Config.SpecialRoundData.types )
+			self:SetSpecialZombieData( nz.Config.SpecialRoundData.types )
 			self:SetZombiesMax( nz.Config.SpecialRoundData.modifycount(self:GetZombiesMax()) )
 		end
 	end
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
 
-	if nz.Config.EnemyTypes[ self:GetNumber() ] and nz.Config.EnemyTypes[ self:GetNumber() ].count then
-		self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
-		--print("Round "..nz.Rounds.Data.CurrentRound.." has a special count: "..nz.Rounds.Data.MaxZombies)
-	end
 	self:SetZombiesKilled( 0 )
 	self:SetZombiesSpawned( 0 )
 
@@ -84,6 +85,15 @@ local CurRoundOverSpawned = false
 function Round:Start()
 
 	self:SetState( ROUND_PROG )
+	self:SetNextSpawnTime( CurTime() + 3 ) -- Delay zombie spawning by 3 seconds
+	
+	if self:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
+		self:SetNextSpawnTime( CurTime() + 5 )
+		timer.Simple(3, function()
+			Round:CallHellhoundRound()
+		end)
+	end
+	
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
 	hook.Call("OnRoundStart", Round, self:GetNumber() )
