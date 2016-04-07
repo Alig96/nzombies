@@ -86,7 +86,7 @@ function ENT:StatsInitialize()
 		local ply
 		local lowest
 		local players = player.GetAllTargetable()
-		
+
 		-- Loop through all targetable players
 		for k,v in pairs(players) do
 			if !lowest then lowest = v.hellhoundtarget end -- Set the lowest variable if not yet
@@ -100,7 +100,7 @@ function ENT:StatsInitialize()
 		end
 		ply.hellhoundtarget = ply.hellhoundtarget and ply.hellhoundtarget + 1 or 1
 		self.playertarget = ply -- Set the target
-		
+
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
@@ -117,9 +117,9 @@ function ENT:OnSpawn()
 	-- end pos
 	effectData:SetOrigin( self:GetPos() )
 	-- duration
-	effectData:SetMagnitude( 1 )
+	effectData:SetMagnitude( 0.75 )
 	util.Effect("lightning_strike", effectData)
-	
+
 	Round:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
 end
 
@@ -202,7 +202,7 @@ function ENT:GetPriorityTarget()
 		end
 		return self.playertarget
 	end
-	
+
 	-- Otherwise, we just loop through all to try and target again
 	local allEnts = ents.GetAll()
 
@@ -229,7 +229,7 @@ function ENT:GetPriorityTarget()
 			end
 		end
 	end
-	
+
 	if IsValid(bestTarget) then
 		if targetDist < 1000 then
 			self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
