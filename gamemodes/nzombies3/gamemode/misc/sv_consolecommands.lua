@@ -48,8 +48,8 @@ concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 		end
 		
 		if round then
-			nz.Rounds.Data.CurrentRound = round - 1
+			Round:SetNumber( round - 1 )
 		end
-		nz.Rounds.Functions.PrepareRound()
+		Round:Prepare()
 	end
 end)

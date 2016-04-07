@@ -19,11 +19,11 @@ function nz.Enemies.Functions.CheckIfSuitable(pos)
 
 end
 
-function nz.Enemies.Functions.ValidSpawns()
+function nz.Enemies.Functions.ValidSpawns(zclass)
 
 	local spawns = {}
 	local spawntype = "zed_spawns"
-	if Round:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool() then
+	if nz.Config.ValidEnemies[zclass] and nz.Config.ValidEnemies[zclass].SpecialSpawn then
 		spawntype = "zed_special_spawns"
 	end
 
@@ -69,22 +69,11 @@ function nz.Enemies.Functions.TotalCurrentEnemies()
 	return c
 end
 
-function nz.Enemies.Functions.SpawnZombie(spawnpoint)
+function nz.Enemies.Functions.SpawnZombie(spawnpoint, zclass)
 	if nz.Enemies.Functions.TotalCurrentEnemies() < GetConVar("nz_difficulty_max_zombies_alive"):GetInt() then
-		local ent = "nz_zombie_walker"
-
-		-- Get the latest round number from the table
-		for i = Round:GetNumber(), 0, -1 do
-			if nz.Config.EnemyTypes[i] != nil then
-				-- Use weightkey "chance" as defined in the new config format
-				ent = nz.Misc.Functions.WeightedRandom( Round:GetZombieData(), "chance")
-				break
-			end
-		end
-
 		if !IsValid(spawnpoint) then return end
 
-		local zombie = ents.Create(ent)
+		local zombie = ents.Create(zclass)
 		zombie:SetPos(spawnpoint:GetPos())
 		zombie:Spawn()
 		zombie:Activate()
@@ -99,10 +88,13 @@ end
 
 function nz.Enemies.Functions.ZombieSpawner()
 	-- Not enough Zombies
-	if Round:InState( ROUND_PROG ) then
+	print(CurTime() - Round:GetNextSpawnTime(), CurTime() >= Round:GetNextSpawnTime())
+	if CurTime() >= Round:GetNextSpawnTime() and Round:InState( ROUND_PROG ) then
 		if Round:GetZombiesSpawned() < Round:GetZombiesMax() then
-
-			local valids = nz.Enemies.Functions.ValidSpawns()
+		
+			local zclass = nz.Misc.Functions.WeightedRandom( Round:GetZombieData(), "chance")
+			print(zclass)
+			local valids = nz.Enemies.Functions.ValidSpawns(zclass)
 
 			if #valids == 0  then
 				print("No valid spawns were found!")
@@ -111,15 +103,17 @@ function nz.Enemies.Functions.ZombieSpawner()
 			end
 
 			local spawnpoint = table.Random(valids)
+			
+			Round:SetNextSpawnTime(CurTime() + 1) -- Default to 1; zombies spawned below can change that
 
 			if nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
-				nz.Enemies.Functions.SpawnZombie(spawnpoint)
+				nz.Enemies.Functions.SpawnZombie(spawnpoint, zclass)
 			end
 		end
 	end
 end
 
-timer.Create("nz.Rounds.ZombieSpawner", 1, 0, nz.Enemies.Functions.ZombieSpawner)
+hook.Add("Think", "ZombieSpawnThink", nz.Enemies.Functions.ZombieSpawner)
 
 function nz.Enemies.Functions.ValidRespawns(cur)
 	local spawns = nz.Enemies.Functions.ValidSpawns()
