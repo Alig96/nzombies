@@ -274,6 +274,10 @@ function ENT:RunBehaviour()
 						self:OnPathTimeOut()
 					end
 				else
+					if GetConVar( "nz_zombie_debug" ):GetBool() then
+						print(self, "Pathing failed!")
+					end
+					self:TimeOut(2)
 					--path failed what should we do :/?
 				end
 			else
@@ -328,10 +332,12 @@ end
 function ENT:SpawnZombie()
 	--BAIL if no navmesh is near
 	local nav = navmesh.GetNearestNavArea( self:GetPos() )
-	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then self:Remove() end
+	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then
+		ErrorNoHalt("Zombie ["..self:GetClass().."]["..self:EntIndex().."] spawned too far away from a navmesh!")
+		self:Remove()
+	end
 
 	self:OnSpawn()
-
 end
 
 function ENT:OnSpawn()
