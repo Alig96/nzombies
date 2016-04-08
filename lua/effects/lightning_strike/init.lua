@@ -1,7 +1,7 @@
 --Name: Lightning strike using midpoint displacement
 --Author: Lolle
 
-EFFECT.Mat = Material( "trails/electric" )
+EFFECT.Mat = Material( "lightning.png", "unlitgeneric smooth" )
 
 --[[---------------------------------------------------------
    Init( data table )
@@ -10,10 +10,9 @@ function EFFECT:Init( data )
 
 	self.StartPos = data:GetStart()
 	self.EndPos = data:GetOrigin() + VectorRand() * 10
-	self.Duration = data:GetMagnitude() or 2
+	self.Duration = data:GetMagnitude() or 10
 	self.Count = self.Duration * 40
-	self.MaxArcs = 2
-	self.Scale = 2
+	self.MaxArcs = 5
 	self.Radius = 30
 
 	self.Flash = DynamicLight( LocalPlayer():EntIndex() )
@@ -22,9 +21,10 @@ function EFFECT:Init( data )
 	self.Flash.r = 255
 	self.Flash.g = 255
 	self.Flash.b = 255
-	self.Flash.brightness = 10
+	self.Flash.brightness = 2
 	self.Flash.Decay = 200
-	self.Flash.Size = 2048
+	self.Flash.Size = 1500
+	self.Flash.style = 6
 	self.Flash.DieTime = CurTime() + 0.2
 
 
@@ -49,14 +49,15 @@ function EFFECT:Think()
 	self.Life = self.Life + FrameTime()
 	--self.Alpha = 255 * ( 1 - self.Life )
 
-	if self.NextArc <= self.Life then
+	if self.NextArc <= self.Life and self.Life <= self.Duration - self.Duration * 0.25 then
 
-		local size = table.Count(self.Arcs)
+		local size = #self.Arcs
 		--add a arc to the array
-		self.Arcs[size + 1] = self:GenerateArc(4)
+		while self.Arcs[size] do
+			size = size + 1
+		end
+		self.Arcs[size] = self:GenerateArc(self.StartPos, self.EndPos, 0.1, 4)
 		self.NextArc = self.NextArc + 0.05
-
-		self.MaxArcs = self.MaxArcs * self.Scale
 
 		if size >= self.MaxArcs then
 			local i = 1
@@ -70,7 +71,7 @@ function EFFECT:Think()
 	return ( self.Life < self.Duration )
 end
 
-function EFFECT:GenerateArc(detail)
+function EFFECT:GenerateArc(startPos, endPos, branchChance, detail)
 	-- MidPoint Displacement for arc lines
 	local points = {}
 	local maxPoints = 2^detail
@@ -79,9 +80,13 @@ function EFFECT:GenerateArc(detail)
 		maxPoints = maxPoints + 1
 	end
 
-	points[0] = self.StartPos + VectorRand() * 2
+	points[0] = startPos
 
-	points[maxPoints] = self.EndPos + VectorRand()
+	local randVec = VectorRand() * 10
+
+	randVec.z = math.Clamp(randVec.z, 0, 10)
+
+	points[maxPoints] = endPos + randVec
 
 	local i = 1
 
@@ -90,10 +95,16 @@ function EFFECT:GenerateArc(detail)
 		while j < maxPoints do
 			points[j] = ((points[j - (maxPoints / i) / 2] + points[j + (maxPoints / i) / 2]) / 2);
 			points[j] = points[j] + VectorRand() * 25
+			if math.Rand(0,1) < branchChance then
+				points[#points + 1] = self:GenerateArc(points[j], points[j] + Vector(math.random(-5000 * branchChance, 5000 * branchChance), math.random(-5000 * branchChance, 5000 * branchChance), math.random(-5000 * branchChance, 100 * branchChance)), branchChance/1.3, detail)
+			end
 			j = j + maxPoints / i
 		end
 		i = i * 2
 	end
+
+	points.size = math.random(2,6)
+	points.color = Color(200, 240, math.random(230, 255), math.random(200, 255))
 
 	return points
 end
@@ -106,22 +117,33 @@ function EFFECT:Render()
 	if ( self.Alpha < 1 ) then return end
 
 	render.SetMaterial( self.Mat )
-	local texcoord = math.Rand( 0, 1 )
 
 	for _, arc in pairs(self.Arcs) do
-		for j = 1, #arc - 1 do
+		self:RenderArc(arc)
+	end
+
+end
+
+function EFFECT:RenderArc(arc)
+	for j = 1, #arc - 1 do
+
+		if istable(arc[j]) then
+			self:RenderArc(arc[j])
+		elseif !istable(arc[j+1]) then
+
+			local texcoord = math.Rand( 0, 1 )
 
 			local startPos = arc[j]
 			local endPos = arc[j + 1]
 
-			render.DrawBeam( startPos,
-							endPos,
-							16,
-							texcoord,
-							texcoord + ((startPos - endPos):Length() / 128),
-							Color( 255, 255, 255, 128 * ( 1 - self.Life ) ) )
-
+			render.DrawBeam(
+				startPos,
+				endPos,
+				arc.size,
+				texcoord,
+				texcoord + ((startPos - endPos):Length() / 128),
+				arc.color
+			)
 		end
 	end
-
 end
