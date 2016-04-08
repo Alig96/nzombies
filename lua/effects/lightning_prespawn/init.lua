@@ -4,32 +4,20 @@
 --EFFECT.MatCenter = Material( "lightning.png", "unlitgeneric smooth" )
 EFFECT.MatEdge = Material( "effects/tool_tracer" )
 EFFECT.MatCenter = Material( "sprites/physbeama" )
-EFFECT.MatGlow = Material( "sprites/glow04_actual_noz" )
+EFFECT.MatGlow1 = Material( "sprites/physg_glow1_noz" )
+EFFECT.MatGlow2 = Material( "sprites/physg_glow2_noz" )
+EFFECT.MatGlowCenter = Material( "sprites/glow04_actual_noz" )
 
 --[[---------------------------------------------------------
    Init( data table )
 -----------------------------------------------------------]]
 function EFFECT:Init( data )
 
-	self.StartPos = data:GetStart()
-	self.EndPos = data:GetOrigin() + VectorRand() * 10
-	self.Duration = data:GetMagnitude() or 10
+	self.Pos = data:GetOrigin() + VectorRand() * 10
+	self.Duration = data:GetMagnitude() or 2
 	self.Count = self.Duration * 40
-	self.MaxArcs = 5
+	self.MaxArcs = 2
 	self.Radius = 30
-
-	self.Flash = DynamicLight( LocalPlayer():EntIndex() )
-
-	self.Flash.pos = self.EndPos
-	self.Flash.r = 255
-	self.Flash.g = 255
-	self.Flash.b = 255
-	self.Flash.brightness = 2
-	self.Flash.Decay = 200
-	self.Flash.Size = 1500
-	self.Flash.style = 6
-	self.Flash.DieTime = CurTime() + 0.2
-
 
 	self.Alpha = 255
 	self.Life = 0
@@ -37,9 +25,9 @@ function EFFECT:Init( data )
 	self.Arcs = {}
 	self.Queue = 1
 
-	self:SetRenderBoundsWS( self.StartPos, self.EndPos )
+	self:SetRenderBoundsWS( self.Pos, self.Pos, Vector(100,100,100) )
 
-	sound.Play("nz/hellhound/spawn/strike.wav", self.EndPos, 100, 100, 1)
+	sound.Play("nz/hellhound/spawn/prespawn.wav", self.Pos, 100, 100, 1)
 
 end
 
@@ -59,8 +47,8 @@ function EFFECT:Think()
 		while self.Arcs[size] do
 			size = size + 1
 		end
-		self.Arcs[size] = self:GenerateArc(self.StartPos, self.EndPos, 0.1, 4)
-		self.NextArc = self.NextArc + 0.05
+		self.Arcs[size] = self:GenerateArc(self.Pos + AngleRand():Forward()*100, self.Pos + AngleRand():Forward()*100, 0.1, 4)
+		self.NextArc = self.NextArc + 0.1
 
 		if size >= self.MaxArcs then
 			local i = 1
@@ -97,16 +85,16 @@ function EFFECT:GenerateArc(startPos, endPos, branchChance, detail)
 		local j = (maxPoints / i) / 2
 		while j < maxPoints do
 			points[j] = ((points[j - (maxPoints / i) / 2] + points[j + (maxPoints / i) / 2]) / 2);
-			points[j] = points[j] + VectorRand() * 25
+			points[j] = points[j] + VectorRand() * 10
 			if math.Rand(0,1) < branchChance then
-				points[#points + 1] = self:GenerateArc(points[j], points[j] + Vector(math.random(-5000 * branchChance, 5000 * branchChance), math.random(-5000 * branchChance, 5000 * branchChance), math.random(-5000 * branchChance, 100 * branchChance)), branchChance/1.3, detail)
+				points[#points + 1] = self:GenerateArc(points[j], points[j] + Vector(math.random(-50 * branchChance, 50 * branchChance), math.random(-50 * branchChance, 50 * branchChance), math.random(-50 * branchChance, 10 * branchChance)), branchChance/1.3, detail)
 			end
 			j = j + maxPoints / i
 		end
 		i = i * 2
 	end
 
-	points.size = math.random(10,30)
+	points.size = math.random(2,10)
 	points.color = Color(200, 240, math.random(230, 255), math.random(200, 255))
 
 	return points
@@ -131,11 +119,16 @@ function EFFECT:Render()
 		self:RenderArc(arc, true)
 	end
 	
-	render.SetMaterial( self.MatGlow )
+	render.SetMaterial( self.MatGlow1 )
+	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(400,800), math.random(400,800), Color(255,255,255,math.random(0,100)))
 	
-	render.DrawSprite( self.EndPos + Vector(0,0,30), math.random(400,1600), math.random(400,1600), Color(255,255,255,math.random(0,250)))
-
-	util.ScreenShake( self.EndPos, 0.5, 1, 0.1, 10 )
+	if math.random(0,10) == 0 then
+		render.SetMaterial( self.MatGlow2 )
+		render.DrawSprite( self.Pos + Vector(0,0,30), math.random(400,800), math.random(400,800), Color(255,255,255,math.random(0,200)))
+	end
+	
+	render.SetMaterial( self.MatGlowCenter )
+	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(100,300), math.random(100,300), Color(255,255,255,math.random(200,250)))
 	
 end
 
@@ -154,7 +147,7 @@ function EFFECT:RenderArc(arc, edge)
 			render.DrawBeam(
 				startPos,
 				endPos,
-				edge and arc.size*1.5 or arc.size,
+				edge and arc.size*3 or arc.size,
 				texcoord,
 				texcoord + ((startPos - endPos):Length() / 128),
 				arc.color

@@ -83,24 +83,10 @@ ENT.SprintSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		local ply
-		local lowest
-		local players = player.GetAllTargetable()
-
-		-- Loop through all targetable players
-		for k,v in pairs(players) do
-			if !lowest then lowest = v.hellhoundtarget end -- Set the lowest variable if not yet
-			if lowest and (!v.hellhoundtarget or v.hellhoundtarget <= lowest) then -- If the variable exists and this player is on par with that amount
-				ply = v -- Mark him for the potential target
-				lowest = v.hellhoundtarget -- And set the new lowest to continue the loop with
-			end
-		end
-		if !lowest then -- If no players had any target values (lowest was never set)
-			ply = players[math.random(#players)] -- Then pick a random player
-		end
-		ply.hellhoundtarget = ply.hellhoundtarget and ply.hellhoundtarget + 1 or 1
-		self.playertarget = ply -- Set the target
-
+		self:SetNoDraw(true) -- Start off invisible while in the prespawn effect
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS) -- Don't collide in this state
+		self:Stop() -- Also don't do anything
+		
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
@@ -112,13 +98,47 @@ end
 
 function ENT:OnSpawn()
 	local effectData = EffectData()
-	-- startpos
-	effectData:SetStart( self:GetPos() + Vector(0, 0, 1000) )
-	-- end pos
 	effectData:SetOrigin( self:GetPos() )
-	-- duration
-	effectData:SetMagnitude( 0.75 )
-	util.Effect("lightning_strike", effectData)
+	effectData:SetMagnitude( 2 )
+	util.Effect("lightning_prespawn", effectData)
+	self:SetNoDraw(true)
+	
+	timer.Simple(1.4, function()
+		if IsValid(self) then
+			effectData = EffectData()
+			-- startpos
+			effectData:SetStart( self:GetPos() + Vector(0, 0, 1000) )
+			-- end pos
+			effectData:SetOrigin( self:GetPos() )
+			-- duration
+			effectData:SetMagnitude( 0.75 )
+			--util.Effect("lightning_strike", effectData)
+			util.Effect("lightning_strike", effectData)
+			
+			self:SetNoDraw(false)
+			self:SetCollisionGroup(COLLISION_GROUP_NONE)
+			self:SetStop(false)
+			
+			-- Now select a target
+			
+			local ply
+			local lowest
+			local players = player.GetAllTargetable()
+			-- Loop through all targetable players
+			for k,v in pairs(players) do
+				if !lowest then lowest = v.hellhoundtarget end -- Set the lowest variable if not yet
+				if lowest and (!v.hellhoundtarget or v.hellhoundtarget <= lowest) then -- If the variable exists and this player is on par with that amount
+					ply = v -- Mark him for the potential target
+					lowest = v.hellhoundtarget -- And set the new lowest to continue the loop with
+				end
+			end
+			if !lowest then -- If no players had any target values (lowest was never set)
+				ply = players[math.random(#players)] -- Then pick a random player
+			end
+			ply.hellhoundtarget = ply.hellhoundtarget and ply.hellhoundtarget + 1 or 1 -- Increment the targets target count
+			self.playertarget = ply -- Set the target
+		end
+	end)
 
 	Round:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
 end
@@ -170,8 +190,8 @@ end
 
 function ENT:OnTargetInAttackRange()
     local atkData = {}
-    atkData.dmglow = 20
-    atkData.dmghigh = 30
+    atkData.dmglow = 35
+    atkData.dmghigh = 40
     atkData.dmgforce = Vector( 0, 0, 0 )
 	atkData.dmgdelay = 0.3
     self:Attack( atkData )
