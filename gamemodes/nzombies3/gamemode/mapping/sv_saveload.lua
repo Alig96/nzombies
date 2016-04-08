@@ -275,15 +275,16 @@ end
 function Mapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
+	local location = string.GetExtensionFromFilename(name) == "lua" and "LUA" or "DATA" 
 
-	if file.Exists( filepath, "DATA" )then
+	if file.Exists( filepath, location )then
 		print("[NZ] MAP CONFIG FOUND!")
 
 		-- Load a lua file for a specific map
 		-- Make sure all hooks are removed before adding the new ones
 		Mapping:UnloadScript()
 
-		local data = util.JSONToTable( file.Read( filepath, "DATA" ) )
+		local data = util.JSONToTable( file.Read( filepath, location ) )
 
 		local version = data.version
 

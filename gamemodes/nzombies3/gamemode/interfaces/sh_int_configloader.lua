@@ -32,6 +32,18 @@ if CLIENT then
 				table.insert(configs, config)
 			end
 		end
+		for k,v in pairs(data.workshopconfigs) do
+			local name = string.Explode(";", v)
+			local map, configname = name[1], name[2]
+			if name[2] then
+				local config = {}
+				config.map = string.sub(map, 4)
+				config.name = string.sub(configname, 0, #configname-4)
+				config.config = v
+				config.workshop = true
+				table.insert(configs, config)
+			end
+		end
 		
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
@@ -77,6 +89,9 @@ if CLIENT then
 		OldConfigs:SetMultiSelect(false)
 		OldConfigs:AddColumn("Name")
 		for k,v in pairs(data.configs) do
+			OldConfigs:AddLine(v)
+		end
+		for k,v in pairs(data.workshopconfigs) do
 			OldConfigs:AddLine(v)
 		end
 		OldConfigs.OnRowSelected = function(self, index, row)
@@ -133,14 +148,20 @@ if CLIENT then
 			mapname:SetText(v.map)
 			mapname:SetTextColor(Color(20, 20, 20))
 			mapname:SizeToContents()
-			mapname:SetPos(200, 18)
+			mapname:SetPos(180, 18)
 			
 			local mapstatus = vgui.Create("DLabel", config)
 			local status = file.Find("maps/"..v.map..".bsp", "GAME")[1] and true or false
-			mapstatus:SetText(status and "Installed" or "Not installed" )
+			mapstatus:SetText(status and "Map installed" or "Map not installed" )
 			mapstatus:SetTextColor(status and Color(20, 200, 20) or Color(200, 20, 20))
 			mapstatus:SizeToContents()
-			mapstatus:SetPos(360 - mapstatus:GetWide(), 18)
+			mapstatus:SetPos(360 - mapstatus:GetWide(), 12)
+			
+			local configlocation = vgui.Create("DLabel", config)
+			configlocation:SetText(v.workshop and "Workshop" or "Local")
+			configlocation:SetTextColor(v.workshop and Color(150, 20, 100) or Color(20, 20, 200))
+			configlocation:SizeToContents()
+			configlocation:SetPos(360 - configlocation:GetWide(), 26)
 			
 			local click = vgui.Create("DButton", config)
 			click:SetText("")

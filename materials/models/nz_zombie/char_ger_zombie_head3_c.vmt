@@ -4,10 +4,5 @@
      "$bumpmap" "models/nz_zombie/char_ger_zombie_head1_n"
      "$model" 1
      //"$selfillum" 1
-	 
-	"$phong" "1"
-	"$phongexponent" "100"
-	"$phongboost" "0.1"
-	"$phongfresnelranges" "[0.2 0.5 1]"
-	"$phongalbedotint" "1"		
+	 	
 }

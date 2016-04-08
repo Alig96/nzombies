@@ -304,5 +304,7 @@ function Round:SetupGame()
 	end
 	
 	nz.Perks.Functions.UpdateQuickRevive()
+	
+	hook.Call( "OnGameBegun", Round )
 
 end

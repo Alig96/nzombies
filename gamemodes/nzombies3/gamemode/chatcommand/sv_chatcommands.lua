@@ -69,7 +69,7 @@ end)
 
 chatcommand.Add("/load", function(ply, text)
 	if Round:InState( ROUND_CREATE) or Round:InState( ROUND_WAITING ) then
-		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" )})
+		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" )})
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't load while playing!" )
 	end
@@ -223,4 +223,5 @@ end)
 
 chatcommand.Add("/navflush", function(ply, text)
 	nz.Nav.Functions.FlushAllNavModifications()
+	PrintMessage(HUD_PRINTTALK, "Navlocks and Navgroups successfully flushed. Remember to redo them for best playing experience.")
 end)
