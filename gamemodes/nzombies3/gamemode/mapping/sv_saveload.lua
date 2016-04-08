@@ -155,6 +155,15 @@ function Mapping:SaveConfig(name)
 		end
 	end
 	--PrintTable(special_entities)
+	
+	-- Store all invisible walls with their boundaries and angles
+	local invis_walls = {}
+	for _, v in pairs(ents.FindByClass("invis_wall")) do
+		table.insert(invis_walls, {
+			pos = v:GetPos(),
+			maxbound = v:GetMaxBound(),
+		})
+	end
 
 	main["ZedSpawns"] = zed_spawns
 	main["ZedSpecialSpawns"] = zed_special_spawns
@@ -170,6 +179,7 @@ function Mapping:SaveConfig(name)
 	main["EasterEggs"] = easter_eggs
 	main["PropEffects"] = prop_effects
 	main["SpecialEntities"] = special_entities
+	main["InvisWalls"] = invis_walls
 
 	--We better clear the merges in case someone played around with them in create mode (lua_run)
 	nz.Nav.ResetNavGroupMerges()
@@ -223,6 +233,7 @@ function Mapping:ClearConfig()
 		["edit_sun"] = true,
 		["nz_triggerzone"] = true,
 		["power_box"] = true,
+		["invis_wall"] = true,
 	}
 
 	--jsut loop once over all entities isntead of seperate findbyclass calls
@@ -444,6 +455,12 @@ function Mapping:LoadConfig( name, loader )
 					local ent = ents.GetMapCreatedEntity(k)
 					if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
 				end
+			end
+		end
+		
+		if data.InvisWalls then
+			for k,v in pairs(data.InvisWalls) do
+				Mapping:CreateInvisibleWall(v.pos, v.maxbound)
 			end
 		end
 

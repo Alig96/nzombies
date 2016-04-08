@@ -347,11 +347,35 @@ function Mapping:SpawnEntity(pos, ang, ent, ply)
 	return entity
 end
 
+function Mapping:CreateInvisibleWall(vec1, vec2, ply)
+	local wall = ents.Create( "invis_wall" )
+	wall:SetPos( vec1 ) -- Later we might make the position the center
+	--wall:SetAngles( ang )
+	--wall:SetMinBound(vec1) -- Just the position for now
+	wall:SetMaxBound(vec2)
+	wall:Spawn()
+	wall:PhysicsInitBox( Vector(0,0,0), vec2 )
+	
+	local phys = wall:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	if ply then
+		undo.Create( "Invis Wall" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( wall )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return wall
+end
+
 //Physgun Hooks
 local ghostentities = {
 	["prop_buys"] = true,
 	["wall_block"] = true,
 	["breakable_entry"] = true,
+	["invis_wall"] = true,
 	--["wall_buys"] = true,
 }
 local function onPhysgunPickup( ply, ent )
