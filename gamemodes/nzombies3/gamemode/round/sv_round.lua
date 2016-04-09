@@ -305,6 +305,8 @@ function Round:SetupGame()
 	
 	nz.Perks.Functions.UpdateQuickRevive()
 	
+	Round:SetNextSpecialRound( GetConVar("nz_round_special_interval"):GetInt() )
+	
 	hook.Call( "OnGameBegun", Round )
 
 end

@@ -7,7 +7,7 @@ ENT.Author = "Lolle"
 
 function ENT:StatsInitialize()
     if SERVER then
-        local speeds = Round:GetZombieData().nz_zombie_special_burning and Round:GetZombieData().nz_zombie_special_burning.speeds or Round:GetZombieSpeeds()
+        local speeds = Round:GetZombieData() and Round:GetZombieData().nz_zombie_special_burning and Round:GetZombieData().nz_zombie_special_burning.speeds or Round:GetZombieSpeeds()
 		if speeds then
 			self:SetRunSpeed( nz.Misc.Functions.WeightedRandom(speeds) - 20 ) -- A bit slower here
 		else
@@ -15,6 +15,8 @@ function ENT:StatsInitialize()
 		end
         self:SetHealth( Round:GetZombieHealth() or 75 )
         self:Flames( true )
+		
+		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
     end
 end
 
