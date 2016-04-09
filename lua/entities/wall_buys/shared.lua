@@ -46,27 +46,6 @@ function ENT:OnRemove()
 	end
 end
 
---[[function ENT:RecalculateModelBounds()
-	local curang = self:GetAngles() -- Modifies offset if flipped
-	local curpos = self:GetPos()
-	
-	local vec1, vec2 = self:GetCollisionBounds()
-	print(vec1, vec2)
-	if !self.Flipped then
-		curang:RotateAroundAxis(curang:Up(), 90)
-	end
-	if !self.Flipped then
-		vec1[1] = 0.1
-		vec2[1] = -0.1
-	else
-		vec1[2] = 0.1
-		vec2[2] = -0.1
-	end
-	print(vec1, vec2)
-	
-	self:PhysicsInitBox(vec1, vec2)
-end]]
-
 function ENT:RecalculateModelOutlines()
 	self:RemoveOutline()
 	local num = GetConVar("nz_outlinedetail"):GetInt()
@@ -75,6 +54,10 @@ function ENT:RecalculateModelOutlines()
 	local curpos = self:GetPos()
 	local wep = weapons.Get(self:GetWepClass())
 	local model = wep.WM or wep.WorldModel
+	
+	-- Precache the model whenever it changes, including on spawn
+	util.PrecacheModel(wep.WM or wep.WorldModel)
+	
 	self.modelclass = self:GetWepClass()
 	
 	if !self.Flipped then
@@ -276,7 +259,7 @@ if CLIENT then
 	function ENT:Draw()
 		--self:DrawModel()
 		local num = math.Clamp(GetConVar("nz_outlinedetail"):GetInt(), 0, 4)
-		if num < 1 then
+		if num < 1 or self.OutlineGiveUp > 5 then
 			self:DrawModel()
 		else
 			local pos = LocalPlayer():EyePos()+LocalPlayer():EyeAngles():Forward()*10
@@ -295,6 +278,13 @@ if CLIENT then
 					render.SetBlend(0)
 					
 						for i = 1, num do
+							-- If it isn't valid (NULL ENTITY), attempt to recreate
+							if !IsValid(self["Chalk"..i]) then 
+								self:RecalculateModelOutlines()
+								-- Log how many tries we did, we'll give up after 5 and just draw the model :(
+								self.OutlineGiveUp = self.OutlineGiveUp and self.OutlineGiveUp + 1 or 1
+								break 
+							end
 							self["Chalk"..i]:DrawModel()
 						end
 						
