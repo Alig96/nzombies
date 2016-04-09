@@ -51,6 +51,27 @@ AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
 AccessorFunc( ENT, "bStop", "Stop", FORCE_BOOL)
 
+AccessorFunc( ENT, "iActStage", "ActStage", FORCE_NUMBER)
+
+ENT.ActStages = {
+	[1] = {
+		act = ACT_WALK,
+		minspeed = 5,
+	},
+	[2] = {
+		act = ACT_WALK_ANGRY,
+		minspeed = 40,
+	},
+	[3] = {
+		act = ACT_RUN,
+		minspeed = 100,
+	},
+	[4] = {
+		act = ACT_SPRINT,
+		minspeed = 160,
+	},
+}
+
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
 end
@@ -129,6 +150,8 @@ function ENT:Initialize()
 	self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
+	
+	self:SetActStage(0)
 
 	self:StatsInitialize()
 	self:SpecialInit()
@@ -1059,11 +1082,25 @@ function ENT:BodyUpdate()
 
 	local len2d = velocity:Length2D()
 
-	--local len2d = self:GetRunSpeed()
+	local range = 10
 
-	--if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
-
-	if ( len2d > 150 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 5 ) then self.CalcIdeal = ACT_WALK end
+	local curstage = self.ActStages[self:GetActStage()]
+	local nextstage = self.ActStages[self:GetActStage() + 1]
+	
+	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
+		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
+			self:SetActStage( self:GetActStage() + 1 )
+		end
+		-- If there is no minspeed for the next stage, someone did something wrong and we just idle :/
+	elseif (curstage and len2d <= curstage.minspeed - range) then
+		self:SetActStage( self:GetActStage() - 1 )
+	elseif (nextstage and len2d >= nextstage.minspeed + range) then
+		self:SetActStage( self:GetActStage() + 1 )
+	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
+		self:SetActStage(0)
+	end
+	
+	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP

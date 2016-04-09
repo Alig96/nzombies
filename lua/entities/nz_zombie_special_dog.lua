@@ -81,6 +81,25 @@ ENT.SprintSounds = {
 	"nz/hellhound/close/close_03.wav",
 }
 
+ENT.ActStages = {
+	[1] = {
+		act = ACT_WALK,
+		minspeed = 5,
+	},
+	[2] = {
+		act = ACT_WALK_ANGRY,
+		minspeed = 50,
+	},
+	[3] = {
+		act = ACT_RUN,
+		minspeed = 150,
+	},
+	[4] = {
+		act = ACT_RUN,
+		minspeed = 160,
+	},
+}
+
 function ENT:StatsInitialize()
 	if SERVER then
 		self:SetNoDraw(true) -- Start off invisible while in the prespawn effect

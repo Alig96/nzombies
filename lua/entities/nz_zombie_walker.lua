@@ -28,28 +28,28 @@ ENT.RunAttackSequences = {
 	{seq = "nz_run_attack4", dmgtimes = {0.4, 0.9}},
 }
 
-local actdata = {
-	[ACT_WALK] = {
+ENT.ActStages = {
+	[1] = {
+		act = ACT_WALK,
 		minspeed = 5,
-		bodymovexy = true,
 		attackanims = "AttackSequences",
 		sounds = "WalkSounds",
 	},
-	[ACT_WALK_ANGRY] = {
-		minspeed = 50,
-		bodymovexy = true,
+	[2] = {
+		act = ACT_WALK_ANGRY,
+		minspeed = 40,
 		attackanims = "WalkAttackSequences",
 		sounds = "WalkSounds",
 	},
-	[ACT_RUN] = {
-		minspeed = 120,
-		bodymovexy = true,
+	[3] = {
+		act = ACT_RUN,
+		minspeed = 100,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
 	},
-	[ACT_SPRINT] = {
+	[4] = {
+		act = ACT_SPRINT,
 		minspeed = 160,
-		bodymovexy = true,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
 	},
@@ -197,7 +197,7 @@ end
 function ENT:SoundThink()
 	if CurTime() > self:GetNextMoanSound() and !self:GetStop() then
 		--local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
-		local soundtbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].sounds] or self.WalkSounds
+		local soundtbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].sounds] or self.WalkSounds
 		local soundName = soundtbl[math.random(#soundtbl)]
 		self:EmitSound( soundName, 80 )
 		local nextSound = SoundDuration( soundName ) + math.random(0,4) + CurTime()
@@ -254,7 +254,7 @@ function ENT:Attack( data )
 	--if self:Health() <= 0 then coroutine.yield() return end
 
 	data = data or {}
-	local attacktbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].attackanims] or self.AttackSequences
+	local attacktbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].attackanims] or self.AttackSequences
 	data.attackseq = data.attackseq or attacktbl[math.random(#attacktbl)] or {seq = "swing", dmgtimes = {1}}
 	data.attacksound = data.attacksound or self.AttackSounds[ math.random( #self.AttackSounds) ] or Sound( "npc/vort/claw_swing1.wav" )
 	data.hitsound = data.hitsound or self.AttackHitSounds[ math.random( #self.AttackHitSounds ) ] or Sound( "npc/zombie/zombie_hit.wav" )
@@ -322,17 +322,26 @@ function ENT:BodyUpdate()
 	local velocity = self:GetVelocity()
 
 	local len2d = velocity:Length2D()
+	
+	local range = 10
 
-	--local len2d = self:GetRunSpeed()
-
-	--if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
-
-	for k,v in pairs(actdata) do
-		if len2d > v.minspeed then
-			self.CalcIdeal = k
-			break
+	local curstage = self.ActStages[self:GetActStage()]
+	local nextstage = self.ActStages[self:GetActStage() + 1]
+	
+	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
+		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
+			self:SetActStage( self:GetActStage() + 1 )
 		end
+		-- If there is no minspeed for the next stage, someone did something wrong and we just idle :/
+	elseif (curstage and len2d <= curstage.minspeed - range) then
+		self:SetActStage( self:GetActStage() - 1 )
+	elseif (nextstage and len2d >= nextstage.minspeed + range) then
+		self:SetActStage( self:GetActStage() + 1 )
+	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
+		self:SetActStage(0)
 	end
+	
+	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
@@ -340,7 +349,7 @@ function ENT:BodyUpdate()
 
 	if self:GetActivity() != self.CalcIdeal and !self:IsAttacking() and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
-	if ( actdata[self.CalcIdeal] and !self:GetAttacking() ) then
+	if ( self.ActStages[self:GetActStage()] and !self:GetAttacking() ) then
 
 		self:BodyMoveXY()
 
