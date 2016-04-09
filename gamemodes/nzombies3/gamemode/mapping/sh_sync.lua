@@ -44,10 +44,12 @@ if CLIENT then
 		end
 		
 		-- Precache all random box weapons in the list
-		for k,v in pairs(Mapping.Settings.rboxweps) do
-			local wep = weapons.Get(v)
-			if wep and (wep.WM or wep.WorldModel) then
-				util.PrecacheModel(wep.WM or wep.WorldModel)
+		if Mapping.Settings.rboxweps then
+			for k,v in pairs(Mapping.Settings.rboxweps) do
+				local wep = weapons.Get(v)
+				if wep and (wep.WM or wep.WorldModel) then
+					util.PrecacheModel(wep.WM or wep.WorldModel)
+				end
 			end
 		end
 	end
