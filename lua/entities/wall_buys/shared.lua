@@ -259,7 +259,7 @@ if CLIENT then
 	function ENT:Draw()
 		--self:DrawModel()
 		local num = math.Clamp(GetConVar("nz_outlinedetail"):GetInt(), 0, 4)
-		if num < 1 or self.OutlineGiveUp > 5 then
+		if num < 1 or (self.OutlineGiveUp and self.OutlineGiveUp > 5) then
 			self:DrawModel()
 		else
 			local pos = LocalPlayer():EyePos()+LocalPlayer():EyeAngles():Forward()*10
