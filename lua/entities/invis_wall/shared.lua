@@ -34,13 +34,15 @@ local white = Color(255,150,0,30)
 
 if not ConVarExists("nz_drawinviswalls") then CreateClientConVar("nz_drawinviswalls", "1") end
 
-hook.Add("PostDrawOpaqueRenderables", "DrawInvisWalls", function()
-	if GetConVar("nz_drawinviswalls"):GetBool() and Round:InState( ROUND_CREATE ) then
-		cam.Start3D()
-			render.SetMaterial(mat)
-			for k,v in pairs(ents.FindByClass("invis_wall")) do
-				render.DrawBox(v:GetPos(), v:GetAngles(), Vector(0,0,0), v:GetMaxBound(), white, true)
-			end
-		cam.End3D()
-	end
-end)
+if engine.ActiveGamemode() == "nzombies3" then 
+	hook.Add("PostDrawOpaqueRenderables", "DrawInvisWalls", function()
+		if GetConVar("nz_drawinviswalls"):GetBool() and Round:InState( ROUND_CREATE ) then
+			cam.Start3D()
+				render.SetMaterial(mat)
+				for k,v in pairs(ents.FindByClass("invis_wall")) do
+					render.DrawBox(v:GetPos(), v:GetAngles(), Vector(0,0,0), v:GetMaxBound(), white, true)
+				end
+			cam.End3D()
+		end
+	end)
+end
