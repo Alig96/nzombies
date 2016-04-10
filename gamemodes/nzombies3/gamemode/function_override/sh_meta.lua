@@ -154,6 +154,15 @@ if SERVER then
 		return ( dmg )
 	end
 	
+	local oldsetwep = playerMeta.SetActiveWeapon
+	function playerMeta:SetActiveWeapon(wep)
+		local oldwep = self:GetActiveWeapon()
+		if IsValid(oldwep) and !oldwep:IsSpecial() then
+			self.NZPrevWep = oldwep
+		end
+		oldsetwep(self, wep)
+	end
+	
 else
 	
 	--[[ Manual speedup of the reload function on FAS2 weapons - seemed like the original solution broke along the way

@@ -10,22 +10,37 @@ function wep:GetSpecialCategory()
 end
 
 function ply:GetSpecialWeaponFromCategory( id )
-	if !self.SpecialWeapons then self.SpecialWeapons = {} end
-	return self.SpecialWeapons[id] or nil
+	if !self.NZSpecialWeapons then self.NZSpecialWeapons = {} end
+	return self.NZSpecialWeapons[id] or nil
+end
+
+function ply:EquipPreviousWeapon()
+	if IsValid(self.NZPrevWep) then -- If the previously used weapon is valid, use that
+		self:SelectWeapon(self.NZPrevWep:GetClass())
+	else
+		for k,v in pairs(self:GetWeapons()) do -- And pick the first one that isn't special
+			if !v:IsSpecial() then self:SelectWeapon(v:GetClass()) return end
+		end
+		self:SetActiveWeapon(nil)
+	end
 end
 
 -- Prevent players from manually switching to the weapon if it is special - it is handled by the bind
 hook.Add("PlayerSwitchWeapon", "PreventSwitchingToSpecialWeapons", function(ply, oldwep, newwep)
 	if IsValid(oldwep) and IsValid(newwep) then
-		if (!ply.UsingSpecialWep and newwep:IsSpecial()) or (ply.UsingSpecialWep and oldwep:IsSpecial()) then return true end
+		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) or (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then return true end
+		if oldwep != newwep and !oldwep:IsSpecial() then
+			ply.NZPrevWep = oldwep
+			print(ply.NZPrevWep, "2")
+		end
 	end
 end)
 
 if SERVER then
 	function ply:AddSpecialWeapon(wep)
-		if !self.SpecialWeapons then self.SpecialWeapons = {} end
+		if !self.NZSpecialWeapons then self.NZSpecialWeapons = {} end
 		local id = wep:GetSpecialCategory()
-		self.SpecialWeapons[id] = wep
+		self.NZSpecialWeapons[id] = wep
 		SpecialWeapons:SendSpecialWeaponAdded(self, wep, id)
 		if SpecialWeapons.Weapons[wep:GetClass()].equip then
 			SpecialWeapons.Weapons[wep:GetClass()].equip(self, wep)

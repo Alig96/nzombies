@@ -189,8 +189,7 @@ end
 if engine.ActiveGamemode() == "nzombies3" then 
 	SpecialWeapons:AddWeapon( "nz_one_inch_punch", "knife", function(ply, wep)
 		if SERVER then
-			local prevwep = ply:GetActiveWeapon():GetClass()
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SetActiveWeapon(nil)
 			ply:SelectWeapon("nz_one_inch_punch")
 			timer.Simple(0.1, function()
@@ -205,20 +204,20 @@ if engine.ActiveGamemode() == "nzombies3" then
 			end)
 			timer.Simple(0.7, function()
 				if IsValid(ply) then
-					ply.UsingSpecialWep = nil
-					ply:SelectWeapon(prevwep)
+					ply:SetUsingSpecialWeapon(false)
+					ply:EquipPreviousWeapon()
 				end
 			end)
 		end
 	end, function(ply, wep)
 		if SERVER then
 			local prevwep = ply:GetActiveWeapon():GetClass()
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SelectWeapon("nz_one_inch_punch")
 			timer.Simple(1, function()
 				if IsValid(ply) then
-					ply.UsingSpecialWep = nil
-					ply:SelectWeapon(prevwep)
+					ply:SetUsingSpecialWeapon(false)
+					ply:EquipPreviousWeapon()
 				end
 			end)
 		end

@@ -73,12 +73,10 @@ end
 
 function SWEP:Equip( owner )
 	
-	local wep = owner:GetActiveWeapon()
-	if IsValid(wep) then
-		local class = wep:GetClass()
-		owner.oldwep = class
-		timer.Simple(3.2,function() owner:SelectWeapon(class) owner.oldwep = nil end)
-	end
+	timer.Simple(3.2,function()
+		owner:SetUsingSpecialWeapon(false)
+		owner:EquipPreviousWeapon()
+	end)
 	owner:SetActiveWeapon("nz_perk_bottle")
 	
 end
@@ -117,7 +115,7 @@ function SWEP:Deploy()
 		if IsValid(self) and IsValid(self.Owner) then
 			if self.Owner:Alive() then
 				self:EmitSound("nz/perks/burp.wav")
-				timer.Simple(0.1,function() self.Owner.UsingSpecialWep = nil self:Remove() end)
+				timer.Simple(0.1,function() self.Owner:SetUsingSpecialWeapon(false) self:Remove() end)
 			end
 		end
 	end)
@@ -148,6 +146,9 @@ function SWEP:OnRemove()
 		if self.Owner == LocalPlayer() then
 			local vm = LocalPlayer():GetViewModel()
 			vm:SetMaterial(oldmat)
+		end
+		if !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
+			self.Owner:SetUsingSpecialWeapon(false)
 		end
 	end
 	

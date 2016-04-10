@@ -154,7 +154,7 @@ function SWEP:Think()
 	if engine.ActiveGamemode() == "nzombies3" then 
 		if !self.Owner:GetUsingSpecialWeapon() or (self.HolsterTime  and CurTime() > self.HolsterTime) then
 			self.Owner:SetUsingSpecialWeapon(false)
-			self.Owner:SelectWeapon(self.PrevWep)
+			self.Owner:EquipPreviousWeapon()
 		end
 	end
 end
@@ -174,20 +174,16 @@ end
 if engine.ActiveGamemode() == "nzombies3" then 
 	SpecialWeapons:AddWeapon( "nz_bowie_knife", "knife", function(ply, wep) -- Use function
 		if SERVER then
-			local prevwep = ply:GetActiveWeapon():GetClass()
 			ply:SetUsingSpecialWeapon(true)
 			ply:SetActiveWeapon(wep)
 			wep:PrimaryAttack()
-			wep.PrevWep = prevwep
 		end
 	end, function(ply, wep)
 		if SERVER then
-			local prevwep = ply:GetActiveWeapon():GetClass()
 			ply:SetUsingSpecialWeapon(true)
 			ply:SetActiveWeapon(nil)
 			ply:SelectWeapon("nz_bowie_knife")
 			wep:DrawAnim()
-			wep.PrevWep = prevwep
 		end
 	end)
 end
