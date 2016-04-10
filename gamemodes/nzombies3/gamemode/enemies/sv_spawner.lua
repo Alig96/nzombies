@@ -97,6 +97,7 @@ function nz.Enemies.Functions.ZombieSpawner()
 
 			if #valids == 0  then
 				print("No valid spawns were found!")
+				Round:SetNextSpawnTime(CurTime() + 1)
 				return
 				-- Since we couldn't find a valid spawn, just back out for now.
 			end

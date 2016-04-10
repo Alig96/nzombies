@@ -78,7 +78,7 @@ function RandomBox:DecideWep(ply)
 	elseif GetConVar("nz_randombox_whitelist"):GetBool() then
 		-- Load only weapons that have a prefix from the whitelist
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] then
+			if !blacklist[v.ClassName] and !v.NZPreventBox then
 				for k2,v2 in pairs(nz.Config.WeaponWhiteList) do
 					if string.sub(v.ClassName, 1, #v2) == v2 then
 						table.insert(guns, v.ClassName)
@@ -90,7 +90,7 @@ function RandomBox:DecideWep(ply)
 	else
 		-- No weapon list and not using whitelist only, add all guns
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] then
+			if !blacklist[v.ClassName] and !v.NZPreventBox then
 				table.insert(guns, v.ClassName)
 			end
 		end

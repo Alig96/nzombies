@@ -133,9 +133,9 @@ function EFFECT:Render()
 	
 	render.SetMaterial( self.MatGlow )
 	
-	render.DrawSprite( self.EndPos + Vector(0,0,30), math.random(400,1600), math.random(400,1600), Color(255,255,255,math.random(0,250)))
+	render.DrawSprite( self.EndPos + Vector(0,0,30), math.random(400,1000), math.random(400,1000), Color(255,255,255,math.random(0,250)))
 
-	util.ScreenShake( self.EndPos, 0.5, 1, 0.1, 10 )
+	util.ScreenShake( EyePos(), 0.5, 1, 0.1, 10 )
 	
 end
 

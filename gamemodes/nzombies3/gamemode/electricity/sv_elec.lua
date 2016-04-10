@@ -30,6 +30,8 @@ function Elec:Activate(nochat)
 		net.Broadcast()
 	end
 	
+	hook.Call("ElectricityOn")
+	
 end
 
 function Elec:Reset(nochat)
@@ -48,5 +50,7 @@ function Elec:Reset(nochat)
 			net.WriteBool(false)
 		net.Broadcast()
 	end
+	
+	hook.Call("ElectricityOff")
 	
 end
