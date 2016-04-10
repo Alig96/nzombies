@@ -295,7 +295,8 @@ function Mapping:CleanUpMap()
 		"nz_prop_effect_attachment",
 		"nz_fire_effect",
 		"edit_color",
-		"power_box"
+		"power_box",
+		"invis_wall",
 	})
 
 	-- Gotta reset the doors and other entites' values!

@@ -29,6 +29,8 @@ SWEP.Spawnable			= false
 SWEP.AdminSpawnable		= false
 SWEP.WorldModel 		= Model( "models/effects/combineball.mdl" )
 
+SWEP.NZPreventBox = true
+
 function SWEP:PostDrawViewModel()
 
 end

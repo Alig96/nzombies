@@ -12,10 +12,14 @@ local traceents = {
 		
 		if !LocalPlayer():HasWeapon( wepclass ) then
 			text = "Press E to buy " .. name .." for " .. price .. " points."
-		elseif LocalPlayer():GetWeapon( wepclass ).pap then
-			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. 4500 .. " points."
+		elseif string.lower(wep.Primary.Ammo) != "none" then
+			if LocalPlayer():GetWeapon( wepclass ).pap then
+				text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. 4500 .. " points."
+			else
+				text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points."
+			end
 		else
-			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points."
+			text = "You already have this weapon."
 		end
 		
 		return text

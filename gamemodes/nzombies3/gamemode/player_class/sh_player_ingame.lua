@@ -9,6 +9,10 @@ PLAYER.WalkSpeed 			= 200
 PLAYER.RunSpeed				= 300
 PLAYER.CanUseFlashlight     = true
 
+function PLAYER:SetupDataTables()
+	self.Player:NetworkVar("Bool", 0, "UsingSpecialWeapon")
+end
+
 function PLAYER:Init()
 	-- Don't forget Colours
 	-- This runs when the player is first brought into the game and when they die during a round and are brought back
@@ -67,6 +71,8 @@ function PLAYER:Spawn()
 			end
 		end
 	end
+	
+	self.Player:SetUsingSpecialWeapon(false)
 end
 
 player_manager.RegisterClass( "player_ingame", PLAYER, "player_default" )

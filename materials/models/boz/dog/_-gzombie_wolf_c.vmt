@@ -1,5 +1,0 @@
-VertexLitGeneric {
-	$basetexture models\boz\dog\_-gzombie_wolf_c
-	$bumpmap models\boz\dog\zombie_wolf_n
-	$phong 1
-}

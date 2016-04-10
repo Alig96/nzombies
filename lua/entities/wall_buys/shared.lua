@@ -34,6 +34,8 @@ function ENT:Initialize()
 	else
 		self.Flipped = self:GetFlipped()
 		self:RecalculateModelOutlines()
+		local wep = weapons.Get(self:GetWepClass())
+		util.PrecacheModel(wep.WM or wep.WorldModel)
 	end
 	self:SetRenderMode(RENDERMODE_TRANSALPHA)
 	self:DrawShadow(false)
@@ -209,29 +211,31 @@ if SERVER then
 			else
 				print("Can't afford!")
 			end
-		elseif activator:GetWeapon(self.WeaponGive).pap then
-			if activator:CanAfford(ammo_price_pap) then
-				if give_ammo != 0 then
-					activator:TakePoints(ammo_price_pap)
-					nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
-					--activator:EmitSound("nz/effects/buy.wav")
+		elseif string.lower(ammo_type) != "none" then
+			if activator:GetWeapon(self.WeaponGive).pap then
+				if activator:CanAfford(ammo_price_pap) then
+					if give_ammo != 0 then
+						activator:TakePoints(ammo_price_pap)
+						nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+						--activator:EmitSound("nz/effects/buy.wav")
+					else
+						print("Max Clip!")
+					end
 				else
-					print("Max Clip!")
+					print("Can't afford!")
 				end
-			else
-				print("Can't afford!")
-			end
-		else	// Refill ammo
-			if activator:CanAfford(ammo_price) then
-				if give_ammo != 0 then
-					activator:TakePoints(ammo_price)
-					nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
-					--activator:EmitSound("nz/effects/buy.wav")
+			else	// Refill ammo
+				if activator:CanAfford(ammo_price) then
+					if give_ammo != 0 then
+						activator:TakePoints(ammo_price)
+						nz.Weps.Functions.GiveMaxAmmoWep(activator, self.WeaponGive)
+						--activator:EmitSound("nz/effects/buy.wav")
+					else
+						print("Max Clip!")
+					end
 				else
-					print("Max Clip!")
+					print("Can't afford!")
 				end
-			else
-				print("Can't afford!")
 			end
 		end
 		return

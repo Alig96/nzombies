@@ -31,6 +31,8 @@ SWEP.DrawCrosshair		= false
 SWEP.SwayScale = 0
 SWEP.BobScale = 0
 
+SWEP.NZPreventBox = true -- Prevents from being in the box by default
+
 local oldmat
 local perk_materials = {
 	["jugg"] = "models/perk_bottle/c_perk_bottle_jugg",

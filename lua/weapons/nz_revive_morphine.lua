@@ -43,6 +43,8 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
+SWEP.NZPreventBox = true
+
 function SWEP:Initialize()
 
 	self:SetHoldType( "slam" )
