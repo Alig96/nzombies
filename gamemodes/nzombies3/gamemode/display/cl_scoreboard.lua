@@ -258,7 +258,7 @@ local SCORE_BOARD = {
 		self.Downs:SetFont( "ScoreboardDefault" )
 		self.Downs:SetTextColor( Color(255, 255, 255)  )
 		self.Downs:SetContentAlignment( 5 )
-		self.Downs:SetText("Kills")
+		self.Downs:SetText("Downs")
 
 		self.Kills = self.Key:Add( "DLabel" )
 		self.Kills:Dock( RIGHT )
