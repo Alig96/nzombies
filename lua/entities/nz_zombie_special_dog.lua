@@ -265,17 +265,10 @@ function ENT:GetPriorityTarget()
 			self.sprinting = nil
 		end
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
-<<<<<<< HEAD
-		self.playertarget = bestTarget
-	end
-
-	if self:IsValidTarget(bestTarget) then
-=======
 		-- Apply the new target numbers
 		bestTarget.hellhoundtarget = bestTarget.hellhoundtarget and bestTarget.hellhoundtarget + 1 or 1
 		self:SetTarget(bestTarget) -- Well we found a target, we kinda have to force it
-
->>>>>>> Zet0rz/Master-Changes
+		
 		return bestTarget
 	else
 		self:TimeOut(0.2)
