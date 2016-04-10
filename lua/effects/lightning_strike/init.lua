@@ -1,7 +1,10 @@
 --Name: Lightning strike using midpoint displacement
 --Author: Lolle
 
-EFFECT.Mat = Material( "lightning.png", "unlitgeneric smooth" )
+--EFFECT.MatCenter = Material( "lightning.png", "unlitgeneric smooth" )
+EFFECT.MatEdge = Material( "effects/tool_tracer" )
+EFFECT.MatCenter = Material( "sprites/physbeama" )
+EFFECT.MatGlow = Material( "sprites/glow04_actual_noz" )
 
 --[[---------------------------------------------------------
    Init( data table )
@@ -17,7 +20,7 @@ function EFFECT:Init( data )
 
 	self.Flash = DynamicLight( LocalPlayer():EntIndex() )
 
-	self.Flash.pos = self.StartPos
+	self.Flash.pos = self.EndPos
 	self.Flash.r = 255
 	self.Flash.g = 255
 	self.Flash.b = 255
@@ -103,7 +106,7 @@ function EFFECT:GenerateArc(startPos, endPos, branchChance, detail)
 		i = i * 2
 	end
 
-	points.size = math.random(2,6)
+	points.size = math.random(10,30)
 	points.color = Color(200, 240, math.random(230, 255), math.random(200, 255))
 
 	return points
@@ -116,15 +119,27 @@ function EFFECT:Render()
 
 	if ( self.Alpha < 1 ) then return end
 
-	render.SetMaterial( self.Mat )
+	render.SetMaterial( self.MatCenter )
 
 	for _, arc in pairs(self.Arcs) do
 		self:RenderArc(arc)
 	end
+	
+	render.SetMaterial( self.MatEdge )
 
+	for _, arc in pairs(self.Arcs) do
+		self:RenderArc(arc, true)
+	end
+	
+	render.SetMaterial( self.MatGlow )
+	
+	render.DrawSprite( self.EndPos + Vector(0,0,30), math.random(400,1600), math.random(400,1600), Color(255,255,255,math.random(0,250)))
+
+	util.ScreenShake( self.EndPos, 0.5, 1, 0.1, 10 )
+	
 end
 
-function EFFECT:RenderArc(arc)
+function EFFECT:RenderArc(arc, edge)
 	for j = 1, #arc - 1 do
 
 		if istable(arc[j]) then
@@ -139,7 +154,7 @@ function EFFECT:RenderArc(arc)
 			render.DrawBeam(
 				startPos,
 				endPos,
-				arc.size,
+				edge and arc.size*1.5 or arc.size,
 				texcoord,
 				texcoord + ((startPos - endPos):Length() / 128),
 				arc.color

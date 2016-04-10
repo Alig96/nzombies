@@ -88,7 +88,6 @@ end
 
 function nz.Enemies.Functions.ZombieSpawner()
 	-- Not enough Zombies
-	print(CurTime() - Round:GetNextSpawnTime(), CurTime() >= Round:GetNextSpawnTime())
 	if CurTime() >= Round:GetNextSpawnTime() and Round:InState( ROUND_PROG ) then
 		if Round:GetZombiesSpawned() < Round:GetZombiesMax() then
 		

@@ -75,7 +75,13 @@ function ENT:Use( activator, caller )
 end
 
 function ENT:WindUp( )
-	local gun = table.Random(weapons.GetList())
+	local gun
+	if Mapping.Settings.rboxweps then
+		gun = weapons.Get(Mapping.Settings.rboxweps[math.random(#Mapping.Settings.rboxweps)])
+	else
+		gun = table.Random(weapons.GetList())
+	end
+	
 	if gun.WorldModel != nil then
 		self:SetModel(gun.WM or gun.WorldModel)
 	end

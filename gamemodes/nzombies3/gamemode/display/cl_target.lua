@@ -141,10 +141,14 @@ end
 
 local function GetText( ent )
 
+	if !IsValid(ent) then return "" end
+
 	local class = ent:GetClass()
 	local text = ""
 
-	if ent:IsPlayer() then
+	if ent:GetNWString("NZText") != "" then
+		text = ent:GetNWString("NZText")
+	elseif ent:IsPlayer() then
 		if ent:GetNotDowned() then
 			text = ent:Nick() .. " - " .. ent:Health() .. " HP"
 		else

@@ -99,3 +99,7 @@ function plyMeta:GiveCreativeMode()
 	end
 
 end
+
+function plyMeta:IsInCreative()
+	return player_manager.GetPlayerClass( self ) == "player_create"
+end
