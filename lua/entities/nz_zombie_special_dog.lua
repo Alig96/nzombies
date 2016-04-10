@@ -281,6 +281,10 @@ function ENT:GetPriorityTarget()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.playertarget = bestTarget
 	end
-
-	return bestTarget
+	
+	if self:IsValidTarget(bestTarget) then
+		return bestTarget
+	else
+		self:TimeOut(0.2)
+	end
 end

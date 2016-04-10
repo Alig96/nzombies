@@ -294,7 +294,7 @@ function ENT:RunBehaviour()
 					if barricade then
 						self:OnBarricadeBlocking( barricade )
 					else
-						self:OnPathTimeOut()
+						self:TimeOut(1)
 					end
 				else
 					if GetConVar( "nz_zombie_debug" ):GetBool() then
