@@ -105,7 +105,7 @@ function ENT:StatsInitialize()
 		self:SetNoDraw(true) -- Start off invisible while in the prespawn effect
 		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS) -- Don't collide in this state
 		self:Stop() -- Also don't do anything
-		
+
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
@@ -121,7 +121,7 @@ function ENT:OnSpawn()
 	effectData:SetMagnitude( 2 )
 	util.Effect("lightning_prespawn", effectData)
 	self:SetNoDraw(true)
-	
+
 	timer.Simple(1.4, function()
 		if IsValid(self) then
 			effectData = EffectData()
@@ -133,13 +133,13 @@ function ENT:OnSpawn()
 			effectData:SetMagnitude( 0.75 )
 			--util.Effect("lightning_strike", effectData)
 			util.Effect("lightning_strike", effectData)
-			
+
 			self:SetNoDraw(false)
 			self:SetCollisionGroup(COLLISION_GROUP_NONE)
 			self:SetStop(false)
-			
+
 			-- Now select a target
-			
+
 			local ply
 			local lowest
 			local players = player.GetAllTargetable()
@@ -162,7 +162,7 @@ function ENT:OnSpawn()
 	Round:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
 end
 
-function ENT:OnKilled(dmgInfo)
+function ENT:OnZombieDeath(dmgInfo)
 
 	self:SetRunSpeed(0)
 	self.loco:SetVelocity(Vector(0,0,0))
@@ -281,7 +281,7 @@ function ENT:GetPriorityTarget()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.playertarget = bestTarget
 	end
-	
+
 	if self:IsValidTarget(bestTarget) then
 		return bestTarget
 	else

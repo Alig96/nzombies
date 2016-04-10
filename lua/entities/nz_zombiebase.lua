@@ -150,7 +150,7 @@ function ENT:Initialize()
 	self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
-	
+
 	self:SetActStage(0)
 
 	self:StatsInitialize()
@@ -526,12 +526,14 @@ function ENT:OnInjured( dmgInfo )
 	self:EmitSound( soundName, 90 )
 end
 
+function ENT:OnZombieDeath()
+	self:BecomeRagdoll(dmgInfo)
+end
+
 function ENT:OnKilled(dmgInfo)
 
-	if self.DeathSounds then
-		self:EmitSound( self.DeathSounds[ math.random( #self.DeathSounds ) ], 100)
-		self:BecomeRagdoll(dmgInfo)
-	end
+	self:OnZombieDeath(dmgInfo)
+	hook.Call("OnZombieKilled", GAMEMODE, self, dmgInfo)
 
 end
 
@@ -1086,7 +1088,7 @@ function ENT:BodyUpdate()
 
 	local curstage = self.ActStages[self:GetActStage()]
 	local nextstage = self.ActStages[self:GetActStage() + 1]
-	
+
 	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
 		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
 			self:SetActStage( self:GetActStage() + 1 )
@@ -1099,7 +1101,7 @@ function ENT:BodyUpdate()
 	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
 		self:SetActStage(0)
 	end
-	
+
 	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then

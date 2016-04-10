@@ -224,7 +224,7 @@ function ENT:OnSpawn()
 	end
 end
 
-function ENT:OnKilled(dmgInfo)
+function ENT:OnZombieDeath(dmgInfo)
 
 	if dmgInfo:GetDamageType() == DMG_SHOCK then
 		self:SetRunSpeed(0)
@@ -322,12 +322,12 @@ function ENT:BodyUpdate()
 	local velocity = self:GetVelocity()
 
 	local len2d = velocity:Length2D()
-	
+
 	local range = 10
 
 	local curstage = self.ActStages[self:GetActStage()]
 	local nextstage = self.ActStages[self:GetActStage() + 1]
-	
+
 	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
 		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
 			self:SetActStage( self:GetActStage() + 1 )
@@ -340,7 +340,7 @@ function ENT:BodyUpdate()
 	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
 		self:SetActStage(0)
 	end
-	
+
 	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
