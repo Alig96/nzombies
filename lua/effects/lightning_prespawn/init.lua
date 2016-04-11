@@ -120,15 +120,15 @@ function EFFECT:Render()
 	end
 	
 	render.SetMaterial( self.MatGlow1 )
-	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(400,800), math.random(400,800), Color(255,255,255,math.random(0,100)))
+	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(200,600), math.random(200,600), Color(255,255,255,math.random(0,100)))
 	
 	if math.random(0,10) == 0 then
 		render.SetMaterial( self.MatGlow2 )
-		render.DrawSprite( self.Pos + Vector(0,0,30), math.random(400,800), math.random(400,800), Color(255,255,255,math.random(0,200)))
+		render.DrawSprite( self.Pos + Vector(0,0,30), math.random(200,600), math.random(200,600), Color(255,255,255,math.random(0,200)))
 	end
 	
 	render.SetMaterial( self.MatGlowCenter )
-	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(100,300), math.random(100,300), Color(255,255,255,math.random(200,250)))
+	render.DrawSprite( self.Pos + Vector(0,0,30), math.random(75,200), math.random(75,200), Color(255,255,255,math.random(200,250)))
 	
 end
 

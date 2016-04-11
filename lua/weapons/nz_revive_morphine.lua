@@ -43,6 +43,8 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
+SWEP.NZPreventBox = true
+
 function SWEP:Initialize()
 
 	self:SetHoldType( "slam" )
@@ -51,20 +53,11 @@ end
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
-	print(self.Owner)
 	self.WepOwner = self.Owner
 end
 
 function SWEP:Equip( owner )
-	
-	local wep = owner:GetActiveWeapon()
-	if IsValid(wep) then
-		local class = wep:GetClass()
-		owner.oldwep = class
-	end
 	owner:SetActiveWeapon("nz_revive_morphine")
-	print(owner)
-	
 end
 
 function SWEP:PrimaryAttack()
@@ -81,8 +74,11 @@ end
 
 function SWEP:OnRemove()
 	if SERVER then
+		if !IsValid(self.WepOwner:GetActiveWeapon()) or !self.WepOwner:GetActiveWeapon():IsSpecial() then
+			self.WepOwner:SetUsingSpecialWeapon(false)
+		end
 		self.WepOwner:SetActiveWeapon(nil)
-		self.WepOwner:SelectWeapon(self.WepOwner.oldwep)
+		self.WepOwner:EquipPreviousWeapon()
 	end
 end
 
@@ -101,7 +97,7 @@ end
 if engine.ActiveGamemode() == "nzombies3" then 
 	SpecialWeapons:AddWeapon( "nz_revive_morphine", "display", nil, function(ply, wep)
 		if SERVER then
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SelectWeapon("nz_revive_morphine")
 		end
 	end)

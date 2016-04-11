@@ -109,8 +109,8 @@ function ENT:StatsInitialize()
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
-	self:SetSolid(SOLID_OBB)
-	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 48))
+	self:SetCollisionBounds(Vector(-40,-40, 0), Vector(40, 40, 48))
+	self:SetSolid(SOLID_VPHYSICS)
 
 	--PrintTable(self:GetSequenceList())
 end
@@ -138,24 +138,7 @@ function ENT:OnSpawn()
 			self:SetCollisionGroup(COLLISION_GROUP_NONE)
 			self:SetStop(false)
 			
-			-- Now select a target
-			
-			local ply
-			local lowest
-			local players = player.GetAllTargetable()
-			-- Loop through all targetable players
-			for k,v in pairs(players) do
-				if !lowest then lowest = v.hellhoundtarget end -- Set the lowest variable if not yet
-				if lowest and (!v.hellhoundtarget or v.hellhoundtarget <= lowest) then -- If the variable exists and this player is on par with that amount
-					ply = v -- Mark him for the potential target
-					lowest = v.hellhoundtarget -- And set the new lowest to continue the loop with
-				end
-			end
-			if !lowest then -- If no players had any target values (lowest was never set)
-				ply = players[math.random(#players)] -- Then pick a random player
-			end
-			ply.hellhoundtarget = ply.hellhoundtarget and ply.hellhoundtarget + 1 or 1 -- Increment the targets target count
-			self.playertarget = ply -- Set the target
+			self:SetTarget(self:GetPriorityTarget())
 		end
 	end)
 
@@ -226,8 +209,8 @@ function ENT:GetPriorityTarget()
 	self:SetLastTargetCheck( CurTime() )
 
 	-- Well if he exists and he is targetable, just target this guy!
-	if IsValid(self.playertarget) and self.playertarget:GetTargetPriority() > 0 then
-		local dist = self:GetRangeSquaredTo( self.playertarget:GetPos() )
+	if IsValid(self:GetTarget()) and self:GetTarget():GetTargetPriority() > 0 then
+		local dist = self:GetRangeSquaredTo( self:GetTarget():GetPos() )
 		if dist < 1000 then
 			if !self.sprinting then
 				self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
@@ -239,52 +222,60 @@ function ENT:GetPriorityTarget()
 			self:SetRunSpeed(100)
 			self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		end
-		return self.playertarget
+		return self:GetTarget()
 	end
 
 	-- Otherwise, we just loop through all to try and target again
 	local allEnts = ents.GetAll()
 
 	local bestTarget = nil
-	local maxdistsqr = self:GetTargetCheckRange()^2
-	local targetDist = maxdistsqr + 10
+	local lowest
 
 	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
 	for _, target in pairs(allEnts) do
 		if self:IsValidTarget(target) then
 			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
-			local dist = self:GetRangeSquaredTo( target:GetPos() )
-			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
-				local priority = target:GetTargetPriority()
-				if priority == TARGET_PRIORITY_PLAYER then -- We can only target players (and ALWAYS-targets)!
-					if targetDist > dist then
-						highestPriority = priority
-						bestTarget = target
-						targetDist = dist
-					end
-				end
-				--print(highestPriority, bestTarget, targetDist, maxdistsqr)
+			if !lowest then 
+				lowest = target.hellhoundtarget -- Set the lowest variable if not yet
+				bestTarget = target -- Also mark this for the best target so he isn't ignored
+			end
+			
+			if lowest and (!target.hellhoundtarget or target.hellhoundtarget < lowest) then -- If the variable exists and this player is lower than that amount
+				bestTarget = target -- Mark him for the potential target
+				lowest = target.hellhoundtarget or 0 -- And set the new lowest to continue the loop with
+			end
+			
+			if !lowest then -- If no players had any target values (lowest was never set, first ever hellhound)
+				local players = player.GetAllTargetable()
+				bestTarget = players[math.random(#players)] -- Then pick a random player
 			end
 		end
 	end
-
-	if IsValid(bestTarget) then
-		if targetDist < 1000 then
+	
+	if self:IsValidTarget(bestTarget) then -- If we found a valid target
+		local targetDist = self:GetRangeSquaredTo( bestTarget:GetPos() )
+		if targetDist < 1000 then -- Under this distance, we will break into sprint
 			self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
-			self.sprinting = true
+			self.sprinting = true -- Once sprinting, you won't stop
 			self:SetRunSpeed(250)
-		else
+		else -- Otherwise we'll just search (towards him)
 			self:SetRunSpeed(100)
 			self.sprinting = nil
 		end
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
-		self.playertarget = bestTarget
-	end
-	
-	if self:IsValidTarget(bestTarget) then
+		-- Apply the new target numbers
+		bestTarget.hellhoundtarget = bestTarget.hellhoundtarget and bestTarget.hellhoundtarget + 1 or 1
+		self:SetTarget(bestTarget) -- Well we found a target, we kinda have to force it
+		
 		return bestTarget
 	else
 		self:TimeOut(0.2)
 	end
+end
+
+function ENT:IsValidTarget( ent )
+	if !ent then return false end
+	return IsValid( ent ) and ent:GetTargetPriority() != TARGET_PRIORITY_NONE and ent:GetTargetPriority() != TARGET_PRIORITY_SPECIAL
+	-- Won't go for special targets (Monkeys), but still MAX, ALWAYS and so on
 end

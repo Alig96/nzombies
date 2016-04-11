@@ -64,55 +64,80 @@ end
 
 function SWEP:PrimaryAttack()
 	// Only the player fires this way so we can cast
-
 	
-	local pPlayer		= self.Owner;
+	if CurTime() < self.HolsterTime then return end
+	
+	local ply = self.Owner;
 
-	if ( !pPlayer ) then
-		return;
+	if ( !ply ) then
+		return
 	end
-	
-	print("something")
 
-	local vecSrc		= pPlayer:GetShootPos();
-	local vecDirection	= pPlayer:GetAimVector();
+	local vecSrc		= ply:GetShootPos()
+	local vecDirection	= ply:GetAimVector()
 
 	local trace			= {}
 		trace.start		= vecSrc
 		trace.endpos	= vecSrc + ( vecDirection * self.Range)
-		trace.filter	= pPlayer
+		trace.filter	= ply
 
 	local traceHit		= util.TraceLine( trace )
 
 	if ( traceHit.Hit ) then
 
-		--self.Weapon:EmitSound( self.Primary.Hit );
+		if math.random(0,1) == 0 then
+			self:SendWeaponAnim( ACT_VM_HITCENTER )
+			ply:SetAnimation( PLAYER_ATTACK1 )
+			self.HolsterTime = CurTime() + 1
+			self:EmitSound("nz/bowie/stab/bowie_stab_0"..math.random(0,2)..".wav")
+		else
+			self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+			ply:SetAnimation( PLAYER_ATTACK1 )
+			self.HolsterTime = CurTime() + 0.5
+			self:EmitSound("nz/bowie/swing/bowie_swing_0"..math.random(0,2)..".wav")
+		end
 
-		self.Weapon:SendWeaponAnim( ACT_VM_HITCENTER );
-		pPlayer:SetAnimation( PLAYER_ATTACK1 );
-
-		self.Weapon:SetNextPrimaryFire( CurTime() + 1 );
-		self.Weapon:SetNextSecondaryFire( CurTime() + self.Weapon:SequenceDuration() );
-
-		local vecSrc = pPlayer:GetShootPos();
+		local vecSrc = ply:GetShootPos()
 
 		if ( SERVER ) then
-			pPlayer:TraceHullAttack( vecSrc, traceHit.HitPos, Vector( -5, -5, -5 ), Vector( 5, 5, 36 ), self.Primary.Damage, self.Primary.DamageType, self.Primary.Force );
+			ply:TraceHullAttack( vecSrc, traceHit.HitPos, Vector( -5, -5, -5 ), Vector( 5, 5, 36 ), self.Primary.Damage, self.Primary.DamageType, self.Primary.Force )
 		end
 
 		return
 
 	end
 
-	--self.Weapon:EmitSound( self.Primary.Sound );
 
-	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK );
-	pPlayer:SetAnimation( PLAYER_ATTACK1 );
+	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+	ply:SetAnimation( PLAYER_ATTACK1 )
+	self:EmitSound("nz/bowie/swing/bowie_swing_0"..math.random(0,2)..".wav")
 
-	self.Weapon:SetNextPrimaryFire( CurTime() + 1 );
-	self.Weapon:SetNextSecondaryFire( CurTime() + self.Weapon:SequenceDuration() );
+	self.HolsterTime = CurTime() + 0.5
 
 	return
+end
+
+function SWEP:DrawAnim()
+	self:SendWeaponAnim(ACT_VM_DRAW)
+	self.HolsterTime = CurTime() + 2.5
+	self:EmitSound("nz/bowie/draw/bowie_start.wav")
+	
+	timer.Simple(0.7, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_turn.wav")
+		end
+	end)
+	timer.Simple(1.4, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_toss.wav")
+		end
+	end)
+	
+	timer.Simple(1.9, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_catch.wav")
+		end
+	end)
 end
 
 function SWEP:PostDrawViewModel()
@@ -125,6 +150,15 @@ end
 
 function SWEP:OnRemove()
 	
+end
+
+function SWEP:Think()
+	if engine.ActiveGamemode() == "nzombies3" then 
+		if !self.Owner:GetUsingSpecialWeapon() or (self.HolsterTime  and CurTime() > self.HolsterTime) then
+			self.Owner:SetUsingSpecialWeapon(false)
+			self.Owner:EquipPreviousWeapon()
+		end
+	end
 end
 
 function SWEP:GetViewModelPosition( pos, ang )
@@ -142,32 +176,16 @@ end
 if engine.ActiveGamemode() == "nzombies3" then 
 	SpecialWeapons:AddWeapon( "nz_bowie_knife", "knife", function(ply, wep) -- Use function
 		if SERVER then
-			local prevwep = ply:GetActiveWeapon():GetClass()
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SetActiveWeapon(wep)
-			timer.Simple(0.05, function()
-				if IsValid(ply) then
-					wep:PrimaryAttack()
-				end
-			end)
-			timer.Simple(0.5, function()
-				if IsValid(ply) then
-					ply.UsingSpecialWep = nil
-					ply:SelectWeapon(prevwep)
-				end
-			end)
+			wep:PrimaryAttack()
 		end
 	end, function(ply, wep)
 		if SERVER then
-			local prevwep = ply:GetActiveWeapon():GetClass()
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
+			ply:SetActiveWeapon(nil)
 			ply:SelectWeapon("nz_bowie_knife")
-			timer.Simple(2, function()
-				if IsValid(ply) then
-					ply.UsingSpecialWep = nil
-					ply:SelectWeapon(prevwep)
-				end
-			end)
+			wep:DrawAnim()
 		end
 	end)
 end

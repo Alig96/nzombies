@@ -77,8 +77,6 @@ function nzFogFade()
 	fogdensity = Lerp(fade, ofogdensity, tfogdensity)
 	fogcolor = LerpVector(fade, ofogcolor, tfogcolor)
 	
-	print(fogcolor)
-	
 	if fade >= 1 then
 		hook.Remove("Think", "nzFogFade")
 		hook.Add("Think", "nzFogThink", nzFogThink)
