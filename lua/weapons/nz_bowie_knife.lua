@@ -65,6 +65,8 @@ end
 function SWEP:PrimaryAttack()
 	// Only the player fires this way so we can cast
 	
+	if CurTime() < self.HolsterTime then return end
+	
 	local ply = self.Owner;
 
 	if ( !ply ) then

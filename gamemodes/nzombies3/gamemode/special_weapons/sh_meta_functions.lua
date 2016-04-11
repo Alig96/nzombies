@@ -27,11 +27,16 @@ end
 
 -- Prevent players from manually switching to the weapon if it is special - it is handled by the bind
 hook.Add("PlayerSwitchWeapon", "PreventSwitchingToSpecialWeapons", function(ply, oldwep, newwep)
+	-- In case a player is trying to switch both to and from a non-special weapon, but their status is stuck to true
+	if IsValid(ply) and ply:GetUsingSpecialWeapon() and (!IsValid(oldwep) or !oldwep:IsSpecial()) and !newwep:IsSpecial() then
+		-- It should never happen as a player shouldn't be able to use non-special weapons with the status on, but it may get stuck
+		ply:SetUsingSpecialWeapon(false)
+		print(ply:Nick().."'s UsingSpecialWeapon status was true but he isn't equipped with a special weapon and isn't trying to. Resetting ...")
+	end
 	if IsValid(oldwep) and IsValid(newwep) then
 		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) or (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then return true end
 		if oldwep != newwep and !oldwep:IsSpecial() then
 			ply.NZPrevWep = oldwep
-			print(ply.NZPrevWep, "2")
 		end
 	end
 end)
