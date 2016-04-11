@@ -234,6 +234,8 @@ function Mapping:ClearConfig()
 		["nz_triggerzone"] = true,
 		["power_box"] = true,
 		["invis_wall"] = true,
+		["nz_script_triggerzone"] = true,
+		["nz_script_prop"] = true,
 	}
 
 	--jsut loop once over all entities isntead of seperate findbyclass calls
@@ -261,8 +263,6 @@ function Mapping:ClearConfig()
 		end
 	end
 
-	self:CleanUpMap()
-
 	nz.QMenu.Data.SpawnedEntities = {}
 
 	Mapping.Settings = {}
@@ -286,7 +286,15 @@ end
 function Mapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
-	local location = string.GetExtensionFromFilename(name) == "lua" and "LUA" or "DATA" 
+	local location = "DATA"
+	
+	if string.GetExtensionFromFilename(name) == "lua" then
+		if file.Exists("gamemodes/nzombies3/officialconfigs/"..name, "GAME") then
+			location, filepath = "GAME", "gamemodes/nzombies3/officialconfigs/"..name
+		else
+			location = "LUA"
+		end
+	end
 
 	if file.Exists( filepath, location )then
 		print("[NZ] MAP CONFIG FOUND!")

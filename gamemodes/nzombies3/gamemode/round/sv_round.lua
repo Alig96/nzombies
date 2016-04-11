@@ -307,6 +307,6 @@ function Round:SetupGame()
 	
 	Round:SetNextSpecialRound( GetConVar("nz_round_special_interval"):GetInt() )
 	
-	hook.Call( "OnGameBegun", Round )
+	hook.Call( "OnGameBegin", Round )
 
 end

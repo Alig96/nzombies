@@ -30,7 +30,7 @@ local validdoors = {
 }
 
 local scriptbuyables = {
-	["nz_triggerzone"] = true,
+	["nz_script_triggerzone"] = true,
 	["nz_triggerbutton"] = true,
 }
 

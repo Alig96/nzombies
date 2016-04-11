@@ -170,7 +170,7 @@ end
 local function GetMapScriptEntityText()
 	local text = ""
 	
-	for k,v in pairs(ents.FindByClass("nz_triggerzone")) do
+	for k,v in pairs(ents.FindByClass("nz_script_triggerzone")) do
 		local dist = v:NearestPoint(EyePos()):Distance(EyePos())
 		if dist <= 1 then
 			text = GetDoorText(v)

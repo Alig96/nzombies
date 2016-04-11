@@ -21,6 +21,18 @@ if CLIENT then
 		local selectedconfig
 		local hoveredpanel
 		
+		for k,v in pairs(data.officialconfigs) do
+			local name = string.Explode(";", v)
+			local map, configname = name[1], name[2]
+			if name[2] then
+				local config = {}
+				config.map = string.sub(map, 4)
+				config.name = string.sub(configname, 0, #configname-4)
+				config.config = v
+				config.official = true
+				table.insert(configs, config)
+			end
+		end
 		for k,v in pairs(data.configs) do
 			local name = string.Explode(";", v)
 			local map, configname = name[1], name[2]
@@ -129,7 +141,8 @@ if CLIENT then
 			end
 			--config:SetBackgroundColor(ColorRand())
 			
-			local mapicon = "maps/thumb/" .. v.map .. ".png"
+			local mapicon = "nzmapicons/"..string.StripExtension(v.config)..".png"
+			if ( Material(mapicon):IsError() ) then mapicon = "maps/thumb/" .. v.map .. ".png" end
 			if ( Material(mapicon):IsError() ) then mapicon = "maps/" .. v.map .. ".png" end
 			if ( Material(mapicon):IsError() ) then mapicon = "noicon.png" end
 			
@@ -158,8 +171,8 @@ if CLIENT then
 			mapstatus:SetPos(360 - mapstatus:GetWide(), 12)
 			
 			local configlocation = vgui.Create("DLabel", config)
-			configlocation:SetText(v.workshop and "Workshop" or "Local")
-			configlocation:SetTextColor(v.workshop and Color(150, 20, 100) or Color(20, 20, 200))
+			configlocation:SetText(v.workshop and "Workshop" or v.official and "Official" or "Local")
+			configlocation:SetTextColor(v.workshop and Color(150, 20, 100) or v.official and Color(255,0,0) or Color(20, 20, 200))
 			configlocation:SizeToContents()
 			configlocation:SetPos(360 - configlocation:GetWide(), 26)
 			

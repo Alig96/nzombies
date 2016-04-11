@@ -69,7 +69,7 @@ end)
 
 chatcommand.Add("/load", function(ply, text)
 	if Round:InState( ROUND_CREATE) or Round:InState( ROUND_WAITING ) then
-		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" )})
+		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies3/officialconfigs/*", "GAME")})
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[NZ] You can't load while playing!" )
 	end

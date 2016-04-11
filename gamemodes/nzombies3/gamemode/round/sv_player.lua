@@ -77,6 +77,7 @@ function plyMeta:DropOut()
 		self:SetPlaying( false )
 		self:RevivePlayer()
 		self:KillSilent()
+		self:SetTargetPriority(TARGET_PRIORITY_NONE)
 		hook.Call( "OnPlayerDropOut", Round, self )
 	end
 end

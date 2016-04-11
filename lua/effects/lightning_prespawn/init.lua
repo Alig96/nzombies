@@ -18,6 +18,7 @@ function EFFECT:Init( data )
 	self.Count = self.Duration * 40
 	self.MaxArcs = 2
 	self.Radius = 30
+	self.Parent = data:GetEntity()
 
 	self.Alpha = 255
 	self.Life = 0
@@ -36,6 +37,9 @@ end
 -----------------------------------------------------------]]
 function EFFECT:Think()
 
+	if IsValid(self.Parent) then
+		self.Pos = self.Parent:GetPos()
+	end
 
 	self.Life = self.Life + FrameTime()
 	--self.Alpha = 255 * ( 1 - self.Life )
