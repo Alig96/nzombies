@@ -74,8 +74,8 @@ end
 
 function SWEP:OnRemove()
 	if SERVER then
-		if !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
-			self.Owner:SetUsingSpecialWeapon(false)
+		if !IsValid(self.WepOwner:GetActiveWeapon()) or !self.WepOwner:GetActiveWeapon():IsSpecial() then
+			self.WepOwner:SetUsingSpecialWeapon(false)
 		end
 		self.WepOwner:SetActiveWeapon(nil)
 		self.WepOwner:EquipPreviousWeapon()

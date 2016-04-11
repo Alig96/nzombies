@@ -229,8 +229,6 @@ function ENT:GetPriorityTarget()
 	local allEnts = ents.GetAll()
 
 	local bestTarget = nil
-	local maxdistsqr = self:GetTargetCheckRange()^2
-	local targetDist = maxdistsqr + 10
 	local lowest
 
 	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
@@ -256,6 +254,7 @@ function ENT:GetPriorityTarget()
 	end
 	
 	if self:IsValidTarget(bestTarget) then -- If we found a valid target
+		local targetDist = self:GetRangeSquaredTo( bestTarget:GetPos() )
 		if targetDist < 1000 then -- Under this distance, we will break into sprint
 			self:EmitSound( self.SprintSounds[ math.random( #self.SprintSounds ) ], 100 )
 			self.sprinting = true -- Once sprinting, you won't stop
