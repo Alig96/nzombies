@@ -150,7 +150,7 @@ function ENT:Initialize()
 	self:SetWalkSpeed( self.WalkSpeed ) --fallback
 
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
-	
+
 	self:SetActStage(0)
 
 	self:StatsInitialize()
@@ -185,7 +185,7 @@ end
 
 function ENT:Think()
 	if SERVER then --think is shared since last update but all the stuff in here should be serverside
-		if  !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
+		if !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
 			local occupied = false
 			for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
 				if ent:GetClass() == "nz_zombie*" and ent != self then occupied = true end
@@ -197,7 +197,7 @@ function ENT:Think()
 			--self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
 		end
 
-		--this is a very costly operation so we only do it every 1 seconds
+		--this is a very costly operation so we only do it every second
 		if self:GetLastTargetCheck() + 1 < CurTime() then
 			self:SetTarget(self:GetPriorityTarget())
 			if GetConVar( "nz_zombie_debug" ):GetBool() then
@@ -216,6 +216,26 @@ function ENT:Think()
 			end
 
 			if self:GetStuckCounter() > 2 then
+
+				local tr = util.TraceHull({
+					start = self:GetPos(),
+					endpos = self:GetPos(),
+					maxs = self:OBBMaxs(),
+					mins = self:OBBMins(),
+					filter = self
+				})
+				if tr.Hit then
+					--if there bounding box is intersecting with something there is now way we can unstuck them just respawn.
+					--make a dust cloud to make it look less ugly
+					local effectData = EffectData()
+					effectData:SetStart( self:GetPos() + Vector(0,0,32) )
+					effectData:SetOrigin( self:GetPos() + Vector(0,0,32) )
+					effectData:SetMagnitude(1)
+					util.Effect("zombie_spawn_dust", effectData)
+
+					self:RespawnAtRandom()
+					self:SetStuckCounter( 0 )
+				end
 
 				if self:GetStuckCounter() <= 3 then
 					--try to unstuck via random velocity
@@ -355,7 +375,7 @@ end
 function ENT:SpawnZombie()
 	--BAIL if no navmesh is near
 	local nav = navmesh.GetNearestNavArea( self:GetPos() )
-	if !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then
+	if !self:IsInWorld() or !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then
 		ErrorNoHalt("Zombie ["..self:GetClass().."]["..self:EntIndex().."] spawned too far away from a navmesh!")
 		self:Remove()
 	end
@@ -491,6 +511,16 @@ end
 
 function ENT:OnLeaveGround( ent )
 	self:SetJumping( true )
+end
+
+function ENT:OnNavAreaChanged(old, new)
+	if bit.band(new:GetAttributes(), NAV_MESH_JUMP) != 0 then
+		--dont make jumps in the wrong direction
+		if old:ComputeGroundHeightChange( new ) < 0 then
+			return
+		end
+		self:Jump()
+	end
 end
 
 function ENT:OnContact( ent )
@@ -1086,7 +1116,7 @@ function ENT:BodyUpdate()
 
 	local curstage = self.ActStages[self:GetActStage()]
 	local nextstage = self.ActStages[self:GetActStage() + 1]
-	
+
 	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
 		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
 			self:SetActStage( self:GetActStage() + 1 )
@@ -1099,7 +1129,7 @@ function ENT:BodyUpdate()
 	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
 		self:SetActStage(0)
 	end
-	
+
 	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
