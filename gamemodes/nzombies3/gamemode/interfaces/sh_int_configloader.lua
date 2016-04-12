@@ -21,39 +21,45 @@ if CLIENT then
 		local selectedconfig
 		local hoveredpanel
 		
-		for k,v in pairs(data.officialconfigs) do
-			local name = string.Explode(";", v)
-			local map, configname = name[1], name[2]
-			if name[2] then
-				local config = {}
-				config.map = string.sub(map, 4)
-				config.name = string.sub(configname, 0, #configname-4)
-				config.config = v
-				config.official = true
-				table.insert(configs, config)
+		if data.officialconfigs then
+			for k,v in pairs(data.officialconfigs) do
+				local name = string.Explode(";", v)
+				local map, configname = name[1], name[2]
+				if name[2] then
+					local config = {}
+					config.map = string.sub(map, 4)
+					config.name = string.sub(configname, 0, #configname-4)
+					config.config = v
+					config.official = true
+					table.insert(configs, config)
+				end
 			end
 		end
-		for k,v in pairs(data.configs) do
-			local name = string.Explode(";", v)
-			local map, configname = name[1], name[2]
-			if name[2] then
-				local config = {}
-				config.map = string.sub(map, 4)
-				config.name = string.sub(configname, 0, #configname-4)
-				config.config = v
-				table.insert(configs, config)
+		if data.configs then
+			for k,v in pairs(data.configs) do
+				local name = string.Explode(";", v)
+				local map, configname = name[1], name[2]
+				if name[2] then
+					local config = {}
+					config.map = string.sub(map, 4)
+					config.name = string.sub(configname, 0, #configname-4)
+					config.config = v
+					table.insert(configs, config)
+				end
 			end
 		end
-		for k,v in pairs(data.workshopconfigs) do
-			local name = string.Explode(";", v)
-			local map, configname = name[1], name[2]
-			if name[2] then
-				local config = {}
-				config.map = string.sub(map, 4)
-				config.name = string.sub(configname, 0, #configname-4)
-				config.config = v
-				config.workshop = true
-				table.insert(configs, config)
+		if data.workshopconfigs then
+			for k,v in pairs(data.workshopconfigs) do
+				local name = string.Explode(";", v)
+				local map, configname = name[1], name[2]
+				if name[2] then
+					local config = {}
+					config.map = string.sub(map, 4)
+					config.name = string.sub(configname, 0, #configname-4)
+					config.config = v
+					config.workshop = true
+					table.insert(configs, config)
+				end
 			end
 		end
 		
