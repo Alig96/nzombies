@@ -105,7 +105,7 @@ if SERVER then
 				if IsValid(wep) and wep:Clip1() < wep:GetMaxClip1() then
 					local pct = 1 - (wep:Clip1()/wep:GetMaxClip1())
 					local pos, ang = ply:GetPos() + ply:GetAimVector()*10 + Vector(0,0,50), ply:GetAimVector()
-					nz.Effects.Functions.Tesla( {
+					Effects:Tesla( {
 						pos = ply:GetPos() + Vector(0,0,50),
 						ent = ply,
 						turnOn = true,
