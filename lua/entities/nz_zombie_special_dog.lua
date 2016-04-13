@@ -109,7 +109,7 @@ function ENT:StatsInitialize()
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
-	self:SetCollisionBounds(Vector(-40,-40, 0), Vector(40, 40, 48))
+	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 48))
 	self:SetSolid(SOLID_VPHYSICS)
 
 	--PrintTable(self:GetSequenceList())
@@ -119,6 +119,7 @@ function ENT:OnSpawn()
 	local effectData = EffectData()
 	effectData:SetOrigin( self:GetPos() )
 	effectData:SetMagnitude( 2 )
+	effectData:SetEntity(nil)
 	util.Effect("lightning_prespawn", effectData)
 	self:SetNoDraw(true)
 	

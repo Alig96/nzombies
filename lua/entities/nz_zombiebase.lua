@@ -50,6 +50,7 @@ AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
 AccessorFunc( ENT, "bStop", "Stop", FORCE_BOOL)
+AccessorFunc( ENT, "bSpecialAnim", "SpecialAnimation", FORCE_BOOL)
 
 AccessorFunc( ENT, "iActStage", "ActStage", FORCE_NUMBER)
 
@@ -152,6 +153,7 @@ function ENT:Initialize()
 	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 70))
 
 	self:SetActStage(0)
+	self:SetSpecialAnimation(false)
 
 	self:StatsInitialize()
 	self:SpecialInit()
@@ -185,12 +187,21 @@ end
 
 function ENT:Think()
 	if SERVER then --think is shared since last update but all the stuff in here should be serverside
-		if !self:IsJumping() and self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY then
+		if !self:IsJumping() and !self:GetSpecialAnimation() and (self:GetSolidMask() == MASK_NPCSOLID_BRUSHONLY or self:GetSolidMask() == MASK_SOLID_BRUSHONLY) then
 			local occupied = false
-			for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
+			local tr = util.TraceHull( {
+				start = self:GetPos(),
+				endpos = self:GetPos(),
+				filter = self,
+				mins = Vector( -20, -20, -0 ),
+				maxs = Vector( 20, 20, 70 ),
+				mask = MASK_NPCSOLID
+			} )
+			if !tr.HitNonWorld then self:SetSolidMask(MASK_NPCSOLID) end
+			--[[for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
 				if ent:GetClass() == "nz_zombie*" and ent != self then occupied = true end
 			end
-			if !occupied then self:SetSolidMask(MASK_NPCSOLID) end
+			if !occupied then self:SetSolidMask(MASK_NPCSOLID) end]]
 		end
 
 		if self.loco:IsUsingLadder() then
@@ -409,6 +420,12 @@ function ENT:OnBarricadeBlocking( barricade )
 			end)
 
 			self:PlaySequenceAndWait( self.AttackSequences[ math.random( #self.AttackSequences ) ].seq , 1)
+			self:SetAttacking(true)
+			
+			self:TimedEvent(1, function()
+				self:SetAttacking(false)
+				self:SetLastAttack(CurTime())
+			end)
 		end
 	end
 end
@@ -1136,16 +1153,21 @@ function ENT:BodyUpdate()
 		self.CalcIdeal = ACT_JUMP
 	end
 
-	if self:GetActivity() != self.CalcIdeal and !self:IsAttacking() and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
+	if !self:GetSpecialAnimation() and !self:IsAttacking() then
+		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
-	if ( self.CalcIdeal and !self:GetAttacking() ) then
-
-		self:BodyMoveXY()
-
+		if self.ActStages[self:GetActStage()] then
+			self:BodyMoveXY()
+		end
 	end
 
 	self:FrameAdvance()
 
+end
+
+function ENT:UpdateSequence()
+	self:SetActStage(0)
+	self:BodyUpdate()
 end
 
 function ENT:GetAimVector()

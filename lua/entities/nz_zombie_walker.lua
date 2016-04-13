@@ -34,24 +34,28 @@ ENT.ActStages = {
 		minspeed = 5,
 		attackanims = "AttackSequences",
 		sounds = "WalkSounds",
+		barricadejumps = "JumpSequences",
 	},
 	[2] = {
 		act = ACT_WALK_ANGRY,
 		minspeed = 40,
 		attackanims = "WalkAttackSequences",
 		sounds = "WalkSounds",
+		barricadejumps = "JumpSequences",
 	},
 	[3] = {
 		act = ACT_RUN,
 		minspeed = 100,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
+		barricadejumps = "SprintJumpSequences",
 	},
 	[4] = {
 		act = ACT_SPRINT,
 		minspeed = 160,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
+		barricadejumps = "SprintJumpSequences",
 	},
 }
 
@@ -69,7 +73,17 @@ ENT.EmergeSequences = {
 	"nz_emerge2",
 	"nz_emerge3",
 	"nz_emerge4",
-	"nz_emerge5"
+	"nz_emerge5",
+}
+ENT.JumpSequences = {
+	{seq = "nz_barricade1", speed = 15, time = 2.8},
+	{seq = "nz_barricade2", speed = 15, time = 2.4},
+	{seq = "nz_barricade_fast1", speed = 20, time = 2.4},
+	--[[{seq = "nz_barricade_fast2", speed = 5, time = 4}]]
+}
+ENT.SprintJumpSequences = {
+	{seq = "nz_barricade_sprint1", speed = 30, time = 1.9},
+	{seq = "nz_barricade_sprint2", speed = 30, time = 1.9},
 }
 
 ENT.AttackSounds = {
@@ -217,8 +231,8 @@ function ENT:OnSpawn()
 	effectData:SetMagnitude(dur)
 	util.Effect("zombie_spawn_dust", effectData)
 
-	-- player emerge animationon spawn
-	-- if we have a coroutine else jsut spawn the zombie without emerging for now.
+	-- play emerge animation on spawn
+	-- if we have a coroutine else just spawn the zombie without emerging for now.
 	if coroutine.running() then
 		self:PlaySequenceAndWait(seq)
 	end
@@ -347,14 +361,34 @@ function ENT:BodyUpdate()
 		self.CalcIdeal = ACT_JUMP
 	end
 
-	if self:GetActivity() != self.CalcIdeal and !self:IsAttacking() and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
+	if !self:GetSpecialAnimation() and !self:IsAttacking() then
+		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
-	if ( self.ActStages[self:GetActStage()] and !self:GetAttacking() ) then
-
-		self:BodyMoveXY()
-
+		if self.ActStages[self:GetActStage()] then
+			self:BodyMoveXY()
+		end
 	end
 
 	self:FrameAdvance()
 
+end
+
+function ENT:TriggerBarricadeJump()
+	if !self:GetSpecialAnimation() and (!self.NextBarricade or CurTime() > self.NextBarricade) then
+		self:SetSpecialAnimation(true)
+		local seqtbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].barricadejumps] or self.JumpSequences
+		local seq = seqtbl[math.random(#seqtbl)]
+		local id, dur = self:LookupSequence(seq.seq)
+		self.loco:SetDesiredSpeed(self:GetSequenceGroundSpeed(id))
+		self:SetSequence(id)
+		self:SetCycle(0)
+		self:SetSolidMask(MASK_SOLID_BRUSHONLY)
+		self:BodyMoveXY()
+		self:TimedEvent(dur, function()
+			self.NextBarricade = CurTime() + 2
+			self:SetSpecialAnimation(false)
+			self.loco:SetDesiredSpeed(self:GetRunSpeed())
+			self:UpdateSequence()
+		end)
+	end
 end
