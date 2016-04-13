@@ -1234,11 +1234,11 @@ function ENT:ZombieWaterLevel()
 	local halfSize = self:OBBCenter()
 	local pos2 = pos1 + halfSize
 	local pos3 = pos2 + halfSize
-	if ( bit.band( util.PointContents( pos3 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+	if bit.band( util.PointContents( pos3 ), CONTENTS_WATER ) == CONTENTS_WATER or bit.band( util.PointContents( pos3 ), CONTENTS_SLIME ) == CONTENTS_SLIME then
 		return 3
-	elseif ( bit.band( util.PointContents( pos2 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+	elseif bit.band( util.PointContents( pos2 ), CONTENTS_WATER ) == CONTENTS_WATER or bit.band( util.PointContents( pos2 ), CONTENTS_SLIME ) == CONTENTS_SLIME then
 		return 2
-	elseif ( bit.band( util.PointContents( pos1 ), CONTENTS_WATER ) == CONTENTS_WATER ) then
+	elseif bit.band( util.PointContents( pos1 ), CONTENTS_WATER ) == CONTENTS_WATER or bit.band( util.PointContents( pos1 ), CONTENTS_SLIME ) == CONTENTS_SLIME then
 		return 1
 	end
 
