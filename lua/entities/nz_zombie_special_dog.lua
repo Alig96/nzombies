@@ -105,11 +105,11 @@ function ENT:StatsInitialize()
 		self:SetNoDraw(true) -- Start off invisible while in the prespawn effect
 		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS) -- Don't collide in this state
 		self:Stop() -- Also don't do anything
-		
+
 		self:SetRunSpeed(250)
 		self:SetHealth( 100 )
 	end
-	self:SetCollisionBounds(Vector(-40,-40, 0), Vector(40, 40, 48))
+	self:SetCollisionBounds(Vector(-16,-16, 0), Vector(16, 16, 48))
 	self:SetSolid(SOLID_VPHYSICS)
 
 	--PrintTable(self:GetSequenceList())
@@ -119,9 +119,10 @@ function ENT:OnSpawn()
 	local effectData = EffectData()
 	effectData:SetOrigin( self:GetPos() )
 	effectData:SetMagnitude( 2 )
+	effectData:SetEntity(nil)
 	util.Effect("lightning_prespawn", effectData)
 	self:SetNoDraw(true)
-	
+
 	timer.Simple(1.4, function()
 		if IsValid(self) then
 			effectData = EffectData()
@@ -133,11 +134,11 @@ function ENT:OnSpawn()
 			effectData:SetMagnitude( 0.75 )
 			--util.Effect("lightning_strike", effectData)
 			util.Effect("lightning_strike", effectData)
-			
+
 			self:SetNoDraw(false)
 			self:SetCollisionGroup(COLLISION_GROUP_NONE)
 			self:SetStop(false)
-			
+
 			self:SetTarget(self:GetPriorityTarget())
 		end
 	end)
@@ -145,7 +146,7 @@ function ENT:OnSpawn()
 	Round:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
 end
 
-function ENT:OnKilled(dmgInfo)
+function ENT:OnZombieDeath(dmgInfo)
 
 	self:SetRunSpeed(0)
 	self.loco:SetVelocity(Vector(0,0,0))
@@ -236,23 +237,23 @@ function ENT:GetPriorityTarget()
 	for _, target in pairs(allEnts) do
 		if self:IsValidTarget(target) then
 			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
-			if !lowest then 
+			if !lowest then
 				lowest = target.hellhoundtarget -- Set the lowest variable if not yet
 				bestTarget = target -- Also mark this for the best target so he isn't ignored
 			end
-			
+
 			if lowest and (!target.hellhoundtarget or target.hellhoundtarget < lowest) then -- If the variable exists and this player is lower than that amount
 				bestTarget = target -- Mark him for the potential target
 				lowest = target.hellhoundtarget or 0 -- And set the new lowest to continue the loop with
 			end
-			
+
 			if !lowest then -- If no players had any target values (lowest was never set, first ever hellhound)
 				local players = player.GetAllTargetable()
 				bestTarget = players[math.random(#players)] -- Then pick a random player
 			end
 		end
 	end
-	
+
 	if self:IsValidTarget(bestTarget) then -- If we found a valid target
 		local targetDist = self:GetRangeSquaredTo( bestTarget:GetPos() )
 		if targetDist < 1000 then -- Under this distance, we will break into sprint

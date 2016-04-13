@@ -106,11 +106,20 @@ if CLIENT then
 		OldConfigs:SetSize(250, 100)
 		OldConfigs:SetMultiSelect(false)
 		OldConfigs:AddColumn("Name")
-		for k,v in pairs(data.configs) do
-			OldConfigs:AddLine(v)
+		if data.configs then
+			for k,v in pairs(data.configs) do
+				OldConfigs:AddLine(v)
+			end
 		end
-		for k,v in pairs(data.workshopconfigs) do
-			OldConfigs:AddLine(v)
+		if data.workshopconfigs then
+			for k,v in pairs(data.workshopconfigs) do
+				OldConfigs:AddLine(v)
+			end
+		end
+		if data.officialconfigs then
+			for k,v in pairs(data.officialconfigs) do
+				OldConfigs:AddLine(v)
+			end
 		end
 		OldConfigs.OnRowSelected = function(self, index, row)
 			selectedconfig = row:GetValue(1)

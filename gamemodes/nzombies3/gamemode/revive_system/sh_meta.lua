@@ -40,7 +40,7 @@ if SERVER then
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
 
 		self:RemovePerks()
-		
+
 		self.DownPoints = math.Round(self:GetPoints()*0.05, -1)
 		if self.DownPoints >= self:GetPoints() then
 			self:SetPoints(0)
@@ -93,9 +93,9 @@ if SERVER then
 		Revive.Players[id].ReviveTime = CurTime()
 		Revive.Players[id].RevivePlayer = revivor
 		revivor.Reviving = self
-		
+
 		print("Started revive", self, revivor)
-		
+
 		if revivor:GetNotDowned() then -- You can revive yourself while downed with Solo Quick Revive
 			revivor:Give("nz_revive_morphine") -- Give them the viewmodel
 		end
@@ -106,7 +106,7 @@ if SERVER then
 	function playerMeta:StopRevive(nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end -- Not even downed
-		
+
 		local revivor = Revive.Players[id].RevivePlayer
 		if IsValid(revivor) then
 			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors viewmodel
@@ -114,7 +114,7 @@ if SERVER then
 
 		Revive.Players[id].ReviveTime = nil
 		Revive.Players[id].RevivePlayer = nil
-		
+
 		print("Stopped revive", self)
 
 		if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
@@ -123,12 +123,12 @@ if SERVER then
 	function playerMeta:KillDownedPlayer(silent, nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end
-		
+
 		local revivor = Revive.Players[id].RevivePlayer
 		if IsValid(revivor) then -- This shouldn't happen as players can't die if they are currently being revived
 			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors if someone was reviving viewmodel
 		end
-		
+
 		Revive.Players[id] = nil
 		if silent then
 			self:KillSilent()
