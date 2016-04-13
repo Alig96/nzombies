@@ -33,7 +33,7 @@ nz.Tools.Functions.CreateTool("propremover", {
 	displayname = "Prop Remover Tool",
 	desc = "LMB: Mark Prop for Removal, RMB: Unmark Prop",
 	icon = "icon16/cancel.png",
-	weight = 39,
+	weight = 35,
 	condition = function(wep, ply)
 		return true
 	end,
