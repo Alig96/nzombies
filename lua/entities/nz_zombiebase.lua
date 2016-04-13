@@ -573,12 +573,14 @@ function ENT:OnInjured( dmgInfo )
 	self:EmitSound( soundName, 90 )
 end
 
+function ENT:OnZombieDeath()
+	self:BecomeRagdoll(dmgInfo)
+end
+
 function ENT:OnKilled(dmgInfo)
 
-	if self.DeathSounds then
-		self:EmitSound( self.DeathSounds[ math.random( #self.DeathSounds ) ], 100)
-		self:BecomeRagdoll(dmgInfo)
-	end
+	self:OnZombieDeath(dmgInfo)
+	hook.Call("OnZombieKilled", GAMEMODE, self, dmgInfo)
 
 end
 

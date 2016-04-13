@@ -15,7 +15,7 @@ function ENT:StatsInitialize()
 		end
         self:SetHealth( Round:GetZombieHealth() or 75 )
         self:Flames( true )
-		
+
 		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
     end
 end
@@ -33,7 +33,7 @@ function ENT:OnTargetInAttackRange()
     end)
 end
 
-function ENT:OnKilled(dmgInfo)
+function ENT:OnZombieDeath(dmgInfo)
     self:Explode( math.random( 25, 50 ))
 	self:EmitSound(self.DeathSounds[ math.random( #self.DeathSounds ) ], 50, math.random(75, 130))
 	self:BecomeRagdoll(dmgInfo)

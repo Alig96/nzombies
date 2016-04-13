@@ -63,11 +63,11 @@ local function ScoreHud()
 					end
 
 					local font = "nz.display.hud.small"
-					
+
 					surface.SetFont(font)
 
 					local textW, textH = surface.GetTextSize(text)
-					
+
 					if LocalPlayer() == v then
 						offset = offset + textH + 5 -- change this if you change the size of nz.display.hud.medium
 					else
@@ -76,7 +76,8 @@ local function ScoreHud()
 
 					surface.SetDrawColor(200,200,200)
 					local index = v:EntIndex()
-					local color, blood = player.GetColorBloodByIndex(v:EntIndex())
+					local color = player.GetColorByIndex(v:EntIndex())
+					local blood = player.GetBloodByIndex(v:EntIndex())
 					--for i = 0, 8 do
 						--surface.SetMaterial(bloodDecals[((index + i - 1) % #bloodDecals) + 1 ])
 						surface.SetMaterial(blood)

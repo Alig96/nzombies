@@ -45,6 +45,10 @@ while n > 2 do
 	n = n - 1
 end
 
-function player.GetColorBloodByIndex(index)
-	return playerColors[((index - 1) % #playerColors) + 1], blooddecals[((index - 1) % #blooddecals) + 1]
+function player.GetColorByIndex(index)
+	return playerColors[((index - 1) % #playerColors) + 1]
+end
+
+function player.GetBloodByIndex(index)
+	return blooddecals[((index - 1) % #blooddecals) + 1]
 end
