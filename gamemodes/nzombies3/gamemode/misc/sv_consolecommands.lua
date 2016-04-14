@@ -49,6 +49,8 @@ concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 		
 		if round then
 			Round:SetNumber( round - 1 )
+			local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
+			Round:SetNextSpecialRound( math.ceil(round/specint)*specint)
 		end
 		Round:Prepare()
 	end
