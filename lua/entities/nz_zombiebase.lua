@@ -145,6 +145,9 @@ function ENT:Initialize()
 	self:SetAttackRange( self.AttackRange )
 	self:SetTargetCheckRange(0) -- 0 for no distance restriction (infinite)
 
+	--target ignore
+	self:ResetIgnores()
+
 	self:SetHealth( 75 ) --fallback
 
 	self:SetRunSpeed( self.RunSpeed ) --fallback
@@ -421,7 +424,7 @@ function ENT:OnBarricadeBlocking( barricade )
 
 			self:PlaySequenceAndWait( self.AttackSequences[ math.random( #self.AttackSequences ) ].seq , 1)
 			self:SetAttacking(true)
-			
+
 			self:TimedEvent(1, function()
 				self:SetAttacking(false)
 				self:SetLastAttack(CurTime())
@@ -624,7 +627,7 @@ function ENT:GetPriorityTarget()
 	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
 	for _, target in pairs(allEnts) do
-		if self:IsValidTarget(target) then
+		if self:IsValidTarget(target) and !self:IsIgnoredTarget() then
 			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
 			local dist = self:GetRangeSquaredTo( target:GetPos() )
 			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
@@ -667,10 +670,12 @@ function ENT:ChaseTarget( options )
 		if ( path:GetAge() > options.maxage ) then
 			return "timeout"
 		end
+
 		path:Update( self )	-- This function moves the bot along the path
 		if options.draw or GetConVar( "nz_zombie_debug" ):GetBool() then
 			path:Draw()
 		end
+
 		--the jumping part simple and buggy
 		--local scanDist = (self.loco:GetVelocity():Length()^2)/(2*900) + 15
 		local scanDist
@@ -812,7 +817,22 @@ function ENT:ChaseTargetPath( options )
 		end
 	end)
 
-	return path
+	-- this will replace nav groups
+	-- we do this after pathing to know when this happens
+	local lastSeg = path:LastSegment()
+
+	-- a little more complicated that i though bt it should do the trick
+	if self:GetTargetNavArea() and lastSeg.area:GetID() != self:GetTargetNavArea():GetID() then
+		self:IgnoreTarget(self:GetTarget())
+		-- trigger a retarget
+		self:SetLastTargetCheck(CurTime() - 1)
+		self:TimeOut(0.5)
+		return nil
+	else
+		self:ResetIgnores()
+		return path
+	end
+
 end
 
 function ENT:GetLadderTop( ladder )
@@ -1278,6 +1298,10 @@ function ENT:GetTarget()
 	return self.Target
 end
 
+function ENT:GetTargetNavArea()
+	return navmesh.GetNearestNavArea( self:GetTarget():GetPos(), false, 100)
+end
+
 function ENT:SetTarget( target )
 	self.Target = target
 	if self.Target != target then
@@ -1296,6 +1320,22 @@ end
 function ENT:IsValidTarget( ent )
 	if !ent then return false end
 	return IsValid( ent ) and ent:GetTargetPriority() != TARGET_PRIORITY_NONE
+end
+
+function ENT:GetIgnoredTargets()
+	return self.tIgnoreList
+end
+
+function ENT:IgnoreTarget( target )
+	table.insert(self.tIgnoreList, target)
+end
+
+function ENT:IsIgnoredTarget( ent )
+	table.HasValue(self.tIgnoreList, ent)
+end
+
+function ENT:ResetIgnores()
+	self.tIgnoreList = {}
 end
 
 --AccessorFuncs
