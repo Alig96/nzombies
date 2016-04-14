@@ -36,7 +36,7 @@ if not ConVarExists("nz_drawinviswalls") then CreateClientConVar("nz_drawinviswa
 
 if engine.ActiveGamemode() == "nzombies3" then 
 	hook.Add("PostDrawOpaqueRenderables", "DrawInvisWalls", function()
-		if GetConVar("nz_drawinviswalls"):GetBool() and Round:InState( ROUND_CREATE ) then
+		if ConVarExists("nz_drawinviswalls") and GetConVar("nz_drawinviswalls"):GetBool() and Round:InState( ROUND_CREATE ) then
 			cam.Start3D()
 				render.SetMaterial(mat)
 				for k,v in pairs(ents.FindByClass("invis_wall")) do

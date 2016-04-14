@@ -87,7 +87,7 @@ function Mapping:EasterEgg(pos, ang, model, ply)
 	return egg
 end
 
-function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
+function Mapping:WallBuy(pos, gun, price, angle, oldent, ply, flipped)
 
 	if IsValid(oldent) then oldent:Remove() end
 
@@ -102,6 +102,10 @@ function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
 	local phys = ent:GetPhysicsObject()
 	if phys:IsValid() then
 		phys:EnableMotion(false)
+	end
+	
+	if flipped != nil then
+		ent:SetFlipped(flipped)
 	end
 
 	if ply then

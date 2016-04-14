@@ -24,13 +24,17 @@ nz.Tools.Functions.CreateTool("navedit", {
 		end
 	end,
 	OnEquip = function(wep, ply, data)
-
+		if wep.Owner:IsListenServerHost() then
+			RunConsoleCommand("nav_edit", 1)
+		end
 	end,
 	OnHolster = function(wep, ply, data)
-
+		if SERVER and wep.Owner:IsListenServerHost() then
+			RunConsoleCommand("nav_edit", 0)
+		end
 	end
 }, {
-	displayname = "Navmesh editor",
+	displayname = "Navmesh Editor",
 	desc = "Q: Select edit mode",
 	icon = "icon16/map.png",
 	weight = 39,

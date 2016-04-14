@@ -50,7 +50,8 @@ function Mapping:SaveConfig(name)
 		pos = v:GetPos(),
 		wep = v.WeaponGive,
 		price = v.Price,
-		angle = v:GetAngles( ),
+		angle = v:GetAngles(),
+		flipped = v:GetFlipped(),
 		})
 	end
 
@@ -352,7 +353,7 @@ function Mapping:LoadConfig( name, loader )
 
 		if data.WallBuys then
 			for k,v in pairs(data.WallBuys) do
-				Mapping:WallBuy(v.pos,v.wep, v.price, v.angle)
+				Mapping:WallBuy(v.pos,v.wep, v.price, v.angle, nil, nil, v.flipped)
 			end
 		end
 
