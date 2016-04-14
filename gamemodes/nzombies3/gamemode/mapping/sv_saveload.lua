@@ -28,7 +28,7 @@ function Mapping:SaveConfig(name)
 		respawnable = v.respawnable
 		})
 	end
-	
+
 	local zed_special_spawns = {}
 	for _, v in pairs(ents.FindByClass("zed_special_spawns")) do
 		table.insert(zed_special_spawns, {
@@ -156,7 +156,7 @@ function Mapping:SaveConfig(name)
 		end
 	end
 	--PrintTable(special_entities)
-	
+
 	-- Store all invisible walls with their boundaries and angles
 	local invis_walls = {}
 	for _, v in pairs(ents.FindByClass("invis_wall")) do
@@ -206,12 +206,9 @@ end
 
 function Mapping:ClearConfig()
 	print("[NZ] Clearing current map")
-	
+
 	-- ALWAYS do this first!
 	Mapping:UnloadScript()
-
-	--Resets spawnpoints ther should be a function/accessor for this rather than jsu a table reset
-	nz.Enemies.Data.RespawnableSpawnpoints = {}
 
 	--Entities to clear:
 	local entClasses = {
@@ -278,9 +275,9 @@ function Mapping:ClearConfig()
 	-- Clear all door data
 	net.Start("nzClearDoorData")
 	net.Broadcast()
-	
+
 	Mapping.CurrentConfig = nil
-	
+
 	Mapping:CleanUpMap()
 end
 
@@ -288,7 +285,7 @@ function Mapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
 	local location = "DATA"
-	
+
 	if string.GetExtensionFromFilename(name) == "lua" then
 		if file.Exists("gamemodes/nzombies3/officialconfigs/"..name, "GAME") then
 			location, filepath = "GAME", "gamemodes/nzombies3/officialconfigs/"..name
@@ -338,7 +335,7 @@ function Mapping:LoadConfig( name, loader )
 				Mapping:ZedSpawn(v.pos, v.link, v.respawnable)
 			end
 		end
-		
+
 		if data.ZedSpecialSpawns then
 			for k,v in pairs(data.ZedSpecialSpawns) do
 				Mapping:ZedSpecialSpawn(v.pos, v.link)
@@ -451,7 +448,7 @@ function Mapping:LoadConfig( name, loader )
 				Mapping:SendMapData(v)
 			end
 		end
-		
+
 		if data.RemoveProps then
 			Mapping.MarkedProps = data.RemoveProps
 			if !Round:InState( ROUND_CREATE ) then
@@ -466,7 +463,7 @@ function Mapping:LoadConfig( name, loader )
 				end
 			end
 		end
-		
+
 		if data.InvisWalls then
 			for k,v in pairs(data.InvisWalls) do
 				Mapping:CreateInvisibleWall(v.pos, v.maxbound)
@@ -475,9 +472,9 @@ function Mapping:LoadConfig( name, loader )
 
 		-- Generate all auto navmesh merging so we don't have to save that manually
 		nz.Nav.Functions.AutoGenerateAutoMergeLinks()
-		
+
 		Mapping:CheckMismatch( loader )
-		
+
 		-- Set the current config name, we will use this to load scripts via mismatch window
 		Mapping.CurrentConfig = name
 

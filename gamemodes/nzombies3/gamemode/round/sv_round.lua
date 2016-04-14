@@ -31,21 +31,6 @@ function Round:Prepare()
 	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
 	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
 
-	-- Quickly make sure that a special round with the convar on does not use the config (temporarily)
-	if nz.Config.EnemyTypes[ self:GetNumber() ] and !(self:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool()) then
-		self:SetZombieData( nz.Config.EnemyTypes[ self:GetNumber() ].types )
-		if nz.Config.EnemyTypes[ self:GetNumber() ].count then
-			self:SetZombiesMax( nz.Config.EnemyTypes[ self:GetNumber() ].count )
-		end
-	elseif self:IsSpecial() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
-		if GetConVar("nz_test_hellhounds"):GetBool() then
-			self:SetSpecialZombieData( {["nz_zombie_special_dog"] = {chance = 100}} )
-			self:SetZombiesMax( self:GetZombiesMax() * 0.5 )
-		else
-			self:SetSpecialZombieData( nz.Config.SpecialRoundData.types )
-			self:SetZombiesMax( nz.Config.SpecialRoundData.modifycount(self:GetZombiesMax()) )
-		end
-	end
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
 
 	self:SetZombiesKilled( 0 )
@@ -62,6 +47,9 @@ function Round:Prepare()
 	for _, ply in pairs( player.GetAllPlaying() ) do
 		ply:ReSpawn()
 	end
+
+	-- setup the spawners after all players hace been spawned
+	Spawner:InitializeRound(nz.Config.EnemyTypes[ self:GetNumber() ].types or nz.Config.EnemyTypes[1].types, self:GetZombiesMax())
 
 	--Heal
 	--[[for _, ply in pairs( player.GetAllPlaying() ) do
@@ -86,14 +74,14 @@ function Round:Start()
 
 	self:SetState( ROUND_PROG )
 	self:SetNextSpawnTime( CurTime() + 3 ) -- Delay zombie spawning by 3 seconds
-	
+
 	if self:IsSpecial() and GetConVar("nz_test_hellhounds"):GetBool() then -- The config always takes priority, however if nothing has been set for this round, assume special round settings
 		self:SetNextSpawnTime( CurTime() + 5 )
 		timer.Simple(3, function()
 			Round:CallHellhoundRound()
 		end)
 	end
-	
+
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
 	hook.Call("OnRoundStart", Round, self:GetNumber() )
@@ -112,7 +100,7 @@ function Round:Think()
 		timer.Remove( "NZRoundThink" )
 	end
 
-	local numzombies = nz.Enemies.Functions.TotalCurrentEnemies()
+	local numzombies = Spawner:TotalCurrentEnemies()
 
 	--If we've killed all the zombies, then progress to the next level.
 	if ( self:GetZombiesKilled() >= self:GetZombiesMax() ) then
@@ -302,11 +290,11 @@ function Round:SetupGame()
 	else
 		Elec:Reset() -- Reset with no value to play the power down sound
 	end
-	
+
 	nz.Perks.Functions.UpdateQuickRevive()
-	
+
 	Round:SetNextSpecialRound( GetConVar("nz_round_special_interval"):GetInt() )
-	
+
 	hook.Call( "OnGameBegin", Round )
 
 end

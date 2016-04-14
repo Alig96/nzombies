@@ -15,15 +15,6 @@ nz.Tools.Functions.CreateTool("zspawn", {
 		end
 		ent.respawnable = data.respawnable
 		ent.spawnable = data.spawnable
-		if data.respawnable != 1 then
-			if table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
-				table.RemoveByValue(nz.Enemies.Data.RespawnableSpawnpoints, ent)
-			end
-		else
-			if !table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
-				table.insert(nz.Enemies.Data.RespawnableSpawnpoints, ent)
-			end
-		end
 
 		//For the link displayer
 		if data.link then
@@ -43,15 +34,7 @@ nz.Tools.Functions.CreateTool("zspawn", {
 			ent.link = data.link
 			ent.respawnable = data.respawnable
 			ent.spawnable = data.spawnable
-			if data.respawnable != 1 then
-				if table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
-					table.RemoveByValue(nz.Enemies.Data.RespawnableSpawnpoints, ent)
-				end
-			else
-				if !table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
-					table.insert(nz.Enemies.Data.RespawnableSpawnpoints, ent)
-				end
-			end
+
 			//For the link displayer
 			if data.link then
 				ent:SetLink(data.link)

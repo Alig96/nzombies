@@ -1,12 +1,18 @@
 AddCSLuaFile( )
 
 ENT.Type = "anim"
+ENT.Base = "base_entity"
 
 ENT.PrintName		= "nz_spawn_zombie"
 
 AccessorFunc(ENT, "iSpawnWeight", "SpawnWeight", FORCE_NUMBER)
-AccessorFunc(ENT, "sZombieClass", "ZombieClass", FORCE_STRING)
+AccessorFunc(ENT, "tZombieData", "ZombieData")
 AccessorFunc(ENT, "iZombiesToSpawn", "ZombiesToSpawn", FORCE_NUMBER)
+AccessorFunc(ENT, "mSpawner", "Spawner")
+
+function ENT:DecrementZombiesToSpawn()
+	self:SetZombiesToSpawn( self:GetZombiesToSpawn() - 1 )
+end
 
 function ENT:SetupDataTables()
 
@@ -25,7 +31,7 @@ function ENT:Initialize()
 	self:SetZombiesToSpawn(0)
 end
 
-function ENT:CheckIfSuitable()
+function ENT:IsSuitable()
 	local tr = util.TraceHull( {
 		start = self:GetPos(),
 		endpos = self:GetPos(),
@@ -35,7 +41,25 @@ function ENT:CheckIfSuitable()
 		mask = MASK_NPCSOLID
 	} )
 
-	return !tr.HitNonWorld
+	return not tr.HitNonWorld
+end
+
+function ENT:Think()
+	if SERVER then
+	    if Round:InState( ROUND_PROG ) and self:GetZombiesToSpawn() > 0 then
+			if self:IsSuitable() then
+				local class = nz.Misc.Functions.WeightedRandom(self:GetZombieData(), "chance")
+				local zombie = ents.Create(class)
+				zombie:SetPos(self:GetPos())
+				zombie:Spawn()
+				zombie:SetSpawner(self:GetSpawner())
+				zombie:Activate()
+				-- reduce zombies in queue on self and spawner object
+				self:GetSpawner():DecrementZombiesToSpawn()
+				self:DecrementZombiesToSpawn()
+			end
+		end
+	end
 end
 
 if CLIENT then

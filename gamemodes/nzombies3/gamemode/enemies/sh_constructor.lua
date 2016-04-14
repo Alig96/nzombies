@@ -5,8 +5,8 @@ if SERVER then
 	nz.Enemies = {}
 	nz.Enemies.Functions = {}
 	nz.Enemies.Data = {}
-	
-	//Respawnable spawnpoints
-	nz.Enemies.Data.RespawnableSpawnpoints = {}
+
+	nzSpawner = {}
+	Spawner = nzSpawner
 
 end

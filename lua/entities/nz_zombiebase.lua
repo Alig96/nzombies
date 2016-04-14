@@ -46,6 +46,9 @@ AccessorFunc( ENT, "fLastPush", "LastPush", FORCE_NUMBER)
 AccessorFunc( ENT, "iStuckCounter", "StuckCounter", FORCE_NUMBER)
 AccessorFunc( ENT, "vStuckAt", "StuckAt")
 
+-- spawner accessor
+AccessorFunc(ENT, "mSpawner", "Spawner")
+
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
@@ -72,10 +75,6 @@ ENT.ActStages = {
 		minspeed = 160,
 	},
 }
-
-function ENT:SetupDataTables()
-	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
-end
 
 function ENT:Precache()
 
@@ -247,7 +246,7 @@ function ENT:Think()
 					effectData:SetMagnitude(1)
 					util.Effect("zombie_spawn_dust", effectData)
 
-					self:RespawnAtRandom()
+					self:Remove()
 					self:SetStuckCounter( 0 )
 				end
 
@@ -267,7 +266,7 @@ function ENT:Think()
 				if self:GetStuckCounter() > 5 then
 					--Worst case:
 					--respawn the zombie after 32 seconds with no postion change
-					self:RespawnAtRandom()
+					self:Remove()
 					self:SetStuckCounter( 0 )
 					if GetConVar( "nz_zombie_debug" ):GetBool() then
 						print(self, "Respawned because stuck counter is over 5.")
@@ -283,7 +282,7 @@ function ENT:Think()
 		self:SoundThink()
 
 		if self:ZombieWaterLevel() == 3 then
-			self:RespawnAtRandom()
+			self:Remove()
 			if GetConVar( "nz_zombie_debug" ):GetBool() then
 				print(self, "Respawning because submerged in water.")
 			end
@@ -461,43 +460,12 @@ function ENT:OnNoTarget()
 		if self:IsValidTarget(newtarget) then
 			self:SetTarget(newtarget)
 		else
-			if GetConVar( "nz_zombie_debug" ):GetBool() then
-				print(self, "Tried to retarget in OnNoTarget, but got no valid target.")
-			end
-			local sPoint = self:GetClosestAvailableRespawnPoint()
-			if !sPoint then
-				-- Something is wrong remove this zombie
-				self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
-					repath = 3,
-					maxage = 2
-				})
-
-				-- Wander a bit, then check again
-				if !self:GetClosestAvailableRespawnPoint() then
-					if GetConVar( "nz_zombie_debug" ):GetBool() then
-						print(self, "Removing because no valid target.")
-					end
-					self:Remove()
+			--if not visible to players respawn immediately
+			if !self:IsInSight() then
+				if GetConVar( "nz_zombie_debug" ):GetBool() then
+					print(self, "Respawning from no valid target and not in sight.")
 				end
-			else
-				--if not visible to players respawn immediately
-				if !self:IsInSight() then
-					if GetConVar( "nz_zombie_debug" ):GetBool() then
-						print(self, "Respawning from no valid target and not in sight.")
-					end
-					self:RespawnAtRandom( sPoint )
-				else
-					self:ChaseTarget( {
-						maxage = 20,
-						draw = false,
-						target = sPoint,
-						tolerance = self:GetAttackRange() / 10
-					})
-					if GetConVar( "nz_zombie_debug" ):GetBool() then
-						print(self, "Respawning from no valid target and having walked around.")
-					end
-					self:RespawnAtRandom( sPoint )
-				end
+				self:Remove()
 			end
 		end
 	end
@@ -588,7 +556,13 @@ function ENT:OnKilled(dmgInfo)
 end
 
 function ENT:OnRemove()
-
+	-- onremove is shared apparently
+	if SERVER then
+		-- if the zombie was alive while removing spawn a new zombie
+		if self:Health() > 0 and Round:InState(ROUND_PROG) and self:GetSpawner() then
+			self:GetSpawner():IncrementZombiesToSpawn()
+		end
+	end
 end
 
 function ENT:OnStuck()
@@ -821,13 +795,16 @@ function ENT:ChaseTargetPath( options )
 	-- we do this after pathing to know when this happens
 	local lastSeg = path:LastSegment()
 
-	-- a little more complicated that i though bt it should do the trick
+	-- a little more complicated that i thought but it should do the trick
+
 	if self:GetTargetNavArea() and lastSeg.area:GetID() != self:GetTargetNavArea():GetID() then
-		self:IgnoreTarget(self:GetTarget())
-		-- trigger a retarget
-		self:SetLastTargetCheck(CurTime() - 1)
-		self:TimeOut(0.5)
-		return nil
+		if !nz.Nav.Data[self:GetTargetNavArea():GetID()] or nz.Nav.Data[self:GetTargetNavArea():GetID()].locked then
+			self:IgnoreTarget(self:GetTarget())
+			-- trigger a retarget
+			self:SetLastTargetCheck(CurTime() - 1)
+			self:TimeOut(0.5)
+			return nil
+		end
 	else
 		self:ResetIgnores()
 		return path
@@ -1202,57 +1179,6 @@ function ENT:GetShootPos()
 
 	return self:EyePos()
 
-end
-
-function ENT:GetClosestAvailableRespawnPoint()
-	local pos = self:GetPos()
-	local min_dist, closest_target = -1, nil
-	for k,v in pairs(nz.Enemies.Data.RespawnableSpawnpoints) do
-		if IsValid(v) and (!GetConVar("nz_nav_grouptargeting"):GetBool() or nz.Nav.Functions.IsInSameNavGroup(self, v)) then
-			local dist = self:GetRangeTo( v:GetPos() )
-			if ((dist < min_dist or min_dist == -1)) then
-				closest_target = v
-				min_dist = dist
-			end
-		end
-	end
-	return closest_target or nil
-end
-
-function ENT:RespawnAtPos( point )
-	if nz.Enemies.Functions.CheckIfSuitable( point ) then
-		self:SetPos( point )
-		self:SpawnZombie()
-		return true
-	end
-	return false
-end
-
-function ENT:RespawnAtSpawnpoint( ent )
-	--if ent:GetClass() != "zed_spawns" then return end
-	if nz.Enemies.Functions.CheckIfSuitable( ent:GetPos() ) then
-		self:SetPos( ent:GetPos() )
-		self:SpawnZombie()
-		return true
-	end
-	return false
-end
-
-function ENT:RespawnAtRandom( cur )
-	local valids = nz.Enemies.Functions.ValidRespawns( cur, self:GetClass() )
-	if valids[1] == nil then
-		print("No valid spawns were found - Couldn't respawn!")
-		self:TimeOut(1) -- Timeout for 1 second if it didn't work
-		return
-	end
-	local spawnpoint = valids[ math.random(#valids) ]
-	if IsValid(spawnpoint) and nz.Enemies.Functions.CheckIfSuitable(spawnpoint:GetPos()) then
-		self:SetPos(spawnpoint:GetPos())
-		self:SpawnZombie()
-		return true
-	end
-	self:TimeOut(1) -- Woah! This shouldn't happen
-	return false
 end
 
 --Helper function

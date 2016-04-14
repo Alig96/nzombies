@@ -68,9 +68,9 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 	end
 end
 
-function nz.Enemies.Functions.OnEntityCreated( ent )
+local function OnRagdollCreated( ent )
 	if ( ent:GetClass() == "prop_ragdoll" ) then
 		ent:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	end
 end
-hook.Add("OnEntityCreated", "nz.Enemies.OnEntityCreated", nz.Enemies.Functions.OnEntityCreated)
+hook.Add("OnEntityCreated", "nz.Enemies.OnEntityCreated", OnRagdollCreated)
