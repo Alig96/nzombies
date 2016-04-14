@@ -55,3 +55,35 @@ concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 		Round:Prepare()
 	end
 end)
+
+function lmne(name, find, listall)
+	if !IsValid(ply) or ply:IsSuperAdmin() then
+		if name then
+			local tbl = {}
+			if find then
+				for k,v in pairs(ents.GetAll()) do
+					if v:GetName() != "" and string.find(string.lower(v:GetName()), string.lower(name)) then
+						table.insert(tbl, v)
+						print(v:GetName(),"\t\t\t",v)
+					end
+				end
+			else
+				tbl = ents.FindByName(name)
+			end
+			if !listall then
+				return tbl[1]
+			else
+				return tbl
+			end
+		else
+			local tbl = {}
+			for k,v in pairs(ents.GetAll()) do
+				if v:GetName() != "" then
+					table.insert(tbl, v)
+					print(v:GetName(),"\t\t\t",v)
+				end
+			end
+			return tbl
+		end
+	end
+end

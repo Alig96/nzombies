@@ -275,7 +275,10 @@ function Mapping:ClearConfig()
 	-- Clear all door data
 	net.Start("nzClearDoorData")
 	net.Broadcast()
-
+	
+	-- Clear out the item objects creating with this config (if any)
+	ItemCarry:CleanUp()
+	
 	Mapping.CurrentConfig = nil
 
 	Mapping:CleanUpMap()
