@@ -279,6 +279,7 @@ function Round:ResetGame()
 
 	--Reset easter eggs
 	nzEE:Reset()
+	nzEE.Major:Reset()
 
 	--Reset merged navigation groups
 	nz.Nav.ResetNavGroupMerges()

@@ -15,12 +15,12 @@ function ENT:Initialize()
 		--self:DrawShadow( false )
 		self:SetUseType( SIMPLE_USE )
 		self.CurrentAmount = 0
-		self:SetTargetAmount( 20 )
-		self:SetCondition(function(z, dmg) return true end) -- Always allow
-		self:SetCatchFunction(function(z) end) -- Nothing by default
-		self:SetCompleteFunction(function(z) end) -- Nothing either
-		self:SetRange(500) -- Default range
-		self:SetEnabled(true)
+		self:SetTargetAmount( self.TargetAmount or 20 )
+		self:SetCondition(self.Condition or function(z, dmg) return true end) -- Always allow
+		self:SetCatchFunction(self.CatchFunc or function(z) end) -- Nothing by default
+		self:SetCompleteFunction(self.CompleteFunc or function(z) end) -- Nothing either
+		self:SetRange(self.Range or 500) -- Default range
+		self:SetEnabled(self.Enabled or true)
 	end
 end
 
@@ -58,7 +58,9 @@ function ENT:Reset()
 end
 
 function ENT:ReleaseSoul( z )
+	print("Releasing", z)
 	if self.ReleaseOverride then
+		print("Overridden")
 		self:ReleaseOverride(z) -- You can override the effect and count logic with this
 	else
 		if self.CurrentAmount >= self.TargetAmount then return end

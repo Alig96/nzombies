@@ -251,6 +251,7 @@ function ENT:OnZombieDeath(dmgInfo)
 		local seq, dur = self:LookupSequence(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
 		self:ResetSequence(seq)
 		self:SetCycle(0)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		-- Emit electrocution scream here when added
 		timer.Simple(dur, function()
 			if IsValid(self) then
