@@ -23,7 +23,7 @@ end
 
 function Mapping:ZedSpecialSpawn(pos, link, ply)
 
-	local ent = ents.Create("zed_special_spawns")
+	local ent = ents.Create("nz_spawn_zombie_special")
 	pos.z = pos.z - ent:OBBMaxs().z
 	ent:SetPos( pos )
 	ent:Spawn()

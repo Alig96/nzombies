@@ -8,7 +8,7 @@ ENT.PrintName		= "nz_spawn_zombie"
 AccessorFunc(ENT, "iSpawnWeight", "SpawnWeight", FORCE_NUMBER)
 AccessorFunc(ENT, "tZombieData", "ZombieData")
 AccessorFunc(ENT, "iZombiesToSpawn", "ZombiesToSpawn", FORCE_NUMBER)
-AccessorFunc(ENT, "mSpawner", "Spawner")
+AccessorFunc(ENT, "hSpawner", "Spawner")
 
 function ENT:DecrementZombiesToSpawn()
 	self:SetZombiesToSpawn( self:GetZombiesToSpawn() - 1 )
@@ -52,6 +52,7 @@ function ENT:Think()
 				local zombie = ents.Create(class)
 				zombie:SetPos(self:GetPos())
 				zombie:Spawn()
+				-- make a reference to the spawner object used for "respawning"
 				zombie:SetSpawner(self:GetSpawner())
 				zombie:Activate()
 				-- reduce zombies in queue on self and spawner object

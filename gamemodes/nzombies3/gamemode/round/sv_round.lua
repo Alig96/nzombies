@@ -34,7 +34,6 @@ function Round:Prepare()
 	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
 
 	self:SetZombiesKilled( 0 )
-	self:SetZombiesSpawned( 0 )
 
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
@@ -48,8 +47,86 @@ function Round:Prepare()
 		ply:ReSpawn()
 	end
 
-	-- setup the spawners after all players hace been spawned
-	Spawner:InitializeRound(nz.Config.EnemyTypes[ self:GetNumber() ].types or nz.Config.EnemyTypes[1].types, self:GetZombiesMax())
+	-- Setup the spawners after all players have been spawned
+
+	-- Reset and remove the old spawners
+	if self:GetSpecialSpawner() then
+		self:GetSpecialSpawner():Remove()
+		self:SetSpecialSpawner(nil)
+	end
+
+	if self:GetNormalSpawner() then
+		self:GetNormalSpawner():Remove()
+		self:SetNormalSpawner(nil)
+	end
+
+	-- Prioritize any configs (useful for mapscripts)
+	if nz.Config.EnemyTypes[ self:GetNumber() ] then
+		local roundData = nz.Config.EnemyTypes[ self:GetNumber() ]
+
+		--normal spawner
+		local normalCount = 0
+
+		-- only setup a spawner if we have zombie data
+		if roundData.normalTypes then
+			if roundData.normalCountMod then
+				local mod = roundData.normalCountMod
+				normalCount = mod(self:GetZombiesMax())
+			elseif roundData.normalCount then
+				normalCount = roundData.normalCount
+			else
+				normalCount = self:GetZombiesMax()
+			end
+
+			local normalData = roundData.normalTypes
+			local normalSpawner = Spawner("nz_spawn_zombie_normal", normalData, normalCount)
+
+			-- save the spawner to access data
+			self:SetNormalSpawner(normalSpawner)
+		end
+
+		-- special spawner
+		local specialCount = 0
+
+		-- only setup a spawner if we have zombie data
+		if roundData.specialTypes then
+			if roundData.specialCountMod then
+				local mod = roundData.specialCountMod
+				specialCount = mod(self:GetZombiesMax())
+			elseif roundData.specialCount then
+				specialCount = roundData.specialCount
+			else
+				specialCount = self:GetZombiesMax()
+			end
+
+			local specialData = roundData.specialTypes
+			local specialSpawner = Spawner("nz_spawn_zombie_special", specialData, specialCount)
+
+			-- save the spawner to access data
+			self:SetSpecialSpawner(specialSpawner)
+		end
+
+		-- update the zombiesmax (for win detection)
+		self:SetZombiesMax(normalCount + specialCount)
+
+
+	-- else if no data was set continue with the gamemodes default spawning
+	-- if the round is special use the gamemodes default special round (Hellhounds)
+	elseif self:IsSpecial() then
+		-- only setup a special spawner
+		self:SetZombiesMax(self:GetZombiesMax() / 2)
+		local specialSpawner = Spawner("nz_spawn_zombie_special", {["nz_zombie_special_dog"] = {chance = 100}}, self:GetZombiesMax())
+
+		-- save the spawner to access data
+		self:SetSpecialSpawner(specialSpawner)
+
+	-- else just do regular walker spawning
+	else
+		local normalSpawner = Spawner("nz_spawn_zombie_normal", {["nz_zombie_walker"] = {chance = 100}}, self:GetZombiesMax())
+
+		-- save the spawner to access data
+		self:SetNormalSpawner(normalSpawner)
+	end
 
 	--Heal
 	--[[for _, ply in pairs( player.GetAllPlaying() ) do
@@ -100,27 +177,14 @@ function Round:Think()
 		timer.Remove( "NZRoundThink" )
 	end
 
-	local numzombies = Spawner:TotalCurrentEnemies()
+	local numzombies = Enemies:TotalAlive()
 
 	--If we've killed all the zombies, then progress to the next level.
 	if ( self:GetZombiesKilled() >= self:GetZombiesMax() ) then
 		if numzombies <= 0 then
 			self:Prepare()
 			timer.Remove( "NZRoundThink" )
-		elseif !CurRoundOverSpawned then --To not spam it every second upon overspawning - only once per round (reset on Prepare)
-			print("The wave was overspawning by "..numzombies.."! Kill the remaining zombies to progress.")
-			CurRoundOverSpawned = true
 		end
-	end
-
-	--Uh-oh! Looks like all zombies have spawned, yet they aren't enough to satisfy the round limit!
-	if ( self:GetZombiesSpawned() >= self:GetZombiesMax() ) and numzombies < ( self:GetZombiesMax() - self:GetZombiesKilled() ) then
-		local diff = ( self:GetZombiesMax() - self:GetZombiesKilled() ) - numzombies
-		--Apparently not?
-		if diff <= 0 then return end
-
-		self:SetZombiesSpawned( self:GetZombiesSpawned() - diff )
-		print("The wave was underspawning by "..diff.."! Spawning more zombies ...")
 	end
 end
 
@@ -134,7 +198,6 @@ function Round:ResetGame()
 	self:SetNumber( 0 )
 
 	self:SetZombiesKilled( 0 )
-	self:SetZombiesSpawned( 0 )
 	self:SetZombiesMax( 0 )
 
 	--Reset all player ready states

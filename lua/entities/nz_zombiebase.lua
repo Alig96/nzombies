@@ -47,7 +47,7 @@ AccessorFunc( ENT, "iStuckCounter", "StuckCounter", FORCE_NUMBER)
 AccessorFunc( ENT, "vStuckAt", "StuckAt")
 
 -- spawner accessor
-AccessorFunc(ENT, "mSpawner", "Spawner")
+AccessorFunc(ENT, "hSpawner", "Spawner")
 
 AccessorFunc( ENT, "bJumping", "Jumping", FORCE_BOOL)
 AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
@@ -246,7 +246,7 @@ function ENT:Think()
 					effectData:SetMagnitude(1)
 					util.Effect("zombie_spawn_dust", effectData)
 
-					self:Remove()
+					self:RespawnZombie()
 					self:SetStuckCounter( 0 )
 				end
 
@@ -266,7 +266,7 @@ function ENT:Think()
 				if self:GetStuckCounter() > 5 then
 					--Worst case:
 					--respawn the zombie after 32 seconds with no postion change
-					self:Remove()
+					self:RespawnZombie()
 					self:SetStuckCounter( 0 )
 					if GetConVar( "nz_zombie_debug" ):GetBool() then
 						print(self, "Respawned because stuck counter is over 5.")
@@ -282,7 +282,7 @@ function ENT:Think()
 		self:SoundThink()
 
 		if self:ZombieWaterLevel() == 3 then
-			self:Remove()
+			self:RespawnZombie()
 			if GetConVar( "nz_zombie_debug" ):GetBool() then
 				print(self, "Respawning because submerged in water.")
 			end
@@ -390,7 +390,7 @@ function ENT:SpawnZombie()
 	local nav = navmesh.GetNearestNavArea( self:GetPos() )
 	if !self:IsInWorld() or !IsValid(nav) or nav:GetClosestPointOnArea( self:GetPos() ):DistToSqr( self:GetPos() ) >= 10000 then
 		ErrorNoHalt("Zombie ["..self:GetClass().."]["..self:EntIndex().."] spawned too far away from a navmesh!")
-		self:Remove()
+		self:RespawnZombie()
 	end
 
 	self:OnSpawn()
@@ -465,7 +465,7 @@ function ENT:OnNoTarget()
 				if GetConVar( "nz_zombie_debug" ):GetBool() then
 					print(self, "Respawning from no valid target and not in sight.")
 				end
-				self:Remove()
+				self:RespawnZombie()
 			end
 		end
 	end
@@ -556,13 +556,7 @@ function ENT:OnKilled(dmgInfo)
 end
 
 function ENT:OnRemove()
-	-- onremove is shared apparently
-	if SERVER then
-		-- if the zombie was alive while removing spawn a new zombie
-		if self:Health() > 0 and Round:InState(ROUND_PROG) and self:GetSpawner() then
-			self:GetSpawner():IncrementZombiesToSpawn()
-		end
-	end
+
 end
 
 function ENT:OnStuck()
@@ -601,7 +595,7 @@ function ENT:GetPriorityTarget()
 	--local possibleTargets = ents.FindInSphere( self:GetPos(), self:GetTargetCheckRange())
 
 	for _, target in pairs(allEnts) do
-		if self:IsValidTarget(target) and !self:IsIgnoredTarget() then
+		if self:IsValidTarget(target) and !self:IsIgnoredTarget(target) then
 			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
 			local dist = self:GetRangeSquaredTo( target:GetPos() )
 			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
@@ -810,6 +804,8 @@ function ENT:ChaseTargetPath( options )
 		return path
 	end
 
+	return path
+
 end
 
 function ENT:GetLadderTop( ladder )
@@ -1006,6 +1002,16 @@ end
 
 function ENT:Kill()
 	self:TakeDamage( 10000, self, self )
+end
+
+function ENT:RespawnZombie()
+	if SERVER then
+		if self:GetSpawner() then
+			self:GetSpawner():IncrementZombiesToSpawn()
+		end
+
+		self:Remove()
+	end
 end
 
 function ENT:IsInSight()
@@ -1225,7 +1231,7 @@ function ENT:GetTarget()
 end
 
 function ENT:GetTargetNavArea()
-	return navmesh.GetNearestNavArea( self:GetTarget():GetPos(), false, 100)
+	return self:HasTarget() and navmesh.GetNearestNavArea( self:GetTarget():GetPos(), false, 100)
 end
 
 function ENT:SetTarget( target )

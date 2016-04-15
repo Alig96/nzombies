@@ -1,16 +1,29 @@
+-- Class for spawning zombies. This can be used t create different Spawners for different spawnpoints.
+-- Warning! Creating multiple instances of this class for the same spawnpoint entity will overwrite prior instances.
+-- Author: Lolle
+
 if Spawner == nil then
-	_G.Spawner = class({
-		constructor = function(self, spointClass, data, zombiesToSpawn)
+	Spawner = class({
+		constructor = function(self, spointClass, data, zombiesToSpawn, roundNum)
 			self.sSpointClass = spointClass or "nz_spawn_zombie_normal"
 			self.tData = data or {["nz_zombie_walker"] = {chance = 100}}
 			self.iZombiesToSpawn = zombiesToSpawn or 5
 			self.tSpawns = ents.FindByClass(self.sSpointClass)
 			self.tValidSpawns = {}
 			self:SetZombieData(self.tData)
-
-			timer.Create("nzZombieSpawnThink" .. self, 1, 0, function() self:Update() end)
+			-- not really sure if this is 100% unique but for our purpose it will be enough
+			self.sUniqueName = self.sSpointClass .. "." .. CurTime()
+			self.iRoundNumber = roundNum or Round:GetNumber()
+			self:Activate()
 		end
 	})
+end
+
+function Spawner:Activate()
+	for _, spawn in pairs(self.tSpawns) do
+		spawn:SetSpawner(self)
+	end
+	timer.Create("nzZombieSpawnThink" .. self.sUniqueName, 1, 0, function() self:Update() end)
 end
 
 function Spawner:DecrementZombiesToSpawn()
@@ -29,11 +42,14 @@ function Spawner:GetSpawns()
 	return self.tSpawns
 end
 
+function Spawner:GetData()
+	return self.tData
+end
+
 function Spawner:Update()
 	-- garbage collect the spawner object if a round is over
-	if Round:InState(ROUND_PREP) and timer.Exists("nzZombieSpawnThink" .. self) then
-		timer.Remove("nzZombieSpawnThink" .. self)
-		self = nil
+	if (self.iRoundNumber != Round:GetNumber() or Round:InState(ROUND_GO)) and timer.Exists("nzZombieSpawnThink" .. self.sUniqueName) then
+		self:Remove()
 	end
 
 	self:UpdateWeights()
@@ -106,13 +122,7 @@ function Spawner:SetZombieData(data)
 	end
 end
 
-function Spawner:TotalCurrentEnemies()
-	local c = 0
-
-	-- Count
-	for k,v in pairs(nz.Config.ValidEnemies) do
-		c = c + #ents.FindByClass(k)
-	end
-
-	return c
+function Spawner:Remove()
+	timer.Remove("nzZombieSpawnThink" .. self.sUniqueName)
+	self = nil
 end

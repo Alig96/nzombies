@@ -21,7 +21,7 @@ function Mapping:SaveConfig(name)
 	end
 
 	local zed_spawns = {}
-	for _, v in pairs(ents.FindByClass("zed_spawns")) do
+	for _, v in pairs(ents.FindByClass("nz_spawn_zombie_normal")) do
 		table.insert(zed_spawns, {
 		pos = v:GetPos(),
 		link = v.link,
@@ -30,7 +30,7 @@ function Mapping:SaveConfig(name)
 	end
 
 	local zed_special_spawns = {}
-	for _, v in pairs(ents.FindByClass("zed_special_spawns")) do
+	for _, v in pairs(ents.FindByClass("nz_spawn_zombie_special")) do
 		table.insert(zed_special_spawns, {
 		pos = v:GetPos(),
 		link = v.link
@@ -212,8 +212,8 @@ function Mapping:ClearConfig()
 
 	--Entities to clear:
 	local entClasses = {
-		["zed_spawns"] = true,
-		["zed_special_spawns"] = true,
+		["nz_spawn_zombie_normal"] = true,
+		["nz_spawn_zombie_special"] = true,
 		["player_spawns"] = true,
 		["wall_buys"] = true,
 		["prop_buys"] = true,
@@ -275,10 +275,10 @@ function Mapping:ClearConfig()
 	-- Clear all door data
 	net.Start("nzClearDoorData")
 	net.Broadcast()
-	
+
 	-- Clear out the item objects creating with this config (if any)
 	ItemCarry:CleanUp()
-	
+
 	Mapping.CurrentConfig = nil
 
 	Mapping:CleanUpMap()
