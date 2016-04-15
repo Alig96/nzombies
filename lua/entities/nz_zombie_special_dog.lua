@@ -106,7 +106,7 @@ function ENT:StatsInitialize()
 		self:SetHealth( 100 )
 	end
 	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 48))
-	self:SetSolid(SOLID_VPHYSICS)
+	self:SetSolid(SOLID_BBOX)
 
 	--PrintTable(self:GetSequenceList())
 end
