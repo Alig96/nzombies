@@ -162,9 +162,9 @@ local function GetText( ent )
 		local item = ItemCarry.Items[itemcategory]
 		local hasitem = LocalPlayer():HasCarryItem(itemcategory)
 		if hasitem then
-			text = item.hastext or "You already have this."
+			text = item and item.hastext or "You already have this."
 		else
-			text = item.text or "Press E to pick up."
+			text = item and item.text or "Press E to pick up."
 		end
 	elseif ent:IsPlayer() then
 		if ent:GetNotDowned() then

@@ -307,6 +307,8 @@ function Round:SetupGame()
 	
 	Round:SetNextSpecialRound( GetConVar("nz_round_special_interval"):GetInt() )
 	
+	nzEE.Major:Reset()
+	
 	hook.Call( "OnGameBegin", Round )
 
 end
