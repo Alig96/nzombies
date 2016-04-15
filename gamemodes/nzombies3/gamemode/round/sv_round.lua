@@ -184,11 +184,37 @@ function Round:Think()
 	if #player.GetAllPlayingAndAlive() < 1 then
 		self:End()
 		timer.Remove( "NZRoundThink" )
+		return -- bail
 	end
 
+	--If we've killed all the spawned zombies, then progress to the next level.
 	local numzombies = Enemies:TotalAlive()
 
-	--If we've killed all the zombies, then progress to the next level.
+	-- failsafe temporary until i can identify the issue (why are not all zombies spawned and registered)
+	local zombiesToSpawn
+	if self:GetNormalSpawner() then
+		zombiesToSpawn = self:GetNormalSpawner():GetZombiesToSpawn()
+	end
+
+	if self:GetSpecialSpawner() then
+		if zombiesToSpawn then
+			zombiesToSpawn = zombiesToSpawn + self:GetSpecialSpawner():GetZombiesToSpawn()
+		else
+			zombiesToSpawn = self:GetSpecialSpawner():GetZombiesToSpawn()
+		end
+	end
+
+	-- this will trigger if no more zombies will spawn, but more a re required to end a round
+	if zombiesToSpawn == 0 and self:GetZombiesKilled() + numzombies < self:GetZombiesMax() then
+		if self:GetNormalSpawner() then
+			self:GetNormalSpawner():SetZombiesToSpawn(self:GetZombiesMax() - (self:GetZombiesKilled() + numzombies))
+			DebugPrint(2, "Spawned additional normal zombies because the wave was underspawning.")
+		elseif self:GetSpecialSpawner() then
+			self:GetSpecialSpawner():SetZombiesToSpawn(self:GetZombiesMax() - (self:GetZombiesKilled() + numzombies))
+			DebugPrint(2, "Spawned additional special zombies because the wave was underspawning.")
+		end
+	end
+
 	if ( self:GetZombiesKilled() >= self:GetZombiesMax() ) then
 		if numzombies <= 0 then
 			self:Prepare()
