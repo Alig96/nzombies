@@ -4,12 +4,21 @@
 
 if Spawner == nil then
 	Spawner = class({
-		constructor = function(self, spointClass, data, zombiesToSpawn, roundNum)
+		-- CONSTRUCTOR
+		-- sPointClass: The class of spawnpoints this spawner will create entities from.
+		--              A spawnpoint class should only be used by one spawner at a time.
+		-- data: information about the entities that are spawned, required are a entity class and chance.
+		-- zombiesToSpawn: the amount of zombies this type of spawner will spawn in total.
+		-- spawnDelay: delays the next spawn by the amont set in this value
+		-- roundNum: the round this spawner was created (after this round teh spawn will be removed)
+		constructor = function(self, spointClass, data, zombiesToSpawn, spawnDelay, roundNum)
 			self.sSpointClass = spointClass or "nz_spawn_zombie_normal"
 			self.tData = data or {["nz_zombie_walker"] = {chance = 100}}
 			self.iZombiesToSpawn = zombiesToSpawn or 5
 			self.tSpawns = ents.FindByClass(self.sSpointClass)
 			self.tValidSpawns = {}
+			self:SetDelay(spawnDelay or 0.25)
+			self:SetNextSpawn(CurTime())
 			self:SetZombieData(self.tData)
 			-- not really sure if this is 100% unique but for our purpose it will be enough
 			self.sUniqueName = self.sSpointClass .. "." .. CurTime()
@@ -19,11 +28,15 @@ if Spawner == nil then
 	})
 end
 
+AccessorFunc(Spawner, "dDelay", "Delay", FORCE_NUMBER)
+AccessorFunc(Spawner, "dNextSpawn", "NextSpawn", FORCE_NUMBER)
+
 function Spawner:Activate()
 	for _, spawn in pairs(self.tSpawns) do
 		spawn:SetSpawner(self)
 	end
-	timer.Create("nzZombieSpawnThink" .. self.sUniqueName, 1, 0, function() self:Update() end)
+	-- curently does the costly zombie distribution 3 seconds can be lowered (without any problems)
+	timer.Create("nzZombieSpawnThink" .. self.sUniqueName, 3, 0, function() self:Update() end)
 end
 
 function Spawner:DecrementZombiesToSpawn()
@@ -59,6 +72,8 @@ end
 function Spawner:UpdateWeights()
 	local plys = player.GetAllTargetable()
 	for _, spawn in pairs(self.tSpawns) do
+		-- reset
+		spawn:SetSpawnWeight(0)
 		for _, ply in pairs(plys) do
 			local dist = spawn:GetPos():Distance(ply:GetPos())
 			spawn:SetSpawnWeight(spawn:GetSpawnWeight() + dist)
@@ -91,12 +106,7 @@ function Spawner:UpdateValidSpawns()
 		if k < #self.tValidSpawns then
 			vspawn:SetZombiesToSpawn(math.ceil(zombiesToSpawn))
 			totalDistributed = totalDistributed + math.ceil(zombiesToSpawn)
-
-			if zombiesToSpawn / 2 < 1 then -- failsafe not sure if its even needed but whatever
-				zombiesToSpawn = 1
-			else
-				zombiesToSpawn = math.floor(zombiesToSpawn / 2)
-			end
+			zombiesToSpawn = math.floor(zombiesToSpawn / 2)
 		else
 			-- add the remaining zombies to the last spawn in list
 			vspawn:SetZombiesToSpawn(self.iZombiesToSpawn - totalDistributed)

@@ -157,9 +157,15 @@ if SERVER then
 		},
 		-- (optional) how many normal zombies will spawn this wil overwrite the default curves
 		normalCount = 50,
+
 		-- (optional) modify teh count witha  function ratehr than a fixed amount
 		-- if both normalCount and normalCountMod are set the gamemode will ignore normalCount
 		normalCountMod = function(original) return orignal / 2 end,
+
+		-- (optional) spawn delay
+		-- this will spawn the zombies in a 3 second intervall
+		normalDelay = 3,
+
 		-- special zombies (different spawnpoint usually in front of barricades)
 		-- this will spawn 10 hellhounds in additon to the normal zombies
 		specialTypes = {

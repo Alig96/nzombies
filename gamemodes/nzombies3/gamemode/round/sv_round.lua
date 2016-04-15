@@ -79,7 +79,7 @@ function Round:Prepare()
 			end
 
 			local normalData = roundData.normalTypes
-			local normalSpawner = Spawner("nz_spawn_zombie_normal", normalData, normalCount)
+			local normalSpawner = Spawner("nz_spawn_zombie_normal", normalData, normalCount, roundData.normalDelay or 0.25)
 
 			-- save the spawner to access data
 			self:SetNormalSpawner(normalSpawner)
@@ -100,7 +100,7 @@ function Round:Prepare()
 			end
 
 			local specialData = roundData.specialTypes
-			local specialSpawner = Spawner("nz_spawn_zombie_special", specialData, specialCount)
+			local specialSpawner = Spawner("nz_spawn_zombie_special", specialData, specialCount, roundData.specialDelay or 0.25)
 
 			-- save the spawner to access data
 			self:SetSpecialSpawner(specialSpawner)
@@ -114,8 +114,8 @@ function Round:Prepare()
 	-- if the round is special use the gamemodes default special round (Hellhounds)
 	elseif self:IsSpecial() then
 		-- only setup a special spawner
-		self:SetZombiesMax(self:GetZombiesMax() / 2)
-		local specialSpawner = Spawner("nz_spawn_zombie_special", {["nz_zombie_special_dog"] = {chance = 100}}, self:GetZombiesMax())
+		self:SetZombiesMax(math.floor(self:GetZombiesMax() / 2))
+		local specialSpawner = Spawner("nz_spawn_zombie_special", {["nz_zombie_special_dog"] = {chance = 100}}, self:GetZombiesMax(), 2)
 
 		-- save the spawner to access data
 		self:SetSpecialSpawner(specialSpawner)
@@ -123,6 +123,15 @@ function Round:Prepare()
 	-- else just do regular walker spawning
 	else
 		local normalSpawner = Spawner("nz_spawn_zombie_normal", {["nz_zombie_walker"] = {chance = 100}}, self:GetZombiesMax())
+
+		-- after round 20 spawn some hellhounds aswell (half of the round number 21: 10, 22: 11, 23: 11, 24: 12 ...)
+		if self:GetNumber() > 20 then
+			local amount = math.floor(self:GetNumber() / 2)
+			local specialSpawner = Spawner("nz_spawn_zombie_special", {["nz_zombie_special_dog"] = {chance = 100}}, amount, 2)
+
+			self:SetSpecialSpawner(specialSpawner)
+			self:SetZombiesMax(self:GetZombiesMax() + amount)
+		end
 
 		-- save the spawner to access data
 		self:SetNormalSpawner(normalSpawner)

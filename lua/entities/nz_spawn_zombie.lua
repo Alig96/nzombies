@@ -9,6 +9,7 @@ AccessorFunc(ENT, "iSpawnWeight", "SpawnWeight", FORCE_NUMBER)
 AccessorFunc(ENT, "tZombieData", "ZombieData")
 AccessorFunc(ENT, "iZombiesToSpawn", "ZombiesToSpawn", FORCE_NUMBER)
 AccessorFunc(ENT, "hSpawner", "Spawner")
+AccessorFunc(ENT, "dNextSpawn", "NextSpawn", FORCE_NUMBER)
 
 function ENT:DecrementZombiesToSpawn()
 	self:SetZombiesToSpawn( self:GetZombiesToSpawn() - 1 )
@@ -29,6 +30,7 @@ function ENT:Initialize()
 	self:DrawShadow( false )
 	self:SetSpawnWeight(0)
 	self:SetZombiesToSpawn(0)
+	self:SetNextSpawn(CurTime())
 end
 
 function ENT:IsSuitable()
@@ -47,17 +49,22 @@ end
 function ENT:Think()
 	if SERVER then
 	    if Round:InState( ROUND_PROG ) and self:GetZombiesToSpawn() > 0 then
-			if self:IsSuitable() then
-				local class = nz.Misc.Functions.WeightedRandom(self:GetZombieData(), "chance")
-				local zombie = ents.Create(class)
-				zombie:SetPos(self:GetPos())
-				zombie:Spawn()
-				-- make a reference to the spawner object used for "respawning"
-				zombie:SetSpawner(self:GetSpawner())
-				zombie:Activate()
-				-- reduce zombies in queue on self and spawner object
-				self:GetSpawner():DecrementZombiesToSpawn()
-				self:DecrementZombiesToSpawn()
+			if self:GetSpawner() and self:GetSpawner():GetNextSpawn() < CurTime() and self:GetNextSpawn() < CurTime() then
+				if self:IsSuitable() then
+					local class = nz.Misc.Functions.WeightedRandom(self:GetZombieData(), "chance")
+					local zombie = ents.Create(class)
+					zombie:SetPos(self:GetPos())
+					zombie:Spawn()
+					-- make a reference to the spawner object used for "respawning"
+					zombie:SetSpawner(self:GetSpawner())
+					zombie:Activate()
+					-- reduce zombies in queue on self and spawner object
+					self:GetSpawner():DecrementZombiesToSpawn()
+					self:DecrementZombiesToSpawn()
+				end
+				self:GetSpawner():SetNextSpawn(CurTime() + self:GetSpawner():GetDelay())
+				-- this will prevent one spawner from becoming dominant
+				self:SetNextSpawn(CurTime() + self:GetSpawner():GetDelay() * 2 + math.Rand(0,0.1))
 			end
 		end
 	end

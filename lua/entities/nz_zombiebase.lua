@@ -455,6 +455,7 @@ function ENT:OnNoTarget()
 			maxage = 2
 		})
 	else
+		self:TimeOut(0.5)
 		-- Start off by checking for a new target
 		local newtarget = self:GetPriorityTarget()
 		if self:IsValidTarget(newtarget) then
