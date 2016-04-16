@@ -15,7 +15,7 @@ function Enemies:OnEnemyKilled(enemy, attacker, dmginfo, hitgroup)
 	end
 
 	-- Run special on-killed function if it has any
-	nz.Config.ValidEnemies[enemy:GetClass()].OnKilled(enemy, dmginfo, hitgroup)
+	Config.ValidEnemies[enemy:GetClass()].OnKilled(enemy, dmginfo, hitgroup)
 
 	if Round:InProgress() then
 		Round:SetZombiesKilled( Round:GetZombiesKilled() + 1 )
@@ -42,7 +42,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 	if zombie:GetClass() == "whoswho_downed_clone" then return true end
 
 	if !dmginfo:GetAttacker():IsPlayer() then return end
-	if IsValid(zombie) and nz.Config.ValidEnemies[zombie:GetClass()] and nz.Config.ValidEnemies[zombie:GetClass()].Valid then
+	if IsValid(zombie) and Config.ValidEnemies[zombie:GetClass()] and Config.ValidEnemies[zombie:GetClass()].Valid then
 		local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition( ), dmginfo:GetDamagePosition( ) ).HitGroup
 
 		if nz.PowerUps.Functions.IsPowerupActive("insta") then
@@ -51,14 +51,14 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 		return end
 
 
-		nz.Config.ValidEnemies[zombie:GetClass()].ScaleDMG(zombie, hitgroup, dmginfo)
+		Config.ValidEnemies[zombie:GetClass()].ScaleDMG(zombie, hitgroup, dmginfo)
 
 		--  Pack-a-Punch doubles damage
 		if dmginfo:GetAttacker():GetActiveWeapon().pap then dmginfo:ScaleDamage(2) end
 
 		if zombie:Health() > dmginfo:GetDamage() then
 			if zombie.HasTakenDamageThisTick then return end
-			nz.Config.ValidEnemies[zombie:GetClass()].OnHit(zombie, dmginfo, hitgroup)
+			Config.ValidEnemies[zombie:GetClass()].OnHit(zombie, dmginfo, hitgroup)
 			zombie.HasTakenDamageThisTick = true
 			--  Prevent multiple damages in one tick (FA:S 2 Bullet penetration makes them hit 1 zombie 2-3 times per bullet)
 			timer.Simple(0, function() if IsValid(zombie) then zombie.HasTakenDamageThisTick = false end end)

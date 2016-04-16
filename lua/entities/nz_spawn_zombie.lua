@@ -51,7 +51,7 @@ function ENT:Think()
 	    if Round:InState( ROUND_PROG ) and self:GetZombiesToSpawn() > 0 then
 			if self:GetSpawner() and self:GetSpawner():GetNextSpawn() < CurTime() and self:GetNextSpawn() < CurTime() then
 				if self:IsSuitable() then
-					local class = nz.Misc.Functions.WeightedRandom(self:GetZombieData(), "chance")
+					local class = Misc.WeightedRandom(self:GetZombieData(), "chance")
 					local zombie = ents.Create(class)
 					zombie:SetPos(self:GetPos())
 					zombie:Spawn()

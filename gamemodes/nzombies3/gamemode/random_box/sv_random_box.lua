@@ -49,7 +49,7 @@ function RandomBox:DecideWep(ply)
 	end
 
 	local guns = {}
-	local blacklist = table.Copy(nz.Config.WeaponBlackList)
+	local blacklist = table.Copy(Config.WeaponBlackList)
 
 	--Add all our current guns to the black list
 	if IsValid(ply) and ply:IsPlayer() then
@@ -79,7 +79,7 @@ function RandomBox:DecideWep(ply)
 		-- Load only weapons that have a prefix from the whitelist
 		for k,v in pairs( weapons.GetList() ) do
 			if !blacklist[v.ClassName] and !v.NZPreventBox then
-				for k2,v2 in pairs(nz.Config.WeaponWhiteList) do
+				for k2,v2 in pairs(Config.WeaponWhiteList) do
 					if string.sub(v.ClassName, 1, #v2) == v2 then
 						table.insert(guns, v.ClassName)
 						break

@@ -1,6 +1,5 @@
 if SERVER then
 
-	nzEnemies = {}
-	Enemies = nzEnemies
+	Enemies = Enemies or {}
 
 end

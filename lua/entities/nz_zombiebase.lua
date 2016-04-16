@@ -513,7 +513,7 @@ function ENT:OnNavAreaChanged(old, new)
 end
 
 function ENT:OnContact( ent )
-	if nz.Config.ValidEnemies[ent:GetClass()] and nz.Config.ValidEnemies[self:GetClass()] then
+	if Config.ValidEnemies[ent:GetClass()] and Config.ValidEnemies[self:GetClass()] then
 		--this is a poor approach to unstuck them when walking into each other
 		self.loco:Approach( self:GetPos() + Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), 0 ) * 2000,1000)
 		--important if the get stuck on top of each other!

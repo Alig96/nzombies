@@ -1,8 +1,7 @@
-//Main Tables
-nzElec = {}
-Elec = nzElec
+-- Main Tables
+Elec = Elec or {}
 
-//_ Variables
+-- Variables
 Elec.Active = false
 
 function Elec.IsOn()

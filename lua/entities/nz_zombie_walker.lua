@@ -176,10 +176,9 @@ ENT.RunSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		--self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
 		local speeds = Round:GetZombieSpeeds()
 		if speeds then
-			self:SetRunSpeed( nz.Misc.Functions.WeightedRandom(speeds) )
+			self:SetRunSpeed( Misc.WeightedRandom(speeds) )
 		else
 			self:SetRunSpeed( 100 )
 		end

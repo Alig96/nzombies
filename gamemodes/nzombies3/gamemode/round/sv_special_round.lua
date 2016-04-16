@@ -7,7 +7,7 @@ function Round:GetNextSpecialRound()
 end
 
 function Round:MarkedForSpecial( num )
-	return (self.NextSpecialRound == num or (nz.Config.EnemyTypes[ num ] and nz.Config.EnemyTypes[ num ].special)) or false
+	return (self.NextSpecialRound == num or (Config.RoundData[ num ] and Config.RoundData[ num ].special)) or false
 end
 
 util.AddNetworkString("nz_hellhoundround")

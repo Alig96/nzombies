@@ -1,7 +1,5 @@
 -- Setup round module
-nzMapping = nzMapping or {}
--- Nice little alias to use
-Mapping = nzMapping
+Mapping = Mapping or {}
 
 -- Variables
 Mapping.Settings = Mapping.Settings or {}

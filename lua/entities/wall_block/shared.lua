@@ -40,7 +40,7 @@ hook.Add("ShouldCollide", "nzdsadwa_InvisibleBlockFilter", function(ent1, ent2)
 			else
 				return false
 			end
-		elseif nz.Config.ValidEnemies[ent2:GetClass()] then
+		elseif Config.ValidEnemies[ent2:GetClass()] then
 			if ent1:GetBlockZombies() then
 				return true
 			else
@@ -54,7 +54,7 @@ hook.Add("ShouldCollide", "nzdsadwa_InvisibleBlockFilter", function(ent1, ent2)
 			else
 				return false
 			end
-		elseif nz.Config.ValidEnemies[ent1:GetClass()] then
+		elseif Config.ValidEnemies[ent1:GetClass()] then
 			if ent2:GetBlockZombies() then
 				return true
 			else

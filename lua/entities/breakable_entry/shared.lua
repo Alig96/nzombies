@@ -109,14 +109,14 @@ function ENT:Touch(ent)
 end
 
 hook.Add("ShouldCollide", "zCollisionHook", function(ent1, ent2)
-	if ent1:GetClass() == "breakable_entry" and (nz.Config.ValidEnemies[ent2:GetClass()]) then
+	if ent1:GetClass() == "breakable_entry" and (Config.ValidEnemies[ent2:GetClass()]) then
 		if IsValid(ent1) and !ent1:GetTriggerJumps() and ent1:GetNumPlanks() == 0 then
 			ent1:SetSolid(SOLID_NONE)
 			timer.Simple(0.1, function() if ent1:IsValid() then ent1:SetSolid(SOLID_VPHYSICS) end end)
 		end
 		return false
 	end
-	if ent2:GetClass() == "breakable_entry" and (nz.Config.ValidEnemies[ent1:GetClass()]) then
+	if ent2:GetClass() == "breakable_entry" and (Config.ValidEnemies[ent1:GetClass()]) then
 		if IsValid(ent2) and !ent2:GetTriggerJumps() and ent2:GetNumPlanks() == 0 then
 			ent2:SetSolid(SOLID_NONE)
 			timer.Simple(0.1, function() if ent2:IsValid() then ent2:SetSolid(SOLID_VPHYSICS) end end)

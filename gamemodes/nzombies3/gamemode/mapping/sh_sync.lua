@@ -5,7 +5,7 @@ if SERVER then
 		local tbl = net.ReadTable()
 		PrintTable(tbl)
 
-		Mapping.Settings.startwep = weapons.Get(tbl.startwep) and tbl.startwep or nz.Config.BaseStartingWeapons[1]
+		Mapping.Settings.startwep = weapons.Get(tbl.startwep) and tbl.startwep or Config.BaseStartingWeapons[1]
 		Mapping.Settings.startpoints = tonumber(tbl.startpoints) and tbl.startpoints or 500
 		Mapping.Settings.numweps = tonumber(tbl.numweps) and tbl.numweps or 2
 		Mapping.Settings.eeurl = tbl.eeurl and tbl.eeurl or nil

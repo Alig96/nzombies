@@ -28,10 +28,10 @@ function Round:Prepare()
 	self:SetState( ROUND_PREP )
 	self:IncrementNumber()
 
-	self:SetZombieHealth( nz.Curves.Functions.GenerateHealthCurve(self:GetNumber()) )
-	self:SetZombiesMax( nz.Curves.Functions.GenerateMaxZombies(self:GetNumber()) )
+	self:SetZombieHealth( Curves.GenerateHealthCurve(self:GetNumber()) )
+	self:SetZombiesMax( Curves.GenerateMaxZombies(self:GetNumber()) )
 
-	self:SetZombieSpeeds( nz.Curves.Functions.GenerateSpeedTable(self:GetNumber()) )
+	self:SetZombieSpeeds( Curves.GenerateSpeedTable(self:GetNumber()) )
 
 	self:SetZombiesKilled( 0 )
 
@@ -61,8 +61,8 @@ function Round:Prepare()
 	end
 
 	-- Prioritize any configs (useful for mapscripts)
-	if nz.Config.EnemyTypes[ self:GetNumber() ] then
-		local roundData = nz.Config.EnemyTypes[ self:GetNumber() ]
+	if Config.RoundData[ self:GetNumber() ] then
+		local roundData = Config.RoundData[ self:GetNumber() ]
 
 		--normal spawner
 		local normalCount = 0
@@ -247,7 +247,7 @@ function Round:ResetGame()
 	end
 
 	--Remove all enemies
-	for k,v in pairs( nz.Config.ValidEnemies ) do
+	for k,v in pairs( Config.ValidEnemies ) do
 		for k2, v2 in pairs( ents.FindByClass( k ) ) do
 			v2:Remove()
 		end

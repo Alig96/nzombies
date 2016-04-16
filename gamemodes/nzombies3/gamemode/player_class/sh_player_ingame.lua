@@ -26,7 +26,7 @@ function PLAYER:Loadout()
 		self.Player:Give( Mapping.Settings.startwep )
 	else
 		-- A setting does not exist, give default starting weapons
-		for k,v in pairs(nz.Config.BaseStartingWeapons) do
+		for k,v in pairs(Config.BaseStartingWeapons) do
 			self.Player:Give( v )
 		end
 	end

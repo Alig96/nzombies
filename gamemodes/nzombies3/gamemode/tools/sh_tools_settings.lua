@@ -54,7 +54,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		end
 		if data.startwep then
 			local wep = weapons.Get(data.startwep)
-			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
+			if !wep then wep = weapons.Get(Config.BaseStartingWeapons[1]) end
 			if wep.Category and wep.Category != "" then
 				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, false)
 			else
@@ -170,7 +170,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			else
 				for k,v in pairs(weapons.GetList()) do
 					-- By default, add all weapons that have print names unless they are blacklisted
-					if v.PrintName and v.PrintName != "" and !nz.Config.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox then
+					if v.PrintName and v.PrintName != "" and !Config.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox then
 						if v.Category and v.Category != "" then
 							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
 						else
