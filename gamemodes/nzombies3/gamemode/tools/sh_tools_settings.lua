@@ -24,7 +24,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		return true
 	end,
 	interface = function(frame, data)
-		local data = table.Copy(Mapping.Settings)
+		local data = table.Copy(nzMapping.Settings)
 		local valz = {}
 		valz["Row1"] = data.startwep or "Select ..."
 		valz["Row2"] = data.startpoints or 500
@@ -54,7 +54,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		end
 		if data.startwep then
 			local wep = weapons.Get(data.startwep)
-			if !wep then wep = weapons.Get(nz.Config.BaseStartingWeapons[1]) end
+			if !wep then wep = weapons.Get(nzConfig.BaseStartingWeapons[1]) end
 			if wep.Category and wep.Category != "" then
 				Row1:AddChoice(wep.PrintName and wep.PrintName != "" and wep.Category.. " - "..wep.PrintName or wep.ClassName, wep.ClassName, false)
 			else
@@ -104,7 +104,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			PrintTable(data)
 
-			Mapping:SendMapData( data )
+			nzMapping:SendMapData( data )
 		end
 
 		local DermaButton = vgui.Create( "DButton", DProperties )
@@ -158,8 +158,8 @@ nz.Tools.Functions.CreateTool("settings", {
 				numweplist = numweplist + 1
 			end
 
-			if Mapping.Settings.rboxweps then
-				for k,v in pairs(Mapping.Settings.rboxweps) do
+			if nzMapping.Settings.rboxweps then
+				for k,v in pairs(nzMapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
 					if wep.Category and wep.Category != "" then
 						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
@@ -170,7 +170,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			else
 				for k,v in pairs(weapons.GetList()) do
 					-- By default, add all weapons that have print names unless they are blacklisted
-					if v.PrintName and v.PrintName != "" and !nz.Config.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox then
+					if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox then
 						if v.Category and v.Category != "" then
 							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
 						else
