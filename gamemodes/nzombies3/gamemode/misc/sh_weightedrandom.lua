@@ -35,6 +35,6 @@ local function weighted_random_choice( choices, weightkey )
 	return last_choice
 end
 
-function Misc.WeightedRandom( choices, weightkey )
+function nzMisc.WeightedRandom( choices, weightkey )
 	return weighted_random_choice( choices, weightkey )
 end

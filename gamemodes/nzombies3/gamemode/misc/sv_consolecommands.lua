@@ -17,9 +17,9 @@ concommand.Add("nz_door_id", function()
 end)
 
 concommand.Add("nz_test1", function()
-	nz.Doors.Functions.CreateMapDoorLink( 1236, "price=500,elec=0,link=1" )
+	nz.nzDoors.Functions.CreateMapDoorLink( 1236, "price=500,elec=0,link=1" )
 
-	timer.Simple(5, function() nz.Doors.Functions.RemoveMapDoorLink( 1236 ) end)
+	timer.Simple(5, function() nz.nzDoors.Functions.RemoveMapDoorLink( 1236 ) end)
 end)
 
 concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
@@ -32,11 +32,11 @@ concommand.Add("nz_forceround", function(ply, cmd, args, argStr)
 		end
 
 		if round then
-			Round:SetNumber( round - 1 )
+			nzRound:SetNumber( round - 1 )
 			local specint = GetConVar("nz_round_special_interval"):GetInt() or 6
-			Round:SetNextSpecialRound( math.ceil(round/specint)*specint)
+			nzRound:SetNextSpecialRound( math.ceil(round/specint)*specint)
 		end
-		Round:Prepare()
+		nzRound:Prepare()
 	end
 end)
 

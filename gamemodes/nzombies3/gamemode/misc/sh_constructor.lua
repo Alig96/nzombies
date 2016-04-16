@@ -1,2 +1,2 @@
 -- Main Tables
-Misc = Misc or {}
+nzMisc = nzMisc or {}

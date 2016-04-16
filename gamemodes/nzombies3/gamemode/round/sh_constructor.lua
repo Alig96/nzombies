@@ -1,2 +1,2 @@
 -- Setup round module
-Round = Round or {}
+nzRound = nzRound or {}

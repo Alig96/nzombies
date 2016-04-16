@@ -1,1 +1,1 @@
-RandomBox = RandomBox or {}
+nzRandomBox = nzRandomBox or {}

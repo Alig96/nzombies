@@ -1,7 +1,7 @@
 -- Main Tables
-Config = Config or {}
--- Config.Functions = {}
--- Config.Data = {}
+nzConfig = nzConfig or {}
+-- nzConfig.Functions = {}
+-- nzConfig.Data = {}
 
 --  Defaults
 
@@ -27,7 +27,7 @@ if not ConVarExists("nz_test_hellhounds") then CreateConVar("nz_test_hellhounds"
 
 
 -- Zombie table - Moved to shared area for client collision prediction (barricades)
-Config.ValidEnemies = {
+nzConfig.ValidEnemies = {
 	["nz_zombie_walker"] = {
 		-- Set to false to disable the spawning of this zombie
 		Valid = true,
@@ -111,44 +111,44 @@ Config.ValidEnemies = {
 
 -- Random Box
 
-Config.WeaponBlackList = {}
-function Config.AddWeaponToBlacklist( class, remove )
-	Config.WeaponBlackList[class] = remove and nil or true
+nzConfig.WeaponBlackList = {}
+function nzConfig.AddWeaponToBlacklist( class, remove )
+	nzConfig.WeaponBlackList[class] = remove and nil or true
 end
 
-Config.AddWeaponToBlacklist( "weapon_base" )
-Config.AddWeaponToBlacklist( "weapon_fists" )
-Config.AddWeaponToBlacklist( "weapon_flechettegun" )
-Config.AddWeaponToBlacklist( "weapon_medkit" )
-Config.AddWeaponToBlacklist( "weapon_dod_sim_base" )
-Config.AddWeaponToBlacklist( "weapon_dod_sim_base_shot" )
-Config.AddWeaponToBlacklist( "weapon_dod_sim_base_snip" )
-Config.AddWeaponToBlacklist( "weapon_sim_admin" )
-Config.AddWeaponToBlacklist( "weapon_sim_spade" )
-Config.AddWeaponToBlacklist( "fas2_base" )
-Config.AddWeaponToBlacklist( "fas2_ammobox" )
-Config.AddWeaponToBlacklist( "fas2_ifak" )
-Config.AddWeaponToBlacklist( "nz_multi_tool" )
-Config.AddWeaponToBlacklist( "nz_grenade" )
-Config.AddWeaponToBlacklist( "nz_perk_bottle" )
-Config.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
-Config.AddWeaponToBlacklist( "nz_tool_base" )
-Config.AddWeaponToBlacklist( "nz_one_inch_punch" ) -- Nope! You gotta give this with special map scripts
+nzConfig.AddWeaponToBlacklist( "weapon_base" )
+nzConfig.AddWeaponToBlacklist( "weapon_fists" )
+nzConfig.AddWeaponToBlacklist( "weapon_flechettegun" )
+nzConfig.AddWeaponToBlacklist( "weapon_medkit" )
+nzConfig.AddWeaponToBlacklist( "weapon_dod_sim_base" )
+nzConfig.AddWeaponToBlacklist( "weapon_dod_sim_base_shot" )
+nzConfig.AddWeaponToBlacklist( "weapon_dod_sim_base_snip" )
+nzConfig.AddWeaponToBlacklist( "weapon_sim_admin" )
+nzConfig.AddWeaponToBlacklist( "weapon_sim_spade" )
+nzConfig.AddWeaponToBlacklist( "fas2_base" )
+nzConfig.AddWeaponToBlacklist( "fas2_ammobox" )
+nzConfig.AddWeaponToBlacklist( "fas2_ifak" )
+nzConfig.AddWeaponToBlacklist( "nz_multi_tool" )
+nzConfig.AddWeaponToBlacklist( "nz_grenade" )
+nzConfig.AddWeaponToBlacklist( "nz_perk_bottle" )
+nzConfig.AddWeaponToBlacklist( "nz_quickknife_crowbar" )
+nzConfig.AddWeaponToBlacklist( "nz_tool_base" )
+nzConfig.AddWeaponToBlacklist( "nz_one_inch_punch" ) -- Nope! You gotta give this with special map scripts
 
-Config.AddWeaponToBlacklist( "cw_base" )
+nzConfig.AddWeaponToBlacklist( "cw_base" )
 
-Config.WeaponWhiteList = {
+nzConfig.WeaponWhiteList = {
 	"fas2_", "m9k_", "cw_",
 }
 
 if SERVER then
 
-	Config.RoundData = {}
-	--Config.RoundData[1] = {["nz_zombie_walker"] = 100}
+	nzConfig.RoundData = {}
+	--nzConfig.RoundData[1] = {["nz_zombie_walker"] = 100}
 
 	--[[
 	-- EXAMPLE of a round zombie config:
-	Config.RoundData[ROUNDNUMBER] = {
+	nzConfig.RoundData[ROUNDNUMBER] = {
 		-- define normal zombies and theri spawn chances
 		normalTypes = {
 			["nz_zombie_walker"] = {
@@ -181,21 +181,21 @@ if SERVER then
 	}
 	]]--
 
-	Config.RoundData[1] = {
+	nzConfig.RoundData[1] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
 				chance = 100,
 			},
 		},
 	}
-	Config.RoundData[2] = {
+	nzConfig.RoundData[2] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
 				chance = 100,
 			},
 		},
 	}
-	Config.RoundData[13] = {
+	nzConfig.RoundData[13] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
 				chance = 80,
@@ -205,14 +205,14 @@ if SERVER then
 			},
 		},
 	}
-	Config.RoundData[14] = {
+	nzConfig.RoundData[14] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
 				chance = 100,
 			},
 		},
 	}
-	Config.RoundData[23] = {
+	nzConfig.RoundData[23] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
 				chance = 90,
@@ -224,7 +224,7 @@ if SERVER then
 	}
 
 	-- Player Class
-	Config.BaseStartingWeapons = {"fas2_glock20"} -- "fas2_p226", "fas2_ots33", "fas2_glock20" "weapon_pistol"
-	-- Config.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
+	nzConfig.BaseStartingWeapons = {"fas2_glock20"} -- "fas2_p226", "fas2_ots33", "fas2_glock20" "weapon_pistol"
+	-- nzConfig.CustomConfigStartingWeps = true -- If this is set to false, the gamemode will avoid using custom weapons in configs
 
 end

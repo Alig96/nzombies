@@ -1,11 +1,11 @@
 -- Main Tables
-Elec = Elec or {}
+nzElec = nzElec or {}
 
 -- Variables
-Elec.Active = false
+nzElec.Active = false
 
-function Elec.IsOn()
-	return Elec.Active
+function nzElec.IsOn()
+	return nzElec.Active
 end
 
-IsElec = Elec.IsOn
+IsElec = nzElec.IsOn

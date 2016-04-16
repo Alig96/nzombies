@@ -1,1 +1,1 @@
-Effects = Effects or {}
+nzEffects = nzEffects or {}
