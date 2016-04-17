@@ -597,7 +597,9 @@ function ENT:GetPriorityTarget()
 
 	for _, target in pairs(allEnts) do
 		if self:IsValidTarget(target) and !self:IsIgnoredTarget(target) then
+
 			if target:GetTargetPriority() == TARGET_PRIORITY_ALWAYS then return target end
+
 			local dist = self:GetRangeSquaredTo( target:GetPos() )
 			if maxdistsqr <= 0 or dist <= maxdistsqr then -- 0 distance is no distance restrictions
 				local priority = target:GetTargetPriority()
@@ -673,8 +675,13 @@ function ENT:ChaseTarget( options )
 			end
 		end
 		--print(self.loco:GetGroundMotionVector(), self:GetForward())
-		--local goal = path:GetCurrentGoal()
+		local goal = path:GetCurrentGoal()
+
+		--height triggered jumping is prioritized over goal based jumping
 		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self.loco:GetGroundMotionVector() * scanDist).z) > 22 then
+			self:Jump()
+		elseif goal.how == 9 and (goal.type == 2 or goal.type == 3) and goal.ladder == nil then
+			PrintTable(goal)
 			self:Jump()
 		end
 
