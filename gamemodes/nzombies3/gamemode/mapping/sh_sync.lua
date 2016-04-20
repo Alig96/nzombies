@@ -5,13 +5,30 @@ if SERVER then
 		local tbl = net.ReadTable()
 		PrintTable(tbl)
 
-		Mapping.Settings.startwep = weapons.Get(tbl.startwep) and tbl.startwep or nz.Config.BaseStartingWeapons[1]
-		Mapping.Settings.startpoints = tonumber(tbl.startpoints) and tbl.startpoints or 500
-		Mapping.Settings.numweps = tonumber(tbl.numweps) and tbl.numweps or 2
-		Mapping.Settings.eeurl = tbl.eeurl and tbl.eeurl or nil
-		Mapping.Settings.script = tbl.script and tbl.script or nil
-		Mapping.Settings.scriptinfo = tbl.scriptinfo and tbl.scriptinfo or nil
-		Mapping.Settings.rboxweps = tbl.rboxweps and tbl.rboxweps[1] and tbl.rboxweps or nil
+		if tbl.startwep then
+			Mapping.Settings.startwep = weapons.Get(tbl.startwep) and tbl.startwep or nz.Config.BaseStartingWeapons[1]
+		end
+		if tbl.startpoints then
+			Mapping.Settings.startpoints = tonumber(tbl.startpoints) and tbl.startpoints or 500
+		end
+		if tbl.numweps then
+			Mapping.Settings.numweps = tonumber(tbl.numweps) and tbl.numweps or 2
+		end
+		if tbl.eeurl then
+			Mapping.Settings.eeurl = tbl.eeurl and tbl.eeurl or nil
+		end
+		if tbl.script then
+			Mapping.Settings.script = tbl.script and tbl.script or nil
+		end
+		if tbl.scriptinfo then
+			Mapping.Settings.scriptinfo = tbl.scriptinfo and tbl.scriptinfo or nil
+		end
+		if tbl.rboxweps then
+			Mapping.Settings.rboxweps = tbl.rboxweps and tbl.rboxweps[1] and tbl.rboxweps or nil
+		end
+		if tbl.wunderfizzperks then
+			Mapping.Settings.wunderfizzperks = tbl.wunderfizzperks and tbl.wunderfizzperks[1] and tbl.wunderfizzperks or nil
+		end
 
 		for k,v in pairs(player.GetAll()) do
 			Mapping:SendMapData(ply)
