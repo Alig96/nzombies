@@ -421,6 +421,8 @@ function ENT:OnBarricadeBlocking( barricade )
 				self:SetAttacking(false)
 				self:SetLastAttack(CurTime())
 			end)
+		elseif barricade:GetTriggerJumps() then
+			if self.TriggerBarricadeJump then self:TriggerBarricadeJump() end
 		end
 	end
 end
@@ -809,10 +811,11 @@ function ENT:CheckForBarricade()
 	--we try a line trace first since its more efficient
 	local dataL = {}
 	dataL.start = self:GetPos() + Vector( 0, 0, self:OBBCenter().z )
-	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward() * 64
-	dataL.filter = self
+	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward() * 32
+	dataL.filter = function( ent ) if ( ent:GetClass() == "breakable_entry" ) then return true end end
 	dataL.ignoreworld = true
 	local trL = util.TraceLine( dataL )
+	
 	if IsValid( trL.Entity ) and trL.Entity:GetClass() == "breakable_entry" then
 		return trL.Entity
 	end
@@ -820,11 +823,12 @@ function ENT:CheckForBarricade()
 	--perform a hull trace if line didnt hit just to make sure
 	local dataH = {}
 	dataH.start = self:GetPos()
-	dataH.endpos = self:GetPos() + self:GetForward() * 64
-	dataH.filter = self
+	dataH.endpos = self:GetPos() + self:GetForward() * 32
+	dataH.filter = function( ent ) if ( ent:GetClass() == "breakable_entry" ) then return true end end
 	dataH.mins = self:OBBMins() * 0.65
 	dataH.maxs = self:OBBMaxs() * 0.65
 	local trH = util.TraceHull(dataH )
+	
 	if IsValid( trH.Entity ) and trH.Entity:GetClass() == "breakable_entry" then
 		return trH.Entity
 	end

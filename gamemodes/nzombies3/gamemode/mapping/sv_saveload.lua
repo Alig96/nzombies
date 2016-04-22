@@ -144,6 +144,8 @@ function nzMapping:SaveConfig(name)
 		table.insert(break_entry, {
 			pos = v:GetPos(),
 			angle = v:GetAngles(),
+			planks = v:GetHasPlanks(),
+			jump = v:GetTriggerJumps(),
 		})
 	end
 
@@ -401,12 +403,10 @@ function nzMapping:LoadConfig( name, loader )
 			end
 		end
 
-		if version >= 350 then
-			//Barricades
-			if data.BreakEntry then
-				for k,v in pairs(data.BreakEntry) do
-					nzMapping:BreakEntry(v.pos, v.angle)
-				end
+		//Barricades
+		if data.BreakEntry then
+			for k,v in pairs(data.BreakEntry) do
+				nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump)
 			end
 		end
 
