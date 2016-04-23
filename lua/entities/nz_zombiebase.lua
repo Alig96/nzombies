@@ -55,6 +55,7 @@ AccessorFunc( ENT, "bAttacking", "Attacking", FORCE_BOOL)
 AccessorFunc( ENT, "bClimbing", "Climbing", FORCE_BOOL)
 AccessorFunc( ENT, "bStop", "Stop", FORCE_BOOL)
 AccessorFunc( ENT, "bSpecialAnim", "SpecialAnimation", FORCE_BOOL)
+AccessorFunc( ENT, "bBlockAttack", "BlockAttack", FORCE_BOOL)
 
 AccessorFunc( ENT, "iActStage", "ActStage", FORCE_NUMBER)
 
@@ -212,7 +213,8 @@ function ENT:Think()
 			self:SetTarget(self:GetPriorityTarget())
 		end
 
-		if self:GetLastPostionSave() + 4 < CurTime() then
+		-- We don't want to say we're stuck if it's because we're attacking or timed out
+		if !self:GetAttacking() and !self:GetTimedOut() and self:GetLastPostionSave() + 4 < CurTime() then
 			if self:GetPos():Distance( self:GetStuckAt() ) < 10 then
 				self:SetStuckCounter( self:GetStuckCounter() + 1)
 			else
@@ -400,7 +402,11 @@ function ENT:OnSpawn()
 end
 
 function ENT:OnTargetInAttackRange()
-	self:Attack()
+	if !self:GetBlockAttack() then
+		self:Attack()
+	else
+		self:TimeOut(2)
+	end
 end
 
 function ENT:OnBarricadeBlocking( barricade )
@@ -439,13 +445,13 @@ function ENT:OnPathTimeOut()
 end
 
 function ENT:OnNoTarget()
-	-- Game over! Walk around randomly and wave
+	-- Game over! Walk around randomly
 	if nzRound:InState( ROUND_GO ) then
 		self:StartActivity(ACT_WALK)
 		self.loco:SetDesiredSpeed(40)
-		self:MoveToPos(self:GetPos() + Vector(math.random(-256, 256), math.random(-256, 256), 0), {
+		self:MoveToPos(self:GetPos() + Vector(math.random(-512, 512), math.random(-512, 512), 0), {
 			repath = 3,
-			maxage = 2
+			maxage = 5
 		})
 	else
 		self:TimeOut(0.5)
@@ -454,9 +460,13 @@ function ENT:OnNoTarget()
 		if self:IsValidTarget(newtarget) then
 			self:SetTarget(newtarget)
 		else
-			--if not visible to players respawn immediately
+			-- If not visible to players respawn immediately
 			if !self:IsInSight() then
 				self:RespawnZombie()
+			else
+				self:UpdateSequence() -- Updates the sequence to be idle animation
+				self:StartActivity(self.CalcIdeal) -- Starts the newly updated sequence
+				self:TimeOut(3) -- Time out even longer if seen
 			end
 		end
 	end
@@ -1001,10 +1011,10 @@ function ENT:RespawnZombie()
 end
 
 function ENT:IsInSight()
-	for _, ply in pairs( player.GetAllPlaying() ) do
+	for _, ply in pairs( player.GetAll() ) do
 		--can player see us or the teleport location
 		if ply:Alive() and ply:IsLineOfSightClear( self ) then
-			if ply:GetEyeTrace().Entity == self then
+			if ply:GetAimVector():Dot((self:GetPos() - ply:GetPos()):GetNormalized()) > 0 then
 				return true
 			end
 		end
