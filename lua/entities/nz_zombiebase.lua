@@ -892,7 +892,9 @@ function ENT:Attack( data )
 				dmgInfo:SetDamageForce( data.dmgforce )
 			self:GetTarget():TakeDamageInfo(dmgInfo)
 			self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
-			self:GetTarget():ViewPunch( data.viewpunch )
+			if self:GetTarget().ViewPunch then
+				self:GetTarget():ViewPunch( data.viewpunch )
+			end
 			self:GetTarget():SetVelocity( data.dmgforce )
 
 			local blood = ents.Create("env_blood")
