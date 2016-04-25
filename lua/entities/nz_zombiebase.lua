@@ -197,7 +197,11 @@ function ENT:Think()
 				maxs = Vector( 20, 20, 70 ),
 				mask = MASK_NPCSOLID
 			} )
-			if !tr.HitNonWorld then self:SetSolidMask(MASK_NPCSOLID) end
+			if !tr.HitNonWorld then 
+				self:SetSolidMask(MASK_NPCSOLID)
+				self:SetCollisionGroup(COLLISION_GROUP_PLAYER)
+				--print("No longer no-colliding")
+			end
 			--[[for _,ent in pairs(ents.FindInBox(self:GetPos() + Vector( -16, -16, 0 ), self:GetPos() + Vector( 16, 16, 70 ))) do
 				if ent:GetClass() == "nz_zombie*" and ent != self then occupied = true end
 			end
@@ -329,6 +333,8 @@ function ENT:RunBehaviour()
 				if pathResult == "ok" then
 					if self:TargetInAttackRange() then
 						self:OnTargetInAttackRange()
+					else
+						self:TimeOut(1)
 					end
 				elseif pathResult == "timeout" then --asume pathing timedout, maybe we are stuck maybe we are blocked by barricades
 					local barricade = self:CheckForBarricade()

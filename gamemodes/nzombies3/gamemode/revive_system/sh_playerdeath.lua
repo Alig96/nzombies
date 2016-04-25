@@ -1,8 +1,6 @@
 
 function Revive.DoPlayerDeath(ply, dmg)
 
-	print(ply:Health(), dmg:GetDamage())
-
 	if IsValid(ply) and ply:IsPlayer() then
 		if ply:Health() - dmg:GetDamage() <= 0 then
 			local allow = hook.Call("PlayerShouldTakeDamage", nil, ply, dmg:GetAttacker())
