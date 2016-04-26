@@ -19,9 +19,7 @@ ENT.AttackSequences = {
 }
 
 ENT.DeathSequences = {
-	"nz_death1",
-	"nz_death2",
-	"nz_death3",
+	"nz_death",
 }
 
 ENT.AttackSounds = {
@@ -110,20 +108,48 @@ function ENT:StatsInitialize()
 	--PrintTable(self:GetSequenceList())
 end
 
+function ENT:SpecialInit()
+
+	if CLIENT then
+		--make them invisible for a really short duration to blend the emerge sequences
+		self:SetNoDraw(true)
+		self:TimedEvent( 0.15, function()
+			self:SetNoDraw(false)
+		end)
+
+		self:SetRenderClipPlaneEnabled( true )
+		self:SetRenderClipPlane(self:GetUp(), self:GetUp():Dot(self:GetPos()))
+
+		self:TimedEvent( 2, function()
+			self:SetRenderClipPlaneEnabled(false)
+		end)
+
+	end
+end
+
 function ENT:OnSpawn()
-	effectData = EffectData()
-	-- startpos
-	effectData:SetStart( self:GetPos() + Vector(0, 0, 1000) )
-	-- end pos
+	local seq = "nz_entry"
+	local tr = util.TraceLine({
+		start = self:GetPos() + Vector(0,0,500),
+		endpos = self:GetPos(),
+		filter = self,
+		mask = MASK_NPCSOLID,
+	})
+	if tr.Hit then seq = "nz_entry_instant" end
+	local _, dur = self:LookupSequence(seq)
+
+	--dust cloud
+	local effectData = EffectData()
+	effectData:SetStart( self:GetPos() )
 	effectData:SetOrigin( self:GetPos() )
-	-- duration
-	effectData:SetMagnitude( 0.75 )
-	--util.Effect("lightning_strike", effectData)
-	util.Effect("lightning_strike", effectData)
+	effectData:SetMagnitude(dur)
+	util.Effect("zombie_spawn_dust", effectData)
 
-	self:SetTarget(self:GetPriorityTarget())
-
-	nzRound:SetNextSpawnTime(CurTime() + 2) -- This one spawning delays others by 3 seconds
+	-- play emerge animation on spawn
+	-- if we have a coroutine else just spawn the zombie without emerging for now.
+	if coroutine.running() then
+		self:PlaySequenceAndWait(seq)
+	end
 end
 
 function ENT:OnZombieDeath(dmgInfo)
