@@ -138,16 +138,17 @@ function ENT:OnSpawn()
 	if tr.Hit then seq = "nz_entry_instant" end
 	local _, dur = self:LookupSequence(seq)
 
-	--dust cloud
-	local effectData = EffectData()
-	effectData:SetStart( self:GetPos() )
-	effectData:SetOrigin( self:GetPos() )
-	effectData:SetMagnitude(dur)
-	util.Effect("zombie_spawn_dust", effectData)
-
 	-- play emerge animation on spawn
 	-- if we have a coroutine else just spawn the zombie without emerging for now.
 	if coroutine.running() then
+		self:TimedEvent(dur - 2.1, function()
+			--dust cloud
+			local effectData = EffectData()
+			effectData:SetStart( self:GetPos() )
+			effectData:SetOrigin( self:GetPos() )
+			effectData:SetMagnitude(dur)
+			util.Effect("panzer_land_dust", effectData)
+		end)
 		self:PlaySequenceAndWait(seq)
 	end
 end
@@ -308,7 +309,6 @@ if CLIENT then
 			dlight.outerangle = 1
 			dlight.style = 0
 			dlight.noworld = true
-			render.DrawWireframeSphere(pos, 2, 10, 10, Color(0,255,0), false)
 		end
 		
 		if self.RedEyes then
@@ -327,6 +327,11 @@ if CLIENT then
 		if GetConVar( "nz_zombie_debug" ):GetBool() then
 			render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
 			render.DrawWireframeSphere(self:GetPos(), self:GetAttackRange(), 10, 10, Color(255,165,0), true)
+			render.DrawWireframeSphere(pos, 2, 10, 10, Color(0,255,0), false)
 		end
 	end
+end
+
+function ENT:OnInjured( dmgInfo )
+	-- No pain sounds
 end
