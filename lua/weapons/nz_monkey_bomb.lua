@@ -138,11 +138,10 @@ function SWEP:GetViewModelPosition( pos, ang )
 end
 
 if engine.ActiveGamemode() == "nzombies3" then 
-	SpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
+	nzSpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
 		if SERVER then
 			if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end
-			local prevwep = ply:GetActiveWeapon():GetClass()
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SelectWeapon("nz_monkey_bomb")
 			timer.Simple(3, function()
 				if IsValid(ply) then
@@ -153,8 +152,8 @@ if engine.ActiveGamemode() == "nzombies3" then
 							ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
 							timer.Simple(1, function()
 								if IsValid(ply) then
-									ply.UsingSpecialWep = nil
-									ply:SelectWeapon(prevwep)
+									ply:SetUsingSpecialWeapon(false)
+									ply:EquipPreviousWeapon()
 								end
 							end)
 						else
@@ -164,8 +163,8 @@ if engine.ActiveGamemode() == "nzombies3" then
 									ply:SetAmmo(ply:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
 									timer.Simple(1, function()
 										if IsValid(ply) then
-											ply.UsingSpecialWep = nil
-											ply:SelectWeapon(prevwep)
+											ply:SetUsingSpecialWeapon(false)
+											ply:EquipPreviousWeapon()
 										end
 									end)
 									hook.Remove("KeyRelease", "CheckMonkeyRelease"..ply:EntIndex())
@@ -173,8 +172,8 @@ if engine.ActiveGamemode() == "nzombies3" then
 							end)
 						end
 					else
-						ply.UsingSpecialWep = nil
-						ply:SelectWeapon(prevwep)
+						ply:SetUsingSpecialWeapon(false)
+						ply:EquipPreviousWeapon()
 					end
 				end
 			end)

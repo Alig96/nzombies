@@ -22,32 +22,38 @@ function ENT:Initialize()
 		self:SetUseType( SIMPLE_USE )
 		self.Boundone,self.Boundtwo = self:GetCollisionBounds()
 	end
-	self:BlockLock()
+	self:BlockLock(true)
 end
 
-function ENT:BlockUnlock()
+function ENT:BlockUnlock(spawn)
 	--self.Locked = false
 	--self:SetNoDraw( true )
 	if SERVER then
 		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
 	end
 	self:SetSolid( SOLID_NONE )
-	self:SetLocked(false)
+	self:SetNoDraw(true)
+	if !spawn then -- Spawning a prop should'nt register it to the doors list
+		self:SetLocked(false)
+	end
 end
 
-function ENT:BlockLock()
+function ENT:BlockLock(spawn)
 	--self.Locked = true
 	--self:SetNoDraw( false )
 	if SERVER then
 		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
 	end
 	self:SetSolid( SOLID_VPHYSICS )
-	self:SetLocked(true)
+	self:SetNoDraw(false)
+	if !spawn then
+		self:SetLocked(true)
+	end
 end
 
 function ENT:OnRemove()
 	if SERVER then
-		Doors:RemoveLink( self, true )
+		nzDoors:RemoveLink( self, true )
 	else
 		self:SetLocked(false)
 	end
@@ -55,16 +61,16 @@ end
 
 if CLIENT then
 	function ENT:Draw()
-		if Round:InProgress() then
-			if self:IsLocked() then
+		if nzRound:InProgress() then
+			--if self:IsLocked() then
 				self:DrawModel()
-			end
+			--end
 		else
 			self:DrawModel()
 		end
-		if Round:InState( ROUND_CREATE ) then
-			if Doors.DisplayLinks[self] then
-				nzDisplay.DrawLinks(self, Doors.PropDoors[self:EntIndex()].link)
+		if nzRound:InState( ROUND_CREATE ) then
+			if nzDoors.DisplayLinks[self] then
+				nzDisplay.DrawLinks(self, nzDoors.PropDoors[self:EntIndex()].link)
 			end
 		end
 	end

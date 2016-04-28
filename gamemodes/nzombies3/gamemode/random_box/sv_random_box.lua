@@ -1,6 +1,6 @@
 --
 
-function RandomBox:Spawn(exclude)
+function nzRandomBox.Spawn(exclude)
 	--Get all spawns
 	local all = ents.FindByClass("random_box_spawns")
 	if IsValid(exclude) then
@@ -31,7 +31,7 @@ function RandomBox:Spawn(exclude)
 	end
 end
 
-function RandomBox:Remove()
+function nzRandomBox.Remove()
 	--Get all spawns
 	local all = ents.FindByClass("random_box")
 	--Loop just incase
@@ -41,15 +41,15 @@ function RandomBox:Remove()
 	end
 end
 
-function RandomBox:DecideWep(ply)
+function nzRandomBox.DecideWep(ply)
 
 	local teddychance = math.random(1, 15)
-	if teddychance <= 1 and !nz.PowerUps.Functions.IsPowerupActive("firesale") and table.Count(ents.FindByClass("random_box_spawns")) > 1 then
+	if teddychance <= 1 and !nzPowerUps:IsPowerupActive("firesale") and table.Count(ents.FindByClass("random_box_spawns")) > 1 then
 		return "nz_box_teddy"
 	end
 
 	local guns = {}
-	local blacklist = table.Copy(nz.Config.WeaponBlackList)
+	local blacklist = table.Copy(nzConfig.WeaponBlackList)
 
 	--Add all our current guns to the black list
 	if IsValid(ply) and ply:IsPlayer() then
@@ -69,8 +69,8 @@ function RandomBox:DecideWep(ply)
 		end
 	end
 
-	if GetConVar("nz_randombox_maplist"):GetBool() and Mapping.Settings.rboxweps then
-		for k,v in pairs(Mapping.Settings.rboxweps) do
+	if GetConVar("nz_randombox_maplist"):GetBool() and nzMapping.Settings.rboxweps then
+		for k,v in pairs(nzMapping.Settings.rboxweps) do
 			if !blacklist[v] then
 				table.insert(guns, v)
 			end
@@ -78,8 +78,8 @@ function RandomBox:DecideWep(ply)
 	elseif GetConVar("nz_randombox_whitelist"):GetBool() then
 		-- Load only weapons that have a prefix from the whitelist
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] then
-				for k2,v2 in pairs(nz.Config.WeaponWhiteList) do
+			if !blacklist[v.ClassName] and !v.NZPreventBox then
+				for k2,v2 in pairs(nzConfig.WeaponWhiteList) do
 					if string.sub(v.ClassName, 1, #v2) == v2 then
 						table.insert(guns, v.ClassName)
 						break
@@ -90,7 +90,7 @@ function RandomBox:DecideWep(ply)
 	else
 		-- No weapon list and not using whitelist only, add all guns
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] then
+			if !blacklist[v.ClassName] and !v.NZPreventBox then
 				table.insert(guns, v.ClassName)
 			end
 		end

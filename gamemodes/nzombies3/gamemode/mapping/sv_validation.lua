@@ -1,4 +1,4 @@
-function Mapping:CheckSpawns()
+function nzMapping:CheckSpawns()
 
 	--Check Player spawns
 	if #ents.FindByClass("player_spawns") == 0 then
@@ -6,14 +6,14 @@ function Mapping:CheckSpawns()
 	end
 
 	--Check Zombie Spawns
-	if #ents.FindByClass("zed_spawns") == 0 then
+	if #ents.FindByClass("nz_spawn_zombie_*") == 0 then
 		return false
 	end
 
 	return true
 end
 
-function Mapping:CheckEnoughPlayerSpawns()
+function nzMapping:CheckEnoughPlayerSpawns()
 
 	//Check Player spawns
 	if #ents.FindByClass("player_spawns") < #player.GetAll() then

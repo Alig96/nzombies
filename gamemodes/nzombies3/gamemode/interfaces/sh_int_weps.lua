@@ -4,7 +4,7 @@ if SERVER then
 	function nz.Interfaces.Functions.WepBuyHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			data.ent = data.ent or NULL
-			Mapping:WallBuy(data.vec, data.class, tonumber(data.price), data.ang, data.ent, ply)
+			nzMapping:WallBuy(data.vec, data.class, tonumber(data.price), data.ang, data.ent, ply)
 		end
 	end
 end
@@ -17,7 +17,7 @@ if CLIENT then
 		valz["Row2"] = 500
 		
 		if data.ent then
-			valz["Row1"] = data.ent:GetEntName()
+			valz["Row1"] = data.ent:GetWepClass()
 			valz["Row2"] = data.ent:GetPrice()
 		end
 

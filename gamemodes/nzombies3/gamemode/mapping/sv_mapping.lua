@@ -1,8 +1,8 @@
 //
 
-function Mapping:ZedSpawn(pos, link, respawnable, ply)
+function nzMapping:ZedSpawn(pos, link, respawnable, ply)
 
-	local ent = ents.Create("zed_spawns")
+	local ent = ents.Create("nz_spawn_zombie_normal")
 	pos.z = pos.z - ent:OBBMaxs().z
 	ent:SetPos( pos )
 	ent:Spawn()
@@ -10,13 +10,6 @@ function Mapping:ZedSpawn(pos, link, respawnable, ply)
 	//For the link displayer
 	if link != nil then
 		ent:SetLink(link)
-	end
-	ent.respawnable = respawnable or 1 //Default to always be respawnable if not set
-
-	if tobool(ent.respawnable) then
-		table.insert(nz.Enemies.Data.RespawnableSpawnpoints, ent)
-	elseif table.HasValue(nz.Enemies.Data.RespawnableSpawnpoints, ent) then
-		table.RemoveByValue(nz.Enemies.Data.RespawnableSpawnpoints, ent)
 	end
 
 	if ply then
@@ -28,9 +21,9 @@ function Mapping:ZedSpawn(pos, link, respawnable, ply)
 	return ent
 end
 
-function Mapping:ZedSpecialSpawn(pos, link, ply)
+function nzMapping:ZedSpecialSpawn(pos, link, ply)
 
-	local ent = ents.Create("zed_special_spawns")
+	local ent = ents.Create("nz_spawn_zombie_special")
 	pos.z = pos.z - ent:OBBMaxs().z
 	ent:SetPos( pos )
 	ent:Spawn()
@@ -49,7 +42,7 @@ function Mapping:ZedSpecialSpawn(pos, link, ply)
 	return ent
 end
 
-function Mapping:PlayerSpawn(pos, ply)
+function nzMapping:PlayerSpawn(pos, ply)
 
 	local ent = ents.Create("player_spawns")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -66,7 +59,7 @@ function Mapping:PlayerSpawn(pos, ply)
 
 end
 
-function Mapping:EasterEgg(pos, ang, model, ply)
+function nzMapping:EasterEgg(pos, ang, model, ply)
 	local egg = ents.Create( "easter_egg" )
 	egg:SetModel( model )
 	egg:SetPos( pos )
@@ -87,7 +80,7 @@ function Mapping:EasterEgg(pos, ang, model, ply)
 	return egg
 end
 
-function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
+function nzMapping:WallBuy(pos, gun, price, angle, oldent, ply, flipped)
 
 	if IsValid(oldent) then oldent:Remove() end
 
@@ -104,6 +97,10 @@ function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
 		phys:EnableMotion(false)
 	end
 
+	if flipped != nil then
+		ent:SetFlipped(flipped)
+	end
+
 	if ply then
 		undo.Create( "Wall Gun" )
 			undo.SetPlayer( ply )
@@ -114,7 +111,7 @@ function Mapping:WallBuy(pos, gun, price, angle, oldent, ply)
 
 end
 
-function Mapping:PropBuy(pos, ang, model, flags, ply)
+function nzMapping:PropBuy(pos, ang, model, flags, ply)
 	local prop = ents.Create( "prop_buys" )
 	prop:SetModel( model )
 	prop:SetPos( pos )
@@ -124,7 +121,7 @@ function Mapping:PropBuy(pos, ang, model, flags, ply)
 
 	//REMINDER APPY FLAGS
 	if flags != nil then
-		Doors:CreateLink( prop, flags )
+		nzDoors:CreateLink( prop, flags )
 	end
 
 	local phys = prop:GetPhysicsObject()
@@ -141,7 +138,7 @@ function Mapping:PropBuy(pos, ang, model, flags, ply)
 	return prop
 end
 
-function Mapping:Electric(pos, ang, model, ply)
+function nzMapping:Electric(pos, ang, model, ply)
 	--THERE CAN ONLY BE ONE TRUE HERO
 	local prevs = ents.FindByClass("power_box")
 	if prevs[1] != nil then
@@ -168,7 +165,7 @@ function Mapping:Electric(pos, ang, model, ply)
 	return ent
 end
 
-function Mapping:BlockSpawn(pos, ang, model, ply)
+function nzMapping:BlockSpawn(pos, ang, model, ply)
 	local block = ents.Create( "wall_block" )
 	block:SetModel( model )
 	block:SetPos( pos )
@@ -190,7 +187,7 @@ function Mapping:BlockSpawn(pos, ang, model, ply)
 	return block
 end
 
-function Mapping:BoxSpawn(pos, ang, ply)
+function nzMapping:BoxSpawn(pos, ang, ply)
 	local box = ents.Create( "random_box_spawns" )
 	box:SetPos( pos )
 	box:SetAngles( ang )
@@ -206,36 +203,66 @@ function Mapping:BoxSpawn(pos, ang, ply)
 	return box
 end
 
-function Mapping:PerkMachine(pos, ang, id, ply)
-	local perkData = nz.Perks.Functions.Get(id)
+function nzMapping:PerkMachine(pos, ang, id, ply)
+	if id == "wunderfizz" then
+		local perk = ents.Create("wunderfizz_machine")
+		perk:SetPos(pos)
+		perk:SetAngles(ang)
+		perk:Spawn()
+		perk:Activate()
+		perk:PhysicsInit( SOLID_VPHYSICS )
+		perk:TurnOff()
 
-	local perk = ents.Create("perk_machine")
-	perk:SetPerkID(id)
-	perk:TurnOff()
-	perk:SetPos(pos)
-	perk:SetAngles(ang)
-	perk:Spawn()
-	perk:Activate()
-	perk:PhysicsInit( SOLID_VPHYSICS )
+		local phys = perk:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
 
-	local phys = perk:GetPhysicsObject()
-	if phys:IsValid() then
-		phys:EnableMotion(false)
+		if ply then
+			undo.Create( "Der Wunderfizz" )
+				undo.SetPlayer( ply )
+				undo.AddEntity( perk )
+			undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+		end
+		return perk
+	else
+		local perkData = nz.Perks.Functions.Get(id)
+
+		local perk = ents.Create("perk_machine")
+		perk:SetPerkID(id)
+		perk:TurnOff()
+		perk:SetPos(pos)
+		perk:SetAngles(ang)
+		perk:Spawn()
+		perk:Activate()
+		perk:PhysicsInit( SOLID_VPHYSICS )
+
+		local phys = perk:GetPhysicsObject()
+		if phys:IsValid() then
+			phys:EnableMotion(false)
+		end
+
+		if ply then
+			undo.Create( "Perk Machine" )
+				undo.SetPlayer( ply )
+				undo.AddEntity( perk )
+			undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+		end
+		return perk
 	end
-
-	if ply then
-		undo.Create( "Perk Machine" )
-			undo.SetPlayer( ply )
-			undo.AddEntity( perk )
-		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
-	end
-	return perk
 end
 
-function Mapping:BreakEntry(pos,ang,ply)
+function nzMapping:BreakEntry(pos, ang, planks, jump, ply)
+	local planks = planks
+	if planks == nil then planks = true else planks = tobool(planks) end
+	local jump = jump
+	if jump == nil then jump = false else jump = tobool(jump) end
+	
 	local entry = ents.Create( "breakable_entry" )
 	entry:SetPos( pos )
 	entry:SetAngles( ang )
+	entry:SetHasPlanks(planks)
+	entry:SetTriggerJumps(jump)
 	entry:Spawn()
 	entry:PhysicsInit( SOLID_VPHYSICS )
 
@@ -253,7 +280,7 @@ function Mapping:BreakEntry(pos,ang,ply)
 	return entry
 end
 
-function Mapping:SpawnEffect( pos, ang, model, ply )
+function nzMapping:SpawnEffect( pos, ang, model, ply )
 
 	local e = ents.Create("nz_prop_effect")
 	e:SetModel(model)
@@ -273,7 +300,7 @@ function Mapping:SpawnEffect( pos, ang, model, ply )
 
 end
 
-function Mapping:CleanUpMap()
+function nzMapping:CleanUpMap()
 	game.CleanUpMap(false, {
 		"breakable_entry",
 		"breakable_entry_plank",
@@ -284,8 +311,9 @@ function Mapping:CleanUpMap()
 		"random_box_spawns",
 		"wall_block",
 		"wall_buys",
-		"zed_spawns",
-		"zed_special_spawns",
+		"nz_spawn_zombie",
+		"nz_spawn_zombie_normal",
+		"nz_spawn_zombie_special",
 		"easter_egg",
 		"edit_fog",
 		"edit_fog_special",
@@ -295,12 +323,14 @@ function Mapping:CleanUpMap()
 		"nz_prop_effect_attachment",
 		"nz_fire_effect",
 		"edit_color",
-		"power_box"
+		"power_box",
+		"invis_wall",
+		"wunderfizz_machine",
 	})
 
 	-- Gotta reset the doors and other entites' values!
-	for k,v in pairs(Doors.MapDoors) do
-		local door = Doors:DoorIndexToEnt(k)
+	for k,v in pairs(nzDoors.MapDoors) do
+		local door = nzDoors:DoorIndexToEnt(k)
 		door:SetLocked(true)
 		if door:IsDoor() then
 			door:LockDoor()
@@ -313,9 +343,23 @@ function Mapping:CleanUpMap()
 	for k,v in pairs(ents.FindByClass("wall_buys")) do
 		v:SetBought(false)
 	end
+
+	if self.MarkedProps then
+		if !nzRound:InState( ROUND_CREATE ) then
+			for k,v in pairs(self.MarkedProps) do
+				local ent = ents.GetMapCreatedEntity(k)
+				if IsValid(ent) then ent:Remove() end
+			end
+		else
+			for k,v in pairs(self.MarkedProps) do
+				local ent = ents.GetMapCreatedEntity(k)
+				if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
+			end
+		end
+	end
 end
 
-function Mapping:SpawnEntity(pos, ang, ent, ply)
+function nzMapping:SpawnEntity(pos, ang, ent, ply)
 	local entity = ents.Create( ent )
 	entity:SetPos( pos )
 	entity:SetAngles( ang )
@@ -333,11 +377,35 @@ function Mapping:SpawnEntity(pos, ang, ent, ply)
 	return entity
 end
 
+function nzMapping:CreateInvisibleWall(vec1, vec2, ply)
+	local wall = ents.Create( "invis_wall" )
+	wall:SetPos( vec1 ) -- Later we might make the position the center
+	--wall:SetAngles( ang )
+	--wall:SetMinBound(vec1) -- Just the position for now
+	wall:SetMaxBound(vec2)
+	wall:Spawn()
+	wall:PhysicsInitBox( Vector(0,0,0), vec2 )
+
+	local phys = wall:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	if ply then
+		undo.Create( "Invis Wall" )
+			undo.SetPlayer( ply )
+			undo.AddEntity( wall )
+		undo.Finish( "Effect (" .. tostring( model ) .. ")" )
+	end
+	return wall
+end
+
 //Physgun Hooks
 local ghostentities = {
 	["prop_buys"] = true,
 	["wall_block"] = true,
 	["breakable_entry"] = true,
+	["invis_wall"] = true,
 	--["wall_buys"] = true,
 }
 local function onPhysgunPickup( ply, ent )

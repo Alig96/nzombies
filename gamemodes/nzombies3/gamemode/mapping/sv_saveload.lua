@@ -1,6 +1,6 @@
-Mapping.Version = 400 --Note to Ali; Any time you make an update to the way this is saved, increment this.
+nzMapping.Version = 400 --Note to Ali; Any time you make an update to the way this is saved, increment this.
 
-function Mapping:SaveConfig(name)
+function nzMapping:SaveConfig(name)
 
 	local main = {}
 
@@ -21,16 +21,16 @@ function Mapping:SaveConfig(name)
 	end
 
 	local zed_spawns = {}
-	for _, v in pairs(ents.FindByClass("zed_spawns")) do
+	for _, v in pairs(ents.FindByClass("nz_spawn_zombie_normal")) do
 		table.insert(zed_spawns, {
 		pos = v:GetPos(),
 		link = v.link,
 		respawnable = v.respawnable
 		})
 	end
-	
+
 	local zed_special_spawns = {}
-	for _, v in pairs(ents.FindByClass("zed_special_spawns")) do
+	for _, v in pairs(ents.FindByClass("nz_spawn_zombie_special")) do
 		table.insert(zed_special_spawns, {
 		pos = v:GetPos(),
 		link = v.link
@@ -50,7 +50,8 @@ function Mapping:SaveConfig(name)
 		pos = v:GetPos(),
 		wep = v.WeaponGive,
 		price = v.Price,
-		angle = v:GetAngles( ),
+		angle = v:GetAngles(),
+		flipped = v:GetFlipped(),
 		})
 	end
 
@@ -118,16 +119,24 @@ function Mapping:SaveConfig(name)
 			id = v:GetPerkID(),
 		})
 	end
+	
+	local wunderfizz_machines = {}
+	for _, v in pairs(ents.FindByClass("wunderfizz_machine")) do
+		table.insert(wunderfizz_machines, {
+			pos = v:GetPos(),
+			angle = v:GetAngles(),
+		})
+	end
 
 	//Normal Map doors
 	local door_setup = {}
-	for k,v in pairs(Doors.MapDoors) do
+	for k,v in pairs(nzDoors.MapDoors) do
 		local flags = ""
 		for k2, v2 in pairs(v.flags) do
 			flags = flags .. k2 .. "=" .. v2 .. ","
 		end
 		flags = string.Trim(flags, ",")
-		door = Doors:DoorIndexToEnt(k)
+		door = nzDoors:DoorIndexToEnt(k)
 		if door:IsDoor() then
 			door_setup[k] = {
 			flags = flags,
@@ -143,6 +152,8 @@ function Mapping:SaveConfig(name)
 		table.insert(break_entry, {
 			pos = v:GetPos(),
 			angle = v:GetAngles(),
+			planks = v:GetHasPlanks(),
+			jump = v:GetTriggerJumps(),
 		})
 	end
 
@@ -155,6 +166,15 @@ function Mapping:SaveConfig(name)
 		end
 	end
 	--PrintTable(special_entities)
+
+	-- Store all invisible walls with their boundaries and angles
+	local invis_walls = {}
+	for _, v in pairs(ents.FindByClass("invis_wall")) do
+		table.insert(invis_walls, {
+			pos = v:GetPos(),
+			maxbound = v:GetMaxBound(),
+		})
+	end
 
 	main["ZedSpawns"] = zed_spawns
 	main["ZedSpecialSpawns"] = zed_special_spawns
@@ -170,6 +190,8 @@ function Mapping:SaveConfig(name)
 	main["EasterEggs"] = easter_eggs
 	main["PropEffects"] = prop_effects
 	main["SpecialEntities"] = special_entities
+	main["InvisWalls"] = invis_walls
+	main["WunderfizzMachines"] = wunderfizz_machines
 
 	--We better clear the merges in case someone played around with them in create mode (lua_run)
 	nz.Nav.ResetNavGroupMerges()
@@ -179,6 +201,7 @@ function Mapping:SaveConfig(name)
 
 	--Save this map's configuration
 	main["MapSettings"] = self.Settings
+	main["RemoveProps"] = self.MarkedProps
 
 	local configname
 	if name and name != "" then
@@ -192,16 +215,16 @@ function Mapping:SaveConfig(name)
 
 end
 
-function Mapping:ClearConfig()
+function nzMapping:ClearConfig()
 	print("[NZ] Clearing current map")
 
-	--Resets spawnpoints ther should be a function/accessor for this rather than jsu a table reset
-	nz.Enemies.Data.RespawnableSpawnpoints = {}
+	-- ALWAYS do this first!
+	nzMapping:UnloadScript()
 
 	--Entities to clear:
 	local entClasses = {
-		["zed_spawns"] = true,
-		["zed_special_spawns"] = true,
+		["nz_spawn_zombie_normal"] = true,
+		["nz_spawn_zombie_special"] = true,
 		["player_spawns"] = true,
 		["wall_buys"] = true,
 		["prop_buys"] = true,
@@ -219,6 +242,11 @@ function Mapping:ClearConfig()
 		["edit_sun"] = true,
 		["nz_triggerzone"] = true,
 		["power_box"] = true,
+		["invis_wall"] = true,
+		["nz_script_triggerzone"] = true,
+		["nz_script_prop"] = true,
+		["wunderfizz_machine"] = true,
+		["wunderfizz_windup"] = true,
 	}
 
 	--jsut loop once over all entities isntead of seperate findbyclass calls
@@ -229,8 +257,8 @@ function Mapping:ClearConfig()
 	end
 
 	--Normal Map doors
-	for k,v in pairs(Doors.MapDoors) do
-		Doors:RemoveMapDoorLink( k )
+	for k,v in pairs(nzDoors.MapDoors) do
+		nzDoors:RemoveMapDoorLink( k )
 	end
 
 	--Reset Navigation table
@@ -246,14 +274,13 @@ function Mapping:ClearConfig()
 		end
 	end
 
-	self:CleanUpMap()
-
 	nz.QMenu.Data.SpawnedEntities = {}
 
-	Mapping.Settings = {}
+	nzMapping.Settings = {}
+	nzMapping.MarkedProps = {}
 
-	Doors.MapDoors = {}
-	Doors.PropDoors = {}
+	nzDoors.MapDoors = {}
+	nzDoors.PropDoors = {}
 
 	-- Sync
 	FullSyncModules["Round"]()
@@ -261,22 +288,36 @@ function Mapping:ClearConfig()
 	-- Clear all door data
 	net.Start("nzClearDoorData")
 	net.Broadcast()
-	
-	Mapping.CurrentConfig = nil
+
+	-- Clear out the item objects creating with this config (if any)
+	nzItemCarry:CleanUp()
+
+	nzMapping.CurrentConfig = nil
+
+	nzMapping:CleanUpMap()
 end
 
-function Mapping:LoadConfig( name, loader )
+function nzMapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
+	local location = "DATA"
 
-	if file.Exists( filepath, "DATA" )then
+	if string.GetExtensionFromFilename(name) == "lua" then
+		if file.Exists("gamemodes/nzombies3/officialconfigs/"..name, "GAME") then
+			location, filepath = "GAME", "gamemodes/nzombies3/officialconfigs/"..name
+		else
+			location = "LUA"
+		end
+	end
+
+	if file.Exists( filepath, location )then
 		print("[NZ] MAP CONFIG FOUND!")
 
 		-- Load a lua file for a specific map
 		-- Make sure all hooks are removed before adding the new ones
-		Mapping:UnloadScript()
+		nzMapping:UnloadScript()
 
-		local data = util.JSONToTable( file.Read( filepath, "DATA" ) )
+		local data = util.JSONToTable( file.Read( filepath, location ) )
 
 		local version = data.version
 
@@ -286,7 +327,7 @@ function Mapping:LoadConfig( name, loader )
 			return
 		end
 
-		if version < Mapping.Version then
+		if version < nzMapping.Version then
 			print("Warning: This map config was made with an older version of nZombies. After this has loaded, use the save command to save a newer version.")
 		end
 
@@ -307,61 +348,67 @@ function Mapping:LoadConfig( name, loader )
 
 		if data.ZedSpawns then
 			for k,v in pairs(data.ZedSpawns) do
-				Mapping:ZedSpawn(v.pos, v.link, v.respawnable)
+				nzMapping:ZedSpawn(v.pos, v.link, v.respawnable)
 			end
 		end
-		
+
 		if data.ZedSpecialSpawns then
 			for k,v in pairs(data.ZedSpecialSpawns) do
-				Mapping:ZedSpecialSpawn(v.pos, v.link)
+				nzMapping:ZedSpecialSpawn(v.pos, v.link)
 			end
 		end
 
 		if data.PlayerSpawns then
 			for k,v in pairs(data.PlayerSpawns) do
-				Mapping:PlayerSpawn(v.pos)
+				nzMapping:PlayerSpawn(v.pos)
 			end
 		end
 
 		if data.WallBuys then
 			for k,v in pairs(data.WallBuys) do
-				Mapping:WallBuy(v.pos,v.wep, v.price, v.angle)
+				nzMapping:WallBuy(v.pos,v.wep, v.price, v.angle, nil, nil, v.flipped)
 			end
 		end
 
 		if data.BuyablePropSpawns then
 			for k,v in pairs(data.BuyablePropSpawns) do
-				Mapping:PropBuy(v.pos, v.angle, v.model, v.flags)
+				nzMapping:PropBuy(v.pos, v.angle, v.model, v.flags)
 			end
 		end
 
 		if data.ElecSpawns then
 			for k,v in pairs(data.ElecSpawns) do
-				Mapping:Electric(v.pos, v.angle)
+				nzMapping:Electric(v.pos, v.angle)
 			end
 		end
 
 		if data.BlockSpawns then
 			for k,v in pairs(data.BlockSpawns) do
-				Mapping:BlockSpawn(v.pos, v.angle, v.model)
+				nzMapping:BlockSpawn(v.pos, v.angle, v.model)
 			end
 		end
 
 		if data.RandomBoxSpawns then
 			for k,v in pairs(data.RandomBoxSpawns) do
-				Mapping:BoxSpawn(v.pos, v.angle)
+				nzMapping:BoxSpawn(v.pos, v.angle)
 			end
 		end
 
 		if data.PerkMachineSpawns then
 			for k,v in pairs(data.PerkMachineSpawns) do
-				Mapping:PerkMachine(v.pos, v.angle, v.id)
+				nzMapping:PerkMachine(v.pos, v.angle, v.id)
 			end
 		end
 
 		if data.EasterEggs then
 			for k,v in pairs(data.EasterEggs) do
-				Mapping:EasterEgg(v.pos, v.angle, v.model)
+				nzMapping:EasterEgg(v.pos, v.angle, v.model)
+			end
+		end
+		
+		if data.WunderfizzMachines then
+			for k,v in pairs(data.WunderfizzMachines) do
+				nzMapping:PerkMachine(v.pos, v.angle, "wunderfizz")
 			end
 		end
 
@@ -369,16 +416,14 @@ function Mapping:LoadConfig( name, loader )
 		if data.DoorSetup then
 			for k,v in pairs(data.DoorSetup) do
 				--print(v.flags)
-				Doors:CreateMapDoorLink(k, v.flags)
+				nzDoors:CreateMapDoorLink(k, v.flags)
 			end
 		end
 
-		if version >= 350 then
-			//Barricades
-			if data.BreakEntry then
-				for k,v in pairs(data.BreakEntry) do
-					Mapping:BreakEntry(v.pos, v.angle)
-				end
+		//Barricades
+		if data.BreakEntry then
+			for k,v in pairs(data.BreakEntry) do
+				nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump)
 			end
 		end
 
@@ -405,7 +450,7 @@ function Mapping:LoadConfig( name, loader )
 
 		if data.PropEffects then
 			for k,v in pairs(data.PropEffects) do
-				Mapping:SpawnEffect(v.pos, v.angle, v.model)
+				nzMapping:SpawnEffect(v.pos, v.angle, v.model)
 			end
 		end
 
@@ -418,19 +463,40 @@ function Mapping:LoadConfig( name, loader )
 		end
 
 		if data.MapSettings then
-			Mapping.Settings = data.MapSettings
+			nzMapping.Settings = data.MapSettings
 			for k,v in pairs(player.GetAll()) do
-				Mapping:SendMapData(v)
+				nzMapping:SendMapData(v)
+			end
+		end
+
+		if data.RemoveProps then
+			nzMapping.MarkedProps = data.RemoveProps
+			if !nzRound:InState( ROUND_CREATE ) then
+				for k,v in pairs(nzMapping.MarkedProps) do
+					local ent = ents.GetMapCreatedEntity(k)
+					if IsValid(ent) then ent:Remove() end
+				end
+			else
+				for k,v in pairs(nzMapping.MarkedProps) do
+					local ent = ents.GetMapCreatedEntity(k)
+					if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
+				end
+			end
+		end
+
+		if data.InvisWalls then
+			for k,v in pairs(data.InvisWalls) do
+				nzMapping:CreateInvisibleWall(v.pos, v.maxbound)
 			end
 		end
 
 		-- Generate all auto navmesh merging so we don't have to save that manually
 		nz.Nav.Functions.AutoGenerateAutoMergeLinks()
-		
-		Mapping:CheckMismatch( loader )
-		
+
+		nzMapping:CheckMismatch( loader )
+
 		-- Set the current config name, we will use this to load scripts via mismatch window
-		Mapping.CurrentConfig = name
+		nzMapping.CurrentConfig = name
 
 		print("[NZ] Finished loading map config.")
 	else
@@ -442,6 +508,6 @@ end
 
 hook.Add("Initialize", "nz_Loadmaps", function()
 	timer.Simple(5, function()
-		Mapping:LoadConfig("nz_"..game.GetMap()..".txt")
+		nzMapping:LoadConfig("nz_"..game.GetMap()..".txt")
 	end)
 end)

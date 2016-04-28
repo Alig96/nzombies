@@ -17,7 +17,7 @@ end
 function ENT:Initialize()
 
 	//self:SetPowerUp("dp")
-	self:SetModelScale(nz.PowerUps.Functions.Get(self:GetPowerUp()).scale, 0)
+	self:SetModelScale(nzPowerUps:Get(self:GetPowerUp()).scale, 0)
 	
 	--self:PhysicsInit(SOLID_VPHYSICS)
 	self:PhysicsInitSphere(50, "default_silent")
@@ -47,7 +47,7 @@ end
 if SERVER then
 	function ENT:StartTouch(hitEnt)
 		if (hitEnt:IsValid() and hitEnt:IsPlayer()) then
-			nz.PowerUps.Functions.Activate(self:GetPowerUp(), hitEnt)
+			nzPowerUps:Activate(self:GetPowerUp(), hitEnt)
 			self:Remove()
 		end
 	end

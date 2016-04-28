@@ -39,6 +39,8 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "None"
 
+SWEP.NZPreventBox = true
+
 
 
 /*---------------------------------------------------------
@@ -129,7 +131,7 @@ end
 // Output : Damage amount
 //-----------------------------------------------------------------------------
 function SWEP:GetDamageForActivity( hitActivity )
-	return Round:InProgress() and 30 + (45/Round:GetNumber()) or 75
+	return nzRound:InProgress() and 30 + (45/nzRound:GetNumber()) or 75
 end
 
 //-----------------------------------------------------------------------------

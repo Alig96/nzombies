@@ -87,10 +87,12 @@ if SERVER then
 			if wep.Owner:HasPerk("deadshot") then
 				local tr = wep.Owner:GetEyeTrace()
 				local ent = tr.Entity
-				if IsValid(ent) and nz.Config.ValidEnemies[ent:GetClass()] then
+				if IsValid(ent) and nzConfig.ValidEnemies[ent:GetClass()] then
 					local head = ent:LookupBone("ValveBiped.Bip01_Neck1")
-					local headpos,headang = ent:GetBonePosition(head)
-					wep.Owner:SetEyeAngles((headpos - wep.Owner:GetShootPos()):Angle())
+					if head then
+						local headpos,headang = ent:GetBonePosition(head)
+						wep.Owner:SetEyeAngles((headpos - wep.Owner:GetShootPos()):Angle())
+					end
 				end
 			end
 		end
@@ -105,7 +107,7 @@ if SERVER then
 				if IsValid(wep) and wep:Clip1() < wep:GetMaxClip1() then
 					local pct = 1 - (wep:Clip1()/wep:GetMaxClip1())
 					local pos, ang = ply:GetPos() + ply:GetAimVector()*10 + Vector(0,0,50), ply:GetAimVector()
-					nz.Effects.Functions.Tesla( {
+					nzEffects:Tesla( {
 						pos = ply:GetPos() + Vector(0,0,50),
 						ent = ply,
 						turnOn = true,
@@ -124,7 +126,7 @@ if SERVER then
 					d:SetInflictor(ply)
 					
 					for k,v in pairs(zombies) do
-						if nz.Config.ValidEnemies[v:GetClass()] then
+						if nzConfig.ValidEnemies[v:GetClass()] then
 							v:TakeDamageInfo(d)
 						end
 					end
@@ -139,7 +141,7 @@ if SERVER then
 			if ply:Crouching() then
 				local zombies = ents.FindInSphere(ply:GetPos(), 250)
 				for k,v in pairs(zombies) do
-					if nz.Config.ValidEnemies[v:GetClass()] then
+					if nzConfig.ValidEnemies[v:GetClass()] then
 						v:TakeDamage(150, ply, ply)
 					end
 				end
@@ -152,6 +154,15 @@ if SERVER then
 			return 0
 		end
 		return ( dmg )
+	end
+	
+	local oldsetwep = playerMeta.SetActiveWeapon
+	function playerMeta:SetActiveWeapon(wep)
+		local oldwep = self:GetActiveWeapon()
+		if IsValid(oldwep) and !oldwep:IsSpecial() then
+			self.NZPrevWep = oldwep
+		end
+		oldsetwep(self, wep)
 	end
 	
 else
@@ -210,11 +221,11 @@ function GM:EntityFireBullets(ent, data)
 	//If we hit anything, move the source of the bullets up to that point
 	if tr.Hit and tr.HitPos then
 		data.Src = tr.HitPos - data.Dir*5
-		if ent:HasPerk("dtap2") then
+		if ent:IsPlayer() and ent:HasPerk("dtap2") then
 			data.Num = data.Num * 2
 		end
 		return true
-	elseif ent:HasPerk("dtap2") then
+	elseif ent:IsPlayer() and ent:HasPerk("dtap2") then
 		data.Num = data.Num * 2
 	end
 end

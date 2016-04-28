@@ -5,6 +5,10 @@ ENT.PrintName = "Walker"
 ENT.Category = "Brainz"
 ENT.Author = "Lolle"
 
+function ENT:SetupDataTables()
+	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
+end
+
 ENT.Models = {
 	"models/nz_zombie/zombie_rerig_animated.mdl",
 }
@@ -28,30 +32,34 @@ ENT.RunAttackSequences = {
 	{seq = "nz_run_attack4", dmgtimes = {0.4, 0.9}},
 }
 
-local actdata = {
-	[ACT_WALK] = {
+ENT.ActStages = {
+	[1] = {
+		act = ACT_WALK,
 		minspeed = 5,
-		bodymovexy = true,
 		attackanims = "AttackSequences",
 		sounds = "WalkSounds",
+		barricadejumps = "JumpSequences",
 	},
-	[ACT_WALK_ANGRY] = {
-		minspeed = 50,
-		bodymovexy = true,
+	[2] = {
+		act = ACT_WALK_ANGRY,
+		minspeed = 40,
 		attackanims = "WalkAttackSequences",
 		sounds = "WalkSounds",
+		barricadejumps = "JumpSequences",
 	},
-	[ACT_RUN] = {
-		minspeed = 120,
-		bodymovexy = true,
+	[3] = {
+		act = ACT_RUN,
+		minspeed = 100,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
+		barricadejumps = "SprintJumpSequences",
 	},
-	[ACT_SPRINT] = {
+	[4] = {
+		act = ACT_SPRINT,
 		minspeed = 160,
-		bodymovexy = true,
 		attackanims = "RunAttackSequences",
 		sounds = "RunSounds",
+		barricadejumps = "SprintJumpSequences",
 	},
 }
 
@@ -69,7 +77,17 @@ ENT.EmergeSequences = {
 	"nz_emerge2",
 	"nz_emerge3",
 	"nz_emerge4",
-	"nz_emerge5"
+	"nz_emerge5",
+}
+ENT.JumpSequences = {
+	{seq = "nz_barricade1", speed = 15, time = 2.7},
+	{seq = "nz_barricade2", speed = 15, time = 2.4},
+	{seq = "nz_barricade_fast1", speed = 15, time = 1.8},
+	{seq = "nz_barricade_fast2", speed = 35, time = 4},
+}
+ENT.SprintJumpSequences = {
+	{seq = "nz_barricade_sprint1", speed = 50, time = 1.9},
+	{seq = "nz_barricade_sprint2", speed = 35, time = 1.9},
 }
 
 ENT.AttackSounds = {
@@ -158,14 +176,13 @@ ENT.RunSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		--self:SetRunSpeed( nz.Curves.Data.Speed[nz.Rounds.Data.CurrentRound] )
-		local speeds = Round:GetZombieData() and Round:GetZombieData().nz_zombie_walker and Round:GetZombieData().nz_zombie_walker.speeds or Round:GetZombieSpeeds()
+		local speeds = nzRound:GetZombieSpeeds()
 		if speeds then
-			self:SetRunSpeed( nz.Misc.Functions.WeightedRandom(speeds) )
+			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) )
 		else
 			self:SetRunSpeed( 100 )
 		end
-		self:SetHealth( Round:GetZombieHealth() or 75 )
+		self:SetHealth( nzRound:GetZombieHealth() or 75 )
 
 		--Preselect the emerge sequnces for clientside use
 		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
@@ -197,7 +214,7 @@ end
 function ENT:SoundThink()
 	if CurTime() > self:GetNextMoanSound() and !self:GetStop() then
 		--local soundName = self:GetActivity() == ACT_RUN and self.RunSounds[ math.random(#self.RunSounds ) ] or self.WalkSounds[ math.random(#self.WalkSounds ) ]
-		local soundtbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].sounds] or self.WalkSounds
+		local soundtbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].sounds] or self.WalkSounds
 		local soundName = soundtbl[math.random(#soundtbl)]
 		self:EmitSound( soundName, 80 )
 		local nextSound = SoundDuration( soundName ) + math.random(0,4) + CurTime()
@@ -217,14 +234,14 @@ function ENT:OnSpawn()
 	effectData:SetMagnitude(dur)
 	util.Effect("zombie_spawn_dust", effectData)
 
-	-- player emerge animationon spawn
-	-- if we have a coroutine else jsut spawn the zombie without emerging for now.
+	-- play emerge animation on spawn
+	-- if we have a coroutine else just spawn the zombie without emerging for now.
 	if coroutine.running() then
 		self:PlaySequenceAndWait(seq)
 	end
 end
 
-function ENT:OnKilled(dmgInfo)
+function ENT:OnZombieDeath(dmgInfo)
 
 	if dmgInfo:GetDamageType() == DMG_SHOCK then
 		self:SetRunSpeed(0)
@@ -233,6 +250,7 @@ function ENT:OnKilled(dmgInfo)
 		local seq, dur = self:LookupSequence(self.ElectrocutionSequences[math.random(#self.ElectrocutionSequences)])
 		self:ResetSequence(seq)
 		self:SetCycle(0)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		-- Emit electrocution scream here when added
 		timer.Simple(dur, function()
 			if IsValid(self) then
@@ -254,7 +272,7 @@ function ENT:Attack( data )
 	--if self:Health() <= 0 then coroutine.yield() return end
 
 	data = data or {}
-	local attacktbl = actdata[self:GetActivity()] and self[actdata[self:GetActivity()].attackanims] or self.AttackSequences
+	local attacktbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].attackanims] or self.AttackSequences
 	data.attackseq = data.attackseq or attacktbl[math.random(#attacktbl)] or {seq = "swing", dmgtimes = {1}}
 	data.attacksound = data.attacksound or self.AttackSounds[ math.random( #self.AttackSounds) ] or Sound( "npc/vort/claw_swing1.wav" )
 	data.hitsound = data.hitsound or self.AttackHitSounds[ math.random( #self.AttackHitSounds ) ] or Sound( "npc/zombie/zombie_hit.wav" )
@@ -323,29 +341,66 @@ function ENT:BodyUpdate()
 
 	local len2d = velocity:Length2D()
 
-	--local len2d = self:GetRunSpeed()
+	local range = 10
 
-	--if ( len2d > 160 ) then self.CalcIdeal = ACT_SPRINT elseif ( len2d > 120 ) then self.CalcIdeal = ACT_RUN elseif ( len2d > 50 ) then self.CalcIdeal = ACT_WALK_ANGRY else self.CalcIdeal = ACT_WALK end
+	local curstage = self.ActStages[self:GetActStage()]
+	local nextstage = self.ActStages[self:GetActStage() + 1]
 
-	for k,v in pairs(actdata) do
-		if len2d > v.minspeed then
-			self.CalcIdeal = k
-			break
+	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
+		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
+			self:SetActStage( self:GetActStage() + 1 )
 		end
+		-- If there is no minspeed for the next stage, someone did something wrong and we just idle :/
+	elseif (curstage and len2d <= curstage.minspeed - range) then
+		self:SetActStage( self:GetActStage() - 1 )
+	elseif (nextstage and len2d >= nextstage.minspeed + range) then
+		self:SetActStage( self:GetActStage() + 1 )
+	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
+		self:SetActStage(0)
 	end
+
+	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
 
 	if self:IsJumping() and self:WaterLevel() <= 0 then
 		self.CalcIdeal = ACT_JUMP
 	end
 
-	if self:GetActivity() != self.CalcIdeal and !self:IsAttacking() and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
+	if !self:GetSpecialAnimation() and !self:IsAttacking() then
+		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
-	if ( actdata[self.CalcIdeal] and !self:GetAttacking() ) then
-
-		self:BodyMoveXY()
-
+		if self.ActStages[self:GetActStage()] then
+			self:BodyMoveXY()
+		end
 	end
 
 	self:FrameAdvance()
 
+end
+
+function ENT:TriggerBarricadeJump()
+	if !self:GetSpecialAnimation() and (!self.NextBarricade or CurTime() > self.NextBarricade) then
+		self:SetSpecialAnimation(true)
+		self:SetBlockAttack(true)
+		local seqtbl = self.ActStages[self:GetActStage()] and self[self.ActStages[self:GetActStage()].barricadejumps] or self.JumpSequences
+		local seq = seqtbl[math.random(#seqtbl)]
+		local id, dur = self:LookupSequence(seq.seq)
+		self:SetSolidMask(MASK_NPCSOLID_BRUSHONLY)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
+		self.loco:SetAcceleration( 5000 )
+		self.loco:SetDesiredSpeed(seq.speed)
+		self:SetVelocity(self:GetForward()*seq.speed)
+		self:SetSequence(id)
+		self:SetCycle(0)
+		self:SetPlaybackRate(1)
+		--self:BodyMoveXY()
+		--PrintTable(self:GetSequenceInfo(id))
+		self:TimedEvent(dur, function()
+			self.NextBarricade = CurTime() + 2
+			self:SetSpecialAnimation(false)
+			self:SetBlockAttack(false)
+			self.loco:SetAcceleration( self.Acceleration )
+			self.loco:SetDesiredSpeed(self:GetRunSpeed())
+			self:UpdateSequence()
+		end)
+	end
 end

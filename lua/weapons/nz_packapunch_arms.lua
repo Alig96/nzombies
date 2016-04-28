@@ -43,6 +43,8 @@ SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
+SWEP.NZPreventBox = true
+
 function SWEP:Initialize()
 
 	self:SetHoldType( "slam" )
@@ -72,7 +74,7 @@ function SWEP:Deploy()
 		if IsValid(self) and IsValid(self.Owner) then
 			if self.Owner:Alive() then
 				timer.Simple(0.1,function() 
-					self.Owner.UsingSpecialWep = nil
+					self.Owner:SetUsingSpecialWeapon(false)
 					if IsValid(self.Owner:GetWeapons()[1]) then self.Owner:SelectWeapon(self.Owner:GetWeapons()[1]:GetClass()) end
 					self:Remove()
 				end)
@@ -101,7 +103,9 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	
+	if !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
+		self.Owner:SetUsingSpecialWeapon(false)
+	end
 end
 
 function SWEP:GetViewModelPosition( pos, ang )
@@ -117,9 +121,9 @@ function SWEP:GetViewModelPosition( pos, ang )
 end
 
 if engine.ActiveGamemode() == "nzombies3" then 
-	SpecialWeapons:AddWeapon( "nz_packapunch_arms", "display", nil, function(ply, wep)
+	nzSpecialWeapons:AddWeapon( "nz_packapunch_arms", "display", nil, function(ply, wep)
 		if SERVER then
-			ply.UsingSpecialWep = true
+			ply:SetUsingSpecialWeapon(true)
 			ply:SelectWeapon("nz_packapunch_arms")
 		end
 	end)

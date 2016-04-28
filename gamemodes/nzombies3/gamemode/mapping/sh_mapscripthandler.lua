@@ -1,7 +1,7 @@
 if SERVER then
 	util.AddNetworkString("NZMapScript")
 	util.AddNetworkString("NZMapScriptUnload")
-	function Mapping:LoadScript( name )
+	function nzMapping:LoadScript( name )
 	
 		self:UnloadScript() -- For safety
 
@@ -17,7 +17,7 @@ if SERVER then
 		
 
 		for k,v in pairs(self.ScriptHooks) do
-			if isfunction(v) then
+			if type(v) == "function" then
 				hook.Add(k, "nzmapscript"..k, v)
 			end
 		end
@@ -45,11 +45,11 @@ if SERVER then
 
 	end
 
-	function Mapping:UnloadScript()
+	function nzMapping:UnloadScript()
 		if !self.ScriptHooks then return end
 
 		for k,v in pairs(self.ScriptHooks) do
-			if isfunction(v) then
+			if type(v) == "function" then
 				hook.Remove(k, "nzmapscript"..k)
 			end
 		end
@@ -70,13 +70,16 @@ if SERVER then
 
 		self.ScriptHooks = nil
 		
+		-- Clean up all items
+		nzItemCarry:CleanUp()
+		
 	end
 	
 	hook.Add("PlayerInitialSpawn", "SendMapScriptSpawn", function(ply)
-		if Mapping.ScriptHooks and Mapping.ScriptHooks.ClientSideSend then
+		if nzMapping.ScriptHooks and nzMapping.ScriptHooks.ClientSideSend then
 			timer.Simple(1, function()
 				net.Start("NZMapScript")
-					net.WriteString(Mapping.ScriptPath)
+					net.WriteString(nzMapping.ScriptPath)
 				net.Broadcast()
 			end)
 		end
@@ -91,36 +94,36 @@ if CLIENT then
 		
 		if !file.Exists( path, "LUA") then return end
 
-		Mapping.ScriptHooks = include( path )
+		nzMapping.ScriptHooks = include( path )
 		
-		PrintTable(Mapping.ScriptHooks)
+		PrintTable(nzMapping.ScriptHooks)
 
-		for k,v in pairs(Mapping.ScriptHooks) do
+		for k,v in pairs(nzMapping.ScriptHooks) do
 			if isfunction(v) then
 				hook.Add(k, "nzmapscript"..k, v)
 			end
 		end
 		
-		if Mapping.ScriptHooks.ScriptLoad then
-			Mapping.ScriptHooks.ScriptLoad()
+		if nzMapping.ScriptHooks.ScriptLoad then
+			nzMapping.ScriptHooks.ScriptLoad()
 		end
 	end)
 	
 	net.Receive("NZMapScriptUnload", function()	
-		if !Mapping.ScriptHooks then return end
+		if !nzMapping.ScriptHooks then return end
 
-		for k,v in pairs(Mapping.ScriptHooks) do
+		for k,v in pairs(nzMapping.ScriptHooks) do
 			if isfunction(v) then
 				hook.Remove(k, "nzmapscript"..k)
 			end
 		end
 		
-		if Mapping.ScriptHooks.ScriptUnload then
-			Mapping.ScriptHooks.ScriptUnload()
+		if nzMapping.ScriptHooks.ScriptUnload then
+			nzMapping.ScriptHooks.ScriptUnload()
 		end
 
-		Mapping.ScriptHooks = nil
-		Mapping.ScriptPath = nil
+		nzMapping.ScriptHooks = nil
+		nzMapping.ScriptPath = nil
 	end)
 
 end

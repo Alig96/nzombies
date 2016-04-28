@@ -51,6 +51,9 @@ end
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
+	if !self.Owner:GetUsingSpecialWeapon() then
+		self.Owner:EquipPreviousWeapon()
+	end
 end
 
 function SWEP:StartGrenadeModel()

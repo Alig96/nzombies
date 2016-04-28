@@ -10,6 +10,7 @@ if SERVER then
 
 		-- downed players are not targeted
 		self:SetTargetPriority(TARGET_PRIORITY_NONE)
+		self:SetHealth(100)
 
 		if self:HasPerk("whoswho") then
 			self.HasWhosWho = true
@@ -40,7 +41,7 @@ if SERVER then
 		self.OldPerks = nz.Perks.Data.Players[self] or {}
 
 		self:RemovePerks()
-		
+
 		self.DownPoints = math.Round(self:GetPoints()*0.05, -1)
 		if self.DownPoints >= self:GetPoints() then
 			self:SetPoints(0)
@@ -93,9 +94,9 @@ if SERVER then
 		Revive.Players[id].ReviveTime = CurTime()
 		Revive.Players[id].RevivePlayer = revivor
 		revivor.Reviving = self
-		
+
 		print("Started revive", self, revivor)
-		
+
 		if revivor:GetNotDowned() then -- You can revive yourself while downed with Solo Quick Revive
 			revivor:Give("nz_revive_morphine") -- Give them the viewmodel
 		end
@@ -106,7 +107,7 @@ if SERVER then
 	function playerMeta:StopRevive(nosync)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end -- Not even downed
-		
+
 		local revivor = Revive.Players[id].RevivePlayer
 		if IsValid(revivor) then
 			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors viewmodel
@@ -114,33 +115,35 @@ if SERVER then
 
 		Revive.Players[id].ReviveTime = nil
 		Revive.Players[id].RevivePlayer = nil
-		
+
 		print("Stopped revive", self)
 
 		if !nosync then hook.Call("PlayerNoLongerBeingRevived", Revive, self) end
 	end
 
-	function playerMeta:KillDownedPlayer(silent, nosync)
+	function playerMeta:KillDownedPlayer(silent, nosync, nokill)
 		local id = self:EntIndex()
 		if !Revive.Players[id] then return end
-		
+
 		local revivor = Revive.Players[id].RevivePlayer
 		if IsValid(revivor) then -- This shouldn't happen as players can't die if they are currently being revived
 			revivor:StripWeapon("nz_revive_morphine") -- Remove the revivors if someone was reviving viewmodel
 		end
-		
+
 		Revive.Players[id] = nil
-		if silent then
-			self:KillSilent()
-		else
-			self:Kill()
+		if !nokill then
+			if silent then
+				self:KillSilent()
+			else
+				self:Kill()
+			end
 		end
 		if !nosync then hook.Call("PlayerKilled", Revive, self) end
 		self.HasWhosWho = nil
 		self.DownPoints = nil
 		self.DownedWithSoloRevive = nil
 		for k,v in pairs(player.GetAllPlayingAndAlive()) do
-			v:TakePoints(math.Round(v:GetPoints()*0.1, -1))
+			v:TakePoints(math.Round(v:GetPoints()*0.1, -1), true)
 		end
 	end
 

@@ -23,12 +23,12 @@ local function StatesHud()
 		local text = ""
 		local font = "nz.display.hud.main"
 		local w = ScrW() / 2
-		if Round:InState( ROUND_WAITING ) then
+		if nzRound:InState( ROUND_WAITING ) then
 			text = "Waiting for players. Type /ready to ready up."
 			font = "nz.display.hud.small"
-		elseif Round:InState( ROUND_CREATE ) then
+		elseif nzRound:InState( ROUND_CREATE ) then
 			text = "Creative Mode"
-		elseif Round:InState( ROUND_GO ) then
+		elseif nzRound:InState( ROUND_GO ) then
 			text = "Game Over"
 		end
 		draw.SimpleText(text, font, w, ScrH() * 0.85, Color(200, 0, 0,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -39,7 +39,7 @@ local tbl = {Entity(3), Entity(1), Entity(3), Entity(4), Entity(5),}
 
 local function ScoreHud()
 	if GetConVar("cl_drawhud"):GetBool() then
-		if Round:InProgress() then
+		if nzRound:InProgress() then
 
 			local scale = (ScrW() / 1920 + 1) / 2
 			local offset = 0
@@ -63,11 +63,11 @@ local function ScoreHud()
 					end
 
 					local font = "nz.display.hud.small"
-					
+
 					surface.SetFont(font)
 
 					local textW, textH = surface.GetTextSize(text)
-					
+
 					if LocalPlayer() == v then
 						offset = offset + textH + 5 -- change this if you change the size of nz.display.hud.medium
 					else
@@ -76,7 +76,8 @@ local function ScoreHud()
 
 					surface.SetDrawColor(200,200,200)
 					local index = v:EntIndex()
-					local color, blood = player.GetColorBloodByIndex(v:EntIndex())
+					local color = player.GetColorByIndex(v:EntIndex())
+					local blood = player.GetBloodByIndex(v:EntIndex())
 					--for i = 0, 8 do
 						--surface.SetMaterial(bloodDecals[((index + i - 1) % #bloodDecals) + 1 ])
 						surface.SetMaterial(blood)
@@ -129,14 +130,22 @@ local function GunHud()
 end
 
 local function PowerUpsHud()
-	if Round:InProgress() then
+	if nzRound:InProgress() then
 		local font = "nz.display.hud.main"
 		local w = ScrW() / 2
 		local offset = 40
 		local c = 0
-		for k,v in pairs(nz.PowerUps.Data.ActivePowerUps) do
-			if nz.PowerUps.Functions.IsPowerupActive(k) then
-				local powerupData = nz.PowerUps.Functions.Get(k)
+		for k,v in pairs(nzPowerUps.ActivePowerUps) do
+			if nzPowerUps:IsPowerupActive(k) then
+				local powerupData = nzPowerUps:Get(k)
+				draw.SimpleText(powerupData.name .. " - " .. math.Round(v - CurTime()), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				c = c + 1
+			end
+		end
+		if !nzPowerUps.ActivePlayerPowerUps[LocalPlayer()] then nzPowerUps.ActivePlayerPowerUps[LocalPlayer()] = {} end
+		for k,v in pairs(nzPowerUps.ActivePlayerPowerUps[LocalPlayer()]) do
+			if nzPowerUps:IsPlayerPowerupActive(LocalPlayer(), k) then
+				local powerupData = nzPowerUps:Get(k)
 				draw.SimpleText(powerupData.name .. " - " .. math.Round(v - CurTime()), font, w, ScrH() * 0.85 + offset * c, Color(255, 255, 255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				c = c + 1
 			end
@@ -151,18 +160,18 @@ function nzDisplay.DrawLinks( ent, link )
 	//Check for zombie spawns
 	for k, v in pairs(ents.GetAll()) do
 		if v:IsBuyableProp()  then
-			if nz.Doors.Data.BuyableProps[k] != nil then
+			if nz.nzDoors.Data.BuyableProps[k] != nil then
 				if v.link == link then
 					table.insert(tbl, Entity(k))
 				end
 			end
 		elseif v:IsDoor() then
-			if nz.Doors.Data.LinkFlags[v:doorIndex()] != nil then
-				if nz.Doors.Data.LinkFlags[v:doorIndex()].link == link then
+			if nz.nzDoors.Data.LinkFlags[v:doorIndex()] != nil then
+				if nz.nzDoors.Data.LinkFlags[v:doorIndex()].link == link then
 					table.insert(tbl, v)
 				end
 			end
-		elseif v:GetClass() == "zed_spawns" then
+		elseif v:GetClass() == "nz_spawn_zombie_normal" then
 			if v:GetLink() == link then
 				table.insert(tbl, v)
 			end
@@ -257,6 +266,7 @@ end
 local vulture_textures = {
 	["wall_buys"] = Material("vulture_icons/wall_buys.png", "smooth unlitgeneric"),
 	["random_box"] = Material("vulture_icons/random_box.png", "smooth unlitgeneric"),
+	["wunderfizz_machine"] = Material("vulture_icons/wunderfizz.png", "smooth unlitgeneric"),
 }
 
 local function VultureVision()
@@ -319,9 +329,9 @@ local roundchangeending = false
 local prevroundspecial = false
 local function StartChangeRound()
 
-	print(Round:GetNumber(), Round:IsSpecial())
+	print(nzRound:GetNumber(), nzRound:IsSpecial())
 
-	if Round:GetNumber() >= 1 then
+	if nzRound:GetNumber() >= 1 then
 		if prevroundspecial then
 			surface.PlaySound("nz/round/special_round_end.wav")
 		else
@@ -356,9 +366,9 @@ local function StartChangeRound()
 				end
 			elseif round_alpha <= 0 then
 				if roundchangeending then
-					round_num = Round:GetNumber()
+					round_num = nzRound:GetNumber()
 					round_charger = 0.5
-					if Round:IsSpecial() then
+					if nzRound:IsSpecial() then
 						surface.PlaySound("nz/round/special_round_start.wav")
 						prevroundspecial = true
 					else

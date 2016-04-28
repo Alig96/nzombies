@@ -1,14 +1,13 @@
 
 -- Crowbar test melee weapon
-SpecialWeapons:CreateCategory("knife", 0)
-SpecialWeapons:CreateCategory("specialgrenade", IN_GRENADE2, true)
-SpecialWeapons:CreateCategory("grenade", IN_GRENADE1, true)
-SpecialWeapons:CreateCategory("display", 0)
+nzSpecialWeapons:CreateCategory("knife", 0)
+nzSpecialWeapons:CreateCategory("specialgrenade", IN_GRENADE2, true)
+nzSpecialWeapons:CreateCategory("grenade", IN_GRENADE1, true)
+nzSpecialWeapons:CreateCategory("display", 0)
 
-SpecialWeapons:AddWeapon( "nz_quickknife_crowbar", "knife", function(ply, wep)
+nzSpecialWeapons:AddWeapon( "nz_quickknife_crowbar", "knife", function(ply, wep)
 	if SERVER then
-		local prevwep = ply:GetActiveWeapon():GetClass()
-		ply.UsingSpecialWep = true
+		ply:SetUsingSpecialWeapon(true)
 		ply:SetActiveWeapon(wep)
 		timer.Simple(0.05, function()
 			if IsValid(ply) then
@@ -18,45 +17,22 @@ SpecialWeapons:AddWeapon( "nz_quickknife_crowbar", "knife", function(ply, wep)
 						ply:ConCommand("-attack")
 					end
 				end)
-				--[[local tr = util.TraceLine({
-					start = ply:GetShootPos(),
-					endpos = ply:GetShootPos() + ply:GetAimVector()*75,
-					filter = ply,
-				})
-				if IsValid(tr.Entity) then
-					local d = DamageInfo()
-					d:SetDamageType(DMG_CLUB)
-					d:SetDamage(50)
-					tr.Entity:TakeDamageInfo(d)
-				end]]
 			end
 		end)
 		timer.Simple(0.5, function()
 			if IsValid(ply) then
-				ply.UsingSpecialWep = nil
-				ply:SelectWeapon(prevwep)
+				ply:SetUsingSpecialWeapon(false)
+				ply:EquipPreviousWeapon()
 			end
 		end)
 	end
 end, function(ply, wep)
-	if SERVER then
-		local prevwep = ply:GetActiveWeapon():GetClass()
-		ply.UsingSpecialWep = true
-		ply:SelectWeapon("weapon_crowbar")
-		timer.Simple(0.5, function()
-			if IsValid(ply) then
-				ply.UsingSpecialWep = nil
-				ply:SelectWeapon(prevwep)
-			end
-		end)
-	end
 end)
 
-SpecialWeapons:AddWeapon( "nz_grenade", "grenade", function(ply) -- Use function
+nzSpecialWeapons:AddWeapon( "nz_grenade", "grenade", function(ply) -- Use function
 	if SERVER then
 		if ply:GetAmmoCount("nz_grenade") <= 0 then return end
-		local prevwep = ply:GetActiveWeapon():GetClass()
-		ply.UsingSpecialWep = true
+		ply:SetUsingSpecialWeapon(true)
 		ply:SelectWeapon("nz_grenade")
 		timer.Simple(0.5, function()
 			if IsValid(ply) then
@@ -67,9 +43,9 @@ SpecialWeapons:AddWeapon( "nz_grenade", "grenade", function(ply) -- Use function
 		end)
 		timer.Simple(1, function()
 			if IsValid(ply) then
-				ply.UsingSpecialWep = nil
+				ply:SetUsingSpecialWeapon(false)
 				ply:SetActiveWeapon(nil)
-				ply:SelectWeapon(prevwep)
+				ply:EquipPreviousWeapon()
 			end
 		end)
 	else
@@ -88,9 +64,9 @@ end, function(ply) -- Max Ammo function
 end)
 
 -- Does nothing, just needs to count as special
-SpecialWeapons:AddWeapon( "nz_perk_bottle", "display", nil, function(ply, wep)
+nzSpecialWeapons:AddWeapon( "nz_perk_bottle", "display", nil, function(ply, wep)
 	if SERVER then
-		ply.UsingSpecialWep = true
+		ply:SetUsingSpecialWeapon(true)
 		ply:SelectWeapon("nz_perk_bottle")
 	end
 end)

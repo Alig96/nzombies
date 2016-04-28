@@ -9,26 +9,30 @@ local traceents = {
 		local name = wep.PrintName
 		local ammo_price = math.Round((price - (price % 10))/2)
 		local text = ""
-		
+
 		if !LocalPlayer():HasWeapon( wepclass ) then
 			text = "Press E to buy " .. name .." for " .. price .. " points."
-		elseif LocalPlayer():GetWeapon( wepclass ).pap then
-			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. 4500 .. " points."
+		elseif string.lower(wep.Primary.Ammo) != "none" then
+			if LocalPlayer():GetWeapon( wepclass ).pap then
+				text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. 4500 .. " points."
+			else
+				text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points."
+			end
 		else
-			text = "Press E to buy " .. wep.Primary.Ammo .."  Ammo refill for " .. ammo_price .. " points."
+			text = "You already have this weapon."
 		end
-		
+
 		return text
 	end,
 	["breakable_entry"] = function(ent)
-		if ent:GetNumPlanks() < GetConVar("nz_difficulty_barricade_planks_max"):GetInt() then
+		if ent:GetHasPlanks() and ent:GetNumPlanks() < GetConVar("nz_difficulty_barricade_planks_max"):GetInt() then
 			local text = "Hold E to rebuild the barricade."
 			return text
 		end
 	end,
 	["random_box"] = function(ent)
 		if !ent:GetOpen() then
-			local text = nz.PowerUps.Functions.IsPowerupActive("firesale") and "Press E to buy a random weapon for 10 points." or "Press E to buy a random weapon for 950 points."
+			local text = nzPowerUps:IsPowerupActive("firesale") and "Press E to buy a random weapon for 10 points." or "Press E to buy a random weapon for 950 points."
 			return text
 		end
 	end,
@@ -42,7 +46,7 @@ local traceents = {
 			end
 			if name == nil then name = wepclass end
 			name = "Press E to take " .. name .. " from the box."
-			
+
 			return name
 		end
 	end,
@@ -74,11 +78,12 @@ local traceents = {
 				end
 			end
 		end
-		
+
 		return text
 	end,
-	["player_spawns"] = function() if Round:InState( ROUND_CREATE ) then return "Player Spawn" end end,
-	["zed_spawns"] = function() if Round:InState( ROUND_CREATE ) then return "Zombie Spawn" end end,
+	["player_spawns"] = function() if nzRound:InState( ROUND_CREATE ) then return "Player Spawn" end end,
+	["nz_spawn_zombie_normal"] = function() if nzRound:InState( ROUND_CREATE ) then return "Zombie Spawn" end end,
+	["nz_spawn_zombie_special"] = function() if nzRound:InState( ROUND_CREATE ) then return "Zombie Special Spawn" end end,
 	["pap_weapon_trigger"] = function(ent)
 		local wepclass = ent:GetWepClass()
 		local wep = weapons.Get(wepclass)
@@ -87,8 +92,28 @@ local traceents = {
 			name = nz.Display_PaPNames[wepclass] or nz.Display_PaPNames[name] or "Upgraded "..wep.PrintName
 		end
 		name = "Press E to take " .. name .. " from the machine."
-		
+
 		return name
+	end,
+	["wunderfizz_machine"] = function(ent)
+		local text = ""
+		if !ent:IsOn() then
+			text = "The Wunderfizz Orb is currently at another location."
+		elseif ent:GetBeingUsed() then
+			if ent:GetUser() == LocalPlayer() and ent:GetPerkID() != "" and !ent:GetIsTeddy() then
+				text = "Press E to take "..nz.Perks.Functions.Get(ent:GetPerkID()).name.." from Der Wunderfizz."
+			else
+				text = "Currently in use."
+			end
+		else
+			if #LocalPlayer():GetPerks() >= GetConVar("nz_difficulty_perks_max"):GetInt() then
+				text = "You cannot have more perks."
+			else
+				text = "Press E to buy Der Wunderfizz for " .. ent:GetPrice() .. " points."
+			end
+		end
+
+		return text
 	end,
 }
 
@@ -109,9 +134,9 @@ end
 local function GetDoorText( ent )
 	local door_data = ent:GetDoorData()
 	local text = ""
-	
-	if door_data and tonumber(door_data.price) == 0 and Round:InState(ROUND_CREATE) then
-		if tobool(door_data.elec) then 
+
+	if door_data and tonumber(door_data.price) == 0 and nzRound:InState(ROUND_CREATE) then
+		if tobool(door_data.elec) then
 			text = "This door will open when electricity is turned on."
 		else
 			text = "This door will open on game start."
@@ -120,31 +145,49 @@ local function GetDoorText( ent )
 		local price = tonumber(door_data.price)
 		local req_elec = tobool(door_data.elec)
 		local link = door_data.link
-		
+
 		if ent:IsLocked() then
 			if req_elec and !IsElec() then
 				text = "You must turn on the electricity first!"
 			elseif door_data.text then
 				text = door_data.text
 			elseif price != 0 then
-				--print("Still here", nz.Doors.Data.OpenedLinks[tonumber(link)])
+				--print("Still here", nz.nzDoors.Data.OpenedLinks[tonumber(link)])
 				text = "Press E to open for " .. price .. " points."
 			end
 		end
-	elseif door_data and tonumber(door_data.buyable) != 1 and Round:InState( ROUND_CREATE ) then
+	elseif door_data and tonumber(door_data.buyable) != 1 and nzRound:InState( ROUND_CREATE ) then
 		text = "This door is locked and cannot be bought in-game."
 		--PrintTable(door_data)
 	end
-	
+
 	return text
 end
 
 local function GetText( ent )
 
+	if !IsValid(ent) then return "" end
+
 	local class = ent:GetClass()
 	local text = ""
 
-	if ent:IsPlayer() then
+	local neededcategory, deftext, hastext = ent:GetNWString("NZRequiredItem"), ent:GetNWString("NZText"), ent:GetNWString("NZHasText")
+	local itemcategory = ent:GetNWString("NZItemCategory")
+
+	if neededcategory != "" then
+		local hasitem = LocalPlayer():HasCarryItem(neededcategory)
+		text = hasitem and hastext != "" and hastext or deftext
+	elseif deftext != "" then
+		text = deftext
+	elseif itemcategory != "" then
+		local item = nzItemCarry.Items[itemcategory]
+		local hasitem = LocalPlayer():HasCarryItem(itemcategory)
+		if hasitem then
+			text = item and item.hastext or "You already have this."
+		else
+			text = item and item.text or "Press E to pick up."
+		end
+	elseif ent:IsPlayer() then
 		if ent:GetNotDowned() then
 			text = ent:Nick() .. " - " .. ent:Health() .. " HP"
 		else
@@ -161,15 +204,15 @@ end
 
 local function GetMapScriptEntityText()
 	local text = ""
-	
-	for k,v in pairs(ents.FindByClass("nz_triggerzone")) do
+
+	for k,v in pairs(ents.FindByClass("nz_script_triggerzone")) do
 		local dist = v:NearestPoint(EyePos()):Distance(EyePos())
 		if dist <= 1 then
 			text = GetDoorText(v)
 			break
 		end
 	end
-	
+
 	return text
 end
 
