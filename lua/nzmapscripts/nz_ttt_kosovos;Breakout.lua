@@ -32,7 +32,7 @@ local ee_lock
 local ee_bat_place
 local ee_bat_charging
 
-local gascanobject = ItemCarry:CreateCategory("gascan")
+local gascanobject = nzItemCarry:CreateCategory("gascan")
 gascanobject:SetIcon("spawnicons/models/props_junk/gascan001a.png")
 gascanobject:SetText("Press E to pick up Gas Can.")
 gascanobject:SetDropOnDowned(true)
@@ -72,7 +72,7 @@ gascanobject:Update()
 
 -- Time to create the Easter Egg! Warning: This may spoil the steps!
 
-local keyobject = ItemCarry:CreateCategory("ee_key")
+local keyobject = nzItemCarry:CreateCategory("ee_key")
 keyobject:SetIcon("icon16/key.png")
 keyobject:SetText("Press E to pick up key.")
 keyobject:SetDropOnDowned(false)
@@ -88,7 +88,7 @@ keyobject:SetResetFunction( function(self)
 end)
 keyobject:Update()
 
-local batteryobject = ItemCarry:CreateCategory("ee_battery")
+local batteryobject = nzItemCarry:CreateCategory("ee_battery")
 batteryobject:SetIcon("spawnicons/models/items/car_battery01.png")
 batteryobject:SetText("Press E to pick up battery.")
 batteryobject:SetDropOnDowned(true)
@@ -118,7 +118,7 @@ batteryobject:SetCondition( function()
 end)
 batteryobject:Update()
 
-local chargedbatteryobject = ItemCarry:CreateCategory("ee_chargedbattery")
+local chargedbatteryobject = nzItemCarry:CreateCategory("ee_chargedbattery")
 chargedbatteryobject:SetIcon("spawnicons/models/items/car_battery01.png")
 chargedbatteryobject:SetText("Press E to pick up charged battery.")
 chargedbatteryobject:SetDropOnDowned(true)
