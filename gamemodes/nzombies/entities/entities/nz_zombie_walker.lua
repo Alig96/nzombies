@@ -401,6 +401,7 @@ function ENT:TriggerBarricadeJump()
 			self.loco:SetAcceleration( self.Acceleration )
 			self.loco:SetDesiredSpeed(self:GetRunSpeed())
 			self:UpdateSequence()
+			self:StartActivity(self.ActStages[self:GetActStage()] and self.ActStages[self:GetActStage()].act or self.CalcIdeal)
 		end)
 	end
 end
