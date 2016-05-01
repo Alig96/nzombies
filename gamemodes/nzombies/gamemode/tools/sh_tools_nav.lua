@@ -39,7 +39,7 @@ nz.Tools.Functions.CreateTool("navedit", {
 	icon = "icon16/map.png",
 	weight = 39,
 	condition = function(wep, ply)
-		return nz.Tools.Advanced and game.SinglePlayer()
+		return nz.Tools.Advanced
 	end,
 	interface = function(frame, data)
 
@@ -106,6 +106,9 @@ nz.Tools.Functions.CreateTool("navedit", {
 			["Delete Area"] = "nav_delete",
 			["Split Area"] = "nav_split",
 			["Mark Area"] = "nav_mark",
+			["Generate Incremental"] = "nav_generate_incremental",
+			["Clear Selected Set"] = "nav_clear_selected_set",
+			["Mark Walkable"] = "nav_mark_walkable",
 		}
 
 		--update helper
