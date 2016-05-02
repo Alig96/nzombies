@@ -5,5 +5,7 @@ chatcommand.Add("/cheats", function(ply, text)
 		else
 			g_nz_cheats:Remove()
 		end
+	else
+		return true -- Doesn't block the command (client does this instead)
 	end
 end, false, "Opens the cheat panel.")
