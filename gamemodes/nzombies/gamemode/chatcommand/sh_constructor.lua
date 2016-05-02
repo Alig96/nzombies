@@ -31,7 +31,7 @@ if SERVER then
 						return false
 					end
 					local block = v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " ")) or false
-					print("NZ " .. tostring(ply) .. " used cheat " .. v[1] .. " with arguments " .. string.sub(text, string.len(v[1]) + 2))
+					print("NZ " .. tostring(ply) .. " used command " .. v[1] .. " with arguments " .. string.sub(text, string.len(v[1]) + 2))
 					return block
 				end
 			end

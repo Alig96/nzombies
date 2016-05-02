@@ -303,8 +303,8 @@ function nzMapping:LoadConfig( name, loader )
 	local location = "DATA"
 
 	if string.GetExtensionFromFilename(name) == "lua" then
-		if file.Exists("gamemodes/nzombies3/officialconfigs/"..name, "GAME") then
-			location, filepath = "GAME", "gamemodes/nzombies3/officialconfigs/"..name
+		if file.Exists("gamemodes/nzombies/officialconfigs/"..name, "GAME") then
+			location, filepath = "GAME", "gamemodes/nzombies/officialconfigs/"..name
 		else
 			location = "LUA"
 		end
