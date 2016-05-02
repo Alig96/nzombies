@@ -31,6 +31,7 @@ if SERVER then
 						return false
 					end
 					local block = v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " ")) or false
+					print("NZ " .. tostring(ply) .. " used cheat " .. v[1] .. " with arguments " .. string.sub(text, string.len(v[1]) + 2))
 					return block
 				end
 			end
@@ -49,7 +50,9 @@ if CLIENT then
 					if v[3] and !ply:IsSuperAdmin() then
 						return true
 					end
-					v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " "))
+					if ply == LocalPlayer() then
+						v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " "))
+					end
 					return true
 				end
 			end

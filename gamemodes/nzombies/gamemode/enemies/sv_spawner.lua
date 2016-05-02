@@ -3,7 +3,7 @@
 -- Author: Lolle
 
 if Spawner == nil then
-	Spawner = class({
+	Spawner = nzClass({
 		-- CONSTRUCTOR
 		-- sPointClass: The class of spawnpoints this spawner will create entities from.
 		--              A spawnpoint class should only be used by one spawner at a time.

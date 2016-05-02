@@ -70,7 +70,7 @@
     print("test.tostring: " .. test.tostring();
 ]]--
 
-function class(def, statics, base)
+function nzClass(def, statics, base)
     -- Error if def argument missing or is not a table
     if not def or type(def) ~= 'table' then error("class definition missing or not a table") end
 
@@ -225,6 +225,8 @@ function class(def, statics, base)
     return c
 end
 
+--[[	Disabled as it wasn't being used. Will be uncommented when and if they find a use
+
 -- Implement Squirrel instanceof binary operator
 --
 function instanceof(instanceObj, classObj)
@@ -257,3 +259,4 @@ end
 function isclass(classObj)
     return classObj and classObj.__class__ == classObj
 end
+]]

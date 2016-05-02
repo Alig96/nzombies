@@ -167,6 +167,9 @@ function ENT:Initialize()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.loco:SetAcceleration( self.Acceleration )
 		self.loco:SetJumpHeight( self.JumpHeight )
+		if GetConVar("nz_zombie_lagcompensated"):GetBool() then
+			self:SetLagCompensated(true)
+		end
 	end
 
 	for i,v in ipairs(self:GetBodyGroups()) do
