@@ -317,6 +317,7 @@ function nzRound:Create()
 		end
 
 		nzMapping:CleanUpMap()
+		nzDoors:LockAllDoors()
 
 	elseif self:InState( ROUND_CREATE ) then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
