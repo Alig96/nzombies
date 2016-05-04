@@ -651,7 +651,8 @@ function ENT:ChaseTarget( options )
 
 		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
-			self.BarricadeCheckDir = (path:FirstSegment().forward)
+			local segment = path:FirstSegment()
+			self.BarricadeCheckDir = segment and segment.forward or nil
 			return "timeout"
 		end
 
