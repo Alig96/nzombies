@@ -237,10 +237,10 @@ if SERVER then
 	nzConfig.RoundData[23] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
-				chance = 85,
+				chance = 80,
 			},
 			["nz_zombie_special_burning"] = {
-				chance = 15,
+				chance = 10,
 			},
 		},
 	}
