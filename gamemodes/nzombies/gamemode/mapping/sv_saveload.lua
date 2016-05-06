@@ -197,6 +197,7 @@ function nzMapping:SaveConfig(name)
 
 	--Save this map's configuration
 	main["MapSettings"] = self.Settings
+	main["GamemodeExtensions"] = self.GamemodeExtensions
 	main["RemoveProps"] = self.MarkedProps
 
 	local configname
@@ -211,7 +212,7 @@ function nzMapping:SaveConfig(name)
 
 end
 
-function nzMapping:ClearConfig()
+function nzMapping:ClearConfig(noclean)
 	print("[NZ] Clearing current map")
 
 	-- ALWAYS do this first!
@@ -274,6 +275,14 @@ function nzMapping:ClearConfig()
 
 	nzMapping.Settings = {}
 	nzMapping.MarkedProps = {}
+	
+	for k,v in pairs(nzMapping.GamemodeExtensions) do
+		nzMapping.GamemodeExtensions[k] = false
+	end
+	
+	for k,v in pairs(player.GetAll()) do
+		nzMapping:SendMapData(v)
+	end
 
 	nzDoors.MapDoors = {}
 	nzDoors.PropDoors = {}
@@ -290,7 +299,9 @@ function nzMapping:ClearConfig()
 
 	nzMapping.CurrentConfig = nil
 
-	nzMapping:CleanUpMap()
+	if !noclean then
+		nzMapping:CleanUpMap()
+	end
 end
 
 function nzMapping:LoadConfig( name, loader )
@@ -335,7 +346,16 @@ function nzMapping:LoadConfig( name, loader )
 			print("Warning: This map config does not contain any set barricades.")
 		end
 
-		self:ClearConfig()
+		self:ClearConfig(true) -- We pass true to not clean up the map
+		
+		-- Then we can load which extensions to use before the map is cleaned up
+		if data.GamemodeExtensions then
+			nzMapping.GamemodeExtensions = data.GamemodeExtensions
+			-- That way, the gamemode entities will spawn during the map clean up
+		end
+		-- That we then manually call here
+		nzMapping:CleanUpMap()
+		
 
 		print("[NZ] Loading " .. filepath .. "...")
 
@@ -444,9 +464,10 @@ function nzMapping:LoadConfig( name, loader )
 
 		if data.MapSettings then
 			nzMapping.Settings = data.MapSettings
-			for k,v in pairs(player.GetAll()) do
-				nzMapping:SendMapData(v)
-			end
+		end
+		
+		for k,v in pairs(player.GetAll()) do
+			nzMapping:SendMapData(v)
 		end
 
 		if data.RemoveProps then

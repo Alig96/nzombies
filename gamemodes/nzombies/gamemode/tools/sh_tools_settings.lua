@@ -28,7 +28,6 @@ nz.Tools.Functions.CreateTool("settings", {
 		local valz = {}
 		valz["Row1"] = data.startwep or "Select ..."
 		valz["Row2"] = data.startpoints or 500
-		valz["Row3"] = data.maxwep or 2
 		valz["Row4"] = data.eeurl or ""
 		valz["Row5"] = data.script or false
 		valz["Row6"] = data.scriptinfo or ""
@@ -41,7 +40,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		local DProperties = vgui.Create( "DProperties", DProperySheet )
 		DProperties:SetSize( 280, 250 )
 		DProperties:SetPos( 0, 0 )
-		sheet:AddSheet( "Map Properties", DProperties, "icon16/cog.png")
+		sheet:AddSheet( "Map Properties", DProperties, "icon16/cog.png", false, false, "Allows you to set a list of general settings. The Easter Egg Song URL needs to be from Soundcloud.")
 
 		local Row1 = DProperties:CreateRow( "Map Settings", "Starting Weapon" )
 		Row1:Setup( "Combo" )
@@ -68,11 +67,6 @@ nz.Tools.Functions.CreateTool("settings", {
 		Row2:Setup( "Integer" )
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val end
-
-		local Row3 = DProperties:CreateRow( "Map Settings", "Max Weapons" )
-		Row3:Setup( "Integer" )
-		Row3:SetValue( valz["Row3"] )
-		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
 
 		local Row4 = DProperties:CreateRow( "Map Settings", "Easter Egg Song URL" )
 		Row4:Setup( "Generic" )
@@ -119,7 +113,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			local numweplist = 0
 
 			local rboxpanel = vgui.Create("DPanel", sheet)
-			sheet:AddSheet( "Random Box Weapons", rboxpanel, "icon16/box.png")
+			sheet:AddSheet( "Random Box Weapons", rboxpanel, "icon16/box.png", false, false, "Allows you to set which weapons appear in the Random Box.")
 			rboxpanel.Paint = function() return end
 
 			local rbweplist = vgui.Create("DScrollPanel", rboxpanel)
@@ -404,7 +398,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			local perklist = {}
 
 			local perkpanel = vgui.Create("DPanel", sheet)
-			sheet:AddSheet( "Wunderfizz Perks", perkpanel, "icon16/drink.png")
+			sheet:AddSheet( "Wunderfizz Perks", perkpanel, "icon16/drink.png", false, false, "Allows you to set which perks appears in Der Wunderfizz.")
 			perkpanel.Paint = function() return end
 
 			local perklistpnl = vgui.Create("DScrollPanel", perkpanel)
@@ -440,6 +434,48 @@ nz.Tools.Functions.CreateTool("settings", {
 					name:SetPos(20,1)
 					name:SetText(v)
 				end
+			end
+
+			local gamemodepanel = vgui.Create("DPanel", sheet)
+			sheet:AddSheet( "Gamemode Entities", gamemodepanel, "icon16/bug.png", false, false, "Enabling these enables the gamemodes mapping entities. These can add hints or even objectives that lets you beat the map.")
+			gamemodepanel.Paint = function() return end
+			
+			local gmwarn = vgui.Create("DLabel", gamemodepanel)
+			gmwarn:SetText("Reload your config to apply changes.")
+			gmwarn:SetFont("Trebuchet18")
+			gmwarn:SetTextColor( Color(150, 50, 50) )
+			gmwarn:SizeToContents()
+			gmwarn:SetPos(30, 2)
+
+			local gmlistpnl = vgui.Create("DScrollPanel", gamemodepanel)
+			gmlistpnl:SetPos(0, 30)
+			gmlistpnl:SetSize(265, 220)
+			gmlistpnl:SetPaintBackground(true)
+			gmlistpnl:SetBackgroundColor( Color(200, 200, 200) )
+			
+			local gmchecklist = vgui.Create( "DIconLayout", gmlistpnl )
+			gmchecklist:SetSize( 265, 220 )
+			gmchecklist:SetPos( 0, 0 )
+			gmchecklist:SetSpaceY( 5 )
+			gmchecklist:SetSpaceX( 5 )
+			
+			for k,v in pairs(nzMapping.GamemodeExtensions) do
+				local gmitem = gmchecklist:Add( "DPanel" )
+				gmitem:SetSize( 130, 20 )
+				
+				local check = gmitem:Add("DCheckBox")
+				check:SetPos(2,2)
+				check:SetValue(v)
+				check.OnChange = function(self, val)
+					nzMapping.GamemodeExtensions[k] = val
+					nzMapping:SendMapData( {gamemodeentities = nzMapping.GamemodeExtensions} )
+				end
+				
+				local name = gmitem:Add("DLabel")
+				name:SetTextColor(Color(50,50,50))
+				name:SetSize(105, 20)
+				name:SetPos(20,1)
+				name:SetText(k)
 			end
 		else
 			local text = vgui.Create("DLabel", DProperties)
