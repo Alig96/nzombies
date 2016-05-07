@@ -28,9 +28,10 @@ nz.Tools.Functions.CreateTool("settings", {
 		local valz = {}
 		valz["Row1"] = data.startwep or "Select ..."
 		valz["Row2"] = data.startpoints or 500
-		valz["Row4"] = data.eeurl or ""
-		valz["Row5"] = data.script or false
-		valz["Row6"] = data.scriptinfo or ""
+		valz["Row3"] = data.eeurl or ""
+		valz["Row4"] = data.script or false
+		valz["Row5"] = data.scriptinfo or ""
+		valz["Row6"] = data.gamemodeentities or false
 		valz["RBoxWeps"] = data.RBoxWeps or {}
 
 		local sheet = vgui.Create( "DPropertySheet", frame )
@@ -68,33 +69,39 @@ nz.Tools.Functions.CreateTool("settings", {
 		Row2:SetValue( valz["Row2"] )
 		Row2.DataChanged = function( _, val ) valz["Row2"] = val end
 
-		local Row4 = DProperties:CreateRow( "Map Settings", "Easter Egg Song URL" )
-		Row4:Setup( "Generic" )
-		Row4:SetValue( valz["Row4"] )
-		Row4.DataChanged = function( _, val ) valz["Row4"] = val end
-		Row4:SetTooltip("Add a link to a SoundCloud track to play this when all easter eggs have been found")
+		local Row3 = DProperties:CreateRow( "Map Settings", "Easter Egg Song URL" )
+		Row3:Setup( "Generic" )
+		Row3:SetValue( valz["Row3"] )
+		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
+		Row3:SetTooltip("Add a link to a SoundCloud track to play this when all easter eggs have been found")
 		
 		if nz.Tools.Advanced then
-			local Row5 = DProperties:CreateRow( "Map Settings", "Includes Map Script?" )
-			Row5:Setup( "Boolean" )
+			local Row4 = DProperties:CreateRow( "Map Settings", "Includes Map Script?" )
+			Row4:Setup( "Boolean" )
+			Row4:SetValue( valz["Row4"] )
+			Row4.DataChanged = function( _, val ) valz["Row4"] = val end
+			Row4:SetTooltip("Loads a .lua file with the same name as the config .txt from /lua/nzmapscripts - for advanced developers.")
+		
+			local Row5 = DProperties:CreateRow( "Map Settings", "Script Description" )
+			Row5:Setup( "Generic" )
 			Row5:SetValue( valz["Row5"] )
 			Row5.DataChanged = function( _, val ) valz["Row5"] = val end
-			Row5:SetTooltip("Loads a .lua file with the same name as the config .txt from /lua/nzmapscripts - for advanced developers.")
-		
-			local Row6 = DProperties:CreateRow( "Map Settings", "Script Description" )
-			Row6:Setup( "Generic" )
+			Row5:SetTooltip("Sets the description displayed when attempting to load the script.")
+			
+			local Row6 = DProperties:CreateRow( "Map Settings", "Gamemode Extensions" )
+			Row6:Setup( "Boolean" )
 			Row6:SetValue( valz["Row6"] )
 			Row6.DataChanged = function( _, val ) valz["Row6"] = val end
-			Row6:SetTooltip("Sets the description displayed when attempting to load the script.")
+			Row6:SetTooltip("Sets whether the gamemode should spawn in map entities from other gamemodes, such as ZS.")
 		end
 		
 		local function UpdateData()
 			if !weapons.Get( valz["Row1"] ) then data.startwep = nil else data.startwep = valz["Row1"] end
 			if !tonumber(valz["Row2"]) then data.startpoints = 500 else data.startpoints = tonumber(valz["Row2"]) end
-			if !tonumber(valz["Row3"]) then data.numweps = 2 else data.numweps = tonumber(valz["Row3"]) end
-			if !valz["Row4"] or valz["Row4"] == "" then data.eeurl = nil else data.eeurl = valz["Row4"] end
-			if !valz["Row5"] then data.script = nil else data.script = valz["Row5"] end
-			if !valz["Row6"] or valz["Row6"] == "" then data.scriptinfo = nil else data.scriptinfo = valz["Row6"] end
+			if !valz["Row3"] or valz["Row3"] == "" then data.eeurl = nil else data.eeurl = valz["Row3"] end
+			if !valz["Row4"] then data.script = nil else data.script = valz["Row4"] end
+			if !valz["Row5"] or valz["Row5"] == "" then data.scriptinfo = nil else data.scriptinfo = valz["Row5"] end
+			if !valz["Row6"] or valz["Row6"] == "0" then data.gamemodeentities = nil else data.gamemodeentities = tobool(valz["Row6"]) end
 			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			if !valz["WMPerks"] or !valz["WMPerks"][1] then data.wunderfizzperks = nil else data.wunderfizzperks = valz["WMPerks"] end
 			PrintTable(data)
@@ -434,48 +441,6 @@ nz.Tools.Functions.CreateTool("settings", {
 					name:SetPos(20,1)
 					name:SetText(v)
 				end
-			end
-
-			local gamemodepanel = vgui.Create("DPanel", sheet)
-			sheet:AddSheet( "Gamemode Entities", gamemodepanel, "icon16/bug.png", false, false, "Enabling these enables the gamemodes mapping entities. These can add hints or even objectives that lets you beat the map.")
-			gamemodepanel.Paint = function() return end
-			
-			local gmwarn = vgui.Create("DLabel", gamemodepanel)
-			gmwarn:SetText("Reload your config to apply changes.")
-			gmwarn:SetFont("Trebuchet18")
-			gmwarn:SetTextColor( Color(150, 50, 50) )
-			gmwarn:SizeToContents()
-			gmwarn:SetPos(30, 2)
-
-			local gmlistpnl = vgui.Create("DScrollPanel", gamemodepanel)
-			gmlistpnl:SetPos(0, 30)
-			gmlistpnl:SetSize(265, 220)
-			gmlistpnl:SetPaintBackground(true)
-			gmlistpnl:SetBackgroundColor( Color(200, 200, 200) )
-			
-			local gmchecklist = vgui.Create( "DIconLayout", gmlistpnl )
-			gmchecklist:SetSize( 265, 220 )
-			gmchecklist:SetPos( 0, 0 )
-			gmchecklist:SetSpaceY( 5 )
-			gmchecklist:SetSpaceX( 5 )
-			
-			for k,v in pairs(nzMapping.GamemodeExtensions) do
-				local gmitem = gmchecklist:Add( "DPanel" )
-				gmitem:SetSize( 130, 20 )
-				
-				local check = gmitem:Add("DCheckBox")
-				check:SetPos(2,2)
-				check:SetValue(v)
-				check.OnChange = function(self, val)
-					nzMapping.GamemodeExtensions[k] = val
-					nzMapping:SendMapData( {gamemodeentities = nzMapping.GamemodeExtensions} )
-				end
-				
-				local name = gmitem:Add("DLabel")
-				name:SetTextColor(Color(50,50,50))
-				name:SetSize(105, 20)
-				name:SetPos(20,1)
-				name:SetText(k)
 			end
 		else
 			local text = vgui.Create("DLabel", DProperties)

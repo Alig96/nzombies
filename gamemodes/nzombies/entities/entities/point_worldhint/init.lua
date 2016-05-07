@@ -5,7 +5,7 @@ include("shared.lua")
 
 function ENT:Initialize()
 	-- Remove it as soon as it spawns, if the gamemode hasn't been enabled in Map Settings
-	if !nzMapping.GamemodeExtensions or !nzMapping.GamemodeExtensions["Zombie Survival"] then
+	if !nzMapping.Settings.gamemodeentities then
 		self:Remove()
 	end
 	

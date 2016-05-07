@@ -197,7 +197,6 @@ function nzMapping:SaveConfig(name)
 
 	--Save this map's configuration
 	main["MapSettings"] = self.Settings
-	main["GamemodeExtensions"] = self.GamemodeExtensions
 	main["RemoveProps"] = self.MarkedProps
 
 	local configname
@@ -276,10 +275,6 @@ function nzMapping:ClearConfig(noclean)
 	nzMapping.Settings = {}
 	nzMapping.MarkedProps = {}
 	
-	for k,v in pairs(nzMapping.GamemodeExtensions) do
-		nzMapping.GamemodeExtensions[k] = false
-	end
-	
 	for k,v in pairs(player.GetAll()) do
 		nzMapping:SendMapData(v)
 	end
@@ -348,10 +343,10 @@ function nzMapping:LoadConfig( name, loader )
 
 		self:ClearConfig(true) -- We pass true to not clean up the map
 		
-		-- Then we can load which extensions to use before the map is cleaned up
-		if data.GamemodeExtensions then
-			nzMapping.GamemodeExtensions = data.GamemodeExtensions
-			-- That way, the gamemode entities will spawn during the map clean up
+		-- Then we can load if entity extensions are to be used
+		if data.MapSettings then
+			nzMapping.Settings = data.MapSettings
+			-- That way, the gamemode entities will spawn without getting removed during the map clean up
 		end
 		-- That we then manually call here
 		nzMapping:CleanUpMap()
@@ -460,10 +455,6 @@ function nzMapping:LoadConfig( name, loader )
 				local ent = duplicator.CreateEntityFromTable(Entity(1), v)
 				table.insert(nz.QMenu.Data.SpawnedEntities, ent)
 			end
-		end
-
-		if data.MapSettings then
-			nzMapping.Settings = data.MapSettings
 		end
 		
 		for k,v in pairs(player.GetAll()) do

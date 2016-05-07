@@ -30,9 +30,7 @@ if SERVER then
 			nzMapping.Settings.wunderfizzperks = tbl.wunderfizzperks and tbl.wunderfizzperks[1] and tbl.wunderfizzperks or nil
 		end
 		if tbl.gamemodeentities then
-			for k,v in pairs(tbl.gamemodeentities) do
-				nzMapping.GamemodeExtensions[k] = tobool(v)
-			end
+			nzMapping.Settings.gamemodeentities = tbl.gamemodeentities or nil
 		end
 
 		for k,v in pairs(player.GetAll()) do
@@ -44,9 +42,9 @@ if SERVER then
 	net.Receive( "nzMapping.SyncSettings", receiveMapData )
 
 	function nzMapping:SendMapData(ply)
+		if !self.GamemodeExtensions then self.GamemodeExtensions = {} end
 		net.Start("nzMapping.SyncSettings")
 			net.WriteTable(self.Settings)
-			net.WriteTable(self.GamemodeExtensions)
 		net.Send(ply)
 	end
 end
@@ -61,7 +59,6 @@ if CLIENT then
 	local function receiveMapData()
 		local oldeeurl = nzMapping.Settings.eeurl or ""
 		nzMapping.Settings = net.ReadTable()
-		nzMapping.GamemodeExtensions = net.ReadTable()
 
 		if !EEAudioChannel or (oldeeurl != nzMapping.Settings.eeurl and nzMapping.Settings.eeurl) then
 			EasterEggData.ParseSong()
