@@ -19,7 +19,7 @@ function GM:CreateMove( cmd )
 end
 
 function GM:PlayerBindPress( ply, bind, pressed )
-	if nzRound:InProgress() then
+	if nzRound:InProgress() or nzRound:InState(ROUND_GO) then
 		if !ply:GetCurrentWeaponSlot() then ply:SetCurrentWeaponSlot(ply:GetActiveWeapon():GetNWInt("SwitchSlot", 1)) end
 		local slot
 		local curslot = ply:GetCurrentWeaponSlot() or 1

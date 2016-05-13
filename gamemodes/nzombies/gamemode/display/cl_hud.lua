@@ -462,5 +462,12 @@ function GM:HUDWeaponPickedUp( wep )
 
 	table.insert( self.PickupHistory, pickup )
 	self.PickupHistoryLast = pickup.time
+	
+	--[[timer.Simple(0.1, function()
+		local slot = wep:GetNWInt("SwitchSlot")
+		if slot > 0 then
+			wep.Primary.Ammo = "nz_weapon_ammo_"..slot
+		end
+	end)]]
 
 end

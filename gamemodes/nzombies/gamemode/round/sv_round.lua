@@ -179,7 +179,7 @@ function nzRound:Start()
 
 	timer.Create( "NZRoundThink", 0.1, 0, function() self:Think() end )
 
-	nz.Weps.DoRoundResupply()
+	nzWeps:DoRoundResupply()
 end
 
 function nzRound:Think()
