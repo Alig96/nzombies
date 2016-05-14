@@ -196,7 +196,7 @@ if SERVER then
 		local price = self.Price
 		
 		local wep
-		for k,v in pairs(ply:GetWeapons()) do
+		for k,v in pairs(activator:GetWeapons()) do
 			if v:GetClass() == self.WeaponGive then wep = v break end
 		end
 		if !wep then wep = weapons.Get(self.WeaponGive) end
