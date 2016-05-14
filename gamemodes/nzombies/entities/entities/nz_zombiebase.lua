@@ -328,7 +328,7 @@ function ENT:RunBehaviour()
 				local pathResult = self:ChaseTarget( {
 					maxage = 1,
 					draw = false,
-					tolerance = ((self:GetAttackRange() -20) > 0 ) and self:GetAttackRange() - 10
+					tolerance = self:GetSpecialAnimation() and 0 or ((self:GetAttackRange() -30) > 0 ) and self:GetAttackRange() - 20
 				} )
 				if pathResult == "ok" then
 					if self:TargetInAttackRange() then
@@ -426,9 +426,16 @@ function ENT:OnBarricadeBlocking( barricade )
 
 			end)
 
-			self:PlaySequenceAndWait(self.AttackSequences[math.random( #self.AttackSequences )].seq, 1)
+			self:SetAngles(Angle(0,(barricade:GetPos()-self:GetPos()):Angle()[2],0))
+			local seq = self.AttackSequences[math.random( #self.AttackSequences )].seq
+			local dur = self:SequenceDuration(self:LookupSequence(seq))
+			self:PlaySequenceAndWait(seq, 1)
 			self:SetLastAttack(CurTime())
 			self:SetAttacking(true)
+			self:UpdateSequence()
+			if coroutine.running() then
+				coroutine.wait(2 - dur)
+			end
 
 			-- this will cause zombies to attack the barricade until it's destroyed
 			local stillBlocked = self:CheckForBarricade()
@@ -641,6 +648,7 @@ function ENT:ChaseTarget( options )
 
 		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
+			self.BarricadeCheckDir = (path:FirstSegment().forward)
 			return "timeout"
 		end
 
@@ -720,7 +728,7 @@ function ENT:ChaseTargetPath( options )
 
 	local path = Path( "Follow" )
 	path:SetMinLookAheadDistance( options.lookahead or 300 )
-	path:SetGoalTolerance( options.tolerance or 50 )
+	path:SetGoalTolerance( options.tolerance or 30 )
 
 	--[[local targetPos = options.target:GetPos()
 	--set the goal to the closet navmesh
@@ -829,10 +837,13 @@ function ENT:CheckForBarricade()
 	--we try a line trace first since its more efficient
 	local dataL = {}
 	dataL.start = self:GetPos() + Vector( 0, 0, self:OBBCenter().z )
-	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self:GetForward() * 32
+	dataL.endpos = self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self.BarricadeCheckDir * 48
 	dataL.filter = function( ent ) if ( ent:GetClass() == "breakable_entry" ) then return true end end
 	dataL.ignoreworld = true
 	local trL = util.TraceLine( dataL )
+	
+	--debugoverlay.Line(self:GetPos() + Vector( 0, 0, self:OBBCenter().z ), self:GetPos() + Vector( 0, 0, self:OBBCenter().z ) + self.BarricadeCheckDir * 32)
+	--debugoverlay.Cross(self:GetPos() + Vector( 0, 0, self:OBBCenter().z ), 1)
 
 	if IsValid( trL.Entity ) and trL.Entity:GetClass() == "breakable_entry" then
 		return trL.Entity
@@ -841,7 +852,7 @@ function ENT:CheckForBarricade()
 	--perform a hull trace if line didnt hit just to make sure
 	local dataH = {}
 	dataH.start = self:GetPos()
-	dataH.endpos = self:GetPos() + self:GetForward() * 32
+	dataH.endpos = self:GetPos() + self.BarricadeCheckDir * 48
 	dataH.filter = function( ent ) if ( ent:GetClass() == "breakable_entry" ) then return true end end
 	dataH.mins = self:OBBMins() * 0.65
 	dataH.maxs = self:OBBMaxs() * 0.65
@@ -1165,7 +1176,7 @@ function ENT:BodyUpdate()
 	end
 
 	if !self:GetSpecialAnimation() and !self:IsAttacking() then
-		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
+		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then print(self.CalcIdeal) self:StartActivity(self.CalcIdeal) end
 
 		if self.ActStages[self:GetActStage()] then
 			self:BodyMoveXY()

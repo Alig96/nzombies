@@ -26,12 +26,12 @@ nz.Tools.Functions.CreateTool("testzombie", {
 	end,
 
 	SecondaryAttack = function(wep, ply, tr, data)
-		if IsValid(tr.Entity) and string.find(tr.Entity:GetClass(), "nz_zombie_walker") then
+		if IsValid(tr.Entity) and string.find(tr.Entity:GetClass(), "nz_zombie") then
 			tr.Entity:Remove()
 		end
 	end,
 	Reload = function(wep, ply, tr, data)
-		if IsValid(tr.Entity) and string.find(tr.Entity:GetClass(), "nz_zombie_walker") then
+		if IsValid(tr.Entity) and string.find(tr.Entity:GetClass(), "nz_zombie") then
 			if tr.Entity:GetStop() then tr.Entity:SetStop(false) else tr.Entity:Stop() end
 		end
 	end,
