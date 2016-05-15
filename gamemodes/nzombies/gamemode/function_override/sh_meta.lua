@@ -200,7 +200,7 @@ function GM:EntityFireBullets(ent, data)
 	//Fire the PaP shooting sound if the weapon is PaP'd
 	--print(wep, wep.pap)
 	if ent:IsPlayer() and IsValid(ent:GetActiveWeapon()) and ent:GetActiveWeapon().pap then
-		wep:EmitSound("nz/effects/pap_shoot_glock20.wav", 105, 100)
+		ent:GetActiveWeapon():EmitSound("nz/effects/pap_shoot_glock20.wav", 105, 100)
 	end
 
 	//Perform a trace that filters out wall blocks
