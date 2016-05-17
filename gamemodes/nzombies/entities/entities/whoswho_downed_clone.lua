@@ -89,17 +89,17 @@ function ENT:RevivePlayer()
 		ply:StripWeapons()
 		
 		for k,v in pairs(self.OwnerData.weps) do
-			local wep = hitEnt:Give(v.class)
+			local wep = ply:Give(v.class)
 			if v.pap then
 				wep:ApplyNZModifier("pap")
 			end
 		end
 		for k,v in pairs(self.OwnerData.perks) do
 			if v != "tombstone" then
-				hitEnt:GivePerk(v)
+				ply:GivePerk(v)
 			end
 		end
-		nzWeps:GiveMaxAmmo(hitEnt)
+		nzWeps:GiveMaxAmmo(ply)
 	end
 	
 	-- Everything bought as the clone will be refunded, even doors
