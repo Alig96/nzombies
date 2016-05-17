@@ -149,7 +149,7 @@ nzPowerUps:NewPowerUp("maxammo", {
 		nz.Notifications.Functions.PlaySound("nz/powerups/max_ammo.mp3", 2)
 		-- Give everyone ammo
 		for k,v in pairs(player.GetAll()) do
-			nz.Weps.Functions.GiveMaxAmmo(v)
+			nzWeps:GiveMaxAmmo(v)
 		end
 	end),
 })
@@ -196,6 +196,14 @@ nzPowerUps:NewPowerUp("firesale", {
 		nz.Notifications.Functions.PlaySound("nz/powerups/fire_sale_announcer.wav", 1)
 		nzPowerUps:FireSale()
 	end),
+	expirefunc = function()
+		local tbl = ents.FindByClass("random_box_spawns")
+		for k,v in pairs(tbl) do
+			if IsValid(v.FireSaleBox) then
+				v.FireSaleBox:MarkForRemoval()
+			end
+		end
+	end,
 })
 
 -- Carpenter

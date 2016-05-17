@@ -60,6 +60,7 @@ local function CalcDownViewmodelView(wep, vm, oldpos, oldang, pos, ang)
 	if Revive.Players[LocalPlayer():EntIndex()] then
 		local oldpos = oldpos + Vector(0,0,-30)
 		local oldang = oldang + Angle(0,0,20)
+		if wep:IsCW2() or wep:IsFAS2() then oldpos = oldpos + oldang:Up() * -100 end
 		
 		return oldpos, oldang
 	end
@@ -156,6 +157,16 @@ function Revive:DownedHeadsUp(ply, text)
 	--PrintTable(Revive.Notify[ply])
 end
 
+function Revive:CustomNotify(text, time)
+	if !text or !isstring(text) then return end
+	if time then
+		table.insert(Revive.Notify, {time = CurTime() + time, text = text})
+	else
+		table.insert(Revive.Notify, {time = CurTime() + 5, text = text})
+	end
+	--PrintTable(Revive.Notify[ply])
+end
+
 local function DrawDownedHeadsUp()
 	local font = "nz.display.hud.small"
 	local h = 40
@@ -165,11 +176,19 @@ local function DrawDownedHeadsUp()
 	--table.SortByMember(nz.Revive.Data.Notify, "time")
 	
 	for k,v in pairs(Revive.Notify) do
-		local fade = math.Clamp(CurTime() - v.time - 5, 0, 1)
-		local status = v.text or "needs to be revived!"
-		draw.SimpleText(k:Nick().." "..status, font, ScrW()/2, ScrH() - h - offset * c, Color(255, 255, 255,255-(255*fade)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-		if fade >= 1 then Revive.Notify[k] = nil end
-		c = c + 1
+		if type(k) == "Player" and IsValid(k) then
+			local fade = math.Clamp(CurTime() - v.time - 5, 0, 1)
+			local status = v.text or "needs to be revived!"
+			draw.SimpleText(k:Nick().." "..status, font, ScrW()/2, ScrH() - h - offset * c, Color(255, 255, 255,255-(255*fade)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			if fade >= 1 then Revive.Notify[k] = nil end
+			c = c + 1
+		else
+			local fade = math.Clamp(CurTime() - v.time, 0, 1)
+			local status = v.text
+			draw.SimpleText(status, font, ScrW()/2, ScrH() - h - offset * c, Color(255, 255, 255,255-(255*fade)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			if fade >= 1 then Revive.Notify[k] = nil end
+			c = c + 1
+		end
 	end
 end
 

@@ -63,7 +63,7 @@ nz.Perks.Functions.NewPerk("dtap", {
 		end
 		if tbl[1] != nil then
 			for k,v in pairs(tbl) do
-				nz.Weps.Functions.ApplyDTap( ply, v )
+				v:ApplyNZModifier("dtap")
 			end
 		end
 		return true
@@ -78,7 +78,7 @@ nz.Perks.Functions.NewPerk("dtap", {
 			end
 			if tbl[1] != nil then
 				for k,v in pairs(tbl) do
-					nz.Weps.Functions.RemoveDTap( ply, v )
+					v:RevertNZModifier("dtap")
 				end
 			end
 		end
@@ -122,13 +122,9 @@ nz.Perks.Functions.NewPerk("speed", {
 		if tbl[1] != nil then
 			--local str = ""
 			for k,v in pairs(tbl) do
-				nz.Weps.Functions.ApplySpeed( ply, v )
+				v:ApplyNZModifier("speed")
 				--str = str .. v.ClassName .. ", "
 			end
-			--ply:PrintMessage( HUD_PRINTTALK, "Speed Cola Applied to: " .. str)
-		--[[else
-			ply:PrintMessage( HUD_PRINTTALK, "You don't have a weapon that is compatible with this perk. (Requires a FAS2 weapon)")
-			return false]]
 		end
 		return true
 	end,
@@ -141,7 +137,7 @@ nz.Perks.Functions.NewPerk("speed", {
 		end
 		if tbl[1] != nil then
 			for k,v in pairs(tbl) do
-				nz.Weps.Functions.RemoveSpeed( ply, v )
+				v:RevertNZModifier("speed")
 			end
 		end
 	end,
@@ -227,7 +223,6 @@ nz.Perks.Functions.NewPerk("pap", {
 				end
 			end)
 
-			--nz.Weps.Functions.ApplyPaP( ply, wep )
 			timer.Simple(2, function() ply:RemovePerk("pap") end)
 			return true
 		else
@@ -254,7 +249,7 @@ nz.Perks.Functions.NewPerk("dtap2", {
 		end
 		if tbl[1] != nil then
 			for k,v in pairs(tbl) do
-				nz.Weps.Functions.ApplyDTap( ply, v )
+				v:ApplyNZModifier("dtap")
 			end
 		end
 		return true
@@ -269,7 +264,7 @@ nz.Perks.Functions.NewPerk("dtap2", {
 			end
 			if tbl[1] != nil then
 				for k,v in pairs(tbl) do
-					nz.Weps.Functions.RemoveDTap( ply, v )
+					v:RevertNZModifier("dtap")
 				end
 			end
 		end

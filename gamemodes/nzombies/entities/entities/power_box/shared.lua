@@ -59,9 +59,9 @@ if CLIENT then
 			self.Switching = math.Approach( self.Switching or 0, 1, FrameTime() * 2 )
 			local ang = self:GetAngles()
 			if self:GetSwitch() then
-				handle:SetRenderAngles(LerpAngle(self.Switching, ang + offang, ang + onang))
+				handle:SetRenderAngles(LerpAngle(self.Switching, self:LocalToWorldAngles(offang), self:LocalToWorldAngles(onang)))
 			else
-				handle:SetRenderAngles(LerpAngle(self.Switching, ang + onang, ang + offang))
+				handle:SetRenderAngles(LerpAngle(self.Switching, self:LocalToWorldAngles(onang), self:LocalToWorldAngles(offang)))
 			end
 			
 			if self.Switching >= 1 then

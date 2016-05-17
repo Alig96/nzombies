@@ -89,7 +89,7 @@ local traceents = {
 		local wep = weapons.Get(wepclass)
 		local name = "UNKNOWN"
 		if wep != nil then
-			name = nz.Display_PaPNames[wepclass] or nz.Display_PaPNames[name] or "Upgraded "..wep.PrintName
+			name = nz.Display_PaPNames[wepclass] or nz.Display_PaPNames[wep.PrintName] or "Upgraded "..wep.PrintName
 		end
 		name = "Press E to take " .. name .. " from the machine."
 

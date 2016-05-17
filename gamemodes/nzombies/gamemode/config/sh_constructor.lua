@@ -21,6 +21,7 @@ if not ConVarExists("nz_difficulty_barricade_planks_max") then CreateConVar("nz_
 if not ConVarExists("nz_difficulty_powerup_chance") then CreateConVar("nz_difficulty_powerup_chance", 2, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_perks_max", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_point_notification_clientside") then CreateConVar("nz_point_notification_clientside", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
+if not ConVarExists("nz_zombie_lagcompensated") then CreateConVar("nz_zombie_lagcompensated", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 
 -- Zombie table - Moved to shared area for client collision prediction (barricades)
 nzConfig.ValidEnemies = {
@@ -219,10 +220,10 @@ if SERVER then
 	nzConfig.RoundData[13] = {
 		normalTypes = {
 			["nz_zombie_walker"] = {
-				chance = 80,
+				chance = 75,
 			},
 			["nz_zombie_special_burning"] = {
-				chance = 20,
+				chance = 25,
 			},
 		},
 	}

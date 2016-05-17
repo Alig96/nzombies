@@ -24,8 +24,7 @@ function nzMapping:SaveConfig(name)
 	for _, v in pairs(ents.FindByClass("nz_spawn_zombie_normal")) do
 		table.insert(zed_spawns, {
 		pos = v:GetPos(),
-		link = v.link,
-		respawnable = v.respawnable
+		link = v.link
 		})
 	end
 
@@ -108,6 +107,7 @@ function nzMapping:SaveConfig(name)
 		table.insert(randombox_spawn, {
 		pos = v:GetPos(),
 		angle = v:GetAngles(),
+		spawn = v.PossibleSpawn,
 		})
 	end
 
@@ -193,11 +193,7 @@ function nzMapping:SaveConfig(name)
 	main["InvisWalls"] = invis_walls
 	main["WunderfizzMachines"] = wunderfizz_machines
 
-	--We better clear the merges in case someone played around with them in create mode (lua_run)
-	nz.Nav.ResetNavGroupMerges()
-	main["NavTable"] = nz.Nav.Data
-	main["NavGroups"] = nz.Nav.NavGroups
-	main["NavGroupIDs"] = nz.Nav.NavGroupIDs
+	main["NavTable"] = nzNav.Locks
 
 	--Save this map's configuration
 	main["MapSettings"] = self.Settings
@@ -215,7 +211,7 @@ function nzMapping:SaveConfig(name)
 
 end
 
-function nzMapping:ClearConfig()
+function nzMapping:ClearConfig(noclean)
 	print("[NZ] Clearing current map")
 
 	-- ALWAYS do this first!
@@ -262,10 +258,10 @@ function nzMapping:ClearConfig()
 	end
 
 	--Reset Navigation table
-	for k,v in pairs(nz.Nav.Data) do
+	for k,v in pairs(nzNav.Locks) do
 		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
 	end
-	nz.Nav.Data = {}
+	nzNav.Locks = {}
 
 	--Specially spawned entities
 	for k,v in pairs(nz.QMenu.Data.SpawnedEntities) do
@@ -278,6 +274,10 @@ function nzMapping:ClearConfig()
 
 	nzMapping.Settings = {}
 	nzMapping.MarkedProps = {}
+	
+	for k,v in pairs(player.GetAll()) do
+		nzMapping:SendMapData(v)
+	end
 
 	nzDoors.MapDoors = {}
 	nzDoors.PropDoors = {}
@@ -294,7 +294,9 @@ function nzMapping:ClearConfig()
 
 	nzMapping.CurrentConfig = nil
 
-	nzMapping:CleanUpMap()
+	if !noclean then
+		nzMapping:CleanUpMap()
+	end
 end
 
 function nzMapping:LoadConfig( name, loader )
@@ -303,8 +305,8 @@ function nzMapping:LoadConfig( name, loader )
 	local location = "DATA"
 
 	if string.GetExtensionFromFilename(name) == "lua" then
-		if file.Exists("gamemodes/nzombies3/officialconfigs/"..name, "GAME") then
-			location, filepath = "GAME", "gamemodes/nzombies3/officialconfigs/"..name
+		if file.Exists("gamemodes/nzombies/officialconfigs/"..name, "GAME") then
+			location, filepath = "GAME", "gamemodes/nzombies/officialconfigs/"..name
 		else
 			location = "LUA"
 		end
@@ -339,7 +341,16 @@ function nzMapping:LoadConfig( name, loader )
 			print("Warning: This map config does not contain any set barricades.")
 		end
 
-		self:ClearConfig()
+		self:ClearConfig(true) -- We pass true to not clean up the map
+		
+		-- Then we can load if entity extensions are to be used
+		if data.MapSettings then
+			nzMapping.Settings = data.MapSettings
+			-- That way, the gamemode entities will spawn without getting removed during the map clean up
+		end
+		-- That we then manually call here
+		nzMapping:CleanUpMap()
+		
 
 		print("[NZ] Loading " .. filepath .. "...")
 
@@ -348,7 +359,7 @@ function nzMapping:LoadConfig( name, loader )
 
 		if data.ZedSpawns then
 			for k,v in pairs(data.ZedSpawns) do
-				nzMapping:ZedSpawn(v.pos, v.link, v.respawnable)
+				nzMapping:ZedSpawn(v.pos, v.link)
 			end
 		end
 
@@ -390,7 +401,7 @@ function nzMapping:LoadConfig( name, loader )
 
 		if data.RandomBoxSpawns then
 			for k,v in pairs(data.RandomBoxSpawns) do
-				nzMapping:BoxSpawn(v.pos, v.angle)
+				nzMapping:BoxSpawn(v.pos, v.angle, v.spawn)
 			end
 		end
 
@@ -429,23 +440,7 @@ function nzMapping:LoadConfig( name, loader )
 
 		//NavTable saved
 		if data.NavTable then
-			nz.Nav.Data = data.NavTable
-			//Re-enable navmesh visualization
-			for k,v in pairs(nz.Nav.Data) do
-				local navarea = navmesh.GetNavAreaByID(k)
-				if v.link then
-					navarea:SetAttributes(NAV_MESH_STOP)
-				else
-					navarea:SetAttributes(NAV_MESH_AVOID)
-				end
-			end
-		end
-
-		if data.NavGroups then
-			nz.Nav.NavGroups = data.NavGroups
-		end
-		if data.NavGroupIDs then
-			nz.Nav.NavGroupIDs = data.NavGroupIDs
+			nzNav.Locks = data.NavTable
 		end
 
 		if data.PropEffects then
@@ -461,12 +456,9 @@ function nzMapping:LoadConfig( name, loader )
 				table.insert(nz.QMenu.Data.SpawnedEntities, ent)
 			end
 		end
-
-		if data.MapSettings then
-			nzMapping.Settings = data.MapSettings
-			for k,v in pairs(player.GetAll()) do
-				nzMapping:SendMapData(v)
-			end
+		
+		for k,v in pairs(player.GetAll()) do
+			nzMapping:SendMapData(v)
 		end
 
 		if data.RemoveProps then
@@ -489,9 +481,6 @@ function nzMapping:LoadConfig( name, loader )
 				nzMapping:CreateInvisibleWall(v.pos, v.maxbound)
 			end
 		end
-
-		-- Generate all auto navmesh merging so we don't have to save that manually
-		nz.Nav.Functions.AutoGenerateAutoMergeLinks()
 
 		nzMapping:CheckMismatch( loader )
 

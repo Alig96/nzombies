@@ -30,8 +30,9 @@ if SERVER then
 						ply:ChatPrint("NZ This command can only be used by administrators.")
 						return false
 					end
-					v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " "))
-					return false
+					local block = v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " ")) or false
+					print("NZ " .. tostring(ply) .. " used command " .. v[1] .. " with arguments " .. string.sub(text, string.len(v[1]) + 2))
+					return block
 				end
 			end
 			ply:ChatPrint("NZ No valid command exists with this name, try '/help' for a list of commands.")
@@ -49,7 +50,9 @@ if CLIENT then
 					if v[3] and !ply:IsSuperAdmin() then
 						return true
 					end
-					v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " "))
+					if ply == LocalPlayer() then
+						v[2](ply, string.Split(string.sub(text, string.len(v[1]) + 2), " "))
+					end
 					return true
 				end
 			end

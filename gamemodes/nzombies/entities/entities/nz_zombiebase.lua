@@ -167,6 +167,10 @@ function ENT:Initialize()
 		self.loco:SetDesiredSpeed( self:GetRunSpeed() )
 		self.loco:SetAcceleration( self.Acceleration )
 		self.loco:SetJumpHeight( self.JumpHeight )
+		if GetConVar("nz_zombie_lagcompensated"):GetBool() then
+			self:SetLagCompensated(true)
+		end
+		self.BarricadeJumpTries = 0
 	end
 
 	for i,v in ipairs(self:GetBodyGroups()) do
@@ -442,8 +446,19 @@ function ENT:OnBarricadeBlocking( barricade )
 			if stillBlocked then
 				self:OnBarricadeBlocking(stillBlocked)
 			end
-		elseif barricade:GetTriggerJumps() then
-			if self.TriggerBarricadeJump then self:TriggerBarricadeJump() end
+			
+			-- Attacking a new barricade resets the counter
+			self.BarricadeJumpTries = 0
+		elseif barricade:GetTriggerJumps() and self.TriggerBarricadeJump then
+			local dist = barricade:GetPos():DistToSqr(self:GetPos())
+			if dist <= 3500 + (1000 * self.BarricadeJumpTries) then 
+				self:TriggerBarricadeJump()
+				self.BarricadeJumpTries = 0
+			else
+				-- If we continuously fail, we need to increase the check range (if it is a bigger prop)
+				self.BarricadeJumpTries = self.BarricadeJumpTries + 1
+				-- Otherwise they'd get continuously stuck on slightly bigger props :(
+			end
 		end
 	end
 end
@@ -648,7 +663,8 @@ function ENT:ChaseTarget( options )
 
 		--Timeout the pathing so it will rerun the entire behaviour (break barricades etc)
 		if ( path:GetAge() > options.maxage ) then
-			self.BarricadeCheckDir = (path:FirstSegment().forward)
+			local segment = path:FirstSegment()
+			self.BarricadeCheckDir = segment and segment.forward or Vector(0,0,0)
 			return "timeout"
 		end
 
@@ -746,15 +762,15 @@ function ENT:ChaseTargetPath( options )
 				return -1
 			end
 			--Prevent movement through either locked navareas or areas with closed doors
-			if (nz.Nav.Data[area:GetID()]) then
+			if (nzNav.Locks[area:GetID()]) then
 				--print("Has area")
-				if nz.Nav.Data[area:GetID()].link then
+				if nzNav.Locks[area:GetID()].link then
 					--print("Area has door link")
-					if !nzDoors.OpenedLinks[nz.Nav.Data[area:GetID()].link] then
+					if !nzDoors.OpenedLinks[nzNav.Locks[area:GetID()].link] then
 						--print("Door link is not opened")
 						return -1
 					end
-				elseif nz.Nav.Data[area:GetID()].locked then
+				elseif nzNav.Locks[area:GetID()].locked then
 					--print("Area is locked")
 				return -1 end
 			end
@@ -802,7 +818,7 @@ function ENT:ChaseTargetPath( options )
 	-- a little more complicated that i thought but it should do the trick
 	if lastSeg then
 		if self:GetTargetNavArea() and lastSeg.area:GetID() != self:GetTargetNavArea():GetID() then
-			if !nz.Nav.Data[self:GetTargetNavArea():GetID()] or nz.Nav.Data[self:GetTargetNavArea():GetID()].locked then
+			if !nzNav.Locks[self:GetTargetNavArea():GetID()] or nzNav.Locks[self:GetTargetNavArea():GetID()].locked then
 				self:IgnoreTarget(self:GetTarget())
 				-- trigger a retarget
 				self:SetLastTargetCheck(CurTime() - 1)
@@ -1099,7 +1115,7 @@ function ENT:TeleportToTarget( silent )
 			--debugoverlay.Box( location, Vector( -16, -16, 0 ), Vector( 16, 16, 40 ), 5, Color( 255, 0, 0 ) )
 
 			if silent then
-				if !tr.Hit and nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(location):GetID()] == nz.Nav.NavGroupIDs[navmesh.GetNearestNavArea(self:GetPos()):GetID()] then
+				if !tr.Hit then
 					local inFOV = false
 					for _, ply in pairs( player.GetAllPlayingAndAlive() ) do
 						--can player see us or the teleport location
@@ -1176,7 +1192,7 @@ function ENT:BodyUpdate()
 	end
 
 	if !self:GetSpecialAnimation() and !self:IsAttacking() then
-		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then print(self.CalcIdeal) self:StartActivity(self.CalcIdeal) end
+		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
 		if self.ActStages[self:GetActStage()] then
 			self:BodyMoveXY()

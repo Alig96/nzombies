@@ -179,7 +179,7 @@ function nzRound:Start()
 
 	timer.Create( "NZRoundThink", 0.1, 0, function() self:Think() end )
 
-	nz.Weps.DoRoundResupply()
+	nzWeps:DoRoundResupply()
 end
 
 function nzRound:Think()
@@ -285,9 +285,6 @@ function nzRound:ResetGame()
 	nzEE:Reset()
 	nzEE.Major:Reset()
 
-	--Reset merged navigation groups
-	nz.Nav.ResetNavGroupMerges()
-
 end
 
 function nzRound:End()
@@ -299,6 +296,58 @@ function nzRound:End()
 	nz.Notifications.Functions.PlaySound("nz/round/game_over_4.mp3", 21)
 	timer.Simple(10, function()
 		self:ResetGame()
+	end)
+
+	hook.Call( "OnRoundEnd", nzRound )
+end
+
+function nzRound:Win(message)
+	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
+	
+	net.Start("nzMajorEEEndScreen")
+		net.WriteBool(true)
+		net.WriteString(message)
+	net.Broadcast()
+	
+	-- Set round state to Game Over
+	nzRound:SetState( ROUND_GO )
+	--Notify with chat message
+	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
+	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
+	
+	if self.OverrideEndSlomo then
+		game.SetTimeScale(0.25)
+		timer.Simple(2, function() game.SetTimeScale(1) end)
+	end
+	
+	timer.Simple(10, function()
+		nzRound:ResetGame()
+	end)
+
+	hook.Call( "OnRoundEnd", nzRound )
+end
+
+function nzRound:Lose(message)
+	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
+	
+	net.Start("nzMajorEEEndScreen")
+		net.WriteBool(false)
+		net.WriteString(message)
+	net.Broadcast()
+	
+	-- Set round state to Game Over
+	nzRound:SetState( ROUND_GO )
+	--Notify with chat message
+	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
+	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
+	
+	if self.OverrideEndSlomo then
+		game.SetTimeScale(0.25)
+		timer.Simple(2, function() game.SetTimeScale(1) end)
+	end
+	
+	timer.Simple(10, function()
+		nzRound:ResetGame()
 	end)
 
 	hook.Call( "OnRoundEnd", nzRound )
@@ -320,16 +369,7 @@ function nzRound:Create()
 		end
 
 		nzMapping:CleanUpMap()
-
-		--Re-enable navmesh visualization
-		for k,v in pairs(nz.Nav.Data) do
-			local navarea = navmesh.GetNavAreaByID(k)
-			if v.link then
-				navarea:SetAttributes(NAV_MESH_STOP)
-			else
-				navarea:SetAttributes(NAV_MESH_AVOID)
-			end
-		end
+		nzDoors:LockAllDoors()
 
 	elseif self:InState( ROUND_CREATE ) then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
@@ -356,11 +396,6 @@ function nzRound:SetupGame()
 	nzMapping:CleanUpMap()
 	nzDoors:LockAllDoors()
 
-	-- Reset navigation attributes so they don't save into the actual .nav file.
-	for k,v in pairs(nz.Nav.Data) do
-		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
-	end
-
 	-- Open all doors with no price and electricity requirement
 	for k,v in pairs(ents.GetAll()) do
 		if v:IsBuyableEntity() then
@@ -384,8 +419,8 @@ function nzRound:SetupGame()
 	nzDoors.OpenedLinks[0] = true
 	--nz.nzDoors.Functions.SendSync()
 
-	-- Spawn a random box
-	nzRandomBox.Spawn()
+	-- Spawn a random box at a possible starting position
+	nzRandomBox.Spawn(nil, true)
 
 	local power = ents.FindByClass("power_box")
 	if !IsValid(power[1]) then -- No power switch D:

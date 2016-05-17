@@ -1,6 +1,6 @@
 //
 
-function nzMapping:ZedSpawn(pos, link, respawnable, ply)
+function nzMapping:ZedSpawn(pos, link, ply)
 
 	local ent = ents.Create("nz_spawn_zombie_normal")
 	pos.z = pos.z - ent:OBBMaxs().z
@@ -187,12 +187,13 @@ function nzMapping:BlockSpawn(pos, ang, model, ply)
 	return block
 end
 
-function nzMapping:BoxSpawn(pos, ang, ply)
+function nzMapping:BoxSpawn(pos, ang, spawn, ply)
 	local box = ents.Create( "random_box_spawns" )
 	box:SetPos( pos )
 	box:SetAngles( ang )
 	box:Spawn()
 	box:PhysicsInit( SOLID_VPHYSICS )
+	box.PossibleSpawn = spawn
 
 	if ply then
 		undo.Create( "Random Box Spawnpoint" )
@@ -354,6 +355,15 @@ function nzMapping:CleanUpMap()
 			for k,v in pairs(self.MarkedProps) do
 				local ent = ents.GetMapCreatedEntity(k)
 				if IsValid(ent) then ent:SetColor(Color(200,0,0)) end
+			end
+		end
+	end
+	
+	-- Remove gamemode-specific entities if their gamemode hasn't be enabled in the Map Settings menu
+	for k,v in pairs(ents.GetAll()) do
+		if v.NZGamemodeExtension then
+			if !nzMapping.Settings.gamemodeentities[v.NZGamemodeExtension] then
+				v:Remove()
 			end
 		end
 	end

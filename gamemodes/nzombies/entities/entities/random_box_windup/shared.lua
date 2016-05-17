@@ -63,7 +63,7 @@ function ENT:Use( activator, caller )
 		if activator == self.Buyer then
 			local class = self:GetWepClass()
 			activator:Give(class)
-			nz.Weps.Functions.GiveMaxAmmoWep(activator, class)
+			nzWeps:GiveMaxAmmoWep(activator, class)
 			self.Box:Close()
 			self:Remove()
 		else
