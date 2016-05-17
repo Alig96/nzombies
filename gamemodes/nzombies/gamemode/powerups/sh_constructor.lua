@@ -12,7 +12,6 @@ AccessorFunc(nzPowerUps, "fPowerUpChance", "PowerUpChance", FORCE_NUMBER)
 function nzPowerUps:ResetPowerUpChance()
 	-- pseudo random so we start a bit lower than the actual chance
 	self:SetPowerUpChance(GetConVar("nz_difficulty_powerup_chance"):GetFloat() / 10)
-	print("reset chance")
 end
 
 function nzPowerUps:IncreasePowerUpChance()
@@ -31,5 +30,4 @@ function nzPowerUps:IncreasePowerUpChance()
 	-- after 499 kills a powerup drop is guaranteed
 	-- for default 2%: f(n) = n+1/5
 	self:SetPowerUpChance(self:GetPowerUpChance() + (GetConVar("nz_difficulty_powerup_chance"):GetFloat() / 10))
-	print("chacne is now: " .. self:GetPowerUpChance())
 end
