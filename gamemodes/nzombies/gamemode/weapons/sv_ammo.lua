@@ -54,8 +54,13 @@ function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 	end
 	if !wep then wep = weapons.Get(class) end
 	if !wep then return end
+	
+	-- Weapons can have their own Max Ammo functions that are run instead
+	if wep.NZMaxAmmo then wep:NZMaxAmmo() return end
+	
+	if !wep.Primary then return end
+	
 	local ammo_type = wep.Primary.Ammo
-	print(ammo_type)
 	local max_ammo = nzWeps:CalculateMaxAmmo(class, (IsValid(ply:GetWeapon(class)) and ply:GetWeapon(class).pap) or papoverwrite)
 
 	local ply_weps = ply:GetWeapons()
@@ -75,7 +80,7 @@ function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 	local curr_ammo = ply:GetAmmoCount( ammo_type )
 	local give_ammo = max_ammo - curr_ammo
 	
-	print(give_ammo)
+	--print(give_ammo)
 
 	//Just for display, since we're setting their ammo anyway
 	ply:GiveAmmo(give_ammo, ammo_type)

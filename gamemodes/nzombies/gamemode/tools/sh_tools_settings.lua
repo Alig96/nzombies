@@ -420,7 +420,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			perkchecklist:SetSpaceY( 5 )
 			perkchecklist:SetSpaceX( 5 )
 			
-			for k,v in pairs(nz.Perks.Functions.GetList()) do
+			for k,v in pairs(nzPerks:GetList()) do
 				if k != "wunderfizz" and k != "pap" then
 					local perkitem = perkchecklist:Add( "DPanel" )
 					perkitem:SetSize( 130, 20 )

@@ -95,7 +95,7 @@ function ENT:RevivePlayer()
 			end
 		end
 		for k,v in pairs(self.OwnerData.perks) do
-			if v != "tombstone" then
+			if v != "whoswho" then
 				ply:GivePerk(v)
 			end
 		end

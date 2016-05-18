@@ -27,7 +27,7 @@ if SERVER then
 			nzMapping.Settings.rboxweps = tbl.rboxweps and tbl.rboxweps[1] and tbl.rboxweps or nil
 		end
 		if tbl.wunderfizzperks then
-			nzMapping.Settings.wunderfizzperks = tbl.wunderfizzperks and tbl.wunderfizzperks[1] and tbl.wunderfizzperks or nil
+			nzMapping.Settings.wunderfizzperks = table.Count(tbl.wunderfizzperks) > 0 and tbl.wunderfizzperks or nil
 		end
 		if tbl.gamemodeentities then
 			nzMapping.Settings.gamemodeentities = tbl.gamemodeentities or nil

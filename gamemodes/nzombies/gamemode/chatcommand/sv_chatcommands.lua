@@ -185,7 +185,7 @@ chatcommand.Add("/giveperk", function(ply, text)
 		perk = text[2]
 	end
 	if IsValid(plyToGiv) and plyToGiv:Alive() and (plyToGiv:IsPlaying() or nzRound:InState(ROUND_CREATE)) then
-		if nz.Perks.Functions.Get(perk) then
+		if nzPerks:Get(perk) then
 			plyToGiv:GivePerk(perk)
 		else
 			ply:ChatPrint("No valid perk provided.")
