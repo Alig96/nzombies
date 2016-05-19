@@ -195,6 +195,11 @@ function wepMeta:DefaultReload(act)
 	olddefreload(self, act)
 end
 
+local ghosttraceentities = {
+	["wall_block"] = true,
+	["invis_wall"] = true,
+}
+
 function GM:EntityFireBullets(ent, data)
 
 	//Fire the PaP shooting sound if the weapon is PaP'd
@@ -208,7 +213,7 @@ function GM:EntityFireBullets(ent, data)
 		start = data.Src,
 		endpos = data.Src + (data.Dir*data.Distance),
 		filter = function(ent) 
-			if ent:GetClass() == "wall_block" then
+			if ghosttraceentities[ent:GetClass()] then
 				return false
 			else
 				return true

@@ -4,11 +4,12 @@ if SERVER then
 	function playerMeta:GivePerk(id, machine)
 		if self:HasPerk(id) then return end
 		local perkData = nzPerks:Get(id)
-		if perkData == nil or perkData.blockget then return false end
+		if perkData == nil then return false end
 		
 		local given = perkData.func(id, self, machine)
 		
-		if given then
+		-- Blockget blocks the networking and storing of the perk
+		if given and !perkData.blockget then
 			if nzPerks.Players[self] == nil then nzPerks.Players[self] = {} end
 			table.insert(nzPerks.Players[self], id)
 			
