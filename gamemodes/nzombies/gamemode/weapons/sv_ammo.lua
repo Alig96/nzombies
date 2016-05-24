@@ -48,11 +48,13 @@ end
 
 function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 
-	local wep
 	for k,v in pairs(ply:GetWeapons()) do
-		if v:GetClass() == class then wep = v break end
+		-- If the weapon entity exist, just give ammo on that
+		if v:GetClass() == class then v:GiveMaxAmmo() return end
 	end
-	if !wep then wep = weapons.Get(class) end
+	
+	-- Else we'll have to refer to the old system (for now, this should never happen)
+	local wep = weapons.Get(class)
 	if !wep then return end
 	
 	-- Weapons can have their own Max Ammo functions that are run instead
@@ -63,26 +65,12 @@ function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 	local ammo_type = wep.Primary.Ammo
 	local max_ammo = nzWeps:CalculateMaxAmmo(class, (IsValid(ply:GetWeapon(class)) and ply:GetWeapon(class).pap) or papoverwrite)
 
-	local ply_weps = ply:GetWeapons()
-	local multi = 0
-
-	--[[for k,v in pairs(ply_weps) do
-		local in_wep = weapons.Get(v:GetClass())
-		if in_wep != nil then
-			if in_wep.Primary.Ammo == ammo_type then
-				multi = multi + 1
-			end
-		end
-	end]]
-
-	--max_ammo = max_ammo * multi
-
 	local curr_ammo = ply:GetAmmoCount( ammo_type )
 	local give_ammo = max_ammo - curr_ammo
 	
 	--print(give_ammo)
 
-	//Just for display, since we're setting their ammo anyway
+	-- Just for display, since we're setting their ammo anyway
 	ply:GiveAmmo(give_ammo, ammo_type)
 	ply:SetAmmo(max_ammo, ammo_type)
 	
@@ -91,11 +79,38 @@ end
 function nzWeps:GiveMaxAmmo(ply)
 	for k,v in pairs(ply:GetWeapons()) do
 		if !v:IsSpecial() then
-			nzWeps:GiveMaxAmmoWep(ply, v:GetClass())
+			v:GiveMaxAmmo()
 		else
 			if nzSpecialWeapons.Weapons[v:GetClass()].maxammo then
 				nzSpecialWeapons.Weapons[v:GetClass()].maxammo(ply, v)
 			end
 		end
 	end
+end
+
+local meta = FindMetaTable("Weapon")
+
+function meta:CalculateMaxAmmo()
+	local clip = self.Primary and self.Primary.ClipSize or nil
+	-- When calculated directly on a weapon entity, its clipsize will already have changed from PaP
+	return clip and clip * 10 or 0
+end
+
+function meta:GiveMaxAmmo()
+
+	if self.NZMaxAmmo then self:NZMaxAmmo() return end
+
+	local ply = self.Owner
+	if !IsValid(ply) then return end
+	
+	local ammo_type = self.Primary.Ammo
+	local max_ammo = self:CalculateMaxAmmo()
+
+	local curr_ammo = ply:GetAmmoCount( ammo_type )
+	local give_ammo = max_ammo - curr_ammo
+
+	-- Just for display, since we're setting their ammo anyway
+	ply:GiveAmmo(give_ammo, ammo_type)
+	ply:SetAmmo(max_ammo, ammo_type)
+	
 end
