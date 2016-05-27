@@ -2,7 +2,7 @@
 
 chatcommand.Add("/help", function(ply, text)
 	ply:PrintMessage( HUD_PRINTTALK, "-----" )
-	ply:PrintMessage( HUD_PRINTTALK, "NZ Available commands:" )
+	ply:PrintMessage( HUD_PRINTTALK, "nZ Available commands:" )
 	ply:PrintMessage( HUD_PRINTTALK, "Arguments in [] are optional." )
 	for _, cmd in pairs(chatcommand.commands) do
 		local cmdText = cmd[1]
@@ -39,9 +39,9 @@ end, false, "   Respawn in creative mode.")
 
 chatcommand.Add("/generate", function(ply, text)
 	if navmesh.IsLoaded() then
-		ply:PrintMessage( HUD_PRINTTALK, "NZ Navmesh already exists, couldn't generate." )
+		ply:PrintMessage( HUD_PRINTTALK, "nZ Navmesh already exists, couldn't generate." )
 	else
-		ply:PrintMessage( HUD_PRINTTALK, "NZ Starting Navmesh Generation, this may take a while." )
+		ply:PrintMessage( HUD_PRINTTALK, "nZ Starting Navmesh Generation, this may take a while." )
 		navmesh.BeginGeneration()
 		--force generate
 		if !navmesh.IsGenerating() then
@@ -60,8 +60,8 @@ chatcommand.Add("/generate", function(ply, text)
 		end
 
 		if !navmesh.IsGenerating() then
-			--Will not happen but jsut in case
-			ply:PrintMessage( HUD_PRINTTALK, "NZ Navmesh Generation failed! Please try this command again or generate the navmesh manually." )
+			--Will not happen but just in case
+			ply:PrintMessage( HUD_PRINTTALK, "nZ Navmesh Generation failed! Please try this command again or generate the navmesh manually." )
 		end
 	end
 end, false, "   Generate a new naviagtion mesh.")
@@ -73,15 +73,15 @@ chatcommand.Add("/save", function(ply, text)
 		net.Start("nz_SaveConfig")
 		net.Send(ply)
 	else
-		ply:PrintMessage( HUD_PRINTTALK, "NZ You can't save outside of create mode." )
+		ply:PrintMessage( HUD_PRINTTALK, "nZ You can't save a config outside of create mode." )
 	end
-end, false, "   Save your cahnges to a config.")
+end, false, "   Save your changes to a config.")
 
 chatcommand.Add("/load", function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
 		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")})
 	else
-		ply:PrintMessage( HUD_PRINTTALK, "NZ You can't load while playing!" )
+		ply:PrintMessage( HUD_PRINTTALK, "nZ You can't load while playing!" )
 	end
 end, false, "   Open the map config load dialog.")
 
@@ -89,7 +89,7 @@ chatcommand.Add("/clean", function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
 		nzMapping:ClearConfig()
 	else
-		ply:PrintMessage( HUD_PRINTTALK, "NZ You can't clean while playing!" )
+		ply:PrintMessage( HUD_PRINTTALK, "nZ You can't clean while playing!" )
 	end
 end)
 
