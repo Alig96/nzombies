@@ -1,48 +1,13 @@
--- Create new ammo types for each weapon slot; that way all 3 weapons have seperate ammo even if they share type
-
-game.AddAmmoType( {
-	name = "nz_weapon_ammo_1",
-	dmgtype = DMG_BULLET,
-	tracer = TRACER_LINE,
-	plydmg = 0,
-	npcdmg = 0,
-	force = 2000,
-	minsplash = 10,
-	maxsplash = 5
-} )
-
-game.AddAmmoType( {
-	name = "nz_weapon_ammo_2",
-	dmgtype = DMG_BULLET,
-	tracer = TRACER_LINE,
-	plydmg = 0,
-	npcdmg = 0,
-	force = 2000,
-	minsplash = 10,
-	maxsplash = 5
-} )
-
--- Third one is pretty much only used with Mule Kick
-game.AddAmmoType( {
-	name = "nz_weapon_ammo_3",
-	dmgtype = DMG_BULLET,
-	tracer = TRACER_LINE,
-	plydmg = 0,
-	npcdmg = 0,
-	force = 2000,
-	minsplash = 10,
-	maxsplash = 5
-} )
-
 -- Functions
 function nzWeps:CalculateMaxAmmo(class, pap)
 	local wep = weapons.Get(class)
 	local clip = wep.Primary.ClipSize
 	
 	if pap then
-		return math.Round((clip *1.5)/5)* 5 * 10
+		clip = math.Round((clip *1.5)/5)* 5
+		return clip * 10 <= 500 and clip * 10 or clip * math.ceil(500/clip) -- Cap the ammo to stop at the clip that passes 500 max
 	else
-		return clip * 10
+		return clip * 10 <= 300 and clip * 10 or clip * math.ceil(300/clip) -- 300 max for non-pap weapons
 	end
 end
 
@@ -91,9 +56,14 @@ end
 local meta = FindMetaTable("Weapon")
 
 function meta:CalculateMaxAmmo()
-	local clip = self.Primary and self.Primary.ClipSize or nil
+	local clip = self.Primary and self.Primary.ClipSize_Orig or self.Primary.ClipSize or nil
+	if !clip then return 0 end
 	-- When calculated directly on a weapon entity, its clipsize will already have changed from PaP
-	return clip and clip * 10 or 0
+	if self.pap then
+		return clip * 10 <= 500 and clip * 10 or clip * math.ceil(500/clip) -- Cap the ammo to stop at the clip that passes 500 max
+	else
+		return clip * 10 <= 300 and clip * 10 or clip * math.ceil(300/clip) -- 300 max for non-pap weapons
+	end
 end
 
 function meta:GiveMaxAmmo()
@@ -103,7 +73,7 @@ function meta:GiveMaxAmmo()
 	local ply = self.Owner
 	if !IsValid(ply) then return end
 	
-	local ammo_type = self.Primary.Ammo
+	local ammo_type = self:GetPrimaryAmmoType() or self.Primary.Ammo
 	local max_ammo = self:CalculateMaxAmmo()
 
 	local curr_ammo = ply:GetAmmoCount( ammo_type )

@@ -235,3 +235,58 @@ function GM:EntityFireBullets(ent, data)
 		data.Num = data.Num * 2
 	end
 end
+
+-- Create new ammo types for each weapon slot; that way all 3 weapons have seperate ammo even if they share type
+
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_1",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_2",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+-- Third one is pretty much only used with Mule Kick
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_3",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+local ammoids = {}
+hook.Add("InitPostEntity", "nzRegisterAmmoIDs", function()
+	for i = 1, 3 do
+		local id = game.GetAmmoID("nz_weapon_ammo_"..i)
+		if id != -1 then
+			ammoids[i] = id
+		end
+		--print(i, id)
+	end
+end)
+
+local oldammotype = wepMeta.GetPrimaryAmmoType
+function wepMeta:GetPrimaryAmmoType()
+	local id = self:GetNWInt("SwitchSlot", -1)
+	--PrintTable(ammoids)
+	--if ammoids[id] then print("HKDAHKDH! It's here! "..id) else print("sadface "..id) end
+	return ammoids[id] or oldammotype(self)
+end

@@ -35,6 +35,7 @@ function ENT:Initialize()
 		self.Flipped = self:GetFlipped()
 		self:RecalculateModelOutlines()
 		local wep = weapons.Get(self:GetWepClass())
+		if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
 		util.PrecacheModel(wep.WM or wep.WorldModel)
 	end
 	self:SetRenderMode(RENDERMODE_TRANSALPHA)
@@ -201,7 +202,7 @@ if SERVER then
 		end
 		if !wep then wep = weapons.Get(self.WeaponGive) end
 		if !wep then return end
-		local ammo_type = wep.Primary.Ammo
+		local ammo_type = wep.GetPrimaryAmmoType and wep:GetPrimaryAmmoType() or wep.Primary.Ammo
 
 		local ammo_price = math.ceil((price - (price % 10))/2)
 		local ammo_price_pap = 4500
@@ -267,13 +268,16 @@ if CLIENT then
 		end
 	end
 
-	local glow = Material ( "sprites/glow04_noz" )
+	local glow = Material( "sprites/light_ignorez" )
 	local white = Color(0,200,255,50)
+	
 	function ENT:Draw()
 		--self:DrawModel()
 		local num = math.Clamp(GetConVar("nz_outlinedetail"):GetInt(), 0, 4)
 		if num < 1 or (self.OutlineGiveUp and self.OutlineGiveUp > 5) then
-			self:DrawModel()
+			-- If we don't have a function or it errors, call default DrawModel
+			if !self.WorldModelFunc or !pcall(self.WorldModelFunc, self) then self:DrawModel() end
+			--self:DrawModel()
 		else
 			local pos = LocalPlayer():EyePos()+LocalPlayer():EyeAngles():Forward()*10
 			local ang = LocalPlayer():EyeAngles()
@@ -310,18 +314,46 @@ if CLIENT then
 						--surface.SetDrawColor(0,0,0)
 						surface.SetDrawColor(255,255,255)
 						surface.DrawRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
-						surface.SetMaterial(chalkmaterial)
-						surface.DrawTexturedRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
+						--surface.SetMaterial(chalkmaterial)
+						--surface.DrawTexturedRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
 					cam.End3D2D()
 				render.SetStencilEnable(false)
 			end
-			local spritepos = self:WorldSpaceCenter()
-			cam.Start3D()
+			
+			local wsc = self:WorldSpaceCenter()
+			local wsp = self:GetPos()
+			
+			local spritepos = self:GetFlipped() and Vector(wsp.x, wsc.y, wsc.z) or Vector(wsc.x, wsp.y, wsc.z)
+			local spriteang = self:GetFlipped() and self:GetAngles() + Angle(180,10,-90) or self:GetAngles() + Angle(0,90,90)
+			--[[cam.Start3D()
 				render.SetMaterial( glow )
 				render.DrawSprite( spritepos + (pos-spritepos):GetNormalized()*5, 200, 100, white)
-			cam.End3D()
+			cam.End3D()]]
+			
+			cam.Start3D2D(spritepos, spriteang, 1)
+				surface.SetMaterial(glow)
+				surface.SetDrawColor(white)
+				--surface.DrawTexturedRect(-50,-25,100,50)
+				surface.DrawTexturedRectUV(-50,-25,50,50,0,0,0.5,1)
+			cam.End3D2D()
+			
+			debugoverlay.Line(spritepos, spritepos + spriteang:Forward()*15, 1, Color(0,255,0))
+			debugoverlay.Line(spritepos, spritepos + spriteang:Right()*5, 1, Color(0,255,0))
+			
+			spriteang:RotateAroundAxis(spriteang:Right(),20)
+			
+			debugoverlay.Line(spritepos, spritepos + spriteang:Forward()*15, 1, Color(255,0,0))
+			debugoverlay.Line(spritepos, spritepos + spriteang:Right()*5, 1, Color(255,0,0))
+		
+			cam.Start3D2D(spritepos, spriteang, 1)
+				surface.SetMaterial(glow)
+				surface.SetDrawColor(white)
+				--surface.DrawTexturedRect(-50,-25,100,50)
+				surface.DrawTexturedRectUV(0,-25,50,50,0.5,0,1,1)
+			cam.End3D2D()
+			
 			if self:GetBought() then
-				self:DrawModel()
+				if !self.WorldModelFunc or !pcall(self.WorldModelFunc, self) then self:DrawModel() end
 			end
 		end
 	end

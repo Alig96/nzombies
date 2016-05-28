@@ -48,8 +48,10 @@ local function OnWeaponAdded( weapon )
 			if !nzRound:InState( ROUND_CREATE ) then
 				local slot, exists = GetPriorityWeaponSlot(ply)
 				if IsValid(exists) then ply:StripWeapon( exists:GetClass() ) end
+				
 				weapon:SetNWInt( "SwitchSlot", slot )
-				--weapon.Primary.Ammo = "nz_weapon_ammo_"..slot
+				ply:SetAmmo(ply:GetAmmoCount(weapon.Primary.Ammo), "nz_weapon_ammo_"..slot)
+				weapon.Primary.Ammo = "nz_weapon_ammo_"..slot
 				
 				weapon.Weight = 10000
 				ply:SelectWeapon(weapon:GetClass())

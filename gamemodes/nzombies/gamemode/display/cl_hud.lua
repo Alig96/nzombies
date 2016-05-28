@@ -466,12 +466,60 @@ function GM:HUDWeaponPickedUp( wep )
 
 	table.insert( self.PickupHistory, pickup )
 	self.PickupHistoryLast = pickup.time
-	
-	--[[timer.Simple(0.1, function()
-		local slot = wep:GetNWInt("SwitchSlot")
-		if slot > 0 then
-			wep.Primary.Ammo = "nz_weapon_ammo_"..slot
-		end
-	end)]]
 
+end
+
+function GM:HUDAmmoPickedUp( itemname, amount )
+	if ( !IsValid( LocalPlayer() ) || !LocalPlayer():Alive() ) then return end
+	
+	-- If we pick up special nz ammo, then we need to find and display the old ammo type
+	if string.sub(itemname, 1, 14) == "nz_weapon_ammo" then
+		local slot = tonumber(string.sub(itemname, 16, #itemname))
+		for k,v in pairs(LocalPlayer():GetWeapons()) do
+			if v:GetNWInt("SwitchSlot", -1) == slot then
+				local wep = weapons.Get(v:GetClass())
+				if wep and wep.Primary then
+					itemname = wep.Primary.Ammo or itemname
+				end
+				break
+			end
+		end
+	end
+	
+	-- Try to tack it onto an exisiting ammo pickup
+	if ( self.PickupHistory ) then
+		for k, v in pairs( self.PickupHistory ) do
+			if ( v.name == "#" .. itemname .. "_ammo" ) then
+				v.amount = tostring( tonumber( v.amount ) + amount )
+				v.time = CurTime() - v.fadein
+				return
+			end
+		end
+	end
+	
+	local pickup = {}
+	pickup.time			= CurTime()
+	pickup.name			= "#" .. itemname .. "_ammo"
+	pickup.holdtime		= 5
+	pickup.font			= "DermaDefaultBold"
+	pickup.fadein		= 0.04
+	pickup.fadeout		= 0.3
+	pickup.color		= Color( 180, 200, 255, 255 )
+	pickup.amount		= tostring( amount )
+	
+	surface.SetFont( pickup.font )
+	local w, h = surface.GetTextSize( pickup.name )
+	pickup.height	= h
+	pickup.width	= w
+	
+	local w, h = surface.GetTextSize( pickup.amount )
+	pickup.xwidth	= w
+	pickup.width	= pickup.width + w + 16
+
+	if ( self.PickupHistoryLast >= pickup.time ) then
+		pickup.time = self.PickupHistoryLast + 0.05
+	end
+	
+	table.insert( self.PickupHistory, pickup )
+	self.PickupHistoryLast = pickup.time
 end
