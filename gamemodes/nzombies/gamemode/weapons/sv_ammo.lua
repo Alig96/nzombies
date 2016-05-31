@@ -56,6 +56,7 @@ end
 local meta = FindMetaTable("Weapon")
 
 function meta:CalculateMaxAmmo()
+	if !self.Primary then return 0 end
 	local clip = self.Primary and self.Primary.ClipSize_Orig or self.Primary.ClipSize or nil
 	if !clip then return 0 end
 	-- When calculated directly on a weapon entity, its clipsize will already have changed from PaP

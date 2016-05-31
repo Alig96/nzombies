@@ -259,7 +259,7 @@ function nzMapping:ClearConfig(noclean)
 
 	--Reset Navigation table
 	for k,v in pairs(nzNav.Locks) do
-		navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
+		--if navmesh.GetNavAreaByID(k) then navmesh.GetNavAreaByID(k):SetAttributes(v.prev)
 	end
 	nzNav.Locks = {}
 

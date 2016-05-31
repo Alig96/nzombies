@@ -220,8 +220,8 @@ end
 -- The attachments are irreversible and will only reset on full death and respawn
 nzWeps:AddWeaponModifier("pap", function(wep)
 	if wep.pap != true then
-		print("Applying PaP to: " .. wep.ClassName or tostring(wep))
-		wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
+		print("Applying PaP to: " .. (wep.ClassName or tostring(wep)))
+		--wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
 
 		-- Call OnPaP function for specially coded weapons
 		local block

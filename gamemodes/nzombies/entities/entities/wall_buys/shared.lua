@@ -33,10 +33,12 @@ function ENT:Initialize()
 		self:PhysicsInit( SOLID_OBB )
 	else
 		self.Flipped = self:GetFlipped()
-		self:RecalculateModelOutlines()
 		local wep = weapons.Get(self:GetWepClass())
-		if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
-		util.PrecacheModel(wep.WM or wep.WorldModel)
+		if wep then
+			if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
+			util.PrecacheModel(wep.WM or wep.WorldModel)
+			self:RecalculateModelOutlines()
+		end
 	end
 	self:SetRenderMode(RENDERMODE_TRANSALPHA)
 	self:DrawShadow(false)
@@ -56,6 +58,7 @@ function ENT:RecalculateModelOutlines()
 	local curang = self:GetAngles() -- Modifies offset if flipped
 	local curpos = self:GetPos()
 	local wep = weapons.Get(self:GetWepClass())
+	if !wep then self:RemoveOutline() return end
 	local model = wep.WM or wep.WorldModel
 	
 	-- Precache the model whenever it changes, including on spawn
@@ -167,7 +170,8 @@ end
 if SERVER then
 
 	function ENT:SetWeapon(weapon, price)
-		//Add a special check for FAS weps
+		-- Add a special check for FAS weps
+		local price = price or self:GetPrice()
 		local wep = weapons.Get(weapon)
 		local model
 		if !wep then
@@ -234,7 +238,7 @@ if SERVER then
 				else
 					print("Can't afford!")
 				end
-			else	// Refill ammo
+			else	-- Refill ammo
 				if activator:CanAfford(ammo_price) then
 					if give_ammo != 0 then
 						activator:TakePoints(ammo_price)
@@ -255,6 +259,16 @@ end
 
 if CLIENT then
 
+	function ENT:Update()
+		local wep = weapons.Get(self:GetWepClass())
+		if wep then
+			if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
+			util.PrecacheModel(wep.WM or wep.WorldModel)
+			self:RecalculateModelOutlines()
+		end
+		self.OutlineGiveUp = 0
+	end
+
 	function ENT:Think()
 		if self.Flipped != self:GetFlipped() then
 			self.Flipped = self:GetFlipped()
@@ -263,7 +277,7 @@ if CLIENT then
 		end
 		if self.modelclass != self:GetWepClass() then
 			self.modelclass = self:GetWepClass()
-			self:RecalculateModelOutlines()
+			self:Update()
 			--print(self.Flipped)
 		end
 	end
@@ -306,7 +320,12 @@ if CLIENT then
 						end
 						
 					render.SetStencilPassOperation(STENCILOPERATION_ZERO) -- Make it deselect the center model
-					self.ChalkCenter:DrawModel()
+					if !IsValid(self["ChalkCenter"]) then 
+						self:RecalculateModelOutlines()
+						self.OutlineGiveUp = self.OutlineGiveUp and self.OutlineGiveUp + 1 or 1
+					else
+						self.ChalkCenter:DrawModel()
+					end
 						
 					render.SetBlend(1)
 					render.SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL)
