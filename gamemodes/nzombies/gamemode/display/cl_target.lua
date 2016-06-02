@@ -69,7 +69,7 @@ local traceents = {
 					text = "Press E to buy Pack-a-Punch for 5000 points."
 				end
 			else
-				local perkData = nz.Perks.Functions.Get(ent:GetPerkID())
+				local perkData = nzPerks:Get(ent:GetPerkID())
 				-- Its on
 				text = "Press E to buy " .. perkData.name .. " for " .. ent:GetPrice() .. " points."
 				-- Check if they already own it
@@ -101,7 +101,7 @@ local traceents = {
 			text = "The Wunderfizz Orb is currently at another location."
 		elseif ent:GetBeingUsed() then
 			if ent:GetUser() == LocalPlayer() and ent:GetPerkID() != "" and !ent:GetIsTeddy() then
-				text = "Press E to take "..nz.Perks.Functions.Get(ent:GetPerkID()).name.." from Der Wunderfizz."
+				text = "Press E to take "..nzPerks:Get(ent:GetPerkID()).name.." from Der Wunderfizz."
 			else
 				text = "Currently in use."
 			end

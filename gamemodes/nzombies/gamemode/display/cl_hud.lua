@@ -233,7 +233,8 @@ local function DrawPointsNotification()
 	end
 end
 
-local perk_icons = {
+-- Now handled via perks individual icon table entries
+--[[local perk_icons = {
 	["jugg"] = Material("perk_icons/jugg.png", "smooth unlitgeneric"),
 	["speed"] = Material("perk_icons/speed.png", "smooth unlitgeneric"),
 	["dtap"] = Material("perk_icons/dtap.png", "smooth unlitgeneric"),
@@ -250,14 +251,14 @@ local perk_icons = {
 
 	-- Only used to see PaP through walls with Vulture Aid
 	["pap"] = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
-}
+}]]
 
 local function PerksHud()
 	local scale = (ScrW()/1920 + 1)/2
 	local w = -20
 	local size = 50
 	for k,v in pairs(LocalPlayer():GetPerks()) do
-		surface.SetMaterial(perk_icons[v])
+		surface.SetMaterial(nzPerks:Get(v).icon)
 		surface.SetDrawColor(255,255,255)
 		surface.DrawTexturedRect(w + k*(size*scale + 10), ScrH() - 200, size*scale, size*scale)
 	end
@@ -285,9 +286,12 @@ local function VultureVision()
 		elseif target == "perk_machine" then
 			local data = v:WorldSpaceCenter():ToScreen()
 			if data.visible then
-				surface.SetMaterial(perk_icons[v:GetPerkID()])
-				surface.SetDrawColor(255,255,255,150)
-				surface.DrawTexturedRect(data.x - 15*scale, data.y - 15*scale, 30*scale, 30*scale)
+				local icon = nzPerks:Get(v:GetPerkID()).icon
+				if icon then
+					surface.SetMaterial(icon)
+					surface.SetDrawColor(255,255,255,150)
+					surface.DrawTexturedRect(data.x - 15*scale, data.y - 15*scale, 30*scale, 30*scale)
+				end
 			end
 		end
 	end
@@ -295,7 +299,7 @@ end
 
 local round_white = 0
 local round_alpha = 255
-local round_num = 0 --nz.Rounds.Data.CurrentRound or 0
+local round_num = 0
 local function RoundHud()
 
 	local text = ""

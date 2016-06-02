@@ -4,7 +4,7 @@ local wepMeta = FindMetaTable("Weapon")
 if SERVER then
 	
 	function ReplaceReloadFunction(wep)
-		//Either not a weapon, doesn't have a reload function, or is FAS2
+		-- Either not a weapon, doesn't have a reload function, or is FAS2
 		if wep:NZPerkSpecialTreatment() then return end
 		local oldreload = wep.Reload
 		if !oldreload then return end
@@ -64,9 +64,9 @@ if SERVER then
 		wep.PrimaryAttack = function()
 			oldfire(wep)
 			
-			//FAS2 weapons have built-in DTap functionality
+			-- FAS2 weapons have built-in DTap functionality
 			if wep:IsFAS2() then return end
-			//With double tap, reduce the delay for next primary fire to 2/3
+			-- With double tap, reduce the delay for next primary fire to 2/3
 			if wep.Owner:HasPerk("dtap") or wep.Owner:HasPerk("dtap2") then
 				local delay = (wep:GetNextPrimaryFire() - CurTime())*0.80
 				wep:SetNextPrimaryFire(CurTime() + delay)
@@ -83,7 +83,7 @@ if SERVER then
 		
 		wep.SecondaryAttack = function()
 			oldfire(wep)
-			//With deadshot, aim at the head of the entity aimed at
+			-- With deadshot, aim at the head of the entity aimed at
 			if wep.Owner:HasPerk("deadshot") then
 				local tr = wep.Owner:GetEyeTrace()
 				local ent = tr.Entity
@@ -195,20 +195,26 @@ function wepMeta:DefaultReload(act)
 	olddefreload(self, act)
 end
 
+local ghosttraceentities = {
+	["wall_block"] = true,
+	["invis_wall"] = true,
+	["player"] = true,
+}
+
 function GM:EntityFireBullets(ent, data)
 
-	//Fire the PaP shooting sound if the weapon is PaP'd
+	-- Fire the PaP shooting sound if the weapon is PaP'd
 	--print(wep, wep.pap)
 	if ent:IsPlayer() and IsValid(ent:GetActiveWeapon()) and ent:GetActiveWeapon().pap then
 		ent:GetActiveWeapon():EmitSound("nz/effects/pap_shoot_glock20.wav", 105, 100)
 	end
 
-	//Perform a trace that filters out wall blocks
+	-- Perform a trace that filters out entities from the table above
 	local tr = util.TraceLine({
 		start = data.Src,
 		endpos = data.Src + (data.Dir*data.Distance),
 		filter = function(ent) 
-			if ent:GetClass() == "wall_block" then
+			if ghosttraceentities[ent:GetClass()] then
 				return false
 			else
 				return true
@@ -218,7 +224,7 @@ function GM:EntityFireBullets(ent, data)
 	
 	--PrintTable(tr)
 	
-	//If we hit anything, move the source of the bullets up to that point
+	-- If we hit anything, move the source of the bullets up to that point
 	if tr.Hit and tr.HitPos then
 		data.Src = tr.HitPos - data.Dir*5
 		if ent:IsPlayer() and ent:HasPerk("dtap2") then

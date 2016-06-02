@@ -164,7 +164,7 @@ end)
 -- A copy of the FAS2 function, slightly modified to not require the costumization menu
 -- This is used in the PaP modifier below
 local function AttachFAS2Attachment(ply, wep, group, att)
-	if not (IsValid(ply) and ply:Alive() and ply:IsPlaying()) then
+	if not (IsValid(ply) and ply:Alive()) then
 		return
 	end
 	
@@ -220,7 +220,7 @@ end
 -- The attachments are irreversible and will only reset on full death and respawn
 nzWeps:AddWeaponModifier("pap", function(wep)
 	if wep.pap != true then
-		print("Applying PaP to: " .. wep.ClassName)
+		print("Applying PaP to: " .. wep.ClassName or tostring(wep))
 		wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
 
 		-- Call OnPaP function for specially coded weapons
@@ -239,7 +239,7 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 				wep.Primary.ClipSize = newammo
 				wep:SetClip1(newammo)
 				
-				if wep:IsCW2() then
+				if wep:IsCW2() and SERVER then
 					wep.Primary.ClipSize_Orig = newammo
 					wep.Primary.ClipSize_ORIG_REAL = newammo
 					
@@ -264,7 +264,7 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 							end
 						end
 					end
-				elseif wep:IsFAS2() then
+				elseif wep:IsFAS2() and SERVER then
 					-- Random attachments
 					if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
 						for k,v in pairs(wep.Attachments) do
@@ -275,11 +275,11 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 										table.insert(atts, v2)
 									end
 								end
-								if #atts > 0 then
+								if table.Count(atts) > 0 then
 									local newatt = atts[math.random(#atts)]
 									AttachFAS2Attachment(ply, wep, k, newatt)
-									if atts[newatt] then
-										print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+									if newatt then
+										print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..newatt)
 									end
 								end
 							end

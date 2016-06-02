@@ -53,7 +53,7 @@ if SERVER then
 			--PrintTable(self.OwnerData)
 			
 			-- Weapons are completely replaced
-			ply:StripWeapons()
+			hitEnt:StripWeapons()
 			for k,v in pairs(self.OwnerData.weps) do
 				local wep = hitEnt:Give(v.class)
 				if v.pap then

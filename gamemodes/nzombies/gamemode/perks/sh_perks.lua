@@ -1,20 +1,19 @@
-//
 
-function nz.Perks.Functions.NewPerk(id, data)
+function nzPerks:NewPerk(id, data)
 	if SERVER then
 		//Sanitise any client data.
 	else
 		data.Func = nil
 	end
-	nz.Perks.Data[id] = data
+	nzPerks.Data[id] = data
 end
 
-function nz.Perks.Functions.Get(id)
-	return nz.Perks.Data[id]
+function nzPerks:Get(id)
+	return nzPerks.Data[id]
 end
 
-function nz.Perks.Functions.GetByName(name)
-	for _, perk in pairs(nz.Perks.Data) do
+function nzPerks:GetByName(name)
+	for _, perk in pairs(nzPerks.Data) do
 		if perk.name == name then
 			return perk
 		end
@@ -23,21 +22,43 @@ function nz.Perks.Functions.GetByName(name)
 	return nil
 end
 
-function nz.Perks.Functions.GetList()
+function nzPerks:GetList()
 	local tbl = {}
 
-	for k,v in pairs(nz.Perks.Data) do
+	for k,v in pairs(nzPerks.Data) do
 		tbl[k] = v.name
 	end
 
 	return tbl
 end
 
-nz.Perks.Functions.NewPerk("jugg", {
+function nzPerks:GetIcons()
+	local tbl = {}
+	
+	for k,v in pairs(nzPerks.Data) do
+		tbl[k] = v.icon
+	end
+	
+	return tbl
+end
+
+function nzPerks:GetBottleMaterials()
+	local tbl = {}
+	
+	for k,v in pairs(nzPerks.Data) do
+		tbl[k] = v.material
+	end
+	
+	return tbl
+end
+
+nzPerks:NewPerk("jugg", {
 	name = "Juggernog",
 	off_model = "models/alig96/perks/jugg/jugg_off.mdl",
 	on_model = "models/alig96/perks/jugg/jugg_on.mdl",
 	price = 2500,
+	material = "models/perk_bottle/c_perk_bottle_jugg",
+	icon = Material("perk_icons/jugg.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 			ply:SetMaxHealth(250)
 			ply:SetHealth(250)
@@ -49,11 +70,13 @@ nz.Perks.Functions.NewPerk("jugg", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("dtap", {
+nzPerks:NewPerk("dtap", {
 	name = "Double Tap",
 	off_model = "models/alig96/perks/doubletap/doubletap_off.mdl",
 	on_model = "models/alig96/perks/doubletap/doubletap_on.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_dtap",
+	icon = Material("perk_icons/dtap.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -85,11 +108,13 @@ nz.Perks.Functions.NewPerk("dtap", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("revive", {
+nzPerks:NewPerk("revive", {
 	name = "Quick Revive",
 	off_model = "models/alig96/perks/revive/revive_off.mdl",
 	on_model = "models/alig96/perks/revive/revive_on.mdl",
 	price = 1500,
+	material = "models/perk_bottle/c_perk_bottle_revive",
+	icon = Material("perk_icons/revive.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 			if #player.GetAllPlaying() <= 1 then
 				if !ply.SoloRevive or ply.SoloRevive < 3 then
@@ -107,11 +132,13 @@ nz.Perks.Functions.NewPerk("revive", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("speed", {
+nzPerks:NewPerk("speed", {
 	name = "Speed Cola",
 	off_model = "models/alig96/perks/speed/speed_off.mdl",
 	on_model = "models/alig96/perks/speed/speed_on.mdl",
 	price = 3000,
+	material = "models/perk_bottle/c_perk_bottle_speed",
+	icon = Material("perk_icons/speed.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -143,11 +170,14 @@ nz.Perks.Functions.NewPerk("speed", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("pap", {
+nzPerks:NewPerk("pap", {
 	name = "Pack-a-Punch",
 	off_model = "models/alig96/perks/packapunch/packapunch.mdl", //Find a new model.
 	on_model = "models/alig96/perks/packapunch/packapunch.mdl",
 	price = 0,
+	blockget = true, -- Prevents players from getting the perk when they buy it
+	-- We don't use materials
+	icon = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
 		if (!wep.pap or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
@@ -235,11 +265,13 @@ nz.Perks.Functions.NewPerk("pap", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("dtap2", {
+nzPerks:NewPerk("dtap2", {
 	name = "Double Tap II",
 	off_model = "models/alig96/perks/doubletap2/doubletap2_off.mdl",
 	on_model = "models/alig96/perks/doubletap2/doubletap2.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_dtap2",
+	icon = Material("perk_icons/dtap2.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -271,11 +303,13 @@ nz.Perks.Functions.NewPerk("dtap2", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("staminup", {
+nzPerks:NewPerk("staminup", {
 	name = "Stamin-Up",
 	off_model = "models/alig96/perks/staminup/staminup_off.mdl",
 	on_model = "models/alig96/perks/staminup/staminup.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_stamin",
+	icon = Material("perk_icons/staminup.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		ply:SetRunSpeed(350)
 		ply:SetMaxRunSpeed( 350 )
@@ -291,11 +325,13 @@ nz.Perks.Functions.NewPerk("staminup", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("phd", {
+nzPerks:NewPerk("phd", {
 	name = "PhD Flopper",
 	off_model = "models/alig96/perks/phd/phdflopper_off.mdl",
 	on_model = "models/alig96/perks/phd/phdflopper.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_phd",
+	icon = Material("perk_icons/phd.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -303,11 +339,13 @@ nz.Perks.Functions.NewPerk("phd", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("deadshot", {
+nzPerks:NewPerk("deadshot", {
 	name = "Deadshot Daiquiri",
 	off_model = "models/alig96/perks/deadshot/deadshot_off.mdl",
 	on_model = "models/alig96/perks/deadshot/deadshot.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_deadshot",
+	icon = Material("perk_icons/deadshot.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -315,11 +353,13 @@ nz.Perks.Functions.NewPerk("deadshot", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("mulekick", {
+nzPerks:NewPerk("mulekick", {
 	name = "Mule Kick",
 	off_model = "models/alig96/perks/mulekick/mulekick_off.mdl",
 	on_model = "models/alig96/perks/mulekick/mulekick.mdl",
 	price = 4000,
+	material = "models/perk_bottle/c_perk_bottle_mulekick",
+	icon = Material("perk_icons/mulekick.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -332,11 +372,13 @@ nz.Perks.Functions.NewPerk("mulekick", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("tombstone", {
+nzPerks:NewPerk("tombstone", {
 	name = "Tombstone Soda",
 	off_model = "models/alig96/perks/tombstone/tombstone_off.mdl",
 	on_model = "models/alig96/perks/tombstone/tombstone.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_tombstone",
+	icon = Material("perk_icons/tombstone.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -344,11 +386,13 @@ nz.Perks.Functions.NewPerk("tombstone", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("whoswho", {
+nzPerks:NewPerk("whoswho", {
 	name = "Who's Who",
 	off_model = "models/alig96/perks/whoswho/whoswho_off.mdl",
 	on_model = "models/alig96/perks/whoswho/whoswho.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_whoswho",
+	icon = Material("perk_icons/whoswho.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -356,11 +400,13 @@ nz.Perks.Functions.NewPerk("whoswho", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("cherry", {
+nzPerks:NewPerk("cherry", {
 	name = "Electric Cherry",
 	off_model = "models/alig96/perks/cherry/cherry_off.mdl",
 	on_model = "models/alig96/perks/cherry/cherry.mdl",
 	price = 2000,
+	material = "models/perk_bottle/c_perk_bottle_cherry",
+	icon = Material("perk_icons/cherry.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -368,11 +414,13 @@ nz.Perks.Functions.NewPerk("cherry", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("vulture", {
+nzPerks:NewPerk("vulture", {
 	name = "Vulture Aid Elixir",
 	off_model = "models/alig96/perks/vulture/vultureaid_off.mdl",
 	on_model = "models/alig96/perks/vulture/vultureaid.mdl",
 	price = 3000,
+	material = "models/perk_bottle/c_perk_bottle_vulture",
+	icon = Material("perk_icons/vulture.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -380,6 +428,7 @@ nz.Perks.Functions.NewPerk("vulture", {
 	end,
 })
 
-nz.Perks.Functions.NewPerk("wunderfizz", {
+nzPerks:NewPerk("wunderfizz", {
 	name = "Der Wunderfizz", -- Nothing more is needed, it is specially handled
+	blockget = true,
 })
