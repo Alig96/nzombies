@@ -220,8 +220,8 @@ end
 -- The attachments are irreversible and will only reset on full death and respawn
 nzWeps:AddWeaponModifier("pap", function(wep)
 	if wep.pap != true then
-		print("Applying PaP to: " .. wep.ClassName or tostring(wep))
-		wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
+		print("Applying PaP to: " .. (wep.ClassName or tostring(wep)))
+		--wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
 
 		-- Call OnPaP function for specially coded weapons
 		local block
@@ -289,45 +289,51 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 			end
 		end
 	else
-		-- Reroll attachments by buying again
-		if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
-			if wep:IsCW2() then
-				for k,v in pairs(wep.Attachments) do
-					if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
-						local atts = table.Copy(v.atts)
-						for k,v in pairs(atts) do -- Remove all already owned attachments
-							if CustomizableWeaponry:hasAttachment(wep.Owner, v) then
-								atts[k] = nil
+		local block
+		if wep.OnRePaP then 
+			block = wep:OnRePaP()
+		end
+		if !block then
+			-- Reroll attachments by buying again
+			if GetConVar("nz_papattachments"):GetBool() and wep.Attachments then
+				if wep:IsCW2() then
+					for k,v in pairs(wep.Attachments) do
+						if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+							local atts = table.Copy(v.atts)
+							for k,v in pairs(atts) do -- Remove all already owned attachments
+								if CustomizableWeaponry:hasAttachment(wep.Owner, v) then
+									atts[k] = nil
+								end
 							end
-						end
-						if #atts > 0 then
-							local newatt = math.random(#atts)
-							CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
-							wep:attach(k, newatt - 1)
-							--print(k, newatt-1, atts[newatt])
-							--print("Here's the table:")
-							--PrintTable(atts)
-							--print("------- End of table --------")
-							if atts[newatt] then
-								print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+							if #atts > 0 then
+								local newatt = math.random(#atts)
+								CustomizableWeaponry:giveAttachment(wep.Owner, atts[newatt])
+								wep:attach(k, newatt - 1)
+								--print(k, newatt-1, atts[newatt])
+								--print("Here's the table:")
+								--PrintTable(atts)
+								--print("------- End of table --------")
+								if atts[newatt] then
+									print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+								end
 							end
 						end
 					end
-				end
-			elseif wep:IsFAS2() then
-				for k,v in pairs(wep.Attachments) do
-					if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
-						local atts = {}
-						for k2,v2 in pairs(v.atts) do -- List all missing attachments
-							if !table.HasValue(ply.FAS2Attachments, v2) then
-								table.insert(atts, v2)
+				elseif wep:IsFAS2() then
+					for k,v in pairs(wep.Attachments) do
+						if string.lower(v.header) != "magazine" and string.lower(v.header) != "mag" then -- Mag can't be edited
+							local atts = {}
+							for k2,v2 in pairs(v.atts) do -- List all missing attachments
+								if !table.HasValue(ply.FAS2Attachments, v2) then
+									table.insert(atts, v2)
+								end
 							end
-						end
-						if #atts > 0 then
-							local newatt = atts[math.random(#atts)]
-							AttachFAS2Attachment(ply, wep, k, newatt)
-							if atts[newatt] then
-								print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+							if #atts > 0 then
+								local newatt = atts[math.random(#atts)]
+								AttachFAS2Attachment(ply, wep, k, newatt)
+								if atts[newatt] then
+									print(wep.Owner:Nick().." has Pack-a-Punched and gotten attachment "..atts[newatt])
+								end
 							end
 						end
 					end

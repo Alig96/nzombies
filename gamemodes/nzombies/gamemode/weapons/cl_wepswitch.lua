@@ -4,7 +4,7 @@ AccessorFunc( plyMeta, "iCurrentWeaponSlot", "CurrentWeaponSlot", FORCE_NUMBER)
 function plyMeta:SelectWeapon( class )
 	if ( !self:HasWeapon( class ) ) then return end
 	self.DoWeaponSwitch = self:GetWeapon( class )
-	print(self.DoWeaponSwitch)
+	--print(self.DoWeaponSwitch)
 end
 
 function GM:CreateMove( cmd )

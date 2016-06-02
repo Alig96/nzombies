@@ -183,7 +183,7 @@ end, function( data )
 			if new == "nz_removeweapon" then
 				v:Remove()
 			else
-				v:GetWepClass(new)
+				v:SetWeapon(new)
 			end
 		end
 	end

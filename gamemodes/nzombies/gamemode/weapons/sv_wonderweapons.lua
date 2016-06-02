@@ -69,6 +69,8 @@ hook.Add("InitPostEntity", "nzRegisterWonderWeaponsByKey", function()
 		if v.NZWonderWeapon then nzWeps:AddWonderWeapon(v.ClassName) end
 		-- If it has a PaP replacement, blacklist that weapon so it can't be gotten in the box
 		if v.NZPaPReplacement then nzConfig.AddWeaponToBlacklist(v.NZPaPReplacement) end
+		-- Total blacklisted weapons also need to be added to the box blacklist
+		if v.NZTotalBlacklist then nzConfig.AddWeaponToBlacklist(v.ClassName) end
 	end	
 end)
 
