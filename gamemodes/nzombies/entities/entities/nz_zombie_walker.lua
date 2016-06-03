@@ -7,6 +7,7 @@ ENT.Author = "Lolle"
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "EmergeSequenceIndex")
+	self:NetworkVar("Bool", 1, "Decapitated")
 end
 
 ENT.Models = {
