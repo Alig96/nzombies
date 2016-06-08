@@ -55,7 +55,7 @@ This is an edited version from Aligs original featuring these changes:
 		- On taking damage, a blood pulse overlay appears
 		- Pack-a-Punch weapon animations
 		- Perk Bottle Drinking animation
-	- Better editing
+	- Better editing in creative mode
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
 		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
