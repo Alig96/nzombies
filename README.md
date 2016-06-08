@@ -37,7 +37,7 @@ This is an edited version from Aligs original featuring these changes:
 	- Create NavGroups!
 		- Zombies cannot target players in different NavGroups than themselves (unless either one is in no group)
 		- If no players can be targeted, will target a spawnpoint marked with "Respawn from?" and respawn from it on arrival
-	- A tool for generating ladders in edit mode!
+	- A tool for generating ladders in creative mode!
 
 - Additional Content
 	- All perks up until Black Ops 2; all DLC working!
@@ -55,7 +55,7 @@ This is an edited version from Aligs original featuring these changes:
 		- On taking damage, a blood pulse overlay appears
 		- Pack-a-Punch weapon animations
 		- Perk Bottle Drinking animation
-	- Better editing
+	- Better editing in creative mode
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
 		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
