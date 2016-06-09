@@ -73,6 +73,7 @@ function nzMapping:SaveConfig(name)
 		angle = v:GetAngles(),
 		model = v:GetModel(),
 		flags = flagstr,
+		collision = v:GetCollisionGroup(),
 		})
 	end
 
@@ -383,7 +384,8 @@ function nzMapping:LoadConfig( name, loader )
 
 		if data.BuyablePropSpawns then
 			for k,v in pairs(data.BuyablePropSpawns) do
-				nzMapping:PropBuy(v.pos, v.angle, v.model, v.flags)
+				local prop = nzMapping:PropBuy(v.pos, v.angle, v.model, v.flags)
+				prop:SetCollisionGroup(v.collision or COLLISION_GROUP_NONE)
 			end
 		end
 
