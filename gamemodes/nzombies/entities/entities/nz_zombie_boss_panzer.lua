@@ -100,6 +100,9 @@ function ENT:Initialize()
 
 	self:StatsInitialize()
 	self:SpecialInit()
+	
+	-- Fallback for buggy tool
+	if !self:GetRunSpeed() then self:SetRunSpeed(150) end
 
 	if SERVER then
 		self.loco:SetDeathDropHeight( self.DeathDropHeight )
