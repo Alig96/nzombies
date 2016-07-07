@@ -62,6 +62,13 @@ function ENT:Think()
 					-- reduce zombies in queue on self and spawner object
 					self:GetSpawner():DecrementZombiesToSpawn()
 					self:DecrementZombiesToSpawn()
+					
+					if nzRound:IsSpecial() then
+						local data = nzRound:GetSpecialRoundData()
+						if data and data.spawnfunc then
+							data.spawnfunc(zombie)
+						end
+					end
 				end
 				self:GetSpawner():SetNextSpawn(CurTime() + self:GetSpawner():GetDelay())
 				-- this will prevent one spawner from becoming dominant

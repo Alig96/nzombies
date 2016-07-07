@@ -50,6 +50,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 
 	if !dmginfo:GetAttacker():IsPlayer() then return end
 	if IsValid(zombie) and nzConfig.ValidEnemies[zombie:GetClass()] and nzConfig.ValidEnemies[zombie:GetClass()].Valid then
+		if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end
 		local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition( ), dmginfo:GetDamagePosition( ) ).HitGroup
 
 		if nzPowerUps:IsPowerupActive("insta") then

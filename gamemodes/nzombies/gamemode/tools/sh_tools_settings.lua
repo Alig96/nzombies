@@ -32,6 +32,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		valz["Row4"] = data.script or false
 		valz["Row5"] = data.scriptinfo or ""
 		valz["Row6"] = data.gamemodeentities or false
+		valz["Row7"] = data.specialroundtype or "Hellhounds"
 		valz["RBoxWeps"] = data.RBoxWeps or {}
 
 		local sheet = vgui.Create( "DPropertySheet", frame )
@@ -95,6 +96,19 @@ nz.Tools.Functions.CreateTool("settings", {
 			Row6:SetValue( valz["Row6"] )
 			Row6.DataChanged = function( _, val ) valz["Row6"] = val end
 			Row6:SetTooltip("Sets whether the gamemode should spawn in map entities from other gamemodes, such as ZS.")
+			
+			local Row7 = DProperties:CreateRow( "Map Settings", "Special Round" )
+			Row7:Setup( "Combo" )
+			for k,v in pairs(nzRound.SpecialData) do
+				if k == "Hellhounds" then
+					Row7:AddChoice(k, k, true)
+				else
+					Row7:AddChoice(k, k, false)
+				end
+			end
+			Row7:AddChoice(" None", "None", false)
+			Row7.DataChanged = function( _, val ) valz["Row7"] = val end
+			Row7:SetTooltip("Sets what type of special round will appear.")
 		end
 		
 		local function UpdateData()
@@ -104,6 +118,8 @@ nz.Tools.Functions.CreateTool("settings", {
 			if !valz["Row4"] then data.script = nil else data.script = valz["Row4"] end
 			if !valz["Row5"] or valz["Row5"] == "" then data.scriptinfo = nil else data.scriptinfo = valz["Row5"] end
 			if !valz["Row6"] or valz["Row6"] == "0" then data.gamemodeentities = nil else data.gamemodeentities = tobool(valz["Row6"]) end
+			if !valz["Row7"] then data.specialroundtype = "Hellhounds" else data.specialroundtype = valz["Row7"] end
+			print(data.specialroundtype)
 			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			if !valz["WMPerks"] or !valz["WMPerks"][1] then data.wunderfizzperks = nil else data.wunderfizzperks = valz["WMPerks"] end
 			PrintTable(data)

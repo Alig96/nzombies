@@ -23,6 +23,15 @@ end
 
 function nzRound:Prepare()
 
+	if self:IsSpecial() then -- From previous round
+		local data = self:GetSpecialRoundData()
+		if data and data.endfunc then data.endfunc() end
+	end
+	
+	-- Update special round type every round, before special state is set
+	local roundtype = nzMapping.Settings.specialroundtype
+	self:SetSpecialRoundType(roundtype)
+
 	-- Set special for the upcoming round during prep, that way clients have time to fade the fog in
 	self:SetSpecial( self:MarkedForSpecial( self:GetNumber() + 1 ) )
 	self:SetState( ROUND_PREP )
@@ -61,8 +70,8 @@ function nzRound:Prepare()
 	end
 
 	-- Prioritize any configs (useful for mapscripts)
-	if nzConfig.RoundData[ self:GetNumber() ] then
-		local roundData = nzConfig.RoundData[ self:GetNumber() ]
+	if nzConfig.RoundData[ self:GetNumber() ] or self:GetSpecialRoundType() then
+		local roundData = self:IsSpecial() and self:GetSpecialRoundData().data or  nzConfig.RoundData[ self:GetNumber() ]
 
 		--normal spawner
 		local normalCount = 0
@@ -165,11 +174,16 @@ function nzRound:Start()
 	end
 
 	local specialspawner = self:GetSpecialSpawner()
-	if self:IsSpecial() and specialspawner and specialspawner:GetData()["nz_zombie_special_dog"] then -- If we got a dog special round
-		specialspawner:SetNextSpawn( CurTime() + 6 ) -- Delay spawning even furhter
-		timer.Simple(3, function()
-			nzRound:CallHellhoundRound() -- Play the sound
-		end)
+	if self:IsSpecial() then
+		if specialspawner and specialspawner:GetData()["nz_zombie_special_dog"] then -- If we got a dog special round
+			specialspawner:SetNextSpawn( CurTime() + 6 ) -- Delay spawning even furhter
+			timer.Simple(3, function()
+				nzRound:CallHellhoundRound() -- Play the sound
+			end)
+		end
+		
+		local data = self:GetSpecialRoundData()
+		if data and data.roundfunc then data.roundfunc() end
 	end
 
 	--Notify
