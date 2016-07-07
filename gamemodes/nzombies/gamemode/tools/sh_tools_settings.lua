@@ -181,10 +181,12 @@ nz.Tools.Functions.CreateTool("settings", {
 			if nzMapping.Settings.rboxweps then
 				for k,v in pairs(nzMapping.Settings.rboxweps) do
 					local wep = weapons.Get(v)
-					if wep.Category and wep.Category != "" then
-						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
-					else
-						InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+					if wep then
+						if wep.Category and wep.Category != "" then
+							InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
+						else
+							InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+						end
 					end
 				end
 			else
@@ -223,10 +225,12 @@ nz.Tools.Functions.CreateTool("settings", {
 			wepadd:SetSize( 53, 20 )
 			wepadd.DoClick = function()
 				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
-				if v.Category and v.Category != "" then
-					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
-				else
-					InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+				if v then
+					if v.Category and v.Category != "" then
+						InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+					else
+						InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+					end
 				end
 				wepentry:SetValue( "Weapon..." )
 			end
@@ -282,16 +286,18 @@ nz.Tools.Functions.CreateTool("settings", {
 					if cat and cat != "" then
 						for k,v in pairs(weplist) do
 							local wep = weapons.Get(k)
-							if wep.Category and wep.Category == cat then
-								if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
-								weplist[k]:Remove()
-								weplist[k] = nil
-								local num = 0
-								for k,v in pairs(weplist) do
-									v:SetPos(0, num*16)
-									num = num + 1
+							if wep then
+								if wep.Category and wep.Category == cat then
+									if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+									weplist[k]:Remove()
+									weplist[k] = nil
+									local num = 0
+									for k,v in pairs(weplist) do
+										v:SetPos(0, num*16)
+										num = num + 1
+									end
+									numweplist = numweplist - 1
 								end
-								numweplist = numweplist - 1
 							end
 						end
 					end
@@ -406,10 +412,12 @@ nz.Tools.Functions.CreateTool("settings", {
 					if nzMapping.Settings.rboxweps then
 						for k,v in pairs(nzMapping.Settings.rboxweps) do
 							local wep = weapons.Get(v)
-							if wep.Category and wep.Category != "" then
-								InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
-							else
-								InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+							if wep then
+								if wep.Category and wep.Category != "" then
+									InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
+								else
+									InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+								end
 							end
 						end
 					end
