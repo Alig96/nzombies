@@ -70,8 +70,10 @@ function nzRound:Prepare()
 	end
 
 	-- Prioritize any configs (useful for mapscripts)
-	if nzConfig.RoundData[ self:GetNumber() ] or self:GetSpecialRoundType() then
-		local roundData = self:IsSpecial() and self:GetSpecialRoundData().data or  nzConfig.RoundData[ self:GetNumber() ]
+	if nzConfig.RoundData[ self:GetNumber() ] or (self:IsSpecial() and self:GetSpecialRoundData()) then
+		local roundData = self:IsSpecial() and self:GetSpecialRoundData().data or nzConfig.RoundData[ self:GetNumber() ]
+		
+		PrintTable(roundData)
 
 		--normal spawner
 		local normalCount = 0
