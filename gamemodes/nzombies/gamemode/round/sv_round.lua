@@ -72,8 +72,6 @@ function nzRound:Prepare()
 	-- Prioritize any configs (useful for mapscripts)
 	if nzConfig.RoundData[ self:GetNumber() ] or (self:IsSpecial() and self:GetSpecialRoundData()) then
 		local roundData = self:IsSpecial() and self:GetSpecialRoundData().data or nzConfig.RoundData[ self:GetNumber() ]
-		
-		PrintTable(roundData)
 
 		--normal spawner
 		local normalCount = 0
@@ -234,6 +232,8 @@ function nzRound:Think()
 			DebugPrint(2, "Spawned additional special zombies because the wave was underspawning.")
 		end
 	end
+	
+	self:SetZombiesToSpawn(zombiesToSpawn)
 
 	if ( self:GetZombiesKilled() >= self:GetZombiesMax() ) then
 		if numzombies <= 0 then
@@ -369,24 +369,26 @@ function nzRound:Lose(message)
 	hook.Call( "OnRoundEnd", nzRound )
 end
 
-function nzRound:Create()
+function nzRound:Create(on)
+	if on then
+		if self:InState( ROUND_WAITING ) then
+			PrintMessage( HUD_PRINTTALK, "The mode has been set to creative mode!" )
+			self:SetState( ROUND_CREATE )
+			--We are in create
+			for _, ply in pairs( player.GetAll() ) do
+				if ply:IsSuperAdmin() then
+					ply:GiveCreativeMode()
+				end
+				if ply:IsReady() then
+					ply:SetReady( false )
+				end
+			end
 
-	if self:InState( ROUND_WAITING ) then
-		PrintMessage( HUD_PRINTTALK, "The mode has been set to creative mode!" )
-		self:SetState( ROUND_CREATE )
-		--We are in create
-		for _, ply in pairs( player.GetAll() ) do
-			if ply:IsSuperAdmin() then
-				ply:GiveCreativeMode()
-			end
-			if ply:IsReady() then
-				ply:SetReady( false )
-			end
+			nzMapping:CleanUpMap()
+			nzDoors:LockAllDoors()
+		else
+			PrintMessage( HUD_PRINTTALK, "Can only go in Creative Mode from Waiting state." )
 		end
-
-		nzMapping:CleanUpMap()
-		nzDoors:LockAllDoors()
-
 	elseif self:InState( ROUND_CREATE ) then
 		PrintMessage( HUD_PRINTTALK, "The mode has been set to play mode!" )
 		self:SetState( ROUND_WAITING )
@@ -394,6 +396,8 @@ function nzRound:Create()
 		for k,v in pairs(player.GetAll()) do
 			v:SetSpectator()
 		end
+	else
+		PrintMessage( HUD_PRINTTALK, "Not in Creative Mode." )
 	end
 end
 

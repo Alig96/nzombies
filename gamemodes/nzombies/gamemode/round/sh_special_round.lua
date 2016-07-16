@@ -8,7 +8,7 @@ if SERVER then
 	end
 
 	function nzRound:MarkedForSpecial( num )
-		return ((self.NextSpecialRound == num and self.SpecialRoundType and self.SpecialRoundType != "None") or (nzConfig.RoundData[ num ] and nzConfig.RoundData[ num ].special)) or false
+		return ((self.NextSpecialRound == num and self.SpecialRoundType and self.SpecialData[self.SpecialRoundType] and true) or (nzConfig.RoundData[ num ] and nzConfig.RoundData[ num ].special)) or false
 	end
 	
 	function nzRound:SetSpecialRoundType(id)
@@ -58,7 +58,8 @@ nzRound:AddSpecialRoundType("Hellhounds", {
 	specialTypes = {
 		["nz_zombie_special_dog"] = {chance = 100}
 	},
-	specialDelay = 2
+	specialDelay = 2,
+	specialCountMod = function() return nzRound:GetNumber() * #player.GetAllPlaying() end, -- Modify the count
 }, function(dog) -- We want to modify health
 	dog:SetHealth(math.Clamp(nzRound:GetNumber() * 20, 120, 1200))
 end) -- No round func or end func
@@ -67,5 +68,6 @@ nzRound:AddSpecialRoundType("Burning Zombies", {
 	normalTypes = {
 		["nz_zombie_special_burning"] = {chance = 100}
 	},
-	normalDelay = 0.75
+	normalDelay = 0.75,
+	normalCountMod = function(original) return original * 0.5 end, -- Half the normal count here
 }) -- No special functions or anything really

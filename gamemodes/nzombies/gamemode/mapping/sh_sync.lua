@@ -32,6 +32,9 @@ if SERVER then
 		if tbl.specialroundtype then
 			nzMapping.Settings.specialroundtype = tbl.specialroundtype or "Hellhounds"
 		end
+		if tbl.bosstype then
+			nzMapping.Settings.bosstype = tbl.bosstype or "Panzer"
+		end
 
 		for k,v in pairs(player.GetAll()) do
 			nzMapping:SendMapData(ply)

@@ -165,7 +165,7 @@ function ENT:OnSpawn()
 		start = self:GetPos() + Vector(0,0,500),
 		endpos = self:GetPos(),
 		filter = self,
-		mask = MASK_NPCSOLID,
+		mask = MASK_SOLID_BRUSHONLY,
 	})
 	if tr.Hit then seq = "nz_entry_instant" end
 	local _, dur = self:LookupSequence(seq)
