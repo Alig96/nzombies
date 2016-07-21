@@ -5,8 +5,8 @@ if SERVER then
 			-- The time it takes for a downed player to die - Prevent dying if being revived
 			if CurTime() - v.DownTime >= GetConVar("nz_downtime"):GetFloat() and !v.ReviveTime then
 				local ent = Entity(k)
-				if ent:IsPlayer() then
-					Entity(k):KillDownedPlayer()
+				if ent.KillDownedPlayer then
+					ent:KillDownedPlayer()
 				else
 					-- If it's a non-player entity, do the same thing just to clean up the table
 					local revivor = v.RevivePlayer
@@ -152,7 +152,7 @@ function Revive:RespawnWithWhosWho(ply, pos)
 		local maxdist = 1500^2
 		local mindist = 500^2
 
-		local available = ents.FindByClass("zed_special_spawns")
+		local available = ents.FindByClass("nz_spawn_zombie_special")
 		if IsValid(available[1]) then
 			for k,v in pairs(available) do
 				local dist = plypos:DistToSqr(v:GetPos())

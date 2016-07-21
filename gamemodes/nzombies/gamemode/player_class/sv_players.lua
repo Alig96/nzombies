@@ -42,7 +42,7 @@ local function initialSpawn( ply )
 end
 
 local function playerLeft( ply )
-	-- this was previously hooked to  PlayerDisconnected
+	-- this was previously hooked to PlayerDisconnected
 	-- it will now detect leaving players via entity removed, to take kicking banning etc into account.
 	if ply:IsPlayer() then
 		ply:DropOut()
@@ -53,8 +53,8 @@ local function friendlyFire( ply, ent )
 	if !ply:GetNotDowned() then return false end
 	if ent:IsPlayer() then
 		if ent == ply then
-			-- You can damage yourself, although PhD prevents this
-			if ply:HasPerk("phd") then return false else return true end
+			-- You can damage yourself as long as you don't have PhD
+			return !ply:HasPerk("phd")
 		else
 			--Friendly fire is disabled for all other players TODO make hardcore setting?
 			return false

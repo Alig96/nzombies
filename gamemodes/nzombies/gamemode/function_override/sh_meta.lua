@@ -53,7 +53,7 @@ if SERVER then
 			end
 		end
 	end
-	hook.Add("WeaponEquip", "ModifyWeaponReloads", ReplaceReloadFunction)
+	hook.Add("WeaponEquip", "nzModifyWeaponReloads", ReplaceReloadFunction)
 	
 	function ReplacePrimaryFireCooldown(wep)
 		local oldfire = wep.PrimaryAttack
@@ -73,7 +73,7 @@ if SERVER then
 			end
 		end
 	end
-	hook.Add("WeaponEquip", "ModifyWeaponNextFires", ReplacePrimaryFireCooldown)
+	hook.Add("WeaponEquip", "nzModifyWeaponNextFires", ReplacePrimaryFireCooldown)
 	
 	function ReplaceAimDownSight(wep)
 		local oldfire = wep.SecondaryAttack
@@ -97,9 +97,9 @@ if SERVER then
 			end
 		end
 	end
-	hook.Add("WeaponEquip", "ModifyAimDownSights", ReplaceAimDownSight)
+	hook.Add("WeaponEquip", "nzModifyAimDownSights", ReplaceAimDownSight)
 	
-	hook.Add("DoAnimationEvent", "ReloadCherry", function(ply, event, data)
+	hook.Add("DoAnimationEvent", "nzReloadCherry", function(ply, event, data)
 		--print(ply, event, data)
 		if event == PLAYERANIMEVENT_RELOAD then
 			if ply:HasPerk("cherry") then
@@ -234,4 +234,59 @@ function GM:EntityFireBullets(ent, data)
 	elseif ent:IsPlayer() and ent:HasPerk("dtap2") then
 		data.Num = data.Num * 2
 	end
+end
+
+-- Create new ammo types for each weapon slot; that way all 3 weapons have seperate ammo even if they share type
+
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_1",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_2",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+-- Third one is pretty much only used with Mule Kick
+game.AddAmmoType( {
+	name = "nz_weapon_ammo_3",
+	dmgtype = DMG_BULLET,
+	tracer = TRACER_LINE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+
+local ammoids = ammoids or {}
+hook.Add("InitPostEntity", "nzRegisterAmmoIDs", function()
+	for i = 1, 3 do
+		local id = game.GetAmmoID("nz_weapon_ammo_"..i)
+		if id != -1 then
+			ammoids[i] = id
+		end
+		--print(i, id)
+	end
+end)
+
+local oldammotype = wepMeta.GetPrimaryAmmoType
+function wepMeta:GetPrimaryAmmoType()
+	local id = self:GetNWInt("SwitchSlot", -1)
+	--PrintTable(ammoids)
+	--if ammoids[id] then print("HKDAHKDH! It's here! "..id) else print("sadface "..id) end
+	return ammoids[id] or oldammotype(self)
 end

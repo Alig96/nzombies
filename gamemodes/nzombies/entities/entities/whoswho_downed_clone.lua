@@ -91,7 +91,11 @@ function ENT:RevivePlayer()
 		for k,v in pairs(self.OwnerData.weps) do
 			local wep = ply:Give(v.class)
 			if v.pap then
-				wep:ApplyNZModifier("pap")
+				timer.Simple(0, function()
+					if IsValid(wep) then
+						wep:ApplyNZModifier("pap")
+					end
+				end)
 			end
 		end
 		for k,v in pairs(self.OwnerData.perks) do
