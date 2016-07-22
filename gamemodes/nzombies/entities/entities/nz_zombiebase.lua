@@ -1056,6 +1056,7 @@ function ENT:Explode(dmg, suicide)
 	suicide = suicide or true
 
 	local ex = ents.Create("env_explosion")
+	if !IsValid(ex) then return end
 	ex:SetPos(self:GetPos())
 	ex:SetKeyValue( "iMagnitude", tostring( dmg ) )
 	ex:SetOwner(self)
@@ -1355,4 +1356,12 @@ end
 
 function ENT:IsTimedOut()
 	return self:GetTimedOut()
+end
+
+function ENT:SetInvulnerable(bool)
+	self.Invulnerable = bool
+end
+
+function ENT:IsInvulnerable()
+	return self.Invulnerable
 end
