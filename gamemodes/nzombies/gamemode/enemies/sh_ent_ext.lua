@@ -12,6 +12,16 @@ TARGET_PRIORITY_ALWAYS = 10 --make this entity a global target (not recommended)
 
 local meta = FindMetaTable("Entity")
 
+meta.bIsZombie = false
+
+function meta:SetIsZombie(value)
+	self.bIsZombie = value
+end
+
+function meta:IsZombie()
+	return self.bIsZombie
+end
+
 function meta:GetTargetPriority()
 	return self.iTargetPriority or TARGET_PRIORITY_NONE
 end
