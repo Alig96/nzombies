@@ -30,15 +30,16 @@ if SERVER then
 						ply:ChatPrint("NZ This command can only be used by administrators.")
 						return false
 					end
-					
-					local args = splitCommand(text)
+
+					local args = chatcommand.splitCommand(text)
 					-- Check if quotionmark usage was valid
 					if args then
 						-- Remove first arguement (command name) and then call function with the reamianing args
-						local block = v[2](ply, table.remove(args, 1) or false
+						table.remove(args, 1)
+						local block = v[2](ply, args) or false
 						print("NZ " .. tostring(ply) .. " used command " .. v[1] .. " with arguments:\n" .. table.ToString(args))
 						return block
-					else 
+					else
 						ply:ChatPrint("NZ Invalid command usage (check for missing quotes).")
 						return false
 					end
@@ -60,13 +61,14 @@ if CLIENT then
 						return true
 					end
 					if ply == LocalPlayer() then
-						local args = splitCommand(text)
+						local args = chatcommand.splitCommand(text)
 						-- Check if quotionmark usage was valid
 						if args then
 							-- Remove first arguement (command name) and then call function with the reamianing args
-							local block = v[2](ply, table.remove(args, 1) or false
+							table.remove(args, 1)
+							local block = v[2](ply, args) or false
 							return block
-						else 
+						else
 							ply:ChatPrint("NZ Invalid command usage (check for missing quotes).")
 							return false
 						end
@@ -79,7 +81,7 @@ if CLIENT then
 	hook.Add("OnPlayerChat", "nzChatCommandClient", commandListenerCL)
 end
 
-local function splitCommand(command)
+function chatcommand.splitCommand(command)
 	local spat, epat, buf, quoted = [=[^(['"])]=], [=[(['"])$]=]
 	local result = {}
 	for str in string.gmatch(command, "%S+") do
