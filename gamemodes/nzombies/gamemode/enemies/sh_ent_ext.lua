@@ -12,14 +12,20 @@ TARGET_PRIORITY_ALWAYS = 10 --make this entity a global target (not recommended)
 
 local meta = FindMetaTable("Entity")
 
-meta.bIsZombie = false
-
 function meta:SetIsZombie(value)
 	self.bIsZombie = value
 end
 
 function meta:IsZombie()
-	return self.bIsZombie
+	return self.bIsZombie or false
+end
+
+function meta:SetIsActivatable(value)
+	self.bIsActivatable = value
+end
+
+function meta:IsActivatable()
+	return self.bIsActivatable or false
 end
 
 function meta:GetTargetPriority()
