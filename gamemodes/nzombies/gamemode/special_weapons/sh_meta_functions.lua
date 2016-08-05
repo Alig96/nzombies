@@ -25,7 +25,7 @@ function ply:EquipPreviousWeapon()
 	end
 end
 
--- Prevent players from manually switching to the weapon if it is special - it is handled by the bind
+--[[ Prevent players from manually switching to the weapon if it is special - it is handled by the bind
 function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 	-- In case a player is trying to switch both to and from a non-special weapon, but their status is stuck to true
 	if IsValid(ply) and ply:GetUsingSpecialWeapon() and (!IsValid(oldwep) or !oldwep:IsSpecial()) and !newwep:IsSpecial() then
@@ -39,7 +39,7 @@ function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 			ply.NZPrevWep = oldwep
 		end
 	end
-end
+end]]
 
 if SERVER then
 	function ply:AddSpecialWeapon(wep)
@@ -47,13 +47,19 @@ if SERVER then
 		local id = wep:GetSpecialCategory()
 		self.NZSpecialWeapons[id] = wep
 		nzSpecialWeapons:SendSpecialWeaponAdded(self, wep, id)
-		if nzSpecialWeapons.Weapons[wep:GetClass()].equip then
-			nzSpecialWeapons.Weapons[wep:GetClass()].equip(self, wep)
+		
+		if nzSpecialWeapons.Weapons[wep:GetClass()].drawonequip then
+			wep.nzIsDrawing = true
+			self:SetUsingSpecialWeapon(true)
+			self:SetActiveWeapon(nil)
+			self:SelectWeapon(wep:GetClass())
+			wep:EquipDraw()
 		end
 	end
 
 	-- This hook only works server-side
 	hook.Add("WeaponEquip", "SetSpecialWeapons", function(wep)
+		print(wep, wep:IsSpecial())
 		if wep:IsSpecial() then
 			-- 0 second timer for the next tick where wep's owner is valid
 			timer.Simple(0, function()

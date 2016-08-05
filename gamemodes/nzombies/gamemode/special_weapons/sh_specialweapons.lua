@@ -1,5 +1,5 @@
 
--- Crowbar test melee weapon
+--[[ Crowbar test melee weapon
 nzSpecialWeapons:CreateCategory("knife", 0)
 nzSpecialWeapons:CreateCategory("specialgrenade", IN_GRENADE2, true)
 nzSpecialWeapons:CreateCategory("grenade", IN_GRENADE1, true)
@@ -69,4 +69,9 @@ nzSpecialWeapons:AddWeapon( "nz_perk_bottle", "display", nil, function(ply, wep)
 		ply:SetUsingSpecialWeapon(true)
 		ply:SelectWeapon("nz_perk_bottle")
 	end
+end)]]
+
+hook.Add("InitPostEntity", "nzRegisterSpecialWeps", function()
+	nzSpecialWeapons:AddKnife( "nz_quickknife_crowbar", false, 0.65 )
+	nzSpecialWeapons:AddKnife( "nz_bowie_knife", true, 0.65, 2.5 )
 end)

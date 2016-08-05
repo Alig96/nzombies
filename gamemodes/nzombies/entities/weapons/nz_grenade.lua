@@ -26,7 +26,7 @@ SWEP.AdminSpawnable		= false
 
 SWEP.HoldType = "grenade"
 
-SWEP.ViewModel	= "models/weapons/c_grenade.mdl"
+SWEP.ViewModel = "models/weapons/c_grenade.mdl"
 SWEP.WorldModel	= "models/weapons/w_grenade.mdl"
 SWEP.UseHands = true
 SWEP.vModel = true
@@ -51,31 +51,20 @@ end
 
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
-	if !self.Owner:GetUsingSpecialWeapon() then
-		self.Owner:EquipPreviousWeapon()
-	end
-end
-
-function SWEP:StartGrenadeModel()
-	self.GrenadeModel = ClientsideModel("models/weapons/w_eq_fraggrenade.mdl")
-end
-
-function SWEP:EndGrenadeModel()
-	if IsValid(self.GrenadeModel) then
-		self.GrenadeModel:Remove()
-		self.GrenadeModel = nil
-	end
+	--if !self.Owner:GetUsingSpecialWeapon() then
+		--self.Owner:EquipPreviousWeapon()
+	--end
 end
 
 function SWEP:PrimaryAttack()
-	--self:ThrowGrenade(1000)
+	self:ThrowGrenade(1000)
 end
 
 function SWEP:ThrowGrenade(force)
 	self.Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_THROW)
 	
-	local nade = ents.Create("nz_fraggrenade")
+	local nade = ents.Create("npc_grenade_frag")
 	nade:SetPos(self.Owner:EyePos() + (self.Owner:GetAimVector() * 20))
 	nade:Spawn()
 	nade:Activate()
@@ -90,26 +79,16 @@ end
 
 function SWEP:PostDrawViewModel()
 
-	if IsValid(self.GrenadeModel) then
-		local pos = LocalPlayer():GetViewModel():GetBonePosition(  LocalPlayer():GetViewModel():LookupBone( "ValveBiped.Grenade_body" ) )
-		local ang = EyeAngles()
-		self.GrenadeModel:SetPos(pos - ang:Up()*2 - ang:Forward()*5 + ang:Right()*2)
-		self.GrenadeModel:SetAngles(ang - Angle(25,0,20))
-		--render.Model({model = "models/weapons/w_eq_fraggrenade.mdl", pos = pos, ang = ang})
-	end
-
-	LocalPlayer():GetViewModel():ManipulateBoneScale(  LocalPlayer():GetViewModel():LookupBone( "ValveBiped.Grenade_body" ), Vector(0,0,0) )
-	LocalPlayer():GetViewModel():ManipulateBoneScale(  LocalPlayer():GetViewModel():LookupBone( "ValveBiped.Pin" ), Vector(0,0,0) )
 end
 
 function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	self:EndGrenadeModel()
+	--self:EndGrenadeModel()
 end
 
 function SWEP:Holster( wep )
 	if not IsFirstTimePredicted() then return end
-	self:EndGrenadeModel()
+	--self:EndGrenadeModel()
 end

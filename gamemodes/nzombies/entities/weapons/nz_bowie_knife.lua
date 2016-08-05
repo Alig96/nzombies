@@ -58,8 +58,26 @@ function SWEP:Initialize()
 end
 
 function SWEP:Deploy()
-	--self:SendWeaponAnim(ACT_VM_DRAW)
-	--self:SetHoldType( self.HoldType )
+	self:SendWeaponAnim(ACT_VM_DRAW)
+	self.HolsterTime = CurTime() + 2.5
+	self:EmitSound("nz/bowie/draw/bowie_start.wav")
+	
+	timer.Simple(0.7, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_turn.wav")
+		end
+	end)
+	timer.Simple(1.4, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_toss.wav")
+		end
+	end)
+	
+	timer.Simple(1.9, function()
+		if IsValid(self) then
+			self:EmitSound("nz/bowie/draw/bowie_catch.wav")
+		end
+	end)
 end
 
 function SWEP:PrimaryAttack()
@@ -118,26 +136,7 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:DrawAnim()
-	self:SendWeaponAnim(ACT_VM_DRAW)
-	self.HolsterTime = CurTime() + 2.5
-	self:EmitSound("nz/bowie/draw/bowie_start.wav")
 	
-	timer.Simple(0.7, function()
-		if IsValid(self) then
-			self:EmitSound("nz/bowie/draw/bowie_turn.wav")
-		end
-	end)
-	timer.Simple(1.4, function()
-		if IsValid(self) then
-			self:EmitSound("nz/bowie/draw/bowie_toss.wav")
-		end
-	end)
-	
-	timer.Simple(1.9, function()
-		if IsValid(self) then
-			self:EmitSound("nz/bowie/draw/bowie_catch.wav")
-		end
-	end)
 end
 
 function SWEP:PostDrawViewModel()
@@ -171,21 +170,4 @@ function SWEP:GetViewModelPosition( pos, ang )
 	
 	return newpos, newang
  
-end
-
-if engine.ActiveGamemode() == "nzombies" then 
-	nzSpecialWeapons:AddWeapon( "nz_bowie_knife", "knife", function(ply, wep) -- Use function
-		if SERVER then
-			ply:SetUsingSpecialWeapon(true)
-			ply:SetActiveWeapon(wep)
-			wep:PrimaryAttack()
-		end
-	end, function(ply, wep)
-		if SERVER then
-			ply:SetUsingSpecialWeapon(true)
-			ply:SetActiveWeapon(nil)
-			ply:SelectWeapon("nz_bowie_knife")
-			wep:DrawAnim()
-		end
-	end)
 end

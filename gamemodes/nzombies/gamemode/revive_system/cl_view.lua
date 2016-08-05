@@ -266,11 +266,15 @@ net.Receive("nz_WhosWhoActive", function()
 	whoswhoactive = net.ReadBool()
 end)
 local whoswhomat = "models/shadertest/shader4"
+local firemat = "models/onfire"
 
 local function DrawWhosWhoOverlay()
 	if whoswhoactive then
 		DrawMaterialOverlay(whoswhomat, 0.03)
 	end
+	--[[if LocalPlayer():IsOnFire() then
+		DrawMaterialOverlay("firemat", 1)
+	end]]
 end
 
 //Hooks
