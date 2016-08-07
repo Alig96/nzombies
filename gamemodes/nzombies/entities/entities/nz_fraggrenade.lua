@@ -12,8 +12,8 @@ end
 
 function ENT:Initialize()
 	if SERVER then
-		self:SetModel("models/weapons/w_eq_fraggrenade_thrown.mdl")
-		self:PhysicsInitSphere(2, "metal_bouncy")
+		self:SetModel("models/weapons/w_grenade.mdl")
+		self:PhysicsInit(SOLID_VPHYSICS)
 		self:SetMoveType(MOVETYPE_VPHYSICS)
 		self:SetCollisionGroup(COLLISION_GROUP_NONE)
 		self:SetSolid(SOLID_VPHYSICS)
@@ -21,6 +21,7 @@ function ENT:Initialize()
 
 		if phys and phys:IsValid() then
 			phys:Wake()
+			phys:SetAngleDragCoefficient(1000)
 		end
 	end
 end
@@ -39,10 +40,10 @@ function ENT:PhysicsCollide(data, physobj)
 
 		LastSpeed = math.max( NewVelocity:Length(), LastSpeed )
 
-		local TargetVelocity = NewVelocity * LastSpeed * 0.6
+		local TargetVelocity = NewVelocity * LastSpeed * 0.8
 
 		physobj:SetVelocity( TargetVelocity )
-		self:SetLocalAngularVelocity( AngleRand() )
+		--physobj:SetLocalAngularVelocity( AngleRand() )
 	end
 end
 
@@ -55,7 +56,7 @@ function ENT:SetExplosionTimer( time )
 			local pos = self:GetPos()
 			local owner = self:GetOwner()
 
-			util.BlastDamage(self, owner, pos, 400, 150)
+			util.BlastDamage(self, owner, pos, 350, 135)
 
 			fx = EffectData()
 			fx:SetOrigin(pos)

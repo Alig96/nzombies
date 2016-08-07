@@ -74,4 +74,6 @@ end)]]
 hook.Add("InitPostEntity", "nzRegisterSpecialWeps", function()
 	nzSpecialWeapons:AddKnife( "nz_quickknife_crowbar", false, 0.65 )
 	nzSpecialWeapons:AddKnife( "nz_bowie_knife", true, 0.65, 2.5 )
+	
+	nzSpecialWeapons:AddGrenade( "nz_grenade", 4, nil, 0.85, nil, 0.4 )
 end)

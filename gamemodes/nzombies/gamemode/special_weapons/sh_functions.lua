@@ -94,7 +94,7 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 			if !drawact then
 				self:EquipDraw() -- Use normal draw animation/function for not specifying throw act
 			else
-				self:SendWeaponAnim(throwact) -- Otherwise play the act (preferably pull pin act)
+				self:SendWeaponAnim(drawact) -- Otherwise play the act (preferably pull pin act)
 			end
 			self.nzThrowTime = ct + throwtime
 			
@@ -107,16 +107,17 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 				local ct = CurTime()
 				
 				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					throwfunc(self) -- If a function was specified (e.g. to run a certain func on the weapon), then do that
 					self.nzThrowTime = nil
 					self.nzHolsterTime = ct + holstertime
+					throwfunc(self) -- If a function was specified (e.g. to run a certain func on the weapon), then do that
+					-- The above function needs to subtract the grenade ammo (unless they're going for something special)
 				end
 				
 				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self:Holster()
-					self.Owner:SetUsingSpecialWeapon(false)
-					self.Owner:EquipPreviousWeapon()
 					self.nzHolsterTime = nil
+					self.Owner:SetUsingSpecialWeapon(false)
+					self:Holster()
+					self.Owner:EquipPreviousWeapon()
 				end
 				
 				oldthink(self)
@@ -126,16 +127,17 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 				local ct = CurTime()
 				
 				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					self:PrimaryAttack()
 					self.nzThrowTime = nil
 					self.nzHolsterTime = ct + holstertime
+					self:PrimaryAttack()
+					ply:SetAmmo(ply:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
 				end
 				
 				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self:Holster()
-					self.Owner:SetUsingSpecialWeapon(false)
-					self.Owner:EquipPreviousWeapon()
 					self.nzHolsterTime = nil
+					self.Owner:SetUsingSpecialWeapon(false)
+					self:Holster()
+					self.Owner:EquipPreviousWeapon()
 				end
 				
 				oldthink(self)
@@ -160,15 +162,23 @@ local buttonids = {
 	[KEY_B] = "specialgrenade",
 }
 
+local usesammo = {
+	["grenade"] = "nz_grenade",
+	["specialgrenade"] = "nz_specialgrenade",
+}
+
 hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 	local id = buttonids[but]
 	if id and (ply:GetNotDowned() or but == KEY_V) and !ply:GetUsingSpecialWeapon() then
-		local wep = ply:GetSpecialWeaponFromCategory( id )
-		if IsValid(wep) then
-			ply:SetUsingSpecialWeapon(true)
-			ply:SetActiveWeapon(nil)
-			ply:SelectWeapon(wep:GetClass())
-			ply.nzSpecialButtonDown = true
+		local ammo = usesammo[id]
+		if !ammo or ply:GetAmmoCount(ammo) >= 1 then
+			local wep = ply:GetSpecialWeaponFromCategory( id )
+			if IsValid(wep) then
+				ply:SetUsingSpecialWeapon(true)
+				ply:SetActiveWeapon(nil)
+				ply:SelectWeapon(wep:GetClass())
+				ply.nzSpecialButtonDown = true
+			end
 		end
 	end
 end)

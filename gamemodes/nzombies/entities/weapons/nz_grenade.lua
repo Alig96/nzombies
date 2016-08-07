@@ -57,15 +57,16 @@ function SWEP:Deploy()
 end
 
 function SWEP:PrimaryAttack()
-	self:ThrowGrenade(1000)
+	self:ThrowGrenade(6000)
 end
 
 function SWEP:ThrowGrenade(force)
 	self.Owner:SetAnimation(PLAYER_ATTACK1)
 	self:SendWeaponAnim(ACT_VM_THROW)
 	
-	local nade = ents.Create("npc_grenade_frag")
+	local nade = ents.Create("nz_fraggrenade")
 	nade:SetPos(self.Owner:EyePos() + (self.Owner:GetAimVector() * 20))
+	--nade:SetAngles( self.Owner:GetAngles() +  )
 	nade:Spawn()
 	nade:Activate()
 	nade:SetOwner(self.Owner)
@@ -85,10 +86,10 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	--self:EndGrenadeModel()
+	
 end
 
 function SWEP:Holster( wep )
-	if not IsFirstTimePredicted() then return end
-	--self:EndGrenadeModel()
+	--if not IsFirstTimePredicted() then return end
+	return true
 end
