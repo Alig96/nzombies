@@ -328,6 +328,7 @@ function nzMapping:CleanUpMap()
 		"power_box",
 		"invis_wall",
 		"wunderfizz_machine",
+		"invis_damage_wall",
 	})
 
 	-- Gotta reset the doors and other entites' values!
