@@ -2,7 +2,7 @@
 
 function nz.Players.Functions.PlayerNoClip( ply, desiredState )
 	if ply:Alive() and nzRound:InState( ROUND_CREATE ) then
-		return ply:IsSuperAdmin()
+		return ply:IsInCreative()
 	end
 end
 

@@ -41,14 +41,24 @@ function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 	
 end
 
+local usesammo = {
+	["grenade"] = "nz_grenade",
+	["specialgrenade"] = "nz_specialgrenade",
+}
+
 function nzWeps:GiveMaxAmmo(ply)
 	for k,v in pairs(ply:GetWeapons()) do
 		if !v:IsSpecial() then
 			v:GiveMaxAmmo()
 		else
-			if nzSpecialWeapons.Weapons[v:GetClass()].maxammo then
-				nzSpecialWeapons.Weapons[v:GetClass()].maxammo(ply, v)
+		
+			local ammo = usesammo[v:GetSpecialCategory()]
+			local maxammo = nzSpecialWeapons.Weapons[v:GetClass()].maxammo
+			
+			if ammo and maxammo then
+				ply:SetAmmo(maxammo, ammo)
 			end
+			
 		end
 	end
 end

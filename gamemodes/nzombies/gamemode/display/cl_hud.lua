@@ -46,7 +46,7 @@ local function ScoreHud()
 
 			for k,v in pairs(player.GetAll()) do
 				local hp = v:Health()
-				if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
+				if hp == 0 then hp = "Dead" elseif nzRevive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
 				if v:GetPoints() >= 0 then
 
 					local text = ""

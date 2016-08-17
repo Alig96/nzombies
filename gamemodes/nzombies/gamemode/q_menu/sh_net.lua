@@ -23,7 +23,7 @@ if SERVER then
 		local entity = net.ReadBool()
 		if nzRound:InState( ROUND_CREATE ) then
 			print(ply:Nick() .. " requested prop " .. model)
-			if ply:IsSuperAdmin() then
+			if ply:IsInCreative() then
 				local tr = util.GetPlayerTrace( ply )
 				tr.mask = bit.bor( CONTENTS_SOLID, CONTENTS_MOVEABLE, CONTENTS_MONSTER, CONTENTS_WINDOW, CONTENTS_DEBRIS, CONTENTS_GRATE, CONTENTS_AUX )
 				local trace = util.TraceLine( tr )
