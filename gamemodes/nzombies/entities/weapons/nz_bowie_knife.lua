@@ -83,8 +83,6 @@ end
 function SWEP:PrimaryAttack()
 	// Only the player fires this way so we can cast
 	
-	if CurTime() < self.HolsterTime then return end
-	
 	local ply = self.Owner;
 
 	if ( !ply ) then
@@ -106,12 +104,12 @@ function SWEP:PrimaryAttack()
 		if math.random(0,1) == 0 then
 			self:SendWeaponAnim( ACT_VM_HITCENTER )
 			ply:SetAnimation( PLAYER_ATTACK1 )
-			self.HolsterTime = CurTime() + 1
+			self.nzHolsterTime = CurTime() + 1
 			self:EmitSound("nz/bowie/stab/bowie_stab_0"..math.random(0,2)..".wav")
 		else
 			self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 			ply:SetAnimation( PLAYER_ATTACK1 )
-			self.HolsterTime = CurTime() + 0.5
+			self.nzHolsterTime = CurTime() + 0.5
 			self:EmitSound("nz/bowie/swing/bowie_swing_0"..math.random(0,2)..".wav")
 		end
 
@@ -129,8 +127,6 @@ function SWEP:PrimaryAttack()
 	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 	ply:SetAnimation( PLAYER_ATTACK1 )
 	self:EmitSound("nz/bowie/swing/bowie_swing_0"..math.random(0,2)..".wav")
-
-	self.HolsterTime = CurTime() + 0.5
 
 	return
 end
@@ -152,12 +148,7 @@ function SWEP:OnRemove()
 end
 
 function SWEP:Think()
-	if engine.ActiveGamemode() == "nzombies" then 
-		if !self.Owner:GetUsingSpecialWeapon() or (self.HolsterTime  and CurTime() > self.HolsterTime) then
-			self.Owner:SetUsingSpecialWeapon(false)
-			self.Owner:EquipPreviousWeapon()
-		end
-	end
+	
 end
 
 function SWEP:GetViewModelPosition( pos, ang )

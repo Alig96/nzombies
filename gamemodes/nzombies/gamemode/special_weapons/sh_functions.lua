@@ -1,30 +1,3 @@
---[[function nzSpecialWeapons:CreateCategory(id, bind, useammo)
-	self.Categories[id] = {
-		bind = bind,
-		--use = useFunc
-	}
-	if useammo then
-		game.AddAmmoType( {
-			name = "nz_"..id,
-		} )
-	end
-	self.Keys[bind] = id
-end
-
-function nzSpecialWeapons:AddWeapon( wepclass, id, use, equip, maxammo )
-	self.Weapons[wepclass] = {id = id, use = use, equip = equip, maxammo = maxammo}
-end
-
-hook.Add("KeyPress", "SpecialWeaponsUsage", function(ply, key)
-	local id = nzSpecialWeapons.Keys[key]
-	if id and ply:GetNotDowned() then -- Can't use grenades and stuff while downed
-		local wep = ply:GetSpecialWeaponFromCategory( id )
-		if IsValid(wep) and !ply:GetUsingSpecialWeapon() and nzSpecialWeapons.Weapons[wep:GetClass()].use then
-			nzSpecialWeapons.Weapons[wep:GetClass()].use(ply, wep)
-		end
-	end
-end)]]
-
 game.AddAmmoType( {
 	name = "nz_grenade",
 } )
@@ -37,15 +10,24 @@ function nzSpecialWeapons:AddKnife( class, drawonequip, attackholstertime, drawh
 	if wep then
 		self.Weapons[class] = {id = "knife", drawonequip = drawonequip}
 		
+		local oldattack = wep.PrimaryAttack
+		function wep:PrimaryAttack()
+			if self.nzCanAttack then
+				oldattack(self)
+				self.nzCanAttack = false
+			end
+		end
+		
 		--local olddeploy = wep.Deploy
 		wep.EquipDraw = wep.Deploy
 		
 		function wep:Deploy()
 			local ct = CurTime()
 			if !self.nzIsDrawing then
+				self.nzCanAttack = true
+				self.nzHolsterTime = ct + attackholstertime
 				self:SendWeaponAnim(ACT_VM_IDLE)
 				self:PrimaryAttack()
-				self.nzHolsterTime = ct + attackholstertime
 			else
 				self.nzHolsterTime = ct + drawholstertime
 			end
@@ -90,13 +72,13 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 		
 		function wep:Deploy()
 			local ct = CurTime()
+			self.nzThrowTime = ct + throwtime
 			
 			if !drawact then
 				self:EquipDraw() -- Use normal draw animation/function for not specifying throw act
 			else
 				self:SendWeaponAnim(drawact) -- Otherwise play the act (preferably pull pin act)
 			end
-			self.nzThrowTime = ct + throwtime
 			
 		end
 	
@@ -130,7 +112,7 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 					self.nzThrowTime = nil
 					self.nzHolsterTime = ct + holstertime
 					self:PrimaryAttack()
-					ply:SetAmmo(ply:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
+					self.Owner:SetAmmo(self.Owner:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
 				end
 				
 				if self.nzHolsterTime and ct > self.nzHolsterTime then
@@ -148,16 +130,116 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 	end
 end
 
-function nzSpecialWeapons:AddSpecialGrenade( class, drawonequip )
-	self.Weapons[class] = {id = "specialgrenade", drawonequip = drawonequip}
+function nzSpecialWeapons:AddSpecialGrenade( class, ammo, drawact, throwtime, throwfunc, holstertime )
+	local wep = weapons.Get(class)
+	if wep then
+		self.Weapons[class] = {id = "specialgrenade", maxammo = ammo}
+		
+		wep.EquipDraw = wep.Deploy
+		
+		function wep:Deploy()
+			local ct = CurTime()
+			
+			if !drawact then
+				self:EquipDraw() -- Use normal draw animation/function for not specifying throw act
+			else
+				self:SendWeaponAnim(drawact) -- Otherwise play the act (preferably pull pin act)
+			end
+			self.nzThrowTime = ct + throwtime
+			
+		end
+	
+		local oldthink = wep.Think
+		
+		if throwfunc then
+			function wep:Think()
+				local ct = CurTime()
+				
+				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
+					self.nzThrowTime = nil
+					self.nzHolsterTime = ct + holstertime
+					throwfunc(self)
+				end
+				
+				if self.nzHolsterTime and ct > self.nzHolsterTime then
+					self.nzHolsterTime = nil
+					self.Owner:SetUsingSpecialWeapon(false)
+					self:Holster()
+					self.Owner:EquipPreviousWeapon()
+				end
+				
+				oldthink(self)
+			end
+		else
+			function wep:Think()
+				local ct = CurTime()
+				
+				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
+					self.nzThrowTime = nil
+					self.nzHolsterTime = ct + holstertime
+					self:PrimaryAttack()
+					self.Owner:SetAmmo(self.Owner:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
+				end
+				
+				if self.nzHolsterTime and ct > self.nzHolsterTime then
+					self.nzHolsterTime = nil
+					self.Owner:SetUsingSpecialWeapon(false)
+					self:Holster()
+					self.Owner:EquipPreviousWeapon()
+				end
+				
+				oldthink(self)
+			end
+		end
+		
+		weapons.Register(wep, class)
+	end
 end
 
-function nzSpecialWeapons:AddDisplay( class, hold )
-	self.Weapons[class] = {id = "display", hold = hold}
+function nzSpecialWeapons:AddDisplay( class, drawfunc, returnfunc )
+	local wep = weapons.Get(class)
+	if wep then
+		self.Weapons[class] = {id = "display"}
+		
+		wep.EquipDraw = wep.Deploy
+		
+		if drawfunc then
+			function wep:Deploy()
+				local ct = CurTime()
+				drawfunc(self) -- Drawfunc specified, overwrite deploy with this function
+				self.nzDeployTime = ct -- Time when it was equipped, can be used for time comparisons
+			end
+		else
+			function wep:Deploy()
+				local ct = CurTime()
+				self:EquipDraw() -- Not specified, use deploy function
+				self.nzDeployTime = ct -- Time when it was equipped, can be used for time comparisons
+			end
+		end
+	
+		local oldthink = wep.Think
+		
+		function wep:Think()
+			if returnfunc(self) then
+				if SERVER then
+					self.Owner:SetUsingSpecialWeapon(false)
+				end
+				self:Holster()
+				self.Owner:EquipPreviousWeapon()
+				if SERVER then
+					self.Owner:StripWeapon(self:GetClass()) -- Always stripped when done with use
+				end
+			end
+			
+			oldthink(self)
+		end
+		
+		weapons.Register(wep, class)
+	end
 end
 
 local buttonids = {
-	[KEY_H] = "knife",
+	[KEY_V] = "knife",
 	[KEY_G] = "grenade",
 	[KEY_B] = "specialgrenade",
 }
@@ -174,8 +256,10 @@ hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 		if !ammo or ply:GetAmmoCount(ammo) >= 1 then
 			local wep = ply:GetSpecialWeaponFromCategory( id )
 			if IsValid(wep) then
-				ply:SetUsingSpecialWeapon(true)
-				ply:SetActiveWeapon(nil)
+				if SERVER then
+					ply:SetUsingSpecialWeapon(true)
+					ply:SetActiveWeapon(nil)
+				end
 				ply:SelectWeapon(wep:GetClass())
 				ply.nzSpecialButtonDown = true
 			end
@@ -189,3 +273,89 @@ hook.Add("PlayerButtonUp", "nzSpecialWeaponsThrow", function(ply, but)
 		ply.nzSpecialButtonDown = false
 	end
 end)
+
+local wep = FindMetaTable("Weapon")
+local ply = FindMetaTable("Player")
+
+function wep:IsSpecial()
+	return nzSpecialWeapons.Weapons[self:GetClass()] and true or false
+end
+
+function wep:GetSpecialCategory()
+	return nzSpecialWeapons.Weapons[self:GetClass()].id
+end
+
+function ply:GetSpecialWeaponFromCategory( id )
+	if !self.NZSpecialWeapons then self.NZSpecialWeapons = {} end
+	return self.NZSpecialWeapons[id] or nil
+end
+
+function ply:EquipPreviousWeapon()
+	if IsValid(self.NZPrevWep) then -- If the previously used weapon is valid, use that
+		self:SelectWeapon(self.NZPrevWep:GetClass())
+	else
+		for k,v in pairs(self:GetWeapons()) do -- And pick the first one that isn't special
+			if !v:IsSpecial() then self:SelectWeapon(v:GetClass()) return end
+		end
+		self:SetActiveWeapon(nil)
+	end
+end
+
+if SERVER then
+	function ply:AddSpecialWeapon(wep)
+		if !self.NZSpecialWeapons then self.NZSpecialWeapons = {} end
+		local id = wep:GetSpecialCategory()
+		self.NZSpecialWeapons[id] = wep
+		nzSpecialWeapons:SendSpecialWeaponAdded(self, wep, id)
+		
+		local data = nzSpecialWeapons.Weapons[wep:GetClass()]
+		
+		local ammo = usesammo[id]
+		local maxammo = data.maxammo
+		if ammo and maxammo then
+			self:SetAmmo(maxammo, ammo)
+		end
+		
+		if data.drawonequip then
+			wep.nzIsDrawing = true
+			self:SetUsingSpecialWeapon(true)
+			self:SetActiveWeapon(nil)
+			self:SelectWeapon(wep:GetClass())
+			wep:EquipDraw()
+		end
+	end
+
+	-- This hook only works server-side
+	hook.Add("WeaponEquip", "SetSpecialWeapons", function(wep)
+		if wep:IsSpecial() then
+			-- 0 second timer for the next tick where wep's owner is valid
+			timer.Simple(0, function()
+				local ply = wep:GetOwner()
+				if IsValid(ply) then
+					local oldwep = ply:GetSpecialWeaponFromCategory( wep:GetSpecialCategory() )
+					print(wep, oldwep)
+					if IsValid(oldwep) then
+						ply:StripWeapon(oldwep:GetClass())
+					end
+					ply:AddSpecialWeapon(wep)
+				end		
+			end)
+		end
+	end)
+end
+
+-- Prevent players from manually switching to the weapon if it is special - it is handled by the bind
+function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
+	-- In case a player is trying to switch both to and from a non-special weapon, but their status is stuck to true
+	if IsValid(ply) and ply:GetUsingSpecialWeapon() and (!IsValid(oldwep) or !oldwep:IsSpecial()) and !newwep:IsSpecial() then
+		-- It should never happen as a player shouldn't be able to use non-special weapons with the status on, but it may get stuck
+		ply:SetUsingSpecialWeapon(false)
+		print(ply:Nick().."'s UsingSpecialWeapon status was true but he isn't equipped with a special weapon and isn't trying to. Resetting ...")
+	end
+	if IsValid(oldwep) and IsValid(newwep) then
+		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) or (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then return true end
+		if oldwep != newwep and !oldwep:IsSpecial() then
+			ply.NZPrevWep = oldwep
+		end
+	end
+end

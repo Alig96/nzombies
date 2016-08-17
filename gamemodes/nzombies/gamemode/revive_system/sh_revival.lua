@@ -1,7 +1,7 @@
 //
 if SERVER then
 	hook.Add("Think", "CheckDownedPlayersTime", function()
-		for k,v in pairs(Revive.Players) do
+		for k,v in pairs(nzRevive.Players) do
 			-- The time it takes for a downed player to die - Prevent dying if being revived
 			if CurTime() - v.DownTime >= GetConVar("nz_downtime"):GetFloat() and !v.ReviveTime then
 				local ent = Entity(k)
@@ -13,18 +13,18 @@ if SERVER then
 					if IsValid(revivor) then
 						revivor:StripWeapon("nz_revive_morphine")
 					end
-					Revive.Players[k] = nil
+					nzRevive.Players[k] = nil
 				end
 			end
 		end
 	end)
 end
 
-function Revive.HandleRevive(ply, ent)
+function nzRevive.HandleRevive(ply, ent)
 	--print(ply, ent)
 
 	-- Make sure other downed players can't revive other downed players next to them
-	if !Revive.Players[ply:EntIndex()] then
+	if !nzRevive.Players[ply:EntIndex()] then
 
 		local tr = util.QuickTrace(ply:EyePos(), ply:GetAimVector()*100, ply)
 		local dply = tr.Entity
@@ -32,15 +32,15 @@ function Revive.HandleRevive(ply, ent)
 
 		if IsValid(dply) and (dply:IsPlayer() or dply:GetClass() == "whoswho_downed_clone") then
 			local id = dply:EntIndex()
-			if Revive.Players[id] then
-				if !Revive.Players[id].RevivePlayer then
+			if nzRevive.Players[id] then
+				if !nzRevive.Players[id].RevivePlayer then
 					dply:StartRevive(ply)
 				end
 
-				-- print(CurTime() - Revive.Players[id].ReviveTime)
+				-- print(CurTime() - nzRevive.Players[id].ReviveTime)
 
-				if ply:HasPerk("revive") and CurTime() - Revive.Players[id].ReviveTime >= 2 -- With quick-revive
-				or CurTime() - Revive.Players[id].ReviveTime >= 4 then	-- 4 is the time it takes to revive
+				if ply:HasPerk("revive") and CurTime() - nzRevive.Players[id].ReviveTime >= 2 -- With quick-revive
+				or CurTime() - nzRevive.Players[id].ReviveTime >= 4 then	-- 4 is the time it takes to revive
 					dply:RevivePlayer(ply)
 					ply.Reviving = nil
 				end
@@ -48,8 +48,8 @@ function Revive.HandleRevive(ply, ent)
 		else
 			if IsValid(ply.Reviving) and ply.Reviving != dply then -- Holding E on another player or no player
 				local id = ply.Reviving:EntIndex()
-				if Revive.Players[id] then
-					if Revive.Players[id].ReviveTime then
+				if nzRevive.Players[id] then
+					if nzRevive.Players[id].ReviveTime then
 						--ply:SetMoveType(MOVETYPE_WALK)
 						ply.Reviving:StopRevive()
 						ply.Reviving = nil
@@ -62,12 +62,12 @@ function Revive.HandleRevive(ply, ent)
 		if !ply:KeyDown(IN_USE) then -- If you have an old revival target
 			if IsValid(ply.Reviving) and (ply.Reviving:IsPlayer() or ply.Reviving:GetClass() == "whoswho_downed_clone") then
 				local id = ply.Reviving:EntIndex()
-				if Revive.Players[id] then
-					if Revive.Players[id].ReviveTime then
+				if nzRevive.Players[id] then
+					if nzRevive.Players[id].ReviveTime then
 						--ply:SetMoveType(MOVETYPE_WALK)
 						ply.Reviving:StopRevive()
 						ply.Reviving = nil
-						--nz.Revive.Functions.SendSync()
+						--nz.nzRevive.Functions.SendSync()
 					end
 				end
 			end
@@ -77,7 +77,7 @@ function Revive.HandleRevive(ply, ent)
 end
 
 -- Hooks
-hook.Add("FindUseEntity", "CheckRevive", Revive.HandleRevive)
+hook.Add("FindUseEntity", "CheckRevive", nzRevive.HandleRevive)
 
 if SERVER then
 	util.AddNetworkString("nz_TombstoneSuicide")
@@ -106,7 +106,7 @@ if SERVER then
 	util.AddNetworkString("nz_WhosWhoActive")
 end
 
-function Revive:CreateWhosWhoClone(ply, pos)
+function nzRevive:CreateWhosWhoClone(ply, pos)
 	local pos = pos or ply:GetPos()
 
 	local wep = IsValid(ply:GetActiveWeapon()) and ply:GetActiveWeapon():GetClass() != "nz_perk_bottle" and ply:GetActiveWeapon():GetClass() or ply.oldwep or nil
@@ -131,7 +131,7 @@ function Revive:CreateWhosWhoClone(ply, pos)
 			self.Players[id] = {}
 			self.Players[id].DownTime = CurTime()
 
-			hook.Call("PlayerDowned", Revive, who)
+			hook.Call("PlayerDowned", nzRevive, who)
 		end
 	end)
 
@@ -143,7 +143,7 @@ function Revive:CreateWhosWhoClone(ply, pos)
 	net.Send(ply)
 end
 
-function Revive:RespawnWithWhosWho(ply, pos)
+function nzRevive:RespawnWithWhosWho(ply, pos)
 	local pos = pos or nil
 
 	if !pos then
