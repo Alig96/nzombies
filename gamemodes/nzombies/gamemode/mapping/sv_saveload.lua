@@ -331,6 +331,14 @@ function nzMapping:LoadConfig( name, loader )
 
 	if file.Exists( filepath, location )then
 		print("[NZ] MAP CONFIG FOUND!")
+		
+		-- BUT WAIT! Is it another map? :O
+		local map = string.sub(string.Explode(";", string.StripExtension(name))[1], 4)
+		if map and map != game.GetMap() then
+			file.Write("nz/autoload.txt", loader and name.."@"..loader:SteamID() or name.."@INVALIDPLAYER")
+			RunConsoleCommand("changelevel", map)
+			return
+		end
 
 		-- Load a lua file for a specific map
 		-- Make sure all hooks are removed before adding the new ones
@@ -520,7 +528,14 @@ function nzMapping:LoadConfig( name, loader )
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()
-	timer.Simple(5, function()
-		nzMapping:LoadConfig("nz_"..game.GetMap()..".txt")
+	timer.Simple(3, function()
+		local autoload
+		if file.Exists("nz/autoload.txt", "DATA") then
+			local data = string.Explode("@", file.Read("nz/autoload.txt", "DATA"))
+			autoload, loader = data[1], data[2]
+			loader = game.SinglePlayer() and Entity(1) or player.GetBySteamID(loader)
+		end
+		if !autoload then autoload = "nz_"..game.GetMap()..".txt" end
+		nzMapping:LoadConfig( autoload, IsValid(loader) and loader or nil )
 	end)
 end)

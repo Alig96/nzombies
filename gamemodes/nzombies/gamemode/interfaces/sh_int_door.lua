@@ -1,7 +1,7 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.DoorPropsHandler( ply, data )
+	function nzInterfaces.DoorPropsHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			PrintTable(data)
 			nzDoors:CreateLink( data.ent, data.flags )
@@ -10,7 +10,7 @@ if SERVER then
 end
 
 if CLIENT then
-	function nz.Interfaces.Functions.DoorProps( data )
+	function nzInterfaces.DoorProps( data )
 		local ent = data.door
 		local name = "Add New Door"
 		local valz = {}
@@ -105,7 +105,7 @@ if CLIENT then
 			print(flagString)
 
 			//Send the data
-			nz.Interfaces.Functions.SendRequests( "DoorProps", {flags = flagString, ent = ent} )
+			nzInterfaces.SendRequests( "DoorProps", {flags = flagString, ent = ent} )
 
 		end
 	end

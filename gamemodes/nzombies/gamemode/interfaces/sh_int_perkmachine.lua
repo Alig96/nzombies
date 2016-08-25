@@ -1,7 +1,7 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.PerkMachineHandler( ply, data )
+	function nzInterfaces.PerkMachineHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			data.ent:SetPerkID(data.id)
 			data.ent:TurnOff() //Quickly update the model
@@ -10,7 +10,7 @@ if SERVER then
 end
 
 if CLIENT then
-	function nz.Interfaces.Functions.PerkMachine( data )
+	function nzInterfaces.PerkMachine( data )
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
 		DermaPanel:SetSize( 300, 180 )
@@ -30,7 +30,7 @@ if CLIENT then
 		end
 		choices.OnSelect = function( panel, index, value, id )
 			data.id = id
-			nz.Interfaces.Functions.SendRequests( "PerkMachine", data )
+			nzInterfaces.SendRequests( "PerkMachine", data )
 		end
 	end
 end

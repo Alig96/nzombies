@@ -1,7 +1,7 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.ZombLinkHandler( ply, data )
+	function nzInterfaces.ZombLinkHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			PrintTable(data)
 			data.ent.link = data.link
@@ -16,7 +16,7 @@ if SERVER then
 end
 
 if CLIENT then
-	function nz.Interfaces.Functions.ZombLink( data )
+	function nzInterfaces.ZombLink( data )
 		PrintTable(data)
 		local name = "Add New Zombie Link"
 		local valz = {}
@@ -65,7 +65,7 @@ if CLIENT then
 				str=valz["Row2"]
 			end
 			data.link = str
-			nz.Interfaces.Functions.SendRequests( "ZombLink", data )
+			nzInterfaces.SendRequests( "ZombLink", data )
 
 			DermaPanel:Close()
 		end

@@ -1,7 +1,7 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.WepBuyHandler( ply, data )
+	function nzInterfaces.WepBuyHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			data.ent = data.ent or NULL
 			nzMapping:WallBuy(data.vec, data.class, tonumber(data.price), data.ang, data.ent, ply)
@@ -10,7 +10,7 @@ if SERVER then
 end
 
 if CLIENT then
-	function nz.Interfaces.Functions.WepBuy( data )
+	function nzInterfaces.WepBuy( data )
 
 		local valz = {}
 		valz["Row1"] = "weapon_class"
@@ -68,7 +68,7 @@ if CLIENT then
 				data.class = valz["Row1"]
 				data.price = tostring(valz["Row2"])
 				PrintTable(data)
-				nz.Interfaces.Functions.SendRequests( "WepBuy", data )
+				nzInterfaces.SendRequests( "WepBuy", data )
 
 				DermaPanel:Close()
 			end

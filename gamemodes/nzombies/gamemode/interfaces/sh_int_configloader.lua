@@ -1,25 +1,132 @@
-//
-
 if SERVER then
-	util.AddNetworkString("nz_ChangeLevel")
-	net.Receive("nz_ChangeLevel", function(len, ply)
-		if ply:IsSuperAdmin() then
-			RunConsoleCommand("changelevel", net.ReadString())
-		end
-	end)
+	util.AddNetworkString("nzReceiveVotes")
+	util.AddNetworkString("nzStartVote")
 	
-	function nz.Interfaces.Functions.ConfigLoaderHandler( ply, data )
+	function nzInterfaces.ConfigLoaderHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			nzMapping:LoadConfig( data.config, ply )
 		end
 	end
+	
+	local votetime = votetime or 0
+	local votes = votes or {}
+	local voting = false
+	
+	function nzInterfaces.StartVote( time )
+		local tbl = {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")}
+		
+		votes = {}
+		
+		for k,v in pairs(tbl.configs) do
+			votes[v] = 0
+		end
+		for k,v in pairs(tbl.workshopconfigs) do
+			votes[v] = 0
+		end
+		for k,v in pairs(tbl.officialconfigs) do
+			votes[v] = 0
+		end
+		
+		net.Start("nzStartVote")
+			net.WriteUInt(time, 6)
+			net.WriteTable(tbl)
+		net.Broadcast()
+		
+		for k,v in pairs(player.GetAll()) do
+			v.nzConfigVote = nil -- Reset what config they voted on
+		end
+		
+		votetime = CurTime() + time
+		hook.Add("Think", "nzVoteHandler", function()
+			if CurTime() > votetime then
+				local winner = {}
+				local winvotes = 0
+				
+				for k,v in pairs(votes) do
+					if v > winvotes then
+						winner = {k}
+						winvotes = v
+					elseif v == winvotes then
+						table.insert(winner, k)
+					end
+				end
+				
+				winner = table.Random(winner)
+				
+				net.Start("nzReceiveVotes")
+					net.WriteBool(true) -- We're done voting
+					net.WriteString(winner)
+					net.WriteBool(false) -- No one added a vote
+					net.WriteBool(false) -- No one removed a vote
+				net.Broadcast()
+				
+				hook.Remove("Think", "nzVoteHandler")
+				timer.Simple(5, function()
+					nzMapping:LoadConfig( winner )
+				end)
+			end
+		end)
+		
+		voting = true
+	end
+	
+	local function votechange(new, old, ply)
+		if !voting then return end -- We're not even voting, wut?!
+		
+		net.Start("nzReceiveVotes")
+			net.WriteBool(false) -- We haven't finished yet
+			if newvote then
+				if votes[newvote] then
+					votes[newvote] = votes[newvote] + 1
+				end
+				net.WriteBool(true) -- Vote was added
+				net.WriteString(newvote) -- This was the vote
+			else
+				net.WriteBool(false)
+			end
+			if oldvote then
+				if votes[oldvote] then
+					votes[oldvote] = votes[oldvote] - 1
+				end
+				net.WriteBool(true)
+				net.WriteString(oldvote)
+			else
+				net.WriteBool(false)
+			end
+		net.Broadcast()
+		
+		ply.nzConfigVote = newvote
+	end
+	
+	net.Receive("nzReceiveVotes", function(len, ply)
+		if !voting then return end -- We're not even voting, wut?!
+		
+		local newvote = net.ReadString()
+		local oldvote = ply.nzConfigVote
+		
+		votechange(newvote, oldvote, ply)
+	end)
+	
+	hook.Add("EntityRemoved", "nzVotePlayerLeft", function(ent)
+		if ent:IsPlayer() then
+			votechange(nil, ply.nzConfigVote, ply)
+		end
+	end)
 end
 
 if CLIENT then
 
 	if not ConVarExists("nz_configloader_fetchworkshop") then CreateConVar("nz_configloader_fetchworkshop", 1, {FCVAR_ARCHIVE}) end
+	
+	local maxvote -- Used to calculate the green bars filling them up
 
-	function nz.Interfaces.Functions.ConfigLoader( data )
+	function nzInterfaces.ConfigLoader( data, vote, votetime )
+		if vote and IsValid(nzInterfaces.ConfigVoter) then
+			nzInterfaces.ConfigVoter:Show() -- If players closed the config voter, recalling this func will just reopen it
+			return
+		end
+		
+		local time = CurTime()
 		local configs = {}
 		local selectedconfig
 		local hoveredpanel
@@ -72,29 +179,45 @@ if CLIENT then
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
 		DermaPanel:SetSize( 400, 500 )
-		DermaPanel:SetTitle( "Load a config" )
+		DermaPanel:SetTitle( vote and "Vote on a config (Press F1 to reopen)" or "Load a config" )
 		DermaPanel:SetVisible( true )
 		DermaPanel:SetDraggable( true )
 		DermaPanel:ShowCloseButton( true )
 		DermaPanel:MakePopup()
 		DermaPanel:Center()
 		
+		if vote then 
+			DermaPanel:SetDeleteOnClose(false)
+			nzInterfaces.ConfigVoter = DermaPanel
+		end
+		
 		local SubmitButton = vgui.Create( "DButton", DermaPanel )
-		SubmitButton:SetText( "Click a config to load" )
+		SubmitButton:SetText( vote and "Click a config to vote" or "Click a config to load" )
 		SubmitButton:SetPos( 10, 460 )
 		SubmitButton:SetSize( 380, 30 )
 		SubmitButton.DoClick = function(self)
-			if selectedconfig != nil and selectedconfig != "" then
-				if string.find(self:GetText(), "Change map to") then
-					net.Start("nz_ChangeLevel")
-						net.WriteString(string.sub(string.Explode(";", selectedconfig)[1], 4))
+			if vote then
+				if selectedconfig != nil and selectedconfig != "" then
+					net.Start("nzReceiveVotes")
+						net.WriteString(selectedconfig)
 					net.SendToServer()
-				elseif string.find(self:GetText(), "This map is not installed") then
-					chat.AddText("This map cannot be loaded as it is not installed")
-				elseif selectedconfig and selectedconfig != "" then
-					nz.Interfaces.Functions.SendRequests( "ConfigLoader", {config = selectedconfig} )
-					DermaPanel:Close()
 				end
+			else
+				if selectedconfig != nil and selectedconfig != "" then
+					if string.find(self:GetText(), "This map is not installed") then
+						chat.AddText("This map cannot be loaded as it is not installed")
+					elseif selectedconfig and selectedconfig != "" then
+						nzInterfaces.SendRequests( "ConfigLoader", {config = selectedconfig} )
+						DermaPanel:Close()
+					end
+				end
+			end
+		end
+		if vote and time then
+			SubmitButton.PaintOver = function(self, w, h)
+				local pct = (CurTime() - time)/votetime
+				surface.SetDrawColor(100, 100, 255, 150)
+				surface.DrawRect(0, 0, w*pct, h)
 			end
 		end
 		
@@ -107,31 +230,33 @@ if CLIENT then
 		ConfigsScroll:SetSize(380, 420)
 		sheet:AddSheet("Configs", ConfigsScroll, "icon16/brick.png")
 		
-		local OldConfigs = vgui.Create("DListView", sheet)
-		OldConfigs:SetPos(175, 350)
-		OldConfigs:SetSize(250, 100)
-		OldConfigs:SetMultiSelect(false)
-		OldConfigs:AddColumn("Name")
-		if data.configs then
-			for k,v in pairs(data.configs) do
-				OldConfigs:AddLine(v)
+		if !vote then
+			local OldConfigs = vgui.Create("DListView", sheet)
+			OldConfigs:SetPos(175, 350)
+			OldConfigs:SetSize(250, 100)
+			OldConfigs:SetMultiSelect(false)
+			OldConfigs:AddColumn("Name")
+			if data.configs then
+				for k,v in pairs(data.configs) do
+					OldConfigs:AddLine(v)
+				end
 			end
-		end
-		if data.workshopconfigs then
-			for k,v in pairs(data.workshopconfigs) do
-				OldConfigs:AddLine(v)
+			if data.workshopconfigs then
+				for k,v in pairs(data.workshopconfigs) do
+					OldConfigs:AddLine(v)
+				end
 			end
-		end
-		if data.officialconfigs then
-			for k,v in pairs(data.officialconfigs) do
-				OldConfigs:AddLine(v)
+			if data.officialconfigs then
+				for k,v in pairs(data.officialconfigs) do
+					OldConfigs:AddLine(v)
+				end
 			end
+			OldConfigs.OnRowSelected = function(self, index, row)
+				selectedconfig = row:GetValue(1)
+				SubmitButton:SetText( "                                Load config\nWarning: May not work properly without changing map" )
+			end
+			sheet:AddSheet("All config files", OldConfigs, "icon16/database_table.png")
 		end
-		OldConfigs.OnRowSelected = function(self, index, row)
-			selectedconfig = row:GetValue(1)
-			SubmitButton:SetText( "                                Load config\nWarning: May not work properly without changing map" )
-		end
-		sheet:AddSheet("All config files", OldConfigs, "icon16/database_table.png")
 		
 		local ConfigList = vgui.Create("DListLayout", ConfigsScroll)
 		ConfigList:SetPos(0,150)
@@ -151,14 +276,26 @@ if CLIENT then
 			config:SetSize(380, 50)
 			config:SetPaintBackground(true)
 			config.Paint = function(self, w, h)
-				if selectedconfig == v.config then
-					surface.SetDrawColor(200,200,255)
-				elseif hoveredpanel == k then
-					surface.SetDrawColor(230,230,255)
-				else
-					surface.SetDrawColor(255,255,255)
-				end
+			
+				surface.SetDrawColor(255,255,255)
 				self:DrawFilledRect()
+				
+				if vote and maxvote and maxvote > 0 then
+					local votes = nzInterfaces.ConfigVotes[v.config]
+					if votes then
+						if votes > maxvote then maxvote = votes end
+						surface.SetDrawColor(100,255,100)
+						surface.DrawRect(0,0, w * votes/maxvote, h)
+					end
+				end
+				
+				if selectedconfig == v.config then
+					surface.SetDrawColor(100,100,255,100)
+					self:DrawFilledRect()
+				elseif hoveredpanel == k then
+					surface.SetDrawColor(180,180,255,100)
+					self:DrawFilledRect()
+				end
 			end
 			--config:SetBackgroundColor(ColorRand())
 			
@@ -182,7 +319,19 @@ if CLIENT then
 			mapname:SetText(v.map)
 			mapname:SetTextColor(Color(20, 20, 20))
 			mapname:SizeToContents()
-			mapname:SetPos(180, 18)
+			mapname:SetPos(180, vote and 11 or 18)
+			
+			if vote then
+				local votecount = vgui.Create("DLabel", config)
+				votecount:SetText("Votes: 0")
+				votecount:SetTextColor(Color(200, 20, 20))
+				votecount:SizeToContents()
+				votecount:SetPos(190, 25)
+				votecount.Think = function(self)
+					--PrintTable(nzInterfaces.ConfigVotes)
+					self:SetText("Votes: "..nzInterfaces.ConfigVotes[v.config])
+				end
+			end
 			
 			local mapstatus = vgui.Create("DLabel", config)
 			local status = file.Find("maps/"..v.map..".bsp", "GAME")[1] and true or false
@@ -200,13 +349,13 @@ if CLIENT then
 			end
 			click.DoClick = function(self)
 				selectedconfig = v.config
-				if game.GetMap() != v.map then
-					SubmitButton:SetText(status and "Change map to "..v.map or "This map is not installed")
+				if game.GetMap() != v.map and !vote then
+					SubmitButton:SetText(status and "Change map to "..v.map.." and load" or "This map is not installed")
 				else
-					SubmitButton:SetText( "Load config" )
+					SubmitButton:SetText( vote and "Cast vote" or "Load config" )
 				end
 				-- Doesn't work? :/
-				OldConfigs:SelectItem(nil)
+				--OldConfigs:SelectItem(nil)
 			end
 			
 			local configlocation = vgui.Create(v.workshopid and "DLabelURL" or "DLabel", config)
@@ -489,4 +638,61 @@ if CLIENT then
 		end
 		ConfigList:SetPos(0,curmapcount*50 + 20)
 	end
+	
+	net.Receive("nzReceiveVotes", function()
+		maxvote = 0
+		
+		local finished = net.ReadBool() -- Reused later
+		if finished then -- Vote finished
+			local config = net.ReadString()
+			
+			if IsValid(nzInterfaces.ConfigVoter) then nzInterfaces.ConfigVoter:Remove() end
+			nzInterfaces.ConfigVotes = nil
+			config = config and string.Explode(";", string.StripExtension(config))[2] or config or "[INVALID]"
+			chat.AddText("[nZ] Vote finished! The winning map is ", Color(255,150,150), config..".")
+		end
+		
+		if net.ReadBool() then -- Vote added. This will never be true if the above is true
+			local config = net.ReadString()
+			if !nzInterfaces.ConfigVotes then nzInterfaces.ConfigVotes = {} end
+			if !nzInterfaces.ConfigVotes[config] then nzInterfaces.ConfigVotes[config] = 0 end
+			
+			nzInterfaces.ConfigVotes[config] = nzInterfaces.ConfigVotes[config] + 1
+		end
+		
+		if net.ReadBool() then -- Vote removed. Either from changing vote or disconnecting
+			local config = net.ReadString()
+			if nzInterfaces.ConfigVotes[config] then
+				nzInterfaces.ConfigVotes[config] = nzInterfaces.ConfigVotes[config] - 1
+			else
+				nzInterfaces.ConfigVotes[config] = 0
+			end
+		end
+		
+		if !finished then
+			-- Recalculate every time it's not finished, after votes have changed
+			for k,v in pairs(nzInterfaces.ConfigVotes) do
+				if v > maxvote then maxvote = v end
+			end
+		end
+	end)
+	
+	net.Receive("nzStartVote", function()
+		local time = net.ReadUInt(6)
+		local data = net.ReadTable()
+		
+		if IsValid(nzInterfaces.ConfigVoter) then nzInterfaces.ConfigVoter:Remove() end -- Reset it
+		nzInterfaces.ConfigVotes = {}
+		for k,v in pairs(data.configs) do
+			nzInterfaces.ConfigVotes[v] = 0
+		end
+		for k,v in pairs(data.workshopconfigs) do
+			nzInterfaces.ConfigVotes[v] = 0
+		end
+		for k,v in pairs(data.officialconfigs) do
+			nzInterfaces.ConfigVotes[v] = 0
+		end
+		maxvote = 0
+		nzInterfaces.ConfigLoader(data, true, time)
+	end)
 end

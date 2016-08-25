@@ -1,6 +1,5 @@
 //Main Tables
-nz.Interfaces = {}
-nz.Interfaces.Functions = {}
-nz.Interfaces.Data = {}
+nzInterfaces = nzInterfaces or {}
+nzInterfaces.Data = nzInterfaces.Data or {}
 
 //_ Variables

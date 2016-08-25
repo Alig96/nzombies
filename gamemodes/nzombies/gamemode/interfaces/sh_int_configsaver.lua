@@ -1,7 +1,7 @@
 //
 
 if SERVER then
-	function nz.Interfaces.Functions.ConfigSaverHandler( ply, data )
+	function nzInterfaces.ConfigSaverHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			nzMapping:SaveConfig( data.name )
 		end
@@ -9,7 +9,7 @@ if SERVER then
 end
 
 if CLIENT then
-	function nz.Interfaces.Functions.ConfigSaver()
+	function nzInterfaces.ConfigSaver()
 		local DermaPanel = vgui.Create( "DFrame" )
 		DermaPanel:SetPos( 100, 100 )
 		DermaPanel:SetSize( 300, 120 )
@@ -43,10 +43,10 @@ if CLIENT then
 		DermaButton:SetSize( 280, 30 )
 		DermaButton.DoClick = function()
 			local name = TextEntry:GetValue()
-			nz.Interfaces.Functions.SendRequests( "ConfigSaver", {name = name} )
+			nzInterfaces.SendRequests( "ConfigSaver", {name = name} )
 		end
 	end
 	
-	net.Receive("nz_SaveConfig", nz.Interfaces.Functions.ConfigSaver)
+	net.Receive("nz_SaveConfig", nzInterfaces.ConfigSaver)
 	
 end
