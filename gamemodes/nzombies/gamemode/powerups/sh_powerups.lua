@@ -9,7 +9,9 @@ if SERVER then
 		nzPowerUps.ActivePlayerPowerUps[self][id] = CurTime() + duration
 	end
 	
-	function nzPowerUps:Activate(id, ply)
+	function nzPowerUps:Activate(id, ply, ent)
+		if hook.Call("OnPlayerPickupPowerUp", nil, ply, id, ent) then return end
+		
 		local powerupData = self:Get(id)
 
 		if !powerupData.global then
@@ -50,12 +52,16 @@ if SERVER then
 
 		local id = specific and specific or nzMisc.WeightedRandom(choices)
 		if !id or id == "null" then return end --  Back out
+		
+		local ent = ents.Create("drop_powerup")
+		id = hook.Call("OnPowerUpSpawned", nil, id, ent) or id
+		if !IsValid(ent) then return end -- If a hook removed the powerup
 
 		-- Spawn it
 		local powerupData = self:Get(id)
 
 		local pos = pos+Vector(0,0,50)
-		local ent = ents.Create("drop_powerup")
+		
 		ent:SetPowerUp(id)
 		pos.z = pos.z - ent:OBBMaxs().z
 		ent:SetModel(powerupData.model)
