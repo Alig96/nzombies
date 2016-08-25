@@ -2,7 +2,9 @@ local playerMeta = FindMetaTable("Player")
 if SERVER then
 
 	function playerMeta:GivePerk(id, machine)
-		if self:HasPerk(id) then return end
+		local block = hook.Call("OnPlayerBuyPerk", nil, self, id, machine)
+	
+		if block or self:HasPerk(id) then return end
 		local perkData = nzPerks:Get(id)
 		if perkData == nil then return false end
 		
@@ -14,6 +16,7 @@ if SERVER then
 			table.insert(nzPerks.Players[self], id)
 			
 			nzPerks:SendSync(self)
+			hook.Call("OnPlayerGetPerk", nil, self, id, machine)
 		else
 			//We didn't want to give them the perk for some reason, so lets back out and refund them.
 			--self:GivePoints(perkData.price)
@@ -27,7 +30,9 @@ if SERVER then
 	}
 	
 	function playerMeta:RemovePerk(id, forced)
-		if self.PreventPerkLoss and !exceptionperks[id] and !forced then return end
+		local block = hook.Call("OnPlayerRemovePerk", nil, self, id, forced)
+	
+		if (self.PreventPerkLoss and !exceptionperks[id] or block) and !forced then return end
 		local perkData = nzPerks:Get(id)
 		if perkData == nil then return end
 	
@@ -35,6 +40,7 @@ if SERVER then
 		if self:HasPerk(id) then
 			perkData.lostfunc(id, self)
 			table.RemoveByValue( nzPerks.Players[self], id )
+			hook.Call("OnPlayerLostPerk", nil, self, id, forced)
 		end
 		nzPerks:SendSync(self)
 	end

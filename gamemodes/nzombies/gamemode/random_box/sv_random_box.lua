@@ -46,7 +46,7 @@ function nzRandomBox.DecideWep(ply)
 
 	local teddychance = math.random(1, 15)
 	if teddychance <= 1 and !nzPowerUps:IsPowerupActive("firesale") and table.Count(ents.FindByClass("random_box_spawns")) > 1 then
-		return "nz_box_teddy"
+		return hook.Call("OnPlayerBuyBox", nil, ply, "nz_box_teddy") or "nz_box_teddy"
 	end
 
 	local guns = {}
@@ -100,5 +100,8 @@ function nzRandomBox.DecideWep(ply)
 		end
 	end
 
-	return table.Random(guns)
+	local gun = table.Random(guns)
+	gun = hook.Call("OnPlayerBuyBox", nil, ply, gun) or gun
+	
+	return gun
 end
