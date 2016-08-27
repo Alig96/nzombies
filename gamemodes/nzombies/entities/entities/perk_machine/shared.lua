@@ -75,11 +75,11 @@ function ENT:Use(activator, caller)
 		-- As long as they have less than the max perks, unless it's pap
 		if #activator:GetPerks() < GetConVar("nz_difficulty_perks_max"):GetInt() or self:GetPerkID() == "pap" then
 			-- If they have enough money
-			if activator:CanAfford(price) then
+			local func = function()
 				if !activator:HasPerk(self:GetPerkID()) then
 					local given = activator:GivePerk(self:GetPerkID(), self)
 					if given then
-						activator:TakePoints(price)
+						--activator:TakePoints(price)
 						if !MachinesNoDrink[self:GetPerkID()] then
 							local wep = activator:Give("nz_perk_bottle")
 							wep:SetPerk(self:GetPerkID())
@@ -87,11 +87,17 @@ function ENT:Use(activator, caller)
 							activator:Give("nz_packapunch_arms")
 						end
 						self:EmitSound("nz/machines/jingle/"..self:GetPerkID().."_get.wav", 75)
+						return true
 					end
 				else
 					print("already have perk")
+					return false
 				end
 			end
+			
+			-- If a perk has NoBuy true, then it won't run a Buy on it but just run the func directly
+			-- (Allows stuff like dynamic pricing and conditional checks, similar to PaP)
+			if perkData.nobuy then func() else activator:Buy(price, self, func) end
 		else
 			print(activator:Nick().." already has max perks")
 		end

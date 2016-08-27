@@ -292,10 +292,15 @@ end
 
 function ply:EquipPreviousWeapon()
 	if IsValid(self.NZPrevWep) then -- If the previously used weapon is valid, use that
+		self:SetActiveWeapon(nil)
 		self:SelectWeapon(self.NZPrevWep:GetClass())
 	else
 		for k,v in pairs(self:GetWeapons()) do -- And pick the first one that isn't special
-			if !v:IsSpecial() then self:SelectWeapon(v:GetClass()) return end
+			if !v:IsSpecial() then
+				self:SetActiveWeapon(nil)
+				self:SelectWeapon(v:GetClass())
+				return
+			end
 		end
 		self:SetActiveWeapon(nil)
 	end

@@ -110,7 +110,7 @@ function ENT:Use(activator, caller)
 			-- Can only be bought if you have free perk slots
 			if #activator:GetPerks() < GetConVar("nz_difficulty_perks_max"):GetInt() then
 				-- If they have enough money
-				if activator:CanAfford(price) then
+				activator:Buy(price, self, function()
 					activator:TakePoints(price)
 					self:SetBeingUsed(true)
 					self:SetUser(activator)
@@ -133,7 +133,8 @@ function ENT:Use(activator, caller)
 					end)
 					
 					self.TimesUsed = self.TimesUsed + 1
-				end
+					return true
+				end)
 			else
 				print(activator:Nick().." already has max perks")
 			end

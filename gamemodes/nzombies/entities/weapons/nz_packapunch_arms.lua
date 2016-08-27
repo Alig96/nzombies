@@ -91,7 +91,8 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	if !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
+	--print(self.Owner, "HEREAUYDGAUYGDUYWAGUY")
+	if IsValid(self.Owner) and !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
 		self.Owner:SetUsingSpecialWeapon(false)
 	end
 end

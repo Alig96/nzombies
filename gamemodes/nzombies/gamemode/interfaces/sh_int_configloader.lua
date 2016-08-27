@@ -109,7 +109,7 @@ if SERVER then
 	
 	hook.Add("EntityRemoved", "nzVotePlayerLeft", function(ent)
 		if ent:IsPlayer() then
-			votechange(nil, ply.nzConfigVote, ply)
+			votechange(nil, ent.nzConfigVote, ent)
 		end
 	end)
 end

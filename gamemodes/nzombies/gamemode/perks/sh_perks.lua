@@ -176,6 +176,7 @@ nzPerks:NewPerk("pap", {
 	on_model = "models/alig96/perks/packapunch/packapunch.mdl",
 	price = 0,
 	blockget = true, -- Prevents players from getting the perk when they buy it
+	nobuy = true, -- A "Buy" event won't run when this is used (we do that ourselves in its function)
 	-- We don't use materials
 	icon = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
 	func = function(self, ply, machine)
@@ -188,77 +189,78 @@ nzPerks:NewPerk("pap", {
 			end
 			local cost = reroll and 2000 or 5000
 
-			if !ply:CanAfford(cost) then return end
-			ply:TakePoints(cost)
+			return ply:Buy(cost, machine, function()
+				--ply:TakePoints(cost)
 
-			machine:SetBeingUsed(true)
-			machine:EmitSound("nz/machines/pap_up.wav")
-			local class = wep:GetClass()
+				machine:SetBeingUsed(true)
+				machine:EmitSound("nz/machines/pap_up.wav")
+				local class = wep:GetClass()
 
-			wep:Remove()
-			local wep = ents.Create("pap_weapon_fly")
-			wep:SetPos(machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3)
-			wep:SetAngles(machine:GetAngles() + Angle(0,90,0))
-			wep.WepClass = class
-			wep:Spawn()
-			local weapon = weapons.Get(class)
-			local model = weapon and weapon.WM or weapon.WorldModel or "models/weapons/w_rif_ak47.mdl"
-			if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
-			wep:SetModel(model)
-			wep.machine = machine
-			wep.Owner = ply
-			wep:SetMoveType( MOVETYPE_FLY )
+				wep:Remove()
+				local wep = ents.Create("pap_weapon_fly")
+				wep:SetPos(machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3)
+				wep:SetAngles(machine:GetAngles() + Angle(0,90,0))
+				wep.WepClass = class
+				wep:Spawn()
+				local weapon = weapons.Get(class)
+				local model = (weapon and weapon.WM or weapon.WorldModel) or "models/weapons/w_rif_ak47.mdl"
+				if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
+				wep:SetModel(model)
+				wep.machine = machine
+				wep.Owner = ply
+				wep:SetMoveType( MOVETYPE_FLY )
 
-			--wep:SetNotSolid(true)
-			--wep:SetGravity(0.000001)
-			--wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
-			timer.Simple(0.5, function()
-				if IsValid(wep) then
-					wep:SetLocalVelocity(machine:GetAngles():Forward()*-30)
-				end
-			end)
-			timer.Simple(1.8, function()
-				if IsValid(wep) then
-					wep:SetMoveType(MOVETYPE_NONE)
-					wep:SetLocalVelocity(Vector(0,0,0))
-				end
-			end)
-			timer.Simple(3, function()
-				if IsValid(wep) then
-					machine:EmitSound("nz/machines/pap_ready.wav")
-					wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
-					wep:SetMoveType(MOVETYPE_FLY)
-					wep:SetGravity(0.000001)
-					wep:SetLocalVelocity(machine:GetAngles():Forward()*30)
-					--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
-					wep:CreateTriggerZone(reroll)
-					--print(reroll)
-				end
-			end)
-			timer.Simple(4.2, function()
-				if IsValid(wep) then
-					--print("YDA")
-					--print(wep:GetMoveType())
-					--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
-					wep:SetMoveType(MOVETYPE_NONE)
-					wep:SetLocalVelocity(Vector(0,0,0))
-				end
-			end)
-			timer.Simple(10, function()
-				if IsValid(wep) then
-					wep:SetMoveType(MOVETYPE_FLY)
-					wep:SetLocalVelocity(machine:GetAngles():Forward()*-2)
-				end
-			end)
-			timer.Simple(25, function()
-				if IsValid(wep) then
-					wep:Remove()
-					machine:SetBeingUsed(false)
-				end
-			end)
+				--wep:SetNotSolid(true)
+				--wep:SetGravity(0.000001)
+				--wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
+				timer.Simple(0.5, function()
+					if IsValid(wep) then
+						wep:SetLocalVelocity(machine:GetAngles():Forward()*-30)
+					end
+				end)
+				timer.Simple(1.8, function()
+					if IsValid(wep) then
+						wep:SetMoveType(MOVETYPE_NONE)
+						wep:SetLocalVelocity(Vector(0,0,0))
+					end
+				end)
+				timer.Simple(3, function()
+					if IsValid(wep) then
+						machine:EmitSound("nz/machines/pap_ready.wav")
+						wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
+						wep:SetMoveType(MOVETYPE_FLY)
+						wep:SetGravity(0.000001)
+						wep:SetLocalVelocity(machine:GetAngles():Forward()*30)
+						--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
+						wep:CreateTriggerZone(reroll)
+						--print(reroll)
+					end
+				end)
+				timer.Simple(4.2, function()
+					if IsValid(wep) then
+						--print("YDA")
+						--print(wep:GetMoveType())
+						--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
+						wep:SetMoveType(MOVETYPE_NONE)
+						wep:SetLocalVelocity(Vector(0,0,0))
+					end
+				end)
+				timer.Simple(10, function()
+					if IsValid(wep) then
+						wep:SetMoveType(MOVETYPE_FLY)
+						wep:SetLocalVelocity(machine:GetAngles():Forward()*-2)
+					end
+				end)
+				timer.Simple(25, function()
+					if IsValid(wep) then
+						wep:Remove()
+						machine:SetBeingUsed(false)
+					end
+				end)
 
-			timer.Simple(2, function() ply:RemovePerk("pap") end)
-			return true
+				timer.Simple(2, function() ply:RemovePerk("pap") end)
+				return true
+			end)
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "This weapon is already Pack-a-Punched")
 			return false
