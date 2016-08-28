@@ -85,10 +85,13 @@ function nzRound:InProgress()
 end
 
 function nzRound:SetState( state )
-
+	
+	local oldstate = self.RoundState
 	self.RoundState = state
 
 	self:SendState( state )
+	
+	hook.Call("OnRoundChangeState", nzRound, state, oldstate)
 
 end
 

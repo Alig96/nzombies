@@ -358,8 +358,8 @@ function ENT:RunBehaviour()
 						self:OnPathTimeOut()
 					end
 				else
-					-- self:TimeOut(2)
-					--path failed what should we do :/?
+					self:TimeOut(2)
+					-- path failed what should we do :/?
 				end
 			else
 				self:OnNoTarget()

@@ -7,7 +7,7 @@ end
 function nzRound:Waiting()
 
 	self:SetState( ROUND_WAITING )
-	hook.Call( "OnRoundWating", nzRound )
+	hook.Call( "OnRoundWaiting", nzRound )
 
 end
 
@@ -246,7 +246,7 @@ end
 function nzRound:ResetGame()
 	--Main Behaviour
 	nzDoors:LockAllDoors()
-	self:SetState( ROUND_WAITING )
+	self:Waiting()
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "GAME READY!" )
 	--Reset variables
@@ -374,6 +374,7 @@ function nzRound:Create(on)
 		if self:InState( ROUND_WAITING ) then
 			PrintMessage( HUD_PRINTTALK, "The mode has been set to creative mode!" )
 			self:SetState( ROUND_CREATE )
+			hook.Call("OnRoundCreative", nzRound)
 			--We are in create
 			for _, ply in pairs( player.GetAll() ) do
 				if ply:IsSuperAdmin() then

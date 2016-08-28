@@ -23,6 +23,7 @@ if not ConVarExists("nz_difficulty_perks_max") then CreateConVar("nz_difficulty_
 if not ConVarExists("nz_point_notification_clientside") then CreateConVar("nz_point_notification_clientside", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE, FCVAR_REPLICATED}) end
 if not ConVarExists("nz_zombie_lagcompensated") then CreateConVar("nz_zombie_lagcompensated", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 if not ConVarExists("nz_spawnpoint_update_rate") then CreateConVar("nz_spawnpoint_update_rate", 4, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
+if not ConVarExists("nz_rtv_time") then CreateConVar("nz_rtv_time", 45, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}) end
 
 -- Zombie table - Moved to shared area for client collision prediction (barricades)
 nzConfig.ValidEnemies = {

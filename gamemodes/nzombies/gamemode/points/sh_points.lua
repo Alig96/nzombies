@@ -60,8 +60,8 @@ if (SERVER) then
 			if self:CanAfford(new) then
 				local success = func()
 				if success then
-					hook.Call("OnPlayerBought", nil, self, new, ent)
 					self:TakePoints(new)
+					hook.Call("OnPlayerBought", nil, self, new, ent)
 					return true -- If the buy was successfull, this function also returns true
 				end
 			else

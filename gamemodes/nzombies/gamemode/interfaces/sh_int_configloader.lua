@@ -11,6 +11,11 @@ if SERVER then
 	local votetime = votetime or 0
 	local votes = votes or {}
 	local voting = false
+	local convartime = GetConVar("nz_rtv_time"):GetInt()
+	local nextvote
+	if convartime > 0 then
+		nextvote = nextvote or CurTime() + convartime*60
+	end
 	
 	function nzInterfaces.StartVote( time )
 		local tbl = {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")}
@@ -62,12 +67,19 @@ if SERVER then
 				
 				hook.Remove("Think", "nzVoteHandler")
 				timer.Simple(5, function()
+					voting = false
 					nzMapping:LoadConfig( winner )
 				end)
 			end
 		end)
 		
 		voting = true
+		local convartime = GetConVar("nz_rtv_time"):GetInt()
+		if convartime > 0 then
+			nextvote = CurTime() + convartime*60
+		else
+			nextvote = nil
+		end
 	end
 	
 	local function votechange(new, old, ply)
@@ -107,11 +119,52 @@ if SERVER then
 		votechange(newvote, oldvote, ply)
 	end)
 	
+	local rtvs = rtvs or {}
+	local rtvcount = rtvcount or 0
+	
 	hook.Add("EntityRemoved", "nzVotePlayerLeft", function(ent)
 		if ent:IsPlayer() then
 			votechange(nil, ent.nzConfigVote, ent)
+			if rtvs[ent] then
+				rtvcount = rtvcount - 1
+				rtvs[ent] = nil
+			end
 		end
 	end)
+	
+	hook.Add("OnRoundWaiting", "nzVoteOnRoundEnd", function()
+		if nextvote and CurTime() >= nextvote then
+			nzInterfaces.StartVote( 30 )
+		end
+	end)
+	
+	
+	chatcommand.Add("/rtv", function(ply, text)
+		if IsValid(ply) then
+			if voting then
+				ply:ChatPrint("A vote is already going. Press F1 to open the window.")
+			else
+				if !rtvs[ply] then
+					rtvcount = rtvcount + 1
+					rtvs[ply] = true
+					
+					local req = math.ceil(#player.GetAll()/2)
+					PrintMessage(HUD_PRINTTALK, ply:Nick().." has voted to change map. "..rtvcount.."/"..req.." votes.")
+					if rtvcount >= req then
+						if nzRound:InState( ROUND_WAITING ) or nzRound:InState( ROUND_CREATE ) then
+							PrintMessage(HUD_PRINTTALK, "Vote succeeded!")
+							nzInterfaces.StartVote(30)
+						else
+							PrintMessage(HUD_PRINTTALK, "Vote succeeded! Vote will take place at the end of the current game.")
+							nextvote = CurTime()
+						end
+					end
+				else
+					ply:ChatPrint("You have already voted to change map.")
+				end
+			end
+		end
+	end, true, "   Vote to change map.")
 end
 
 if CLIENT then
