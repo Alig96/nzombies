@@ -117,6 +117,7 @@ function Spawner:UpdateValidSpawns()
 	
 	if numspawns == 1 then -- 1 spawnpoint, give it all the zomblez
 		self.tValidSpawns[1]:SetZombiesToSpawn(zombiesToSpawn)
+		debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "%: 100, #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 	else
 		-- The math here finds the total of the inverted relative weights
 		-- E.g. if 3 spawnpoints have the weights 10, 20, 30, then spawnpoint 1 has (60-10) = 50.
@@ -136,11 +137,13 @@ function Spawner:UpdateValidSpawns()
 				if zombiesToSpawn - totalDistributed - toSpawn <= 0 or k == numspawns then -- If we're using more than our total or it's the last one
 					toSpawn = zombiesToSpawn - totalDistributed -- Then just give the rest
 					vspawn:SetZombiesToSpawn(toSpawn)
+					debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round(((total - w)/inverttotal), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 					break -- Just stop here, we got no more zombies to distribute
 				end
 				
 				vspawn:SetZombiesToSpawn(toSpawn)
 				totalDistributed = totalDistributed + toSpawn
+				debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round(((total - w)/inverttotal), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 			end
 		end
 	end

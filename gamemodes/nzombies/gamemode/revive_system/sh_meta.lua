@@ -53,13 +53,12 @@ if SERVER then
 
 		-- Equip the first pistol found in inventory - unless a pistol is already equipped
 		local wep = self:GetActiveWeapon()
-		if IsValid(wep) and wep:GetHoldType() == "pistol" or wep:GetHoldType() == "duel" or wep.HoldType == "pistol" or wep.HoldType == "duel" then
+		if IsValid(wep) and wep.GetHoldType and wep:GetHoldType() == "pistol" or wep:GetHoldType() == "duel" or wep.HoldType == "pistol" or wep.HoldType == "duel" then
 			return
 		end
 		for k,v in pairs(self:GetWeapons()) do
-			if v:GetHoldType() == "pistol" or v:GetHoldType() == "duel" or v.HoldType == "pistol" or v.HoldType == "duel" then
+			if v.GetHoldType and v:GetHoldType() == "pistol" or v:GetHoldType() == "duel" or v.HoldType == "pistol" or v.HoldType == "duel" then
 				self:SelectWeapon(v:GetClass())
-				--print("Equipped "..v.ClassName.."!")
 				return
 			end
 		end

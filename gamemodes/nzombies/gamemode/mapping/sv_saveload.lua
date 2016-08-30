@@ -536,6 +536,13 @@ hook.Add("Initialize", "nz_Loadmaps", function()
 			loader = game.SinglePlayer() and Entity(1) or player.GetBySteamID(loader)
 		end
 		if !autoload then autoload = "nz_"..game.GetMap()..".txt" end
+		
+		local map = string.sub(string.Explode(";", string.StripExtension(autoload))[1], 4)
+		if map and map != game.GetMap() then
+			file.Write("nz/autoload.txt", "")
+			return
+		end
+		
 		nzMapping:LoadConfig( autoload, IsValid(loader) and loader or nil )
 	end)
 end)

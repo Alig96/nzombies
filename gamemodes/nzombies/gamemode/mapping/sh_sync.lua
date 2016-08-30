@@ -45,6 +45,7 @@ if SERVER then
 	net.Receive( "nzMapping.SyncSettings", receiveMapData )
 
 	function nzMapping:SendMapData(ply)
+		if !IsValid(ply) then return end
 		if !self.GamemodeExtensions then self.GamemodeExtensions = {} end
 		net.Start("nzMapping.SyncSettings")
 			net.WriteTable(self.Settings)
