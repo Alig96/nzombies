@@ -490,7 +490,7 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 	ToolInterface:SetSize( 310, 300 )
 	ToolInterface:ShowCloseButton(false)
 	ToolInterface:SetDraggable(true)
-	ToolInterface:SetTitle(nz.Tools.ToolData[LocalPlayer():GetActiveWeapon().ToolMode or "default"].displayname)
+	ToolInterface:SetTitle(nzTools.ToolData[LocalPlayer():GetActiveWeapon().ToolMode or "default"].displayname)
 	
 	local FrameMerge = vgui.Create("DPanel", nz.QMenu.Data.MainFrame )
 	FrameMerge:SetPos( 308, 49 )
@@ -516,13 +516,13 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 	
 	local function RebuildToolInterface(id)
 		--print(ToolData.interface)
-		if nz.Tools.ToolData[id] then
+		if nzTools.ToolData[id] then
 			if ToolData.interface then ToolData.interface:Remove() end
-			ToolData.interface = nz.Tools.ToolData[id].interface(ToolData, nz.Tools.SavedData[id])
+			ToolData.interface = nzTools.ToolData[id].interface(ToolData, nzTools.SavedData[id])
 			
 			if tabs.Tools[curtool] then tabs.Tools[curtool]:SetBackgroundColor( Color(150, 150, 150) ) end
 			if tabs.Tools[id] then tabs.Tools[id]:SetBackgroundColor( Color(255, 255, 255) ) end
-			ToolInterface:SetTitle(nz.Tools.ToolData[id or "default"].displayname)
+			ToolInterface:SetTitle(nzTools.ToolData[id or "default"].displayname)
 			curtool = id
 			
 			if !IsValid(ToolData.interface) then
@@ -544,9 +544,9 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 		local tbl = {}
 		
 		-- Create a new cloned table that we can sort by weight
-		for k,v in pairs(nz.Tools.ToolData) do
-			if !nz.Tools.SavedData[k] then
-				nz.Tools.SavedData[k] = v.defaultdata
+		for k,v in pairs(nzTools.ToolData) do
+			if !nzTools.SavedData[k] then
+				nzTools.SavedData[k] = v.defaultdata
 			end
 			local num = table.insert(tbl, v)
 			tbl[num].id = k
@@ -607,10 +607,10 @@ function nz.QMenu.Functions.CreateToolsMenu( )
 	local advanced = vgui.Create("DCheckBoxLabel", ToolInterface)
 	advanced:SetPos(200, 6)
 	advanced:SetText("Advanced Mode")
-	advanced:SetValue(nz.Tools.Advanced)
+	advanced:SetValue(nzTools.Advanced)
 	advanced:SizeToContents()
 	advanced.OnChange = function(self)
-		nz.Tools.Advanced = self:GetChecked()
+		nzTools.Advanced = self:GetChecked()
 		RebuildToolList()
 		RebuildToolInterface(LocalPlayer():GetActiveWeapon().ToolMode or "default")
 	end
