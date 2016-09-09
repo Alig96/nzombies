@@ -49,7 +49,7 @@ function ENT:CreateTriggerZone(reroll)
 		self.button:Spawn()
 		self.button:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 		self.button.RerollingAtts = reroll
-		self.button.Owner = self.Owner
+		self.button:SetPaPOwner(self.Owner)
 		self.button.wep = self
 		self.button:SetWepClass(self.WepClass)
 	end

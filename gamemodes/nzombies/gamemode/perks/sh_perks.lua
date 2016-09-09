@@ -225,7 +225,7 @@ nzPerks:NewPerk("pap", {
 					end
 				end)
 				timer.Simple(3, function()
-					if IsValid(wep) then
+					if IsValid(wep) and IsValid(machine) then
 						local weapon = weapons.Get(class)
 						if weapon and weapon.NZPaPReplacement and weapons.Get(weapon.NZPaPReplacement) then
 							local pos, ang = wep:GetPos(), wep:GetAngles()
@@ -235,8 +235,9 @@ nzPerks:NewPerk("pap", {
 							wep:SetAngles(ang)
 							wep.WepClass = weapon.NZPaPReplacement
 							wep:Spawn()
+							wep.TriggerPos = machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3
 							
-							local replacewep = weapons.Get(class)
+							local replacewep = weapons.Get(weapon.NZPaPReplacement)
 							local model = (replacewep and replacewep.WM or replacewep.WorldModel) or "models/weapons/w_rif_ak47.mdl"
 							if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
 							wep:SetModel(model) -- Changing the model and name
@@ -244,6 +245,8 @@ nzPerks:NewPerk("pap", {
 							wep.Owner = ply
 							wep:SetMoveType( MOVETYPE_FLY )
 						end
+						
+						print(wep, wep.WepClass, wep:GetModel())
 					
 						machine:EmitSound("nz/machines/pap_ready.wav")
 						wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
@@ -273,7 +276,9 @@ nzPerks:NewPerk("pap", {
 				timer.Simple(25, function()
 					if IsValid(wep) then
 						wep:Remove()
-						machine:SetBeingUsed(false)
+						if IsValid(machine) then
+							machine:SetBeingUsed(false)
+						end
 					end
 				end)
 

@@ -76,6 +76,7 @@ function meta:IsBuyableMapEntity()
 end
 
 function meta:DoorIndex()
+	if !IsValid(self) then return end
 	if SERVER then
 		return self:CreatedByMap() and self:MapCreationID() or nil
 	else
