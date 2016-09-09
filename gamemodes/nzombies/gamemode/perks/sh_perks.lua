@@ -226,6 +226,25 @@ nzPerks:NewPerk("pap", {
 				end)
 				timer.Simple(3, function()
 					if IsValid(wep) then
+						local weapon = weapons.Get(class)
+						if weapon and weapon.NZPaPReplacement and weapons.Get(weapon.NZPaPReplacement) then
+							local pos, ang = wep:GetPos(), wep:GetAngles()
+							wep:Remove()
+							wep = ents.Create("pap_weapon_fly") -- Recreate a new entity with the replacement class instead
+							wep:SetPos(pos)
+							wep:SetAngles(ang)
+							wep.WepClass = weapon.NZPaPReplacement
+							wep:Spawn()
+							
+							local replacewep = weapons.Get(class)
+							local model = (replacewep and replacewep.WM or replacewep.WorldModel) or "models/weapons/w_rif_ak47.mdl"
+							if !util.IsValidModel(model) then model = "models/weapons/w_rif_ak47.mdl" end
+							wep:SetModel(model) -- Changing the model and name
+							wep.machine = machine
+							wep.Owner = ply
+							wep:SetMoveType( MOVETYPE_FLY )
+						end
+					
 						machine:EmitSound("nz/machines/pap_ready.wav")
 						wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
 						wep:SetMoveType(MOVETYPE_FLY)

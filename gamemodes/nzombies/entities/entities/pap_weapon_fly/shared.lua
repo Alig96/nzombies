@@ -30,7 +30,7 @@ function ENT:Initialize()
 		self:SetWeaponClass(self.WepClass)
 	else
 		local wep = weapons.Get(self:GetWeaponClass())
-		if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
+		if wep and wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
 	end
 end
 
