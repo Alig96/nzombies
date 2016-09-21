@@ -13,10 +13,6 @@ ENT.fNextFire = CurTime()
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Active")
-
-	if SERVER then
-		self:SetActive(false)
-	end
 end
 
 function ENT:Initialize()

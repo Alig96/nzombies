@@ -4,6 +4,7 @@ ENT.Type = "anim"
 ENT.Base = "base_entity"
 
 ENT.PrintName = "nz_button"
+ENT.Model = "models/maxofs2d/button_04.mdl"
 
 DEFINE_BASECLASS("nz_activatable")
 
@@ -12,9 +13,9 @@ function ENT:SetupDataTables()
 	BaseClass.SetupDataTables( self )
 
 	--the name of the linked ents
-	self:NetworkVar( "String", 1, "LinkedEntName1" )
-	self:NetworkVar( "String", 2, "LinkedEntName2" )
-	self:NetworkVar( "String", 3, "LinkedEntName3" )
+	self:NetworkVar( "String", 1, "LinkedEntName1", {KeyName = "linked_ent_name1", Edit = {order = 9, type = "Generic"}} )
+	self:NetworkVar( "String", 2, "LinkedEntName2", {KeyName = "linked_ent_name2", Edit = {order = 10, type = "Generic"}} )
+	self:NetworkVar( "String", 3, "LinkedEntName3", {KeyName = "linked_ent_name3", Edit = {order = 11, type = "Generic"}} )
 
 	if SERVER then
 		self:NetworkVarNotify( "LinkedEntName1", self.OnLinkedEntChange )
@@ -29,6 +30,13 @@ function ENT:OnLinkedEntChange(name, old, new)
 	table.insert(self.tLinkedEnts, ents.FindByName(self:GetLinkedEntName1()))
 	table.insert(self.tLinkedEnts, ents.FindByName(self:GetLinkedEntName2()))
 	table.insert(self.tLinkedEnts, ents.FindByName(self:GetLinkedEntName3()))
+end
+
+function ENT:Initialize()
+	self:SetModel(self.Model)
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_NONE )
+	self:SetSolid( SOLID_VPHYSICS )
 end
 
 function ENT:Activation(caller)
