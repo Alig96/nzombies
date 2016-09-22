@@ -2,8 +2,6 @@ AddCSLuaFile()
 
 ENT.Base = "base_anim"
 ENT.PrintName = "Turret gun"
-ENT.Category = "Brainz"
-ENT.Author = "Lolle"
 
 ENT.fAttackRange = 1200
 ENT.fFireRate = 0.1
@@ -20,12 +18,14 @@ function ENT:Initialize()
 end
 
 function ENT:Think()
-    if SERVER then
-    	if self.fLastTargetCheck + 0.5 < CurTime() and !self:HasValidTarget() then
-    		self:SetTarget(self:GetPriorityTarget())
-    	end
+	if SERVER then
+		if not self:GetActive() then return end
 
-        if self:HasValidTarget() then
+		if self.fLastTargetCheck + 0.5 < CurTime() and not self:HasValidTarget() then
+			self:SetTarget(self:GetPriorityTarget())
+		end
+
+		if self:HasValidTarget() then
 			local targetpos = self.eTarget:GetPos() + self.eTarget:OBBCenter()
 			local att = self:LookupAttachment( "muzzle" )
 			local muzzlePos = self:GetAttachment( att ).Pos
@@ -34,27 +34,27 @@ function ENT:Think()
 
 			self:SetAngles(angle)
 
-            if self.fNextFire < CurTime() then
-                local bullet = {
-                    Damage = 20,
-                    Force = 3,
-                    Src = muzzlePos,
-                    Dir = self:GetForward(),
-                    Distance = self.fAttackRange * 2,
-                    Spread = Vector(0.5,0.8,0),
-                    AmmoType = "Pistol",
-                    Tracer = 1,
+			if self.fNextFire < CurTime() then
+				local bullet = {
+					Damage = 20,
+					Force = 3,
+					Src = muzzlePos,
+					Dir = self:GetForward(),
+					Distance = self.fAttackRange * 2,
+					Spread = Vector(0.5,0.8,0),
+					AmmoType = "Pistol",
+					Tracer = 1,
 					TracerName
-                }
+				}
 
 				self:EmitSound("npc/sniper/sniper1.wav")
 
-                self:FireBullets(bullet)
+				self:FireBullets(bullet)
 
-                self.fNextFire = CurTime() + self.fFireRate
-            end
-        end
-    end
+				self.fNextFire = CurTime() + self.fFireRate
+			end
+		end
+	end
 end
 
 function ENT:SetTarget( target )
@@ -76,14 +76,14 @@ function ENT:GetPriorityTarget()
 
 	local possibleTargets = ents.FindInSphere(self:GetPos(), self.fAttackRange)
 
-    local zombies = {}
+	local zombies = {}
 
 	for _, ent in pairs(possibleTargets) do
-        if ent:IsZombie() then
-	        table.insert(zombies, ent)
-        end
+		if ent:IsZombie() then
+			table.insert(zombies, ent)
+		end
 	end
 
-    return table.Random(zombies)
+	return table.Random(zombies)
 
 end

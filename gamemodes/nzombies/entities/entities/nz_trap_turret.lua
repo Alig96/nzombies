@@ -16,18 +16,21 @@ function ENT:Initialize()
 
 	if SERVER then
 		timer.Simple(0.1, function()
-			local gun = ents.Create("nz_trap_turret_gun")
-			gun:SetPos(self:GetPos() + Vector(0, 0, 56))
-			gun:Spawn()
+			self.Gun = ents.Create("nz_trap_turret_gun")
+			self.Gun:SetParent(self)
+			self.Gun:SetPos(self:GetPos() + Vector(0, 0, 56))
+			self.Gun:Spawn()
 		end)
 	end
-
-	PrintTable(self:GetNetworkVars())
 end
 
 -- IMPLEMENT ME
-function ENT:OnActivation() end
+function ENT:OnActivation()
+	self.Gun:SetActive(true)
+end
 
-function ENT:OnDeactivation() end
+function ENT:OnDeactivation()
+	self.Gun:SetActive(false)
+end
 
 function ENT:OnReady() end
