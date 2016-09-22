@@ -27,6 +27,9 @@ ENT.Acceleration = 400
 ENT.DamageLow = 35
 ENT.DamageHigh = 45
 
+-- important for ent:IsZombie()
+ENT.bIsZombie = true
+
 --The Accessors will be partially shared, but should only be used serverside
 AccessorFunc( ENT, "fWalkSpeed", "WalkSpeed", FORCE_NUMBER)
 AccessorFunc( ENT, "fRunSpeed", "RunSpeed", FORCE_NUMBER)
@@ -183,7 +186,7 @@ function ENT:Initialize()
 		self:SetBodygroup( i-1, math.random(0, self:GetBodygroupCount(i-1) - 1))
 	end
 	self:SetSkin( math.random(self:SkinCount()) - 1 )
-	
+
 	self.ZombieAlive = true
 
 end
@@ -635,7 +638,7 @@ function ENT:OnKilled(dmgInfo)
 			self:SetDecapitated(true)
 		end
 	end
-	
+
 	self.ZombieAlive = false
 
 	hook.Call("OnZombieKilled", GAMEMODE, self, dmgInfo)

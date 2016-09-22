@@ -12,6 +12,18 @@ TARGET_PRIORITY_ALWAYS = 10 --make this entity a global target (not recommended)
 
 local meta = FindMetaTable("Entity")
 
+function meta:SetIsZombie(value)
+	self.bIsZombie = value
+end
+
+function meta:SetIsActivatable(value)
+	self.bIsActivatable = value
+end
+
+function meta:IsActivatable()
+	return self.bIsActivatable or false
+end
+
 function meta:GetTargetPriority()
 	return self.iTargetPriority or TARGET_PRIORITY_NONE
 end
@@ -42,7 +54,7 @@ if SERVER then
 			end
 		end
 	end
-	
+
 	function meta:ApplyWebFreeze(time)
 		if v.Freeze then
 			v:Freeze(time)
@@ -60,7 +72,7 @@ if SERVER then
 				end
 			end)
 		end
-		
+
 		local e = EffectData()
 		e:SetMagnitude(1.5)
 		e:SetScale(time) -- The time the effect lasts
@@ -76,7 +88,7 @@ function nzEnemies:AddValidZombieType(class)
 end
 
 function meta:IsValidZombie()
-	return validenemies[self:GetClass()] != nil
+	return self.bIsZombie or validenemies[self:GetClass()] != nil
 end
 
 nzEnemies:AddValidZombieType("nz_zombie_walker")
