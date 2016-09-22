@@ -59,6 +59,7 @@ nzPerks:NewPerk("jugg", {
 	price = 2500,
 	material = "models/perk_bottle/c_perk_bottle_jugg",
 	icon = Material("perk_icons/jugg.png", "smooth unlitgeneric"),
+	color = Color(255, 100, 100),
 	func = function(self, ply, machine)
 			ply:SetMaxHealth(250)
 			ply:SetHealth(250)
@@ -77,6 +78,7 @@ nzPerks:NewPerk("dtap", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_dtap",
 	icon = Material("perk_icons/dtap.png", "smooth unlitgeneric"),
+	color = Color(255, 255, 100),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -115,6 +117,7 @@ nzPerks:NewPerk("revive", {
 	price = 1500,
 	material = "models/perk_bottle/c_perk_bottle_revive",
 	icon = Material("perk_icons/revive.png", "smooth unlitgeneric"),
+	color = Color(100, 100, 255),
 	func = function(self, ply, machine)
 			if #player.GetAllPlaying() <= 1 then
 				if !ply.SoloRevive or ply.SoloRevive < 3 or !IsValid(machine) then
@@ -139,6 +142,7 @@ nzPerks:NewPerk("speed", {
 	price = 3000,
 	material = "models/perk_bottle/c_perk_bottle_speed",
 	icon = Material("perk_icons/speed.png", "smooth unlitgeneric"),
+	color = Color(100, 255, 100),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -179,6 +183,7 @@ nzPerks:NewPerk("pap", {
 	nobuy = true, -- A "Buy" event won't run when this is used (we do that ourselves in its function)
 	-- We don't use materials
 	icon = Material("vulture_icons/pap.png", "smooth unlitgeneric"),
+	color = Color(200, 220, 220),
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
 		if (!wep.pap or wep.OnRePaP or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
@@ -302,6 +307,7 @@ nzPerks:NewPerk("dtap2", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_dtap2",
 	icon = Material("perk_icons/dtap2.png", "smooth unlitgeneric"),
+	color = Color(255, 255, 100),
 	func = function(self, ply, machine)
 		local tbl = {}
 		for k,v in pairs(ply:GetWeapons()) do
@@ -340,6 +346,7 @@ nzPerks:NewPerk("staminup", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_stamin",
 	icon = Material("perk_icons/staminup.png", "smooth unlitgeneric"),
+	color = Color(200, 255, 100),
 	func = function(self, ply, machine)
 		ply:SetRunSpeed(350)
 		ply:SetMaxRunSpeed( 350 )
@@ -362,6 +369,7 @@ nzPerks:NewPerk("phd", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_phd",
 	icon = Material("perk_icons/phd.png", "smooth unlitgeneric"),
+	color = Color(255, 50, 255),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -376,6 +384,7 @@ nzPerks:NewPerk("deadshot", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_deadshot",
 	icon = Material("perk_icons/deadshot.png", "smooth unlitgeneric"),
+	color = Color(150, 200, 150),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -390,6 +399,7 @@ nzPerks:NewPerk("mulekick", {
 	price = 4000,
 	material = "models/perk_bottle/c_perk_bottle_mulekick",
 	icon = Material("perk_icons/mulekick.png", "smooth unlitgeneric"),
+	color = Color(100, 200, 100),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -409,6 +419,7 @@ nzPerks:NewPerk("tombstone", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_tombstone",
 	icon = Material("perk_icons/tombstone.png", "smooth unlitgeneric"),
+	color = Color(100, 100, 100),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -423,6 +434,7 @@ nzPerks:NewPerk("whoswho", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_whoswho",
 	icon = Material("perk_icons/whoswho.png", "smooth unlitgeneric"),
+	color = Color(100, 100, 255),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -437,6 +449,7 @@ nzPerks:NewPerk("cherry", {
 	price = 2000,
 	material = "models/perk_bottle/c_perk_bottle_cherry",
 	icon = Material("perk_icons/cherry.png", "smooth unlitgeneric"),
+	color = Color(50, 50, 200),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -451,6 +464,7 @@ nzPerks:NewPerk("vulture", {
 	price = 3000,
 	material = "models/perk_bottle/c_perk_bottle_vulture",
 	icon = Material("perk_icons/vulture.png", "smooth unlitgeneric"),
+	color = Color(255, 100, 100),
 	func = function(self, ply, machine)
 		return true
 	end,
@@ -461,4 +475,20 @@ nzPerks:NewPerk("vulture", {
 nzPerks:NewPerk("wunderfizz", {
 	name = "Der Wunderfizz", -- Nothing more is needed, it is specially handled
 	blockget = true,
+})
+
+nzPerks:NewPerk("widowswine", {
+	name = "Widow's Wine",
+	model = "models/yolojoenshit/bo3perks/widows_wine/mc_mtl_p7_zm_vending_widows_wine.mdl",
+	off_skin = 1,
+	on_skin = 0,
+	price = 4000,
+	material = "models/perk_bottle/c_perk_bottle_widowswine",
+	icon = Material("perk_icons/widows_wine.png", "smooth unlitgeneric"),
+	color = Color(255, 50, 200),
+	func = function(self, ply, machine)
+		return true
+	end,
+	lostfunc = function(self, ply)
+	end,
 })

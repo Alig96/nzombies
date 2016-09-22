@@ -16,15 +16,28 @@ function EFFECT:Init( data )
 	self.Parent = data:GetEntity()
 	self.Frequency = data:GetMagnitude()/10 or 0.01
 	self.Pos = self.Parent:WorldSpaceCenter()
-	self.Parent.LightningAura = true -- Set this to false to kill the effect
+	if self.Parent.LightningAura then
+		if data:GetScale() then
+			self.Parent.LightningAura = CurTime() + data:GetScale()
+		else
+			self.Parent.LightningAura = CurTime() + 10 -- Default time for this effect
+		end
+		self.KILL = true
+	else
+		if data:GetScale() then
+			self.Parent.LightningAura = CurTime() + data:GetScale()
+		else
+			self.Parent.LightningAura = CurTime() + 10 -- Default time for this effect
+		end
 
-	self.Alpha = 255
-	self.Life = 0
-	self.NextArc = 0
-	self.Arcs = {}
-	self.Queue = 1
+		self.Alpha = 255
+		self.Life = 0
+		self.NextArc = 0
+		self.Arcs = {}
+		self.Queue = 1
 
-	self:SetRenderBoundsWS( self.Pos, self.Pos, Vector(100,100,100) )
+		self:SetRenderBoundsWS( self.Pos, self.Pos, Vector(100,100,100) )
+	end
 
 end
 
@@ -32,6 +45,8 @@ end
    THINK
 -----------------------------------------------------------]]
 function EFFECT:Think()
+	
+	if self.KILL then return false end
 
 	if IsValid(self.Parent) then
 		self.Pos = self.Parent:WorldSpaceCenter()

@@ -89,7 +89,7 @@ nzTools:CreateTool("testzombie", {
 		end
 		
 		local function UpdateData() -- No need for context menu to intercept, can remain local
-			nz.Tools.Functions.SendData( data, "testzombie" )
+			nzTools:SendData( data, "testzombie" )
 		end
 		
 		slider.OnValueChanged = function(self, val)

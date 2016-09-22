@@ -39,8 +39,8 @@ function ENT:Initialize()
 		self:DrawShadow( false )
 		self:SetUseType( SIMPLE_USE )
 		self:SetBeingUsed(false)
-		local perkData = nzPerks:Get(self:GetPerkID())
-		self:SetPrice(perkData.price)
+		local PerkData = nzPerks:Get(self:GetPerkID())
+		self:SetPrice(PerkData.price)
 	end
 end
 
@@ -55,8 +55,18 @@ function ENT:TurnOff()
 end
 
 function ENT:Update()
-	local perkData = nzPerks:Get(self:GetPerkID())
-	self:SetModel(perkData and (self:IsOn() and perkData.on_model or perkData.off_model) or "")
+	local PerkData = nzPerks:Get(self:GetPerkID())
+	local skinmodel = PerkData.model
+	if skinmodel then
+		self:SetModel(skinmodel)
+		if self:IsOn() then
+			self:SetSkin(PerkData.on_skin or 0)
+		else
+			self:SetSkin(PerkData.off_skin or 1)
+		end
+	else
+		self:SetModel(PerkData and (self:IsOn() and PerkData.on_model or PerkData.off_model) or "")
+	end
 end
 
 function ENT:IsOn()
@@ -68,7 +78,7 @@ local MachinesNoDrink = {
 }
 
 function ENT:Use(activator, caller)
-	local perkData = nzPerks:Get(self:GetPerkID())
+	local PerkData = nzPerks:Get(self:GetPerkID())
 	
 	if self:IsOn() then
 		local price = self:GetPrice()
@@ -97,7 +107,7 @@ function ENT:Use(activator, caller)
 			
 			-- If a perk has NoBuy true, then it won't run a Buy on it but just run the func directly
 			-- (Allows stuff like dynamic pricing and conditional checks, similar to PaP)
-			if perkData.nobuy then func() else activator:Buy(price, self, func) end
+			if PerkData.nobuy then func() else activator:Buy(price, self, func) end
 		else
 			print(activator:Nick().." already has max perks")
 		end
@@ -105,13 +115,15 @@ function ENT:Use(activator, caller)
 end
 
 if CLIENT then
+	local usedcolor = Color(255,255,255)
+	
 	function ENT:Draw()
 		self:DrawModel()
 		if self:GetActive() then
 			if !self.NextLight or CurTime() > self.NextLight then
 				local dlight = DynamicLight( self:EntIndex() )
 				if ( dlight ) then
-					local col = self.DynLightColors[self:GetPerkID()]
+					local col = nzPerks:Get(self:GetPerkID()).color or usedcolor
 					dlight.pos = self:GetPos() + self:OBBCenter()
 					dlight.r = col.r
 					dlight.g = col.g

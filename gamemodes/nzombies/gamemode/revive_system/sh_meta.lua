@@ -144,6 +144,8 @@ if SERVER then
 		for k,v in pairs(player.GetAllPlayingAndAlive()) do
 			v:TakePoints(math.Round(v:GetPoints()*0.1, -1), true)
 		end
+		
+		self:RemoveAllPowerUps()
 	end
 
 end

@@ -15,22 +15,22 @@ ENT.Models = {
 }
 
 ENT.AttackSequences = {
-	{seq = "nz_stand_attack1", dmgtimes = {1, 1.5}},
-	{seq = "nz_stand_attack2", dmgtimes = {0.4}},
-	{seq = "nz_stand_attack3", dmgtimes = {1}},
+	{seq = "nz_stand_attack1", dmgtimes = {0.75, 1.25}},
+	{seq = "nz_stand_attack2", dmgtimes = {0.3}},
+	{seq = "nz_stand_attack3", dmgtimes = {0.8}},
 	{seq = "nz_stand_attack4", dmgtimes = {0.4, 0.8}},
 }
 ENT.WalkAttackSequences = {
 	{seq = "nz_walk_attack1", dmgtimes = {0.3}},
-	{seq = "nz_walk_attack2", dmgtimes = {0.4, 1}},
-	{seq = "nz_walk_attack3", dmgtimes = {0.6}},
-	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.9}},
+	{seq = "nz_walk_attack2", dmgtimes = {0.4, 0.9}},
+	{seq = "nz_walk_attack3", dmgtimes = {0.5}},
+	{seq = "nz_walk_attack4", dmgtimes = {0.4, 0.75}},
 }
 ENT.RunAttackSequences = {
-	{seq = "nz_run_attack1", dmgtimes = {0.4}},
-	{seq = "nz_run_attack2", dmgtimes = {0.3, 0.8}},
+	{seq = "nz_run_attack1", dmgtimes = {0.3}},
+	{seq = "nz_run_attack2", dmgtimes = {0.3, 0.65}},
 	{seq = "nz_run_attack3", dmgtimes = {0.3, 0.7}},
-	{seq = "nz_run_attack4", dmgtimes = {0.4, 0.9}},
+	{seq = "nz_run_attack4", dmgtimes = {0.3, 0.8}},
 }
 
 ENT.ActStages = {
@@ -304,7 +304,7 @@ function ENT:Attack( data )
 	if self:GetTarget():IsPlayer() then
 		for k,v in pairs(data.attackseq.dmgtimes) do
 			self:TimedEvent( v, function()
-				if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+				if !self:GetStop() and self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
 					local dmgAmount = math.random( data.dmglow, data.dmghigh )
 					local dmgInfo = DamageInfo()
 						dmgInfo:SetAttacker( self )
@@ -338,50 +338,6 @@ function ENT:Attack( data )
 	end)
 
 	self:PlayAttackAndWait(data.attackseq.seq, 1)
-end
-
-function ENT:BodyUpdate()
-
-	self.CalcIdeal = ACT_IDLE
-
-	local velocity = self:GetVelocity()
-
-	local len2d = velocity:Length2D()
-
-	local range = 10
-
-	local curstage = self.ActStages[self:GetActStage()]
-	local nextstage = self.ActStages[self:GetActStage() + 1]
-
-	if self:GetActStage() <= 0 then -- We are currently idling, no range to start walking
-		if nextstage and len2d >= nextstage.minspeed then -- We DO NOT apply the range here, he needs to walk at 5 speed!
-			self:SetActStage( self:GetActStage() + 1 )
-		end
-		-- If there is no minspeed for the next stage, someone did something wrong and we just idle :/
-	elseif (curstage and len2d <= curstage.minspeed - range) then
-		self:SetActStage( self:GetActStage() - 1 )
-	elseif (nextstage and len2d >= nextstage.minspeed + range) then
-		self:SetActStage( self:GetActStage() + 1 )
-	elseif !self.ActStages[self:GetActStage() - 1] and len2d < curstage.minspeed - 4 then -- Much smaller range to go back to idling
-		self:SetActStage(0)
-	end
-
-	if self.ActStages[self:GetActStage()] then self.CalcIdeal = self.ActStages[self:GetActStage()].act end
-
-	if self:IsJumping() and self:WaterLevel() <= 0 then
-		self.CalcIdeal = ACT_JUMP
-	end
-
-	if !self:GetSpecialAnimation() and !self:IsAttacking() then
-		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
-
-		if self.ActStages[self:GetActStage()] then
-			self:BodyMoveXY()
-		end
-	end
-
-	self:FrameAdvance()
-
 end
 
 function ENT:TriggerBarricadeJump()

@@ -48,10 +48,37 @@ local function friendlyFire( ply, ent )
 	if ent:IsPlayer() then
 		if ent == ply then
 			-- You can damage yourself as long as you don't have PhD
-			return !ply:HasPerk("phd")
+			return !ply:HasPerk("phd") and !ply.SELFIMMUNE
 		else
 			--Friendly fire is disabled for all other players TODO make hardcore setting?
 			return false
+		end
+	elseif ent:IsValidZombie() then
+		if ply:HasPerk("widowswine") and ply:GetAmmoCount("nz_grenade") > 0 then -- WIDOWS WINE TAKE DAMAGE EFFECT
+			local pos = ply:GetPos()
+			
+			ply.SELFIMMUNE = true
+			util.BlastDamage(ply, ply, pos, 350, 50)
+			ply.SELFIMMUNE = nil
+		
+			local zombls = ents.FindInSphere(pos, 350)
+				
+			local e = EffectData()
+			e:SetMagnitude(1.5)
+			e:SetScale(20) -- The time the effect lasts
+			
+			local fx = EffectData()
+			fx:SetOrigin(pos)
+			fx:SetMagnitude(1)
+			util.Effect("web_explosion", fx)
+			
+			for k,v in pairs(zombls) do
+				if IsValid(v) and v:IsValidZombie() then
+					ApplyWebFreeze(20)
+				end
+			end
+			
+			ply:SetAmmo(ply:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
 		end
 	end
 end

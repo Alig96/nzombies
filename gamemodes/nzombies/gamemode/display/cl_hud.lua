@@ -114,7 +114,7 @@ local function GunHud()
 					local clip = wep:Clip1()
 					if !name or name == "" then name = wep:GetClass() end
 					if wep.pap then
-						name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
+						name = wep.NZPaPName or nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 					end
 					if clip >= 0 then
 						draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
@@ -308,7 +308,9 @@ local function RoundHud()
 	local h = ScrH() - 30
 	local round = round_num
 	local col = Color(200 + round_white*55, round_white, round_white,round_alpha)
-	if round < 11 then
+	if round == -1 then
+		text = "∞"
+	elseif round < 11 then
 		for i = 1, round do
 			if i == 5 or i == 10 then
 				text = text.." "
@@ -372,7 +374,9 @@ local function StartChangeRound()
 				if roundchangeending then
 					round_num = nzRound:GetNumber()
 					round_charger = 0.5
-					if nzRound:IsSpecial() then
+					if round_num == -1 then
+						surface.PlaySound("nz/easteregg/motd_round_3.wav")
+					elseif nzRound:IsSpecial() then
 						surface.PlaySound("nz/round/special_round_start.wav")
 						prevroundspecial = true
 					else

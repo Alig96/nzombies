@@ -9,7 +9,7 @@ if Spawner == nil then
 		--              A spawnpoint class should only be used by one spawner at a time.
 		-- data: information about the entities that are spawned, required are a entity class and chance.
 		-- zombiesToSpawn: the amount of zombies this type of spawner will spawn in total.
-		-- spawnDelay: delays the next spawn by the amont set in this value
+		-- spawnDelay: delays the next spawn by the amount set in this value
 		-- roundNum: the round this spawner was created (after this round teh spawn will be removed)
 		constructor = function(self, spointClass, data, zombiesToSpawn, spawnDelay, roundNum)
 			self.sSpointClass = spointClass or "nz_spawn_zombie_normal"

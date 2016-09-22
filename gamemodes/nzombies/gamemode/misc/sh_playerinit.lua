@@ -12,6 +12,7 @@ if SERVER then
 				local playerIDStartIndex = ply:SteamID64() and string.find( tostring(body), "<steamID64>"..ply:SteamID64().."</steamID64>" ) or print("Can't get SteamID64 in single player. Weaponized YTi-L4 is unavailable.")
 				if playerIDStartIndex == nil then return else
 					ply.nz_InSteamGroup = true
+					ply:PrintMessage(HUD_PRINTCONSOLE, "Thank you for being part of the Banter Brigade Steam Group. YTi-L4 is accessible to you in the box.")
 				end
 			end,
 			function() -- On fail

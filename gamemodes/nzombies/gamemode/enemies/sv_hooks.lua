@@ -82,6 +82,9 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			if zombie:Health() > dmginfo:GetDamage() then
 				if zombie.HasTakenDamageThisTick then return end
 				if attacker:IsPlayer() and attacker:GetNotDowned() and !hook.Call("OnZombieShot", nil, zombie, attacker, dmginfo, hitgroup) then
+					if dmginfo:GetDamageType() == DMG_CLUB and attacker:HasPerk("widowswine") then
+						zombie:ApplyWebFreeze(5)
+					end
 					attacker:GivePoints(10)
 				end
 				zombie.HasTakenDamageThisTick = true
@@ -98,8 +101,10 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 				local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition() ).HitGroup
 				if zombie:Health() > dmginfo:GetDamage() then
 					if data.onhit then data.onhit(zombie, attacker, dmginfo, hitgroup) end
-				else
+				elseif !zombie.MarkedForDeath then
 					if data.deathfunc then data.deathfunc(zombie, attacker, dmginfo, hitgroup) end
+					hook.Call("OnBossKilled", nil, zombie)
+					zombie.MarkedForDeath = true
 				end
 			end
 		end
@@ -111,4 +116,4 @@ local function OnRagdollCreated( ent )
 		ent:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	end
 end
-hook.Add("OnEntityCreated", "nz.Enemies.OnEntityCreated", OnRagdollCreated)
+hook.Add("OnEntityCreated", "nzEnemies_OnEntityCreated", OnRagdollCreated)

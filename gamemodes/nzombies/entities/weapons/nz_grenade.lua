@@ -66,14 +66,19 @@ function SWEP:ThrowGrenade(force)
 	
 	local nade = ents.Create("nz_fraggrenade")
 	nade:SetPos(self.Owner:EyePos() + (self.Owner:GetAimVector() * 20))
-	--nade:SetAngles( self.Owner:GetAngles() +  )
+	nade:SetAngles( Angle(30,0,0)  )
 	nade:Spawn()
 	nade:Activate()
 	nade:SetOwner(self.Owner)
+	if self.Owner:HasPerk("widowswine") then
+		nade.WidowsWine = true
+	end
 	
 	local nadePhys = nade:GetPhysicsObject()
 		if !IsValid(nadePhys) then return end
 	nadePhys:ApplyForceCenter(self.Owner:GetAimVector():GetNormalized() * force + self.Owner:GetVelocity())
+	nadePhys:AddAngleVelocity(Vector(1000,0,0))
+	
 	
 	nade:SetExplosionTimer(3)
 end

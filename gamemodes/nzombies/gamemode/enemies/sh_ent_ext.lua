@@ -42,6 +42,32 @@ if SERVER then
 			end
 		end
 	end
+	
+	function meta:ApplyWebFreeze(time)
+		if v.Freeze then
+			v:Freeze(time)
+		else
+			v.loco:SetDesiredSpeed(0)
+			timer.Simple(time, function()
+				if IsValid(v) then
+					v.WebAura = nil
+					local speeds = nzRound:GetZombieSpeeds()
+					if speeds then
+						v.loco:SetDesiredSpeed( nzMisc.WeightedRandom(speeds) )
+					else
+						v.loco:SetDesiredSpeed( 100 )
+					end
+				end
+			end)
+		end
+		
+		local e = EffectData()
+		e:SetMagnitude(1.5)
+		e:SetScale(time) -- The time the effect lasts
+		e:SetEntity(v)
+		util.Effect("web_aura", e)
+		--v.WebAura = CurTime() + time
+	end
 end
 
 local validenemies = {}

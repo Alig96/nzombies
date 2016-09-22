@@ -10,12 +10,17 @@ hook.Add("Think", "CheckActivePowerups", function()
 		end
 	end
 	for k,v in pairs(nzPowerUps.ActivePlayerPowerUps) do
-		for id, time in pairs(v) do
-			if CurTime() >= time then
-				local func = nzPowerUps:Get(id).expirefunc
-				if func then func(id, k) end
-				nzPowerUps.ActivePlayerPowerUps[k][id] = nil
-				nzPowerUps:SendPlayerSync(k)
+		if !IsValid(k) then
+			nzPowerUps.ActivePlayerPowerUps[k] = nil
+			nzPowerUps:SendPlayerSyncFull()
+		else
+			for id, time in pairs(v) do
+				if CurTime() >= time then
+					local func = nzPowerUps:Get(id).expirefunc
+					if func then func(id, k) end
+					nzPowerUps.ActivePlayerPowerUps[k][id] = nil
+					nzPowerUps:SendPlayerSync(k)
+				end
 			end
 		end
 	end

@@ -128,8 +128,8 @@ end, true)
 
 --cheats
 chatcommand.Add("/revive", function(ply, text)
-	local plyToRev = player.GetByName(text[1]) or ply
-	if IsValid(plyToRev) and !ply:GetNotDowned() then
+	local plyToRev = text[1] and player.GetByName(text[1]) or ply
+	if IsValid(plyToRev) and !plyToRev:GetNotDowned() then
 		plyToRev:RevivePlayer()
 	else
 		ply:ChatPrint("[nZ] Player could not have been revived, are you sure he is downed?")

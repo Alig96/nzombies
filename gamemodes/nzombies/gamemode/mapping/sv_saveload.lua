@@ -159,11 +159,11 @@ function nzMapping:SaveConfig(name)
 	end
 
 	local special_entities = {}
-	for k, v in pairs(nz.QMenu.Data.SpawnedEntities) do
+	for k, v in pairs(nzQMenu.Data.SpawnedEntities) do
 		if IsValid(v) then
 			table.insert(special_entities, duplicator.CopyEntTable(v))
 		else
-			nz.QMenu.Data.SpawnedEntities[k] = nil
+			nzQMenu.Data.SpawnedEntities[k] = nil
 		end
 	end
 	--PrintTable(special_entities)
@@ -281,13 +281,13 @@ function nzMapping:ClearConfig(noclean)
 	nzNav.Locks = {}
 
 	--Specially spawned entities
-	for k,v in pairs(nz.QMenu.Data.SpawnedEntities) do
+	for k,v in pairs(nzQMenu.Data.SpawnedEntities) do
 		if IsValid(v) then
 			v:Remove()
 		end
 	end
 
-	nz.QMenu.Data.SpawnedEntities = {}
+	nzQMenu.Data.SpawnedEntities = {}
 
 	nzMapping.Settings = {}
 	nzMapping.MarkedProps = {}
@@ -477,9 +477,9 @@ function nzMapping:LoadConfig( name, loader )
 
 		if data.SpecialEntities then
 			for k,v in pairs(data.SpecialEntities) do
-				PrintTable(v)
+				--PrintTable(v)
 				local ent = duplicator.CreateEntityFromTable(Entity(1), v)
-				table.insert(nz.QMenu.Data.SpawnedEntities, ent)
+				table.insert(nzQMenu.Data.SpawnedEntities, ent)
 			end
 		end
 		

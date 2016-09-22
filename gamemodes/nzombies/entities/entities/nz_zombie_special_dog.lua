@@ -9,8 +9,8 @@ ENT.Author = "Lolle"
 ENT.Models = { "models/nz_zombie/zombie_hellhound.mdl" }
 
 ENT.AttackRange = 80
-ENT.DamageLow = 30
-ENT.DamageHigh = 40
+ENT.DamageLow = 20
+ENT.DamageHigh = 35
 
 ENT.AttackSequences = {
 	{seq = "nz_attack1"},

@@ -238,11 +238,17 @@ function nzSpecialWeapons:AddDisplay( class, drawfunc, returnfunc )
 	end
 end
 
-local buttonids = {
+
+
+CreateClientConVar("nz_key_knife", KEY_V, true, true, "Sets the key that triggers Knife. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+CreateClientConVar("nz_key_grenade", KEY_G, true, true, "Sets the key that throws Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+
+--[[local buttonids = {
 	[KEY_V] = "knife",
 	[KEY_G] = "grenade",
 	[KEY_B] = "specialgrenade",
-}
+}]]
 
 local usesammo = {
 	["grenade"] = "nz_grenade",
@@ -250,8 +256,12 @@ local usesammo = {
 }
 
 hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
-	local id = buttonids[but]
-	if id and (ply:GetNotDowned() or but == KEY_V) and !ply:GetUsingSpecialWeapon() then
+	--local id = buttonids[but]
+	local id
+	if but == ply:GetInfoNum("nz_key_knife", KEY_V) then id = "knife"
+	elseif but == ply:GetInfoNum("nz_key_grenade", KEY_G) then id = "grenade"
+	elseif but == ply:GetInfoNum("nz_key_specialgrenade", KEY_B) then id = "specialgrenade" end
+	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
 		local ammo = usesammo[id]
 		if !ammo or ply:GetAmmoCount(ammo) >= 1 then
 			local wep = ply:GetSpecialWeaponFromCategory( id )
@@ -268,7 +278,8 @@ hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 end)
 
 hook.Add("PlayerButtonUp", "nzSpecialWeaponsThrow", function(ply, but)
-	local id = buttonids[but]
+	--local id = buttonids[but]
+	local id = but == ply:GetInfoNum("nz_key_knife", KEY_V) or but == ply:GetInfoNum("nz_key_grenade", KEY_G) or but == ply:GetInfoNum("nz_key_specialgrenade", KEY_B)
 	if id and ply.nzSpecialButtonDown then
 		ply.nzSpecialButtonDown = false
 	end
@@ -278,11 +289,11 @@ local wep = FindMetaTable("Weapon")
 local ply = FindMetaTable("Player")
 
 function wep:IsSpecial()
-	return nzSpecialWeapons.Weapons[self:GetClass()] and true or false
+	return (self.NZSpecialCategory or nzSpecialWeapons.Weapons[self:GetClass()]) and true or false
 end
 
 function wep:GetSpecialCategory()
-	return nzSpecialWeapons.Weapons[self:GetClass()].id
+	return self.NZSpecialCategory or nzSpecialWeapons.Weapons[self:GetClass()].id
 end
 
 function ply:GetSpecialWeaponFromCategory( id )
@@ -315,6 +326,8 @@ if SERVER then
 		
 		local data = nzSpecialWeapons.Weapons[wep:GetClass()]
 		
+		if !data then return end -- No nothing more if it doesn't have data supplied (e.g. specially added thingies)
+		
 		local ammo = usesammo[id]
 		local maxammo = data.maxammo
 		if ammo and maxammo then
@@ -331,7 +344,7 @@ if SERVER then
 	end
 
 	-- This hook only works server-side
-	hook.Add("WeaponEquip", "SetSpecialWeapons", function(wep)
+	hook.Add("WeaponEquip", "nzSetSpecialWeapons", function(wep)
 		if wep:IsSpecial() then
 			-- 0 second timer for the next tick where wep's owner is valid
 			timer.Simple(0, function()
@@ -358,7 +371,16 @@ function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 		print(ply:Nick().."'s UsingSpecialWeapon status was true but he isn't equipped with a special weapon and isn't trying to. Resetting ...")
 	end
 	if IsValid(oldwep) and IsValid(newwep) then
-		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) or (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then return true end
+		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) then return true end
+		if (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then
+			if oldwep.NZSpecialHolster then
+				local allow = oldwep:NZSpecialHolster(newwep)
+				if allow then
+					ply:SetUsingSpecialWeapon(false)
+				end
+				return !allow
+			end
+		end
 		if oldwep != newwep and !oldwep:IsSpecial() then
 			ply.NZPrevWep = oldwep
 		end
