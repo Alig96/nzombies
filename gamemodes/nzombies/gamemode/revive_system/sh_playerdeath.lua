@@ -1,5 +1,5 @@
 
-function Revive.DoPlayerDeath(ply, dmg)
+function nzRevive.DoPlayerDeath(ply, dmg)
 
 	if IsValid(ply) and ply:IsPlayer() then
 		if ply:Health() - dmg:GetDamage() <= 0 then
@@ -22,7 +22,7 @@ function Revive.DoPlayerDeath(ply, dmg)
 	
 end
 
-function Revive.PostPlayerDeath(ply)
+function nzRevive.PostPlayerDeath(ply)
 	-- Performs all the resetting functions without actually killing the player
 	if !ply:GetNotDowned() then ply:KillDownedPlayer(nil, false, true) end
 end
@@ -37,6 +37,6 @@ local function HandleKillCommand(ply)
 end
 
 //Hooks
-hook.Add("EntityTakeDamage", "nzDownKilledPlayers", Revive.DoPlayerDeath)
-hook.Add("PostPlayerDeath", "nzPlayerDeathRevivalReset", Revive.PostPlayerDeath)
+hook.Add("EntityTakeDamage", "nzDownKilledPlayers", nzRevive.DoPlayerDeath)
+hook.Add("PostPlayerDeath", "nzPlayerDeathRevivalReset", nzRevive.PostPlayerDeath)
 hook.Add("CanPlayerSuicide", "nzSuicideDowning", HandleKillCommand)

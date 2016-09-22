@@ -438,6 +438,8 @@ local function showSettings(ply, cmd, args)
 			g_Settings:Show()
 			gui.EnableScreenClicker( true )
 			g_Settings:SetVisible(true)
+			
+			if IsValid(nzInterfaces.ConfigVoter) then nzInterfaces.ConfigVoter:Show() end -- Reopen config voter as well if a vote is going on
 		end
 	end
 end

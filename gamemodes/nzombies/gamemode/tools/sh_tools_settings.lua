@@ -1,4 +1,4 @@
-nz.Tools.Functions.CreateTool("settings", {
+nzTools:CreateTool("settings", {
 	displayname = "Map Settings",
 	desc = "Use the Tool Interface and press Submit to save changes",
 	condition = function(wep, ply)
@@ -79,7 +79,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		Row3.DataChanged = function( _, val ) valz["Row3"] = val end
 		Row3:SetTooltip("Add a link to a SoundCloud track to play this when all easter eggs have been found")
 		
-		if nz.Tools.Advanced then
+		if nzTools.Advanced then
 			local Row4 = DProperties:CreateRow( "Map Settings", "Includes Map Script?" )
 			Row4:Setup( "Boolean" )
 			Row4:SetValue( valz["Row4"] )
@@ -130,7 +130,7 @@ nz.Tools.Functions.CreateTool("settings", {
 			
 		end
 		
-		local function UpdateData()
+		local function UpdateData() -- Will remain a local function here. There is no need for the context menu to intercept
 			if !weapons.Get( valz["Row1"] ) then data.startwep = nil else data.startwep = valz["Row1"] end
 			if !tonumber(valz["Row2"]) then data.startpoints = 500 else data.startpoints = tonumber(valz["Row2"]) end
 			if !valz["Row3"] or valz["Row3"] == "" then data.eeurl = nil else data.eeurl = valz["Row3"] end
@@ -152,7 +152,7 @@ nz.Tools.Functions.CreateTool("settings", {
 		DermaButton:SetSize( 260, 30 )
 		DermaButton.DoClick = UpdateData
 
-		if nz.Tools.Advanced then
+		if nzTools.Advanced then
 			local weplist = {}
 			local numweplist = 0
 

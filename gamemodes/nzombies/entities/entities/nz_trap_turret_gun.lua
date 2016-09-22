@@ -79,7 +79,7 @@ function ENT:GetPriorityTarget()
 	local zombies = {}
 
 	for _, ent in pairs(possibleTargets) do
-		if ent:IsZombie() then
+		if ent:IsValidZombie() then
 			table.insert(zombies, ent)
 		end
 	end

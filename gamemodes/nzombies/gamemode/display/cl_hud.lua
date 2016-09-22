@@ -46,7 +46,7 @@ local function ScoreHud()
 
 			for k,v in pairs(player.GetAll()) do
 				local hp = v:Health()
-				if hp == 0 then hp = "Dead" elseif Revive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
+				if hp == 0 then hp = "Dead" elseif nzRevive.Players[v:EntIndex()] then hp = "Downed" else hp = hp .. " HP"  end
 				if v:GetPoints() >= 0 then
 
 					local text = ""
@@ -107,14 +107,14 @@ local function GunHud()
 			surface.DrawTexturedRect(ScrW() - 630*scale, ScrH() - 225*scale, 600*scale, 225*scale)
 			if IsValid(wep) then
 				if wep:GetClass() == "nz_multi_tool" then
-					draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 125*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
-					draw.SimpleTextOutlined(nz.Tools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 2, Color(0,0,0))
+					draw.SimpleTextOutlined(nzTools.ToolData[wep.ToolMode].displayname or wep.ToolMode, "nz.display.hud.small", ScrW() - 240*scale, ScrH() - 125*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
+					draw.SimpleTextOutlined(nzTools.ToolData[wep.ToolMode].desc or "", "nz.display.hud.smaller", ScrW() - 240*scale, ScrH() - 90*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP, 2, Color(0,0,0))
 				else
 					local name = wep:GetPrintName()
 					local clip = wep:Clip1()
 					if !name or name == "" then name = wep:GetClass() end
 					if wep.pap then
-						name = nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
+						name = wep.NZPaPName or nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 					end
 					if clip >= 0 then
 						draw.SimpleTextOutlined(name, "nz.display.hud.small", ScrW() - 390*scale, ScrH() - 120*scale, Color(255,255,255,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM, 2, Color(0,0,0))
@@ -308,7 +308,9 @@ local function RoundHud()
 	local h = ScrH() - 30
 	local round = round_num
 	local col = Color(200 + round_white*55, round_white, round_white,round_alpha)
-	if round < 11 then
+	if round == -1 then
+		text = "∞"
+	elseif round < 11 then
 		for i = 1, round do
 			if i == 5 or i == 10 then
 				text = text.." "
@@ -372,7 +374,9 @@ local function StartChangeRound()
 				if roundchangeending then
 					round_num = nzRound:GetNumber()
 					round_charger = 0.5
-					if nzRound:IsSpecial() then
+					if round_num == -1 then
+						surface.PlaySound("nz/easteregg/motd_round_3.wav")
+					elseif nzRound:IsSpecial() then
 						surface.PlaySound("nz/round/special_round_start.wav")
 						prevroundspecial = true
 					else

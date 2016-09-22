@@ -81,7 +81,7 @@ function SWEP:Deploy()
 					surface.PlaySound("nz/monkey/cymbals/monk_cymb_0"..math.Round(i/2)..".wav")
 					i = i < 8 and i + 1 or 8
 				end)
-			end 
+			end
 		end)
 		
 	else
@@ -90,7 +90,9 @@ function SWEP:Deploy()
 end
 
 function SWEP:PrimaryAttack()
-	
+	if SERVER then
+		self:ThrowBomb(500)
+	end
 end
 
 function SWEP:ThrowBomb(force)
@@ -137,7 +139,7 @@ function SWEP:GetViewModelPosition( pos, ang )
  
 end
 
-if engine.ActiveGamemode() == "nzombies" then 
+--[[if engine.ActiveGamemode() == "nzombies" then 
 	nzSpecialWeapons:AddWeapon( "nz_monkey_bomb", "specialgrenade", function(ply) -- Use function
 		if SERVER then
 			if ply:GetAmmoCount("nz_specialgrenade") <= 0 then return end
@@ -183,4 +185,4 @@ if engine.ActiveGamemode() == "nzombies" then
 	end, function(ply) -- Max Ammo function
 		ply:SetAmmo(3, "nz_specialgrenade")
 	end)
-end
+end]]

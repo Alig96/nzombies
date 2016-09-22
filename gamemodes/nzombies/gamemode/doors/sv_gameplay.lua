@@ -84,17 +84,20 @@ function nzDoors:BuyDoor( ply, ent )
 	--print("Entity info buying ", ent, link, req_elec, price, buyable, ent:IsLocked())
 	-- If it has a price and it can be bought
 	if price != nil and tonumber(buyable) == 1 then
-		if ply:CanAfford(price) and ent:IsLocked() then
-			-- If this door doesn't require electricity or if it does, then if the electricity is on at the same time
-			if (req_elec == 0 or (req_elec == 1 and IsElec())) then
-				ply:TakePoints(price)
-				if link == nil then
-					self:OpenDoor( ent, ply )
-				else
-					self:OpenLinkedDoors( link, ply )
+		ply:Buy(price, ent, function()
+			if ent:IsLocked() then
+				-- If this door doesn't require electricity or if it does, then if the electricity is on at the same time
+				if (req_elec == 0 or (req_elec == 1 and IsElec())) then
+					--ply:TakePoints(price)
+					if link == nil then
+						self:OpenDoor( ent, ply )
+					else
+						self:OpenLinkedDoors( link, ply )
+					end
+					return true
 				end
 			end
-		end
+		end)
 	elseif price == nil and buyable == nil and !ent:IsBuyableProp() then
 		-- Doors that can be opened because the gamemode doesn't lock them, still need to try and lock upon opening.
 		-- Additionally, they get the OnClose output added, in case they can still close

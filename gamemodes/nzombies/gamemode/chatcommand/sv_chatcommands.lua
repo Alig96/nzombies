@@ -86,7 +86,7 @@ end, false, "   Save your changes to a config.")
 
 chatcommand.Add("/load", function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
-		nz.Interfaces.Functions.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")})
+		nzInterfaces.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")})
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[nZ] You can't load while playing!" )
 	end
@@ -128,8 +128,8 @@ end, true)
 
 --cheats
 chatcommand.Add("/revive", function(ply, text)
-	local plyToRev = player.GetByName(text[1]) or ply
-	if IsValid(plyToRev) and !ply:GetNotDowned() then
+	local plyToRev = text[1] and player.GetByName(text[1]) or ply
+	if IsValid(plyToRev) and !plyToRev:GetNotDowned() then
 		plyToRev:RevivePlayer()
 	else
 		ply:ChatPrint("[nZ] Player could not have been revived, are you sure he is downed?")

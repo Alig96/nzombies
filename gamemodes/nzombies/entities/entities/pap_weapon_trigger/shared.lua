@@ -10,7 +10,8 @@ ENT.Instructions	= ""
 
 function ENT:SetupDataTables()
 
-	self:NetworkVar( "String", 0, "WepClass")
+	self:NetworkVar( "String", 0, "WepClass" )
+	self:NetworkVar( "Entity", 0, "PaPOwner" )
 
 end
 
@@ -26,7 +27,7 @@ function ENT:Initialize()
 end
 
 function ENT:Use( activator, caller )
-	if activator == self.Owner then
+	if activator == self:GetPaPOwner() then
 		local class = self:GetWepClass()
 		local weapon = activator:Give(class)
 		if !self.RerollingAtts then -- A 2000 point reroll should not give max ammo
@@ -49,8 +50,8 @@ function ENT:Use( activator, caller )
 			self:Remove()
 		end)
 	else
-		if IsValid(self.Owner) then
-			activator:PrintMessage( HUD_PRINTTALK, "This is " .. self.PapOwner:Nick() .. "'s gun. You cannot take it." )
+		if IsValid(self:GetPaPOwner()) then
+			activator:PrintMessage( HUD_PRINTTALK, "This is " .. self:GetPaPOwner():Nick() .. "'s gun. You cannot take it." )
 		end
 	end
 end

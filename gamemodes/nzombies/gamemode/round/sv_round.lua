@@ -7,7 +7,7 @@ end
 function nzRound:Waiting()
 
 	self:SetState( ROUND_WAITING )
-	hook.Call( "OnRoundWating", nzRound )
+	hook.Call( "OnRoundWaiting", nzRound )
 
 end
 
@@ -45,7 +45,7 @@ function nzRound:Prepare()
 	self:SetZombiesKilled( 0 )
 
 	--Notify
-	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
+	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
 	hook.Call( "OnRoundPreperation", nzRound, self:GetNumber() )
 	--Play the sound
 
@@ -86,9 +86,19 @@ function nzRound:Prepare()
 			else
 				normalCount = self:GetZombiesMax()
 			end
+			
+			local normalDelay
+			if roundData.normalDelayMod then
+				local mod = roundData.normalDelayMod
+				normalDelay = mod(self:GetZombiesMax())
+			elseif roundData.normalDelay then
+				normalDelay = roundData.normalDelay
+			else
+				normalDelay = 0.25
+			end
 
 			local normalData = roundData.normalTypes
-			local normalSpawner = Spawner("nz_spawn_zombie_normal", normalData, normalCount, roundData.normalDelay or 0.25)
+			local normalSpawner = Spawner("nz_spawn_zombie_normal", normalData, normalCount, normalDelay or 0.25)
 
 			-- save the spawner to access data
 			self:SetNormalSpawner(normalSpawner)
@@ -107,9 +117,19 @@ function nzRound:Prepare()
 			else
 				specialCount = self:GetZombiesMax()
 			end
+			
+			local specialDelay
+			if roundData.normalDelayMod then
+				local mod = roundData.specialDelayMod
+				specialDelay = mod(self:GetZombiesMax())
+			elseif roundData.specialDelay then
+				specialDelay = roundData.specialDelay
+			else
+				specialDelay = 0.25
+			end
 
 			local specialData = roundData.specialTypes
-			local specialSpawner = Spawner("nz_spawn_zombie_special", specialData, specialCount, roundData.specialDelay or 0.25)
+			local specialSpawner = Spawner("nz_spawn_zombie_special", specialData, specialCount, specialDelay or 0.25)
 
 			-- save the spawner to access data
 			self:SetSpecialSpawner(specialSpawner)
@@ -246,7 +266,7 @@ end
 function nzRound:ResetGame()
 	--Main Behaviour
 	nzDoors:LockAllDoors()
-	self:SetState( ROUND_WAITING )
+	self:Waiting()
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "GAME READY!" )
 	--Reset variables
@@ -374,6 +394,7 @@ function nzRound:Create(on)
 		if self:InState( ROUND_WAITING ) then
 			PrintMessage( HUD_PRINTTALK, "The mode has been set to creative mode!" )
 			self:SetState( ROUND_CREATE )
+			hook.Call("OnRoundCreative", nzRound)
 			--We are in create
 			for _, ply in pairs( player.GetAll() ) do
 				if ply:IsSuperAdmin() then
@@ -457,4 +478,13 @@ function nzRound:SetupGame()
 
 	hook.Call( "OnGameBegin", nzRound )
 
+end
+
+function nzRound:RoundInfinity(nokill)
+	if !nokill then
+		nzPowerUps:Nuke(nil, true) -- Nuke kills them all, no points, no position delay
+	end
+
+	nzRound:SetNumber( -2 )
+	nzRound:Prepare()
 end

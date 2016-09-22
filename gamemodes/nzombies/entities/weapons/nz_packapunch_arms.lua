@@ -69,18 +69,6 @@ function SWEP:Deploy()
 			end
 		end
 	end)
-	
-	timer.Simple(2.5,function()
-		if IsValid(self) and IsValid(self.Owner) then
-			if self.Owner:Alive() then
-				timer.Simple(0.1,function() 
-					self.Owner:SetUsingSpecialWeapon(false)
-					if IsValid(self.Owner:GetWeapons()[1]) then self.Owner:SelectWeapon(self.Owner:GetWeapons()[1]:GetClass()) end
-					self:Remove()
-				end)
-			end
-		end
-	end)
 end
 
 function SWEP:Equip( owner )
@@ -103,7 +91,8 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	if !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
+	--print(self.Owner, "HEREAUYDGAUYGDUYWAGUY")
+	if IsValid(self.Owner) and !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
 		self.Owner:SetUsingSpecialWeapon(false)
 	end
 end
@@ -118,13 +107,4 @@ function SWEP:GetViewModelPosition( pos, ang )
 	
 	return newpos, newang
  
-end
-
-if engine.ActiveGamemode() == "nzombies" then 
-	nzSpecialWeapons:AddWeapon( "nz_packapunch_arms", "display", nil, function(ply, wep)
-		if SERVER then
-			ply:SetUsingSpecialWeapon(true)
-			ply:SelectWeapon("nz_packapunch_arms")
-		end
-	end)
 end

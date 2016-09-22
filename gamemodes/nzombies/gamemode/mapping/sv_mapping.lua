@@ -302,6 +302,14 @@ function nzMapping:SpawnEffect( pos, ang, model, ply )
 end
 
 function nzMapping:CleanUpMap()
+	
+	local special_entities = {}
+	for k,v in pairs(nzQMenu.Data.SpawnedEntities) do
+		if IsValid(v) then
+			special_entities[v] = duplicator.CopyEntTable(v)
+		end
+	end
+
 	game.CleanUpMap(false, {
 		"breakable_entry",
 		"breakable_entry_plank",
@@ -361,15 +369,13 @@ function nzMapping:CleanUpMap()
 		end
 	end
 	
-	-- Remove gamemode-specific entities if their gamemode hasn't be enabled in the Map Settings menu
-	--[[for k,v in pairs(ents.GetAll()) do
-		if v.NZGamemodeExtension then
-			if !nzMapping.Settings.gamemodeentities[v.NZGamemodeExtension] then
-				v:Remove()
-			end
+	-- Respawn all special entities
+	for k,v in pairs(special_entities) do
+		if !IsValid(k) then -- Only if they aren't still around
+			local ent = duplicator.CreateEntityFromTable(Entity(1), v)
+			table.insert(nzQMenu.Data.SpawnedEntities, ent)
 		end
-	end]]
-	-- No longer done here, done in the entities' Initialize function
+	end
 end
 
 function nzMapping:SpawnEntity(pos, ang, ent, ply)
@@ -379,7 +385,11 @@ function nzMapping:SpawnEntity(pos, ang, ent, ply)
 	entity:Spawn()
 	entity:PhysicsInit( SOLID_VPHYSICS )
 
-	table.insert(nz.QMenu.Data.SpawnedEntities, entity)
+	table.insert(nzQMenu.Data.SpawnedEntities, entity)
+	
+	entity:CallOnRemove("nzSpawnedEntityClean", function(ent)
+		table.RemoveByValue(nzQMenu.Data.SpawnedEntities, ent)
+	end)
 
 	if ply then
 		undo.Create( "Entity" )

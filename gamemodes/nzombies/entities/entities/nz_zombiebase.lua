@@ -24,8 +24,8 @@ ENT.AttackRange = 65
 ENT.RunSpeed = 200
 ENT.WalkSpeed = 100
 ENT.Acceleration = 400
-ENT.DamageLow = 50
-ENT.DamageHigh = 70
+ENT.DamageLow = 35
+ENT.DamageHigh = 45
 
 -- important for ent:IsZombie()
 ENT.bIsZombie = true
@@ -361,8 +361,8 @@ function ENT:RunBehaviour()
 						self:OnPathTimeOut()
 					end
 				else
-					-- self:TimeOut(2)
-					--path failed what should we do :/?
+					self:TimeOut(2)
+					-- path failed what should we do :/?
 				end
 			else
 				self:OnNoTarget()
@@ -379,7 +379,7 @@ function ENT:Stop()
 end
 
 --Draw sppoky red eyes
-local eyeGlow =  Material( "sprites/redglow1" )
+local eyeglow =  Material( "sprites/redglow1" )
 local white = Color( 255, 255, 255, 255 )
 
 function ENT:Draw()
@@ -389,13 +389,33 @@ function ENT:Draw()
 		--local leftEye = eyes + self:GetRight() * -1.5 + self:GetForward() * 0.5
 		--local rightEye = eyes + self:GetRight() * 1.5 + self:GetForward() * 0.5
 
-		local leftEye = self:GetAttachment(self:LookupAttachment("lefteye")).Pos
-		local rightEye = self:GetAttachment(self:LookupAttachment("righteye")).Pos
-		cam.Start3D(EyePos(),EyeAngles())
-			render.SetMaterial( eyeGlow )
-			render.DrawSprite( leftEye, 4, 4, white)
-			render.DrawSprite( rightEye, 4, 4, white)
-		cam.End3D()
+		local lefteye = self:GetAttachment(self:LookupAttachment("lefteye"))
+		local righteye = self:GetAttachment(self:LookupAttachment("righteye"))
+		
+		if !lefteye then lefteye = self:GetAttachment(self:LookupAttachment("left_eye")) end
+		if !righteye then righteye = self:GetAttachment(self:LookupAttachment("right_eye")) end
+		
+		local righteyepos
+		local lefteyepos
+		
+		if lefteye and righteye then
+			lefteyepos = lefteye.Pos
+			righteyepos = righteye.Pos
+		else
+			local eyes = self:GetAttachment(self:LookupAttachment("eyes"))
+			if eyes then
+				lefteyepos = eyes.Pos + self:GetRight() * -1.5 + self:GetForward() * 0.5
+				righteyepos = eyes.Pos + self:GetRight() * 1.5 + self:GetForward() * 0.5
+			end
+		end
+		
+		if lefteyepos and righteyepos then
+			cam.Start3D(EyePos(),EyeAngles())
+				render.SetMaterial( eyeglow )
+				render.DrawSprite( lefteye.Pos, 4, 4, white)
+				render.DrawSprite( righteye.Pos, 4, 4, white)
+			cam.End3D()
+		end
 	end
 	if GetConVar( "nz_zombie_debug" ):GetBool() then
 		render.DrawWireframeBox(self:GetPos(), Angle(0,0,0), self:OBBMins(), self:OBBMaxs(), Color(255,0,0), true)
@@ -946,7 +966,7 @@ function ENT:Attack( data )
 	end)
 
 	self:TimedEvent( data.dmgdelay, function()
-		if self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
+		if !self:GetStop() and self:IsValidTarget( self:GetTarget() ) and self:TargetInRange( self:GetAttackRange() + 10 ) then
 			local dmgAmount = math.random( data.dmglow, data.dmghigh )
 			local dmgInfo = DamageInfo()
 				dmgInfo:SetAttacker( self )
@@ -1090,6 +1110,12 @@ function ENT:RespawnZombie()
 
 		self:Remove()
 	end
+end
+
+function ENT:Freeze(time)
+	--self:TimeOut(time)
+	self:SetStop(true)
+	self.FrozenTime = CurTime() + time
 end
 
 function ENT:IsInSight()
@@ -1239,12 +1265,21 @@ function ENT:BodyUpdate()
 	if !self:GetSpecialAnimation() and !self:IsAttacking() then
 		if self:GetActivity() != self.CalcIdeal and !self:GetStop() then self:StartActivity(self.CalcIdeal) end
 
-		if self.ActStages[self:GetActStage()] then
+		if self.ActStages[self:GetActStage()] and !self.FrozenTime then
 			self:BodyMoveXY()
 		end
 	end
 
-	self:FrameAdvance()
+	if self.FrozenTime then 
+		if self.FrozenTime < CurTime() then
+			self.FrozenTime = nil
+			self:SetStop(false)
+		end
+		self:BodyMoveXY()
+		--self:FrameAdvance()
+	else
+		self:FrameAdvance()
+	end
 
 end
 
