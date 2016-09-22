@@ -1,5 +1,4 @@
--- Vurrently no trap specfic behaviour but this might change in the future.
--- So use this baseclass if you are creating a custom trap.
+-- Use this class as base when creating traps
 
 AddCSLuaFile( )
 
@@ -9,6 +8,12 @@ ENT.Base = "nz_activatable"
 ENT.PrintName = "nz_trapbase"
 
 DEFINE_BASECLASS("nz_activatable")
+
+function ENT:SetupDataTables()
+	BaseClass.SetupDataTables( self )
+
+	self:SetRemoteActivated(true)
+end
 
 -- IMPLEMENT ME
 function ENT:OnActivation() end

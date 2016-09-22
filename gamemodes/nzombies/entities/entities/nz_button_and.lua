@@ -8,9 +8,9 @@ ENT.PrintName = "nz_button_and"
 DEFINE_BASECLASS("nz_button")
 
 function ENT:ButtonSetupDataTables()
-	self:NetworkVar( "String", 1, "ActivatorNZName1", {KeyName = "nz_activator_name1", Edit = {order = 9, type = "Generic"}} )
-	self:NetworkVar( "String", 2, "ActivatorNZName2", {KeyName = "nz_activator_name2", Edit = {order = 10, type = "Generic"}} )
-	self:NetworkVar( "String", 3, "LinkedNZName", {KeyName = "nz_linked_name1", Edit = {order = 11, type = "Generic"}} )
+	self:NetworkVar( "String", 1, "ActivatorNZName1", {KeyName = "nz_activator_name1", Edit = {order = 20, type = "Generic"}} )
+	self:NetworkVar( "String", 2, "ActivatorNZName2", {KeyName = "nz_activator_name2", Edit = {order = 21, type = "Generic"}} )
+	self:NetworkVar( "String", 3, "LinkedNZName", {KeyName = "nz_linked_name1", Edit = {order = 22, type = "Generic"}} )
 
 	self:SetRemoteActivated(true)
 end

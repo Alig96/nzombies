@@ -110,6 +110,10 @@ end
 function ENT:Activation(caller, duration, cooldown)
 	BaseClass.Activation(self, caller, duration, cooldown)
 
+	nzDoors:OpenLinkedDoors(self:GetLinkedNZName1())
+	nzDoors:OpenLinkedDoors(self:GetLinkedNZName2())
+	nzDoors:OpenLinkedDoors(self:GetLinkedNZName3())
+
 	for _, lEntsWithName in pairs(self:GetLinkedEnts()) do
 		for _, lEnt in pairs(lEntsWithName) do
 			if IsValid(lEnt) and !lEnt:IsPlayer() then

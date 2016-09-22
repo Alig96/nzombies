@@ -13,15 +13,15 @@ ENT.bIsActivatable = true
 function ENT:SetupDataTables()
 	self:NetworkVar( "String", 0, "NZName", {KeyName = "nz_name", Edit = {order = 1, type = "Generic"}} )
 
-	self:NetworkVar( "Bool", 0, "Active", {KeyName = "nz_active", Edit = {order = 2, type = "Boolean"}})
+	self:NetworkVar( "Bool", 0, "Active")
 	self:NetworkVar( "Bool", 1, "CooldownActive")
 	self:NetworkVar( "Bool", 2, "ElectircityNeeded", {KeyName = "nz_electircityneeded", Edit = {order = 3, type = "Boolean"}} )
-	self:NetworkVar( "Bool", 3, "SingleUse", {KeyName = "nz_singleuse", Edit = {order = 4, type = "Boolean"}} )
-	self:NetworkVar( "Bool", 4, "RemoteActivated", {KeyName = "nz_remoteactivated", Edit = {order = 5, type = "Boolean"}} )
+	self:NetworkVar( "Bool", 3, "RemoteActivated", {KeyName = "nz_remoteactivated", Edit = {order = 5, type = "Boolean"}} )
 
 	self:NetworkVar( "Float", 0, "Duration", {KeyName = "nz_duration", Edit = {order = 7, type = "Float", min = 0, max = 100000}} )
 	self:NetworkVar( "Float", 1, "Cooldown", {KeyName = "nz_cooldown", Edit = {order = 8, type = "Float", min = 0, max = 100000}} )
-	self:NetworkVar( "Float", 2, "Cost", {KeyName = "nz_cost", Edit = {order = 9, type = "Float", min = 0, max = 100000}} )
+
+	self:NetworkVar( "Int", 0, "Cost", {KeyName = "nz_cost", Edit = {order = 9, type = "Int", min = 0, max = 100000}} )
 
 	self:SetActive(false)
 	self:SetDuration(60)
@@ -29,7 +29,6 @@ function ENT:SetupDataTables()
 	self:SetCost(0)
 	self:SetCooldownActive(false)
 	self:SetElectircityNeeded(true)
-	self:SetSingleUse(false)
 	self:SetRemoteActivated(false)
 
 	if SERVER then
@@ -43,15 +42,13 @@ function ENT:IsCooldownActive() return self:GetCooldownActive() end
 
 function ENT:IsElectircityNeeded() return self:GetElectircityNeeded() end
 
-function ENT:IsSingleUse() return self:GetSingleUse() end
-
 function ENT:IsRemoteActivated() return self:GetRemoteActivated() end
 
 function ENT:Activation(activator, duration, cooldown)
 	self:SetDuration(duration)
 	self:SetCooldown(cooldown)
 	self:SetActive(true)
-	if self:GetDuration() != -1 then
+	if self:GetDuration() > 0 then
 		timer.Create("nz.activatable.timer." .. self:EntIndex(), self:GetDuration(), 1, function() if IsValid(self) then self:Deactivation() end end)
 	end
 	self:OnActivation(activator, duration, cooldown)
@@ -60,7 +57,9 @@ end
 function ENT:Deactivation()
 	self:SetActive(false)
 	self:SetCooldownActive(true)
-	timer.Create("nz.activatable.cooldown.timer." .. self:EntIndex(), self:GetCooldown(), 1, function() if IsValid(self) then self:Ready() end end)
+	if self:GetCooldown() > 0 then
+		timer.Create("nz.activatable.cooldown.timer." .. self:EntIndex(), self:GetCooldown(), 1, function() if IsValid(self) then self:Ready() end end)
+	end
 	self:OnDeactivation()
 end
 
