@@ -103,7 +103,7 @@ ENT.ActStages = {
 function ENT:StatsInitialize()
 	if SERVER then
 		self:SetRunSpeed(250)
-		self:SetHealth( 100 )
+		self:SetHealth(100)
 		self:SetNoDraw(true)
 	end
 	self:SetCollisionBounds(Vector(-14,-14, 0), Vector(14, 14, 48))

@@ -48,7 +48,7 @@ function Spawner:IncrementZombiesToSpawn()
 end
 
 function Spawner:GetZombiesToSpawn()
-	return self.iZombiesToSpawn
+	return nzRound:GetNumber() == -1 and 50 or self.iZombiesToSpawn -- Round Infinity always has 50 zombies to spawn (even after they spawn ;) )
 end
 
 function Spawner:SetZombiesToSpawn(value)
@@ -91,7 +91,7 @@ end
 
 function Spawner:UpdateValidSpawns()
 
-	if self.iZombiesToSpawn <= 0 then return end
+	if self:GetZombiesToSpawn() <= 0 then return end
 
 	-- reset
 	self.tValidSpawns = {}
@@ -110,13 +110,14 @@ function Spawner:UpdateValidSpawns()
 	end
 	table.sort(self.tValidSpawns, function(a, b) return a:GetSpawnWeight() < b:GetSpawnWeight() end )
 	
-	local zombiesToSpawn = self.iZombiesToSpawn
+	local zombiesToSpawn = self:GetZombiesToSpawn()
 	local numspawns = table.Count(self.tValidSpawns)
 
 	-- distribute zombies to spawn on to the valid spawnpoints
 	
 	if numspawns == 1 then -- 1 spawnpoint, give it all the zomblez
-		self.tValidSpawns[1]:SetZombiesToSpawn(zombiesToSpawn)
+		local vspawn = self.tValidSpawns[1]
+		vspawn:SetZombiesToSpawn(zombiesToSpawn)
 		debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "%: 100, #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 	else
 		-- The math here finds the total of the inverted relative weights

@@ -375,7 +375,7 @@ local function StartChangeRound()
 					round_num = nzRound:GetNumber()
 					round_charger = 0.5
 					if round_num == -1 then
-						surface.PlaySound("nz/easteregg/motd_round_3.wav")
+						surface.PlaySound("nz/easteregg/motd_round-03.wav")
 					elseif nzRound:IsSpecial() then
 						surface.PlaySound("nz/round/special_round_start.wav")
 						prevroundspecial = true

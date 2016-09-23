@@ -30,49 +30,89 @@ if SERVER then
 	
 	-- This runs at the start of every round
 	hook.Add("OnRoundStart", "nzBossRoundHandler", function(round)
+		if round == -1 then -- Round infinity always spawn bosses
+			local diff = nzRound:GetNextBossRound() - round
+			if diff > 0 then
+				nzRound:SetNextBossRound(round) -- Mark this round again
+				nzRound:PrepareBoss(diff * 10) -- Spawn the boss 10 zombies later for each round it was delayed with
+			end
+			return
+		end
 		if nzRound:MarkedForBoss(round) then -- If this round is a boss round
 			if nzRound:IsSpecial() then nzRound:SetNextBossRound(round + 1) return end -- If special round, delay 1 more round and back out
 			
 			local spawntime = math.random(1, nzRound:GetZombiesMax() - 2) -- Set a random time to spawn
-			hook.Add("OnZombieSpawned", "nzBossSpawnHandler", function() -- Add a hook for each zombie spawned
-				if !nzRound:MarkedForBoss(nzRound:GetNumber()) then
-					hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") -- Cancel if we're no longer on a boss round!
-				return end
-				
-				if nzRound:GetZombiesSpawned() >= spawntime then -- If we've spawned the amount of zombies that we randomly set
-					local data = nzRound:GetBossData() -- Check if we got boss data
-					if !data then hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") return end -- If not, remove and cancel
-					
-					local spawnpoint = data.specialspawn and "nz_spawn_zombie_special" or "nz_spawn_zombie_normal" -- Check what spawnpoint type we're using
-					local spawnpoints = {}
-					for k,v in pairs(ents.FindByClass(spawnpoint)) do -- Find and add all valid spawnpoints that are opened and not blocked
-						if (v.link == nil or nzDoors:IsLinkOpened( v.link )) and v:IsSuitable() then
-							table.insert(spawnpoints, v)
-						end
-					end
-					
-					local spawn = spawnpoints[math.random(#spawnpoints)] -- Pick a random one
-					if IsValid(spawn) then -- If we this exists, spawn here
-						local boss = ents.Create(data.class)
-						boss:SetPos(spawn:GetPos())
-						boss:Spawn()
-						boss.NZBossType = nzRound:GetBossType()
-						data.spawnfunc(boss)
-						hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") -- Only remove the hook when we spawned the boss
-					end
-					
-					-- If there is no valid spawnpoint to spawn at, it will try again next zombie that spawns
-					-- until we get out of the boss round, then it gives up
-				end
-			end)
+			nzRound:PrepareBoss( spawntime )
 		end
 	end)
+	
+	-- This function spawns a boss in after this many zombies has spawned
+	-- If called multiple times, the latter will overwrite the prior (because of hook names)
+	function nzRound:PrepareBoss( spawntime )
+		local spawncount = 0
+		hook.Add("OnZombieSpawned", "nzBossSpawnHandler", function() -- Add a hook for each zombie spawned
+			if !nzRound:MarkedForBoss(nzRound:GetNumber()) then
+				hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") -- Cancel if we're no longer on a boss round!
+			return end
+			
+			spawncount = spawncount + 1 -- Add 1 more zombie spawned since we started tracking
+			
+			print("BOSS: "..spawncount.."/"..spawntime)
+			
+			if spawncount >= spawntime then -- If we've spawned the amount of zombies that we randomly set
+				local data = nzRound:GetBossData() -- Check if we got boss data
+				if !data then hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") return end -- If not, remove and cancel
+				
+				local spawnpoint = data.specialspawn and "nz_spawn_zombie_special" or "nz_spawn_zombie_normal" -- Check what spawnpoint type we're using
+				local spawnpoints = {}
+				for k,v in pairs(ents.FindByClass(spawnpoint)) do -- Find and add all valid spawnpoints that are opened and not blocked
+					if (v.link == nil or nzDoors:IsLinkOpened( v.link )) and v:IsSuitable() then
+						table.insert(spawnpoints, v)
+					end
+				end
+				
+				local spawn = spawnpoints[math.random(#spawnpoints)] -- Pick a random one
+				if IsValid(spawn) then -- If we this exists, spawn here
+					local boss = ents.Create(data.class)
+					boss:SetPos(spawn:GetPos())
+					boss:Spawn()
+					boss.NZBossType = nzRound:GetBossType()
+					hook.Remove("OnZombieSpawned", "nzBossSpawnHandler") -- Only remove the hook when we spawned the boss
+					data.spawnfunc(boss) -- Call this after in case it runs PrepareBoss to enable another boss this round
+					
+					local round = self:GetNumber()
+					if round == -1 then
+						local diff = self:GetNextBossRound() - round
+						if diff > 0 then -- If a new boss round has already been set and we're in infinity
+							self:SetNextBossRound(round) -- Mark this round again
+							self:PrepareBoss(diff * 10) -- Spawn the boss 10 zombies later for each round it was delayed with
+						end
+					end
+				end
+				
+				-- If there is no valid spawnpoint to spawn at, it will try again next zombie that spawns
+				-- until we get out of the boss round, then it gives up
+			end
+		end)
+	end
 	
 	hook.Add( "OnGameBegin", "nzBossInit", function()
 		nzRound:SetBossType(nzMapping.Settings.bosstype)
 		local data = nzRound:GetBossData()
 		if data then
 			data.initfunc()
+		end
+	end)
+	
+	hook.Add( "OnBossKilled", "nzInfinityBossReengange", function()
+		local round = nzRound:GetNumber()
+		if round == -1 then
+			local diff = nzRound:GetNextBossRound() - round
+			print("Diff here is", diff, diff > 0)
+			if diff > 0 then -- If a new round for the boss has been set after the first one died
+				nzRound:SetNextBossRound(round) -- Mark this round again
+				nzRound:PrepareBoss(diff * 10) -- Spawn the boss 10 zombies later for each round it was delayed with
+			end
 		end
 	end)
 	

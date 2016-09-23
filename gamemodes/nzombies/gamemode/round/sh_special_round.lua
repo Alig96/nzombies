@@ -61,7 +61,12 @@ nzRound:AddSpecialRoundType("Hellhounds", {
 	specialDelayMod = function() return 3/#player.GetAllPlaying() end, -- Dynamically change spawn speed depending on player count
 	specialCountMod = function() return nzRound:GetNumber() * #player.GetAllPlaying() end, -- Modify the count
 }, function(dog) -- We want to modify health
-	dog:SetHealth(math.Clamp(nzRound:GetNumber() * 20, 120, 1200))
+	local round = nzRound:GetNumber()
+	if round == -1 then
+		dog:SetHealth(math.random(120, 1200))
+	else
+		dog:SetHealth(math.Clamp(round * 20, 120, 1200))
+	end
 end) -- No round func or end func
 
 nzRound:AddSpecialRoundType("Burning Zombies", {

@@ -137,7 +137,38 @@ function nzRound:Prepare()
 
 		-- update the zombiesmax (for win detection)
 		self:SetZombiesMax(normalCount + specialCount)
-
+		
+	-- Woah ... spooky round O_o
+	elseif self:GetNumber() == -1 then
+		
+		local normalrounddata = {["nz_zombie_walker"] = {chance = 100}}
+		local specialrounddata = {}
+		
+		for k,v in pairs(nzRound.SpecialData) do
+			if v.data then
+				if v.data.normalTypes then
+					for k3,v3 in pairs(v.data.normalTypes) do
+						local chance = v3.chance
+						normalrounddata[k3] = {["chance"] = chance/10}
+					end
+				end
+				if v.data.specialTypes then
+					for k3,v3 in pairs(v.data.specialTypes) do
+						local chance = v3.chance
+						specialrounddata[k3] = {["chance"] = chance/10}
+					end
+				end
+			end
+		end
+		
+		local normalSpawner = Spawner("nz_spawn_zombie_normal", normalrounddata, 1)
+		self:SetNormalSpawner(normalSpawner)
+		
+		if table.Count(specialrounddata) > 0 then
+			local specialSpawner = Spawner("nz_spawn_zombie_special", specialrounddata, 1, 4)
+			self:SetSpecialSpawner(specialSpawner)
+		end
+			
 
 	-- else if no data was set continue with the gamemodes default spawning
 	-- if the round is special use the gamemodes default special round (Hellhounds)
@@ -207,7 +238,7 @@ function nzRound:Start()
 	end
 
 	--Notify
-	PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
+	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
 	hook.Call("OnRoundStart", nzRound, self:GetNumber() )
 	--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
 
@@ -242,7 +273,7 @@ function nzRound:Think()
 		end
 	end
 
-	-- this will trigger if no more zombies will spawn, but more a re required to end a round
+	-- this will trigger if no more zombies will spawn, but more are required to end a round
 	if zombiesToSpawn == 0 and self:GetZombiesKilled() + numzombies < self:GetZombiesMax() then
 		if self:GetNormalSpawner() then
 			self:GetNormalSpawner():SetZombiesToSpawn(self:GetZombiesMax() - (self:GetZombiesKilled() + numzombies))
@@ -255,7 +286,7 @@ function nzRound:Think()
 	
 	self:SetZombiesToSpawn(zombiesToSpawn)
 
-	if ( self:GetZombiesKilled() >= self:GetZombiesMax() ) then
+	if ( self:GetZombiesKilled() >= self:GetZombiesMax() and self:GetNumber() != -1 ) then
 		if numzombies <= 0 then
 			self:Prepare()
 			timer.Remove( "NZRoundThink" )

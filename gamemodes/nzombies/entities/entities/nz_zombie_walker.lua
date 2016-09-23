@@ -177,13 +177,18 @@ ENT.RunSounds = {
 
 function ENT:StatsInitialize()
 	if SERVER then
-		local speeds = nzRound:GetZombieSpeeds()
-		if speeds then
-			self:SetRunSpeed( nzMisc.WeightedRandom(speeds) )
+		if nzRound:GetNumber() == -1 then
+			self:SetRunSpeed( math.random(30, 300) )
+			self:SetHealth( math.random(100, 1500) )
 		else
-			self:SetRunSpeed( 100 )
+			local speeds = nzRound:GetZombieSpeeds()
+			if speeds then
+				self:SetRunSpeed( nzMisc.WeightedRandom(speeds) )
+			else
+				self:SetRunSpeed( 100 )
+			end
+			self:SetHealth( nzRound:GetZombieHealth() or 75 )
 		end
-		self:SetHealth( nzRound:GetZombieHealth() or 75 )
 
 		--Preselect the emerge sequnces for clientside use
 		self:SetEmergeSequenceIndex(math.random(#self.EmergeSequences))
