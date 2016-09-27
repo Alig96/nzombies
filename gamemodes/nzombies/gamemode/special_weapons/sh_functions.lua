@@ -334,7 +334,11 @@ if SERVER then
 			self:SetAmmo(maxammo, ammo)
 		end
 		
-		if data.drawonequip then
+		if id == "display" then
+			self:SetUsingSpecialWeapon(true)
+			self:SetActiveWeapon(nil)
+			self:SelectWeapon(wep:GetClass())
+		elseif data.drawonequip then
 			wep.nzIsDrawing = true
 			self:SetUsingSpecialWeapon(true)
 			self:SetActiveWeapon(nil)

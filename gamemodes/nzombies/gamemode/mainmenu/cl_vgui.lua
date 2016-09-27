@@ -266,6 +266,7 @@ local function MenuSettingsListInit(self)
 	
 	self:AddButton( "Load Map config", "say", "/load" )
 	self:AddButton( "Save Map config", "say", "/save" )
+	self:AddButton( "Player Model Editor", function() nzPlayers:PlayerModelEditor() end)
 	self:AddButton( "Generate Navmesh", "say", "/generate" )
 	self:AddButton( "Cheats (Beta)", "say", "/cheats" )
 end

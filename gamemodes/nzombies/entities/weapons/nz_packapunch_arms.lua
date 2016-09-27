@@ -44,6 +44,7 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
 SWEP.NZPreventBox = true
+SWEP.NZTotalBlacklist = true
 
 function SWEP:Initialize()
 
@@ -74,7 +75,7 @@ end
 function SWEP:Equip( owner )
 	
 	--timer.Simple(3.2,function() self:Remove() end)
-	owner:SetActiveWeapon("nz_packapunch_arms")
+	--owner:SetActiveWeapon("nz_packapunch_arms")
 	
 end
 
@@ -91,10 +92,7 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:OnRemove()
-	--print(self.Owner, "HEREAUYDGAUYGDUYWAGUY")
-	if IsValid(self.Owner) and !IsValid(self.Owner:GetActiveWeapon()) or !self.Owner:GetActiveWeapon():IsSpecial() then
-		self.Owner:SetUsingSpecialWeapon(false)
-	end
+	
 end
 
 function SWEP:GetViewModelPosition( pos, ang )

@@ -1,4 +1,4 @@
-//
+-- 
 
 function nzMapping:ZedSpawn(pos, link, ply)
 
@@ -119,7 +119,7 @@ function nzMapping:PropBuy(pos, ang, model, flags, ply)
 	prop:Spawn()
 	prop:PhysicsInit( SOLID_VPHYSICS )
 
-	//REMINDER APPY FLAGS
+	-- REMINDER APPY FLAGS
 	if flags != nil then
 		nzDoors:CreateLink( prop, flags )
 	end
@@ -193,6 +193,7 @@ function nzMapping:BoxSpawn(pos, ang, spawn, ply)
 	box:SetAngles( ang )
 	box:Spawn()
 	box:PhysicsInit( SOLID_VPHYSICS )
+	box:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER )
 	box.PossibleSpawn = spawn
 
 	if ply then
@@ -452,7 +453,7 @@ function nzMapping:CreateInvisibleDamageWall(vec1, vec2, ply, dmg, delay, radiat
 	return wall
 end
 
-//Physgun Hooks
+-- Physgun Hooks
 local ghostentities = {
 	["prop_buys"] = true,
 	["wall_block"] = true,
@@ -463,7 +464,7 @@ local ghostentities = {
 local function onPhysgunPickup( ply, ent )
 	local class = ent:GetClass()
 	if ghostentities[class] then
-		//Ghost the entity so we can put them in walls.
+		-- Ghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(false)
 	end
@@ -473,7 +474,7 @@ end
 local function onPhysgunDrop( ply, ent )
 	local class = ent:GetClass()
 	if ghostentities[class] then
-		//Unghost the entity so we can put them in walls.
+		-- Unghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(true)
 	end

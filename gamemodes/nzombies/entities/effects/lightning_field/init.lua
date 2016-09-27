@@ -15,7 +15,11 @@ function EFFECT:Init( data )
 	self.MaxArcs = 2
 	self.Parent = data:GetEntity()
 	self.Frequency = data:GetMagnitude()/10 or 0.01
-	self.Pos = self.Parent:WorldSpaceCenter()
+	self.Pos = self.Parent:GetPos() + self.Parent:OBBCenter()
+	self.OBBMax = self.Parent:OBBMaxs()
+	self.OBBMin = self.Parent:OBBMins()
+	self.Angle = self.Parent:GetAngles()
+	
 	if self.Parent.LightningAura then
 		if data:GetScale() then
 			self.Parent.LightningAura = CurTime() + data:GetScale()
@@ -49,7 +53,7 @@ function EFFECT:Think()
 	if self.KILL then return false end
 
 	if IsValid(self.Parent) then
-		self.Pos = self.Parent:WorldSpaceCenter()
+		--self.Pos = self.Parent:GetPos()
 	end
 
 	self.Life = self.Life + FrameTime()
@@ -62,7 +66,20 @@ function EFFECT:Think()
 		while self.Arcs[size] do
 			size = size + 1
 		end
-		self.Arcs[size] = self:GenerateArc(self.Pos + AngleRand():Forward()*10*self.Size, self.Pos + AngleRand():Forward()*10*self.Size, 0.01, 4)
+		
+		local randx = math.Rand(self.OBBMin.x, self.OBBMax.x)
+		local randy = math.Rand(self.OBBMin.y, self.OBBMax.y)
+		local zdist = self.OBBMax.z - self.OBBMin.z
+		local offz = 0
+		if zdist < 30 then
+			offz = 30
+		end
+		
+		local startpos = self.Angle:Forward() * randx + self.Angle:Right() * randy + Vector(0,0,offz + self.OBBMax.z)
+		local originpos = self.Pos + startpos
+		local endpos = originpos - Vector(0,0, zdist + offz)
+		
+		self.Arcs[size] = self:GenerateArc(originpos, endpos, 0.01, 4)
 		self.NextArc = self.NextArc + self.Frequency
 
 		if size >= self.MaxArcs then
@@ -148,20 +165,8 @@ function EFFECT:Render()
 		self:RenderArc(arc, true)
 	end
 	
-	render.SetMaterial( self.MatGlow1 )
-	render.DrawSprite( self.Pos, math.random(40,120)*self.Size, math.random(40,120)*self.Size, Color(math.random(50,150),math.random(100,200),255,math.random(100,200)))
-	
-	if math.random(0,10) == 0 then
-		render.SetMaterial( self.MatGlow2 )
-		render.DrawSprite( self.Pos, math.random(20,60)*self.Size, math.random(40,120)*self.Size, Color(math.random(50,150),math.random(100,200),255,math.random(100,200)))
-	end
-	
-	render.SetMaterial( self.MatGlowCenter )
-	render.DrawSprite( self.Pos, math.random(15,40)*self.Size, math.random(15,40)*self.Size, Color(math.random(50,150),math.random(100,200),255,math.random(200,250)))
-	
-	if !self.Parent:GetNoDraw() then
-		self.Parent:DrawModel() -- Always draw the model in front
-	end
+	--render.SetColorMaterial() 
+	--render.DrawBox(self.Pos, Angle(0,0,0), self.OBBMin, self.OBBMax, Color(255,255,255,100),false)
 end
 
 function EFFECT:RenderArc(arc, edge)

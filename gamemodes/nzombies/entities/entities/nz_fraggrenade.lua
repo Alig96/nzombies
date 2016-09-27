@@ -86,7 +86,7 @@ function ENT:SetExplosionTimer( time )
 				
 				for k,v in pairs(zombls) do
 					if IsValid(v) and v:IsValidZombie() then
-						ApplyWebFreeze(20)
+						v:ApplyWebFreeze(20)
 					end
 				end
 			end

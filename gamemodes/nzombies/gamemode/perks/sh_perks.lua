@@ -186,10 +186,10 @@ nzPerks:NewPerk("pap", {
 	color = Color(200, 220, 220),
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
-		if (!wep.pap or wep.OnRePaP or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
-			--local reroll = (wep.pap and wep.OnRePaP or wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2()) and true or false)
+		if (!wep:HasNZModifier("pap") or wep.OnRePaP or (wep:IsCW2() and CustomizableWeaponry)) and !machine:GetBeingUsed() then
+			--local reroll = (wep:HasNZModifier("pap") and wep.OnRePaP or wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2()) and true or false)
 			local reroll = false
-			if wep.pap and (wep.OnRePaP or (wep.Attachments and (wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2())) then
+			if wep:HasNZModifier("pap") and (wep.OnRePaP or (wep.Attachments and (wep:IsCW2() and CustomizableWeaponry) or wep:IsFAS2())) then
 				reroll = true
 			end
 			local cost = reroll and 2000 or 5000
@@ -200,11 +200,18 @@ nzPerks:NewPerk("pap", {
 				machine:SetBeingUsed(true)
 				machine:EmitSound("nz/machines/pap_up.wav")
 				local class = wep:GetClass()
+				
+				local e = EffectData()
+				e:SetEntity(machine)
+				local ang = machine:GetAngles()
+				e:SetOrigin(machine:GetPos() + ang:Up()*35 + ang:Forward()*20 - ang:Right()*2)
+				e:SetMagnitude(3)
+				util.Effect("pap_glow", e)
 
 				wep:Remove()
 				local wep = ents.Create("pap_weapon_fly")
-				wep:SetPos(machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3)
-				wep:SetAngles(machine:GetAngles() + Angle(0,90,0))
+				wep:SetPos(machine:GetPos() + ang:Forward()*30 + ang:Up()*25 + ang:Right()*-3)
+				wep:SetAngles(ang + Angle(0,90,0))
 				wep.WepClass = class
 				wep:Spawn()
 				local weapon = weapons.Get(class)
@@ -220,7 +227,7 @@ nzPerks:NewPerk("pap", {
 				--wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
 				timer.Simple(0.5, function()
 					if IsValid(wep) then
-						wep:SetLocalVelocity(machine:GetAngles():Forward()*-30)
+						wep:SetLocalVelocity(ang:Forward()*-30)
 					end
 				end)
 				timer.Simple(1.8, function()
@@ -240,7 +247,7 @@ nzPerks:NewPerk("pap", {
 							wep:SetAngles(ang)
 							wep.WepClass = weapon.NZPaPReplacement
 							wep:Spawn()
-							wep.TriggerPos = machine:GetPos() + machine:GetAngles():Forward()*30 + machine:GetAngles():Up()*25 + machine:GetAngles():Right()*-3
+							wep.TriggerPos = machine:GetPos() + ang:Forward()*30 + ang:Up()*25 + ang:Right()*-3
 							
 							local replacewep = weapons.Get(weapon.NZPaPReplacement)
 							local model = (replacewep and replacewep.WM or replacewep.WorldModel) or "models/weapons/w_rif_ak47.mdl"
@@ -257,8 +264,8 @@ nzPerks:NewPerk("pap", {
 						wep:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
 						wep:SetMoveType(MOVETYPE_FLY)
 						wep:SetGravity(0.000001)
-						wep:SetLocalVelocity(machine:GetAngles():Forward()*30)
-						--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
+						wep:SetLocalVelocity(ang:Forward()*30)
+						--print(ang:Forward()*30, wep:GetVelocity())
 						wep:CreateTriggerZone(reroll)
 						--print(reroll)
 					end
@@ -267,7 +274,7 @@ nzPerks:NewPerk("pap", {
 					if IsValid(wep) then
 						--print("YDA")
 						--print(wep:GetMoveType())
-						--print(machine:GetAngles():Forward()*30, wep:GetVelocity())
+						--print(ang:Forward()*30, wep:GetVelocity())
 						wep:SetMoveType(MOVETYPE_NONE)
 						wep:SetLocalVelocity(Vector(0,0,0))
 					end
@@ -275,7 +282,7 @@ nzPerks:NewPerk("pap", {
 				timer.Simple(10, function()
 					if IsValid(wep) then
 						wep:SetMoveType(MOVETYPE_FLY)
-						wep:SetLocalVelocity(machine:GetAngles():Forward()*-2)
+						wep:SetLocalVelocity(ang:Forward()*-2)
 					end
 				end)
 				timer.Simple(25, function()

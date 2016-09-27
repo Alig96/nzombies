@@ -1,27 +1,12 @@
 //
 
-function nz.Players.Functions.PlayerNoClip( ply, desiredState )
+function nzPlayers.PlayerNoClip( ply, desiredState )
 	if ply:Alive() and nzRound:InState( ROUND_CREATE ) then
 		return ply:IsInCreative()
 	end
 end
 
-function nz.Players.Functions.FullSync( ply )
-	--Electric
-	--nzElec:SendSync()
-	--PowerUps
-	--nzPowerUps:SendSync()
-	--Doors
-	--nzDoors.SendSync( ply )
-	--Perks
-	--nz.Perks.Functions.SendSync()
-	--Rounds
-	--nzRound:SendSync( ply ) --handled differently since feb 2016
-	--Revival System
-	--nz.Revive.Functions.SendSync() -- Now sends full sync using the module below
-	
-	-- Looks like all old modules now have their FullSync functions instead
-
+function nzPlayers:FullSync( ply )
 	-- A full sync module using the new rewrites
 	if IsValid(ply) then
 		ply:SendFullSync()
@@ -31,7 +16,7 @@ end
 local function initialSpawn( ply )
 	timer.Simple(1, function()
 		-- Fully Sync
-		nz.Players.Functions.FullSync( ply )
+		nzPlayers:FullSync( ply )
 	end)
 end
 
@@ -84,7 +69,7 @@ local function friendlyFire( ply, ent )
 end
 
 function GM:PlayerNoClip( ply, desiredState )
-	return nz.Players.Functions.PlayerNoClip(ply, desiredState)
+	return nzPlayers.PlayerNoClip(ply, desiredState)
 end
 
 hook.Add( "PlayerInitialSpawn", "nzPlayerInitialSpawn", initialSpawn )

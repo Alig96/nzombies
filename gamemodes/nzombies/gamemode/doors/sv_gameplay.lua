@@ -56,13 +56,13 @@ function nzDoors:LockAllDoors()
 				v:SetKeyValue("wait",-1)
 				print("Locked door ", v)
 			else
-				//Unlocked doors get an output which forces it to stay open once you open it
+				-- Unlocked doors get an output which forces it to stay open once you open it
 				v:Fire("addoutput", "onclose !self:open::0:-1,0,-1")
 				v:Fire("addoutput", "onclose !self:unlock::0:-1,0,-1")
 				print("Added lock output to", v)
-				//They now get that output through OpenDoor too, but for safety
+				-- They now get that output through OpenDoor too, but for safety
 			end
-		//Allow locking buttons
+		-- Allow locking buttons
 		elseif v:IsButton() and self.MapDoors[v:DoorIndex()] then
 			v:ButtonLock()
 			v:SetUseType( SIMPLE_USE )
@@ -108,7 +108,7 @@ function nzDoors:BuyDoor( ply, ent )
 end
 
 
-//Hooks
+-- Hooks
 
 function nzDoors.OnUseDoor( ply, ent )
 	-- Downed players can't use anything!

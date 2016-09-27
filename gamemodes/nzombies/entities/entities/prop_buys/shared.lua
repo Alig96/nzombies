@@ -29,7 +29,7 @@ function ENT:BlockUnlock(spawn)
 	--self.Locked = false
 	--self:SetNoDraw( true )
 	if SERVER then
-		self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
+		--self:SetCollisionBounds( Vector(-4, -4, 0), Vector(4, 4, 64) )
 		self:SetSolid( SOLID_NONE )
 		self:SetNWLocked(false)
 		self:EmitSound("nz/effects/gone.wav")
@@ -45,6 +45,13 @@ function ENT:BlockUnlock(spawn)
 				end
 			end
 		end)
+		
+		local e = EffectData()
+		e:SetRadius(1)
+		e:SetMagnitude(0.5)
+		e:SetScale(1)
+		e:SetEntity(self)
+		util.Effect("lightning_field", e)
 	end
 end
 
@@ -52,7 +59,7 @@ function ENT:BlockLock(spawn)
 	--self.Locked = true
 	--self:SetNoDraw( false )
 	if SERVER then
-		self:SetCollisionBounds( self.Boundone, self.Boundtwo )
+		--self:SetCollisionBounds( self.Boundone, self.Boundtwo )
 		self:SetSolid( SOLID_VPHYSICS )
 		self:SetNoDraw(false)
 		self:SetNWLocked(true)
@@ -74,9 +81,9 @@ end
 if CLIENT then
 	
 	function ENT:Think()
-		--[[if !self.ShakeEffectTime then
+		if !self.ShakeEffectTime then
 			if !self:GetNoDraw() and !self:GetNWLocked() then
-				self.ShakeEffectTime = CurTime() + 0.2
+				self.ShakeEffectTime = CurTime() + 0.3
 				self.ShakePos = self:GetNetworkOrigin()
 			end
 		else
@@ -85,16 +92,16 @@ if CLIENT then
 				if CurTime() - self.ShakeEffectTime >= 0.5 then
 					self.ShakePos = nil
 					self.ShakeEffectTime = nil
-					self:SetRenderOrigin(self:GetNetworkOrigin())
+					self:SetRenderOrigin(nil)
 				end
 			end
-		end]]
+		end
 	end
 
 	function ENT:Draw()
 		if self.ShakePos then
 			--print("Yo shakey")
-			self:SetRenderOrigin(self.ShakePos + Vector(math.Rand(-0.5,0.5), math.Rand(-0.5,0.5), math.Rand(-0.5,0.5)))
+			self:SetRenderOrigin(self.ShakePos + Vector(math.Rand(-1,1), math.Rand(-1,1), math.Rand(-1,1)))
 		end
 		self:DrawModel()
 		

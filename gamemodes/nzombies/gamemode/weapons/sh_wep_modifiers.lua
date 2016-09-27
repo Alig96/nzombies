@@ -15,6 +15,9 @@ function wepmeta:ApplyNZModifier(modifier, blocknetwork)
 		if !nonetwork and !blocknetwork and SERVER then
 			nzWeps:SendSync( self.Owner, self, modifier, false )
 		end
+		
+		if !self.NZModifiers then self.NZModifiers = {} end
+		self.NZModifiers[modifier] = true
 	else
 		print("Tried to apply invalid modifier "..modifier.." to weapon "..tostring(self))
 	end
@@ -26,15 +29,23 @@ function wepmeta:RevertNZModifier(modifier, blocknetwork)
 		if !nonetwork and !blocknetwork and SERVER then
 			nzWeps:SendSync( self.Owner, self, modifier, true )
 		end
+		
+		if !self.NZModifiers then self.NZModifiers = {} end
+		self.NZModifiers[modifier] = nil
 	else
 		print("Tried to revert invalid modifier "..modifier.." to weapon "..tostring(self))
 	end
 end
 
+function wepmeta:HasNZModifier(id)
+	if !self.NZModifiers then return false end
+	return self.NZModifiers[modifier] == true
+end
+
 -- Let's add the base perks!
 -- Dtap2 applies the same modifier, the extra bullets are handled in the EntityFireBullets hook
 nzWeps:AddWeaponModifier("dtap", function(wep)
-	if wep:NZPerkSpecialTreatment() and wep.dtap != true then
+	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("dtap") != true then
 		print("Applying Dtap to: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -53,13 +64,12 @@ nzWeps:AddWeaponModifier("dtap", function(wep)
 				wep[k] = val
 			end
 		end
-		wep["dtap"] = true
 	else
 		return true -- Return true to prevent networking; for purely server-sided modifications
 		-- In this case it's because we handle it differently via function_override
 	end
 end, function(wep)
-	if wep:NZPerkSpecialTreatment() and wep.dtap then
+	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("dtap") then
 		print("Removing Dtap from: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -75,7 +85,6 @@ end, function(wep)
 				wep["old_"..k] = nil
 			end
 		end
-		wep["dtap"] = nil
 	else
 		return true
 	end
@@ -83,7 +92,7 @@ end)
 
 -- Speed Cola
 nzWeps:AddWeaponModifier("speed", function(wep)
-	if wep:NZPerkSpecialTreatment() and wep.speed != true then
+	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("speed") != true then
 		print("Applying Speed to: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -134,10 +143,9 @@ nzWeps:AddWeaponModifier("speed", function(wep)
 			end
 		end
 		
-		wep["speed"] = true
 	else return true end
 end, function(wep)
-	if wep:NZPerkSpecialTreatment() and wep.speed then
+	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("speed") then
 		print("Removing Speed from: " .. wep.ClassName)
 		local data = {}
 		//Normal
@@ -177,7 +185,6 @@ end, function(wep)
 			wep.old_ReloadTimes = nil
 		end
 		
-		wep["speed"] = nil
 	else return true end
 end)
 
@@ -239,7 +246,7 @@ end
 -- Pack-a-Punch
 -- The attachments are irreversible and will only reset on full death and respawn
 nzWeps:AddWeaponModifier("pap", function(wep)
-	if wep.pap != true then
+	if !wep:HasNZModifier("pap") then
 		print("Applying PaP to: " .. (wep.ClassName or tostring(wep)))
 		--wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
 
@@ -249,7 +256,6 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 			block = wep:OnPaP()
 		end
 		if !block then
-			wep["pap"] = true
 			
 			if wep.Primary and wep.Primary.ClipSize > 0 then
 				local newammo = wep.Primary.ClipSize + (wep.Primary.ClipSize*0.5)
@@ -360,9 +366,10 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 				end
 			end
 		end
-	return true end -- Rerolling attachments will not require networking/being run client-side
+		return true -- Rerolling attachments will not require networking/being run client-side
+	end
 end, function(wep)
-	if wep.pap then
+	if wep:HasNZModifier("pap") then
 		print("Removing PaP from: " .. wep.ClassName)
 		wep:SetMaterial("")
 
@@ -371,9 +378,7 @@ end, function(wep)
 		if wep.OnUnPaP then 
 			block = wep:OnUnPaP()
 		end
-		if !block then
-			wep["pap"] = nil
-			
+		if !block then			
 			if wep.Primary and wep.Primary.ClipSize and wep.Primary.old_ClipSize then
 				wep.Primary.ClipSize = wep.Primary.old_ClipSize
 				wep.Primary.old_ClipSize = nil
