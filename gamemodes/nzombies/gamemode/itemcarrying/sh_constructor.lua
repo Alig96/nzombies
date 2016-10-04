@@ -1,4 +1,4 @@
-//Main Tables
+-- Main Tables
 nzItemCarry = nzItemCarry or {}
 nzItemCarry.Items = nzItemCarry.Items or {}
 nzItemCarry.Players = nzItemCarry.Players or {}
@@ -23,6 +23,7 @@ if SERVER then
 			ply:GiveCarryItem(self.id)
 			ent:Remove()
 		end,
+		notif = true,
 	}
 
 	-- Functions to call during runtime
@@ -80,6 +81,10 @@ if SERVER then
 		-- Sets the function to be run when picked up; has 2 arguments: The player picking it up, the entity being used
 		SetPickupFunction = function(self, func)
 			self.pickupfunction = func
+		end,
+		-- Sets whether this item will display a notification to all players when picked up
+		SetShowNotification = function(self, bool)
+			self.notif = bool
 		end,
 		-- Sets the function to reset the item(s). Typically used to respawn them back at the original spot
 		Reset = function(self)

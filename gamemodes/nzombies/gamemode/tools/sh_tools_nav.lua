@@ -143,7 +143,7 @@ nzTools:CreateTool("navedit", {
 				end
 				result = result .. "R: Mark area"
 			end
-			nz.Tools.ToolData["navedit"].desc = result
+			nzTools.ToolData["navedit"].desc = result
 		end
 
 		--"basic" stuff

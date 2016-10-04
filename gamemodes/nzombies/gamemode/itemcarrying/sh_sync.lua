@@ -6,6 +6,7 @@ if SERVER then
 	util.AddNetworkString( "nzItemCarryUpdate" )
 	util.AddNetworkString( "nzItemCarryPlayers" )
 	util.AddNetworkString( "nzItemCarryPlayersFull" )
+	util.AddNetworkString( "nzItemCarryPlayersNotif" )
 	util.AddNetworkString( "nzItemCarryClean" )
 	
 	function nzItemCarry:SendObjectCreated(id, receiver)
@@ -39,6 +40,24 @@ if SERVER then
 		end
 	end
 	
+	-- This one is received in cl_hud.lua
+	function nzItemCarry:SendPlayerItemNotification(ply, id, receiver)
+		local item = nzItemCarry.Items[id]
+		if item then --and item.notif then
+			if item.shared then
+				net.Start( "nzItemCarryPlayersNotif" )
+					net.WriteEntity(NULL)
+					net.WriteString( id )
+				return receiver and net.Send(receiver) or net.Broadcast()
+			else
+				net.Start( "nzItemCarryPlayersNotif" )
+					net.WriteEntity(ply)
+					net.WriteString( id )
+				return receiver and net.Send(receiver) or net.Broadcast()
+			end
+		end
+	end
+	
 	function nzItemCarry:CleanUp()
 		nzItemCarry.Items = {}
 		nzItemCarry.Players = {}
@@ -64,11 +83,11 @@ if CLIENT then
 		local data = net.ReadTable()
 		
 		-- Precache the material here
-		print(data.icon)
+		--print(data.icon)
 		if data.icon and data.icon != "" then data.icon = Material(data.icon) end
 		
 		nzItemCarry.Items[id] = data
-		PrintTable(nzItemCarry.Items[id])
+		--PrintTable(nzItemCarry.Items[id])
 	end
 	
 	local function ReceiveItemPlayer( length )
@@ -76,14 +95,14 @@ if CLIENT then
 		local data = net.ReadTable()
 		
 		nzItemCarry.Players[ply] = data
-		PrintTable(nzItemCarry.Players[ply])
+		--PrintTable(nzItemCarry.Players[ply])
 	end
 	
 	local function ReceiveItemPlayerFull( length )
 		local data = net.ReadTable()
 		
 		nzItemCarry.Players = data
-		PrintTable(nzItemCarry.Players)
+		--PrintTable(nzItemCarry.Players)
 	end
 	
 	local function ReceiveItemCleanup( length )
