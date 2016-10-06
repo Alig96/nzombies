@@ -139,7 +139,7 @@ if SERVER then
 	end)
 	
 	
-	chatcommand.Add("/rtv", function(ply, text)
+	nzChatCommand.Add("/rtv", function(ply, text)
 		if IsValid(ply) then
 			if voting then
 				ply:ChatPrint("A vote is already going. Press F1 to open the window.")

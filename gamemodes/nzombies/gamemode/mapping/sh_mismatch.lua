@@ -75,7 +75,7 @@ else
 			end
 			sheet:SetActiveTab(newtab)
 			
-			timer.Simple(0.1, function() 
+			timer.Simple(0.1, function()
 				if IsValid(tab) then
 					sheet.sheets[tab] = nil
 					sheet:CloseTab(tab) 
@@ -465,9 +465,9 @@ CreateMismatchCheck("Random Box Weapons", function()
 	local tbl = {}
 	if nzMapping.Settings.rboxweps and table.Count(nzMapping.Settings.rboxweps) > 0 then
 		for k,v in pairs(nzMapping.Settings.rboxweps) do
-			if !weapons.Get(v) then
-				print("Random Box has non-existant weapon class: " .. v .. "!")
-				tbl[v] = true
+			if !weapons.Get(k) then
+				print("Random Box has non-existant weapon class: " .. k .. "!")
+				tbl[k] = true
 			end
 		end
 	end
@@ -490,10 +490,12 @@ end, function(frame)
 		choice:AddChoice( " Remove ...", "nz_removeweapon", true )
 		nzMapping.MismatchData["Random Box Weapons"][k] = "nz_removeweapon"
 		for _, v2 in pairs(weapons.GetList()) do
-			if v2.Category and v2.Category != "" then
-				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.Category.. " - "..v2.PrintName or v2.ClassName, v2.ClassName, false)
-			else
-				choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.PrintName or v2.ClassName, v2.ClassName, false)
+			if !v2.NZPreventBox and !v2.NZTotalBlacklist then
+				if v2.Category and v2.Category != "" then
+					choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.Category.. " - "..v2.PrintName or v2.ClassName, v2.ClassName, false)
+				else
+					choice:AddChoice(v2.PrintName and v2.PrintName != "" and v2.PrintName or v2.ClassName, v2.ClassName, false)
+				end
 			end
 		end
 		choice.DataChanged = function(self, val)
@@ -514,13 +516,12 @@ end, function(frame)
 end, function( data )
 	if nzMapping.Settings.rboxweps and table.Count(nzMapping.Settings.rboxweps) > 0 then
 		for k,v in pairs(nzMapping.Settings.rboxweps) do
-			local new = data[v]
+			local new = data[k]
 			if new then
-				if new == "nz_removeweapon" then
-					table.RemoveByValue(nzMapping.Settings.rboxweps, v)
-				else
-					nzMapping.Settings.rboxweps[table.KeyFromValue(nzMapping.Settings.rboxweps, v)] = new
+				if new != "nz_removeweapon" then
+					nzMapping.Settings.rboxweps[new] = v -- Insert new weapon with same weight
 				end
+				nzMapping.Settings.rboxweps[k] = nil -- Remove old one regardless
 			end
 		end
 	end

@@ -1,5 +1,5 @@
 -- Main Tables
-nzPlayers = nzPlayers or {}
+nzPlayers = nzPlayers or AddNZModule("Players")
 nzPlayers.Data = nzPlayers.Data or {}
 
 -- Variables

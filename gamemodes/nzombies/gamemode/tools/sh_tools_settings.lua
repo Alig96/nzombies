@@ -139,7 +139,7 @@ nzTools:CreateTool("settings", {
 			if !valz["Row6"] or valz["Row6"] == "0" then data.gamemodeentities = nil else data.gamemodeentities = tobool(valz["Row6"]) end
 			if !valz["Row7"] then data.specialroundtype = "Hellhounds" else data.specialroundtype = valz["Row7"] end
 			if !valz["Row8"] then data.bosstype = "Panzer" else data.bosstype = valz["Row8"] end
-			if !valz["RBoxWeps"] or !valz["RBoxWeps"][1] then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
+			if !valz["RBoxWeps"] or table.Count(valz["RBoxWeps"]) < 1 then data.rboxweps = nil else data.rboxweps = valz["RBoxWeps"] end
 			if !valz["WMPerks"] or !valz["WMPerks"][1] then data.wunderfizzperks = nil else data.wunderfizzperks = valz["WMPerks"] end
 			PrintTable(data)
 
@@ -166,24 +166,45 @@ nzTools:CreateTool("settings", {
 			rbweplist:SetPaintBackground(true)
 			rbweplist:SetBackgroundColor( Color(200, 200, 200) )
 
-			local function InsertWeaponToList(name, class)
+			local function InsertWeaponToList(name, class, weight, tooltip)
+				weight = weight or 10
 				if IsValid(weplist[class]) then return end
 				weplist[class] = vgui.Create("DPanel", rbweplist)
 				weplist[class]:SetSize(265, 16)
 				weplist[class]:SetPos(0, numweplist*16)
-				table.insert(valz["RBoxWeps"], class)
+				valz["RBoxWeps"][class] = weight
 
 				local dname = vgui.Create("DLabel", weplist[class])
 				dname:SetText(name)
 				dname:SetTextColor(Color(50, 50, 50))
 				dname:SetPos(5, 0)
 				dname:SetSize(250, 16)
+				
+				local dhover = vgui.Create("DPanel", weplist[class])
+				dhover.Paint = function() end
+				dhover:SetText("")
+				dhover:SetSize(265, 16)
+				dhover:SetPos(0,0)
+				if tooltip then
+					dhover:SetTooltip(tooltip)
+				end
+				
+				local dweight = vgui.Create("DNumberWang", weplist[class])
+				dweight:SetPos(195, 1)
+				dweight:SetSize(40, 14)
+				dweight:SetTooltip("The chance of this weapon appearing in the box")
+				dweight:SetMinMax( 1, 100 )
+				dweight:SetValue(valz["RBoxWeps"][class])
+				function dweight:OnValueChanged(val)
+					valz["RBoxWeps"][class] = val
+				end
+				
 				local ddelete = vgui.Create("DImageButton", weplist[class])
 				ddelete:SetImage("icon16/delete.png")
 				ddelete:SetPos(235, 0)
 				ddelete:SetSize(16, 16)
 				ddelete.DoClick = function()
-					if table.HasValue(valz["RBoxWeps"], class) then table.RemoveByValue(valz["RBoxWeps"], class) end
+					valz["RBoxWeps"][class] = nil
 					weplist[class]:Remove()
 					weplist[class] = nil
 					local num = 0
@@ -199,23 +220,23 @@ nzTools:CreateTool("settings", {
 
 			if nzMapping.Settings.rboxweps then
 				for k,v in pairs(nzMapping.Settings.rboxweps) do
-					local wep = weapons.Get(v)
+					local wep = weapons.Get(k)
 					if wep then
 						if wep.Category and wep.Category != "" then
-							InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
+							InsertWeaponToList(wep.PrintName != "" and wep.PrintName or k, k, v or 10, k.." ["..wep.Category.."]")
 						else
-							InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+							InsertWeaponToList(wep.PrintName != "" and wep.PrintName or k, k, v or 10, k.." [No Category]")
 						end
 					end
 				end
 			else
 				for k,v in pairs(weapons.GetList()) do
 					-- By default, add all weapons that have print names unless they are blacklisted
-					if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox then
+					if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox and !v.NZTotalBlacklist then
 						if v.Category and v.Category != "" then
-							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+							InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]")
 						else
-							InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+							InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." [No Category]")
 						end
 					end
 					-- The rest are still available in the dropdown
@@ -227,7 +248,7 @@ nzTools:CreateTool("settings", {
 			wepentry:SetSize( 146, 20 )
 			wepentry:SetValue( "Weapon ..." )
 			for k,v in pairs(weapons.GetList()) do
-				if !v.NZTotalBlacklist then
+				if !v.NZTotalBlacklist and !v.NZPreventBox then
 					if v.Category and v.Category != "" then
 						wepentry:AddChoice(v.PrintName and v.PrintName != "" and v.Category.. " - "..v.PrintName or v.ClassName, v.ClassName, false)
 					else
@@ -246,9 +267,9 @@ nzTools:CreateTool("settings", {
 				local v = weapons.Get(wepentry:GetOptionData(wepentry:GetSelectedID()))
 				if v then
 					if v.Category and v.Category != "" then
-						InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+						InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]")
 					else
-						InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+						InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." [No Category]")
 					end
 				end
 				wepentry:SetValue( "Weapon..." )
@@ -290,7 +311,7 @@ nzTools:CreateTool("settings", {
 					if cat and cat != "" then
 						for k,v in pairs(weapons.GetList()) do
 							if  v.Category and v.Category == cat and !nzConfig.WeaponBlackList[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
-								InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+								InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]")
 							end
 						end
 					end
@@ -307,7 +328,7 @@ nzTools:CreateTool("settings", {
 							local wep = weapons.Get(k)
 							if wep then
 								if wep.Category and wep.Category == cat then
-									if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+									valz["RBoxWeps"][k] = nil
 									weplist[k]:Remove()
 									weplist[k] = nil
 									local num = 0
@@ -346,9 +367,9 @@ nzTools:CreateTool("settings", {
 							local wepprefix = string.sub(v.ClassName, 0, string.find(v.ClassName, "_"))
 							if wepprefix and wepprefix == prefix and !nzConfig.WeaponBlackList[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
 								if v.Category and v.Category != "" then
-									InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+									InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]")
 								else
-									InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+									InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." [No Category]")
 								end
 							end
 						end
@@ -365,7 +386,7 @@ nzTools:CreateTool("settings", {
 						for k,v in pairs(weplist) do
 							local wepprefix = string.sub(k, 0, string.find(k, "_"))
 							if wepprefix and wepprefix == prefix then
-								if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+								valz["RBoxWeps"][k] = nil
 								weplist[k]:Remove()
 								weplist[k] = nil
 								local num = 0
@@ -385,7 +406,7 @@ nzTools:CreateTool("settings", {
 				removeall:SetSize( 140, 25 )
 				removeall.DoClick = function()
 					for k,v in pairs(weplist) do
-						if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+						valz["RBoxWeps"][k] = nil
 						weplist[k]:Remove()
 						weplist[k] = nil
 						numweplist = 0
@@ -398,7 +419,7 @@ nzTools:CreateTool("settings", {
 				addall:SetSize( 140, 25 )
 				addall.DoClick = function()
 					for k,v in pairs(weplist) do
-						if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+						valz["RBoxWeps"][k] = nil
 						weplist[k]:Remove()
 						weplist[k] = nil
 						numweplist = 0
@@ -407,9 +428,9 @@ nzTools:CreateTool("settings", {
 						-- By default, add all weapons that have print names unless they are blacklisted
 						if v.PrintName and v.PrintName != "" and !nzConfig.WeaponBlackList[v.ClassName] and v.PrintName != "Scripted Weapon" and !v.NZPreventBox and !v.NZTotalBlacklist then
 							if v.Category and v.Category != "" then
-								InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." ["..v.Category.."]" or v.ClassName, v.ClassName)
+								InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." ["..v.Category.."]")
 							else
-								InsertWeaponToList(v.PrintName and v.PrintName != "" and v.PrintName.." [No Category]" or v.ClassName, v.ClassName)
+								InsertWeaponToList(v.PrintName != "" and v.PrintName or v.ClassName, v.ClassName, 10, v.ClassName.." [No Category]")
 							end
 						end
 						-- The same reset as when no random box list exists on server
@@ -423,7 +444,7 @@ nzTools:CreateTool("settings", {
 				reload.DoClick = function()
 					-- Remove all and insert from random box list
 					for k,v in pairs(weplist) do
-						if table.HasValue(valz["RBoxWeps"], k) then table.RemoveByValue(valz["RBoxWeps"], k) end
+						valz["RBoxWeps"][k] = nil
 						weplist[k]:Remove()
 						weplist[k] = nil
 						numweplist = 0
@@ -433,9 +454,9 @@ nzTools:CreateTool("settings", {
 							local wep = weapons.Get(v)
 							if wep then
 								if wep.Category and wep.Category != "" then
-									InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." ["..wep.Category.."]" or v, v)
+									InsertWeaponToList(wep.PrintName != "" and wep.PrintName or v, v, 10, v.." ["..v.Category.."]")
 								else
-									InsertWeaponToList(wep.PrintName and wep.PrintName != "" and wep.PrintName.." [No Category]" or v, v)
+									InsertWeaponToList(wep.PrintName != "" and wep.PrintName or v, v, 10, v.." [No Category]")
 								end
 							end
 						end
@@ -501,5 +522,5 @@ nzTools:CreateTool("settings", {
 
 		return sheet
 	end,
-	//defaultdata = {}
+	-- defaultdata = {}
 })

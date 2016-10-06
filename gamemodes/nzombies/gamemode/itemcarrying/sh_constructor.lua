@@ -1,5 +1,5 @@
 -- Main Tables
-nzItemCarry = nzItemCarry or {}
+nzItemCarry = nzItemCarry or AddNZModule("ItemCarry")
 nzItemCarry.Items = nzItemCarry.Items or {}
 nzItemCarry.Players = nzItemCarry.Players or {}
 

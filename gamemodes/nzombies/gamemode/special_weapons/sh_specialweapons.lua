@@ -71,7 +71,7 @@ nzSpecialWeapons:AddWeapon( "nz_perk_bottle", "display", nil, function(ply, wep)
 	end
 end)]]
 
-hook.Add("InitPostEntity", "nzRegisterSpecialWeps", function()
+local function RegisterDefaultSpecialWeps()
 	nzSpecialWeapons:AddKnife( "nz_quickknife_crowbar", false, 0.65 )
 	nzSpecialWeapons:AddKnife( "nz_bowie_knife", true, 0.65, 2.5 )
 	nzSpecialWeapons:AddKnife( "nz_one_inch_punch", true, 0.75, 1.5 )
@@ -90,4 +90,7 @@ hook.Add("InitPostEntity", "nzRegisterSpecialWeps", function()
 	nzSpecialWeapons:AddDisplay( "nz_packapunch_arms", nil, function(wep)
 		return SERVER and CurTime() > wep.nzDeployTime + 2.5
 	end)
-end)
+end
+
+hook.Add("InitPostEntity", "nzRegisterSpecialWeps", RegisterDefaultSpecialWeps)
+hook.Add("OnReloaded", "nzRegisterSpecialWeps", RegisterDefaultSpecialWeps)

@@ -44,6 +44,7 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 
 SWEP.NZPreventBox = true
+SWEP.NZTotalBlacklist = true
 
 function SWEP:Initialize()
 

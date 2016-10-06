@@ -1,5 +1,5 @@
 -- Main Tables
-nzQMenu = nzQMenu or {}
+nzQMenu = nzQMenu or AddNZModule("QMenu")
 nzQMenu.Data = nzQMenu.Data or {}
 
 nzQMenu.Data.SpawnedEntities = {}

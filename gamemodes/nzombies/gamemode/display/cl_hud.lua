@@ -1,5 +1,5 @@
-//
-nzDisplay = {}
+-- 
+nzDisplay = nzDisplay or AddNZModule("Display")
 
 local bloodline_points = Material("bloodline_score2.png", "unlitgeneric smooth")
 local bloodline_gun = Material("cod_hud.png", "unlitgeneric smooth")
@@ -157,7 +157,7 @@ local Laser = Material( "cable/redlaser" )
 function nzDisplay.DrawLinks( ent, link )
 
 	local tbl = {}
-	//Check for zombie spawns
+	-- Check for zombie spawns
 	for k, v in pairs(ents.GetAll()) do
 		if v:IsBuyableProp()  then
 			if nzDoors.PropDoors[k] != nil then
@@ -179,7 +179,7 @@ function nzDisplay.DrawLinks( ent, link )
 	end
 
 
-	// Draw
+	--  Draw
 	if tbl[1] != nil then
 		for k,v in pairs(tbl) do
 			render.SetMaterial( Laser )
@@ -423,7 +423,7 @@ local function DrawGrenadeHud()
 	--surface.DrawTexturedRect(ScrW()/2, ScrH()/2, 100, 100)
 end
 
-//Hooks
+-- Hooks
 hook.Add("HUDPaint", "pointsNotifcationHUD", DrawPointsNotification )
 hook.Add("HUDPaint", "roundHUD", StatesHud )
 hook.Add("HUDPaint", "scoreHUD", ScoreHud )

@@ -121,7 +121,7 @@ function ENT:Think()
 end
 
 function ENT:MoveAway()
-	nz.Notifications.Functions.PlaySound("nz/randombox/Announcer_Teddy_Zombies.wav", 0)
+	nzNotifications:PlaySound("nz/randombox/Announcer_Teddy_Zombies.wav", 0)
 	self.Moving = true
 	self:SetSolid(SOLID_NONE)
 	local s = 0

@@ -1,5 +1,5 @@
 -- Main Tables
-nzRevive = nzRevive or {}
+nzRevive = nzRevive or AddNZModule("Revive")
 
 -- Variables
 nzRevive.Players = {}

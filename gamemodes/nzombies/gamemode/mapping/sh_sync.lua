@@ -4,52 +4,16 @@ if SERVER then
 	local function receiveMapData(len, ply)
 		local tbl = net.ReadTable()
 		PrintTable(tbl)
-
-		if tbl.startwep then
-			nzMapping.Settings.startwep = weapons.Get(tbl.startwep) and tbl.startwep or nz.Config.BaseStartingWeapons[1]
-		end
-		if tbl.startpoints then
-			nzMapping.Settings.startpoints = tonumber(tbl.startpoints) and tbl.startpoints or 500
-		end
-		if tbl.eeurl then
-			nzMapping.Settings.eeurl = tbl.eeurl and tbl.eeurl or nil
-		end
-		if tbl.script then
-			nzMapping.Settings.script = tbl.script and tbl.script or nil
-		end
-		if tbl.scriptinfo then
-			nzMapping.Settings.scriptinfo = tbl.scriptinfo and tbl.scriptinfo or nil
-		end
-		if tbl.rboxweps then
-			nzMapping.Settings.rboxweps = tbl.rboxweps and tbl.rboxweps[1] and tbl.rboxweps or nil
-		end
-		if tbl.wunderfizzperks then
-			nzMapping.Settings.wunderfizzperks = table.Count(tbl.wunderfizzperks) > 0 and tbl.wunderfizzperks or nil
-		end
-		if tbl.gamemodeentities then
-			nzMapping.Settings.gamemodeentities = tbl.gamemodeentities or nil
-		end
-		if tbl.specialroundtype then
-			nzMapping.Settings.specialroundtype = tbl.specialroundtype or "Hellhounds"
-		end
-		if tbl.bosstype then
-			nzMapping.Settings.bosstype = tbl.bosstype or "Panzer"
-		end
-
-		for k,v in pairs(player.GetAll()) do
-			nzMapping:SendMapData(ply)
-		end
-
+		nzMapping:LoadMapSettings(tbl)
 		-- nzMapping.Settings = tbl
 	end
 	net.Receive( "nzMapping.SyncSettings", receiveMapData )
 
 	function nzMapping:SendMapData(ply)
-		if !IsValid(ply) then return end
 		if !self.GamemodeExtensions then self.GamemodeExtensions = {} end
 		net.Start("nzMapping.SyncSettings")
 			net.WriteTable(self.Settings)
-		net.Send(ply)
+		return IsValid(ply) and net.Send(ply) or net.Broadcast()
 	end
 end
 

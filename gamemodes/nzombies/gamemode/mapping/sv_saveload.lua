@@ -132,7 +132,7 @@ function nzMapping:LoadConfig( name, loader )
 	end
 
 	if file.Exists( filepath, location )then
-		print("[NZ] MAP CONFIG FOUND!")
+		print("[nZ] MAP CONFIG FOUND!")
 		
 		-- BUT WAIT! Is it another map? :O
 		local map = string.sub(string.Explode(";", string.StripExtension(name))[1], 4)
@@ -172,14 +172,14 @@ function nzMapping:LoadConfig( name, loader )
 		
 		-- Then we can load if entity extensions are to be used
 		if data.MapSettings then
-			nzMapping.Settings = data.MapSettings
+			nzMapping:LoadMapSettings(data.MapSettings)
 			-- That way, the gamemode entities will spawn without getting removed during the map clean up
 		end
 		-- That we then manually call here
 		nzMapping:CleanUpMap()
 		
 
-		print("[NZ] Loading " .. filepath .. "...")
+		print("[nZ] Loading " .. filepath .. "...")
 
 
 		-- Start sorting the data
@@ -311,23 +311,50 @@ function nzMapping:CleanUpMap()
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()
-	timer.Simple(3, function()
+	timer.Simple(5, function()
 		local autoload
+		local isautomated = false
 		if file.Exists("nz/autoload.txt", "DATA") then
 			local data = string.Explode("@", file.Read("nz/autoload.txt", "DATA"))
-			if data then
+			if data and data != "" then
 				autoload, loader = data[1], data[2]
 				if loader then
 					loader = game.SinglePlayer() and Entity(1) or player.GetBySteamID(loader)
 				end
 			end
 		end
-		if !autoload then autoload = "nz_"..game.GetMap()..".txt" end
+		if !autoload or #autoload <= 0 then
+			if file.Exists("nz/server_autoload.txt", "DATA") then
+				local data = util.JSONToTable(file.Read("nz/server_autoload.txt", "DATA"))
+				if data then
+					if data[game.GetMap()] then
+						autoload = data[game.GetMap()]
+						isautomated = true
+					end
+				end
+			else
+				if !file.Exists( "nz/", "DATA" ) then
+					file.CreateDir( "nz" )
+				end
+				file.Write("nz/server_autoload.txt", util.TableToJSON({
+					["some_map1"] = "config_to_autoload1",
+					["some_map2"] = "config_to_autoload2",
+					["some_map3"] = "config_to_autoload3"
+				}))
+			end
+		end
+		if !autoload then 
+			autoload = "nz_"..game.GetMap()..".txt"
+			isautomated = true
+		end
 		
 		local map = string.sub(string.Explode(";", string.StripExtension(autoload))[1], 4)
 		if map and map != game.GetMap() then
 			file.Write("nz/autoload.txt", "")
-			return
+			if !isautomated then
+				-- Automatic map loads (such as from server_autoload.txt or just game map) does not stop here
+				return
+			end
 		end
 		
 		nzMapping:LoadConfig( autoload, IsValid(loader) and loader or nil )

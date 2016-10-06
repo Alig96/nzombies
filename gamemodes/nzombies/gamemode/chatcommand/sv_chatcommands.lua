@@ -1,10 +1,10 @@
 -- Chat Commands
 
-chatcommand.Add("/help", function(ply, text)
+nzChatCommand.Add("/help", function(ply, text)
 	ply:PrintMessage( HUD_PRINTTALK, "-----" )
 	ply:PrintMessage( HUD_PRINTTALK, "[nZ] Available commands:" )
 	ply:PrintMessage( HUD_PRINTTALK, "Arguments in [] are optional." )
-	for _, cmd in pairs(chatcommand.commands) do
+	for _, cmd in pairs(nzChatCommand.commands) do
 		local cmdText = cmd[1]
 		if cmd[4] then
 			cmdText = cmdText .. " " .. cmd[4]
@@ -17,23 +17,23 @@ chatcommand.Add("/help", function(ply, text)
 	ply:PrintMessage( HUD_PRINTTALK, "" )
 end, true, "   Print this list.")
 
-chatcommand.Add("/ready", function(ply, text)
+nzChatCommand.Add("/ready", function(ply, text)
 	ply:ReadyUp()
 end, true, "   Mark yourself as ready.")
 
-chatcommand.Add("/unready", function(ply, text)
+nzChatCommand.Add("/unready", function(ply, text)
 	ply:UnReady()
 end, true, "   Mark yourself as unready.")
 
-chatcommand.Add("/dropin", function(ply, text)
+nzChatCommand.Add("/dropin", function(ply, text)
 	ply:DropIn()
 end, true, "   Drop into the next round.")
 
-chatcommand.Add("/dropout", function(ply, text)
+nzChatCommand.Add("/dropout", function(ply, text)
 	ply:DropOut()
 end, true, "   Drop out of the current round.")
 
-chatcommand.Add("/create", function(ply, text)
+nzChatCommand.Add("/create", function(ply, text)
 	local plyToCreate
 	if text[1] then plyToCreate = player.GetByName(text[1]) else plyToCreate = ply end
 	
@@ -44,7 +44,7 @@ chatcommand.Add("/create", function(ply, text)
 	end
 end, false, "   Respawn in creative mode.")
 
-chatcommand.Add("/generate", function(ply, text)
+nzChatCommand.Add("/generate", function(ply, text)
 	if navmesh.IsLoaded() then
 		ply:PrintMessage( HUD_PRINTTALK, "[nZ] Navmesh already exists, couldn't generate." )
 	else
@@ -74,7 +74,7 @@ chatcommand.Add("/generate", function(ply, text)
 end, false, "   Generate a new naviagtion mesh.")
 
 util.AddNetworkString("nz_SaveConfig")
-chatcommand.Add("/save", function(ply, text)
+nzChatCommand.Add("/save", function(ply, text)
 	if nzRound:InState( ROUND_CREATE ) then
 		-- nzMapping:SaveConfig()
 		net.Start("nz_SaveConfig")
@@ -84,7 +84,7 @@ chatcommand.Add("/save", function(ply, text)
 	end
 end, false, "   Save your changes to a config.")
 
-chatcommand.Add("/load", function(ply, text)
+nzChatCommand.Add("/load", function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
 		nzInterfaces.SendInterface(ply, "ConfigLoader", {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")})
 	else
@@ -92,7 +92,7 @@ chatcommand.Add("/load", function(ply, text)
 	end
 end, false, "   Open the map config load dialog.")
 
-chatcommand.Add("/clean", function(ply, text)
+nzChatCommand.Add("/clean", function(ply, text)
 	if nzRound:InState( ROUND_CREATE) or nzRound:InState( ROUND_WAITING ) then
 		nzMapping:ClearConfig()
 	else
@@ -102,7 +102,7 @@ end)
 
 -- Tests
 
-chatcommand.Add("/spectate", function(ply, text)
+nzChatCommand.Add("/spectate", function(ply, text)
 	if !nzRound:InProgress() or nzRound:InState( ROUND_INIT ) then
 		ply:PrintMessage( HUD_PRINTTALK, "[nZ] No round in progress, couldnt set you to spectator!" )
 	elseif ply:IsReady() then
@@ -113,21 +113,21 @@ chatcommand.Add("/spectate", function(ply, text)
 	end
 end, true)
 
-chatcommand.Add("/soundcheck", function(ply, text)
+nzChatCommand.Add("/soundcheck", function(ply, text)
 	if ply:IsSuperAdmin() then
-		nz.Notifications.Functions.PlaySound("nz/powerups/double_points.mp3", 1)
-		nz.Notifications.Functions.PlaySound("nz/powerups/insta_kill.mp3", 2)
-		nz.Notifications.Functions.PlaySound("nz/powerups/max_ammo.mp3", 2)
-		nz.Notifications.Functions.PlaySound("nz/powerups/nuke.mp3", 2)
+		nzNotifications:PlaySound("nz/powerups/double_points.mp3", 1)
+		nzNotifications:PlaySound("nz/powerups/insta_kill.mp3", 2)
+		nzNotifications:PlaySound("nz/powerups/max_ammo.mp3", 2)
+		nzNotifications:PlaySound("nz/powerups/nuke.mp3", 2)
 
-		nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 14)
-		nz.Notifications.Functions.PlaySound("nz/round/round_end.mp3", 9)
-		nz.Notifications.Functions.PlaySound("nz/round/game_over_4.mp3", 21)
+		nzNotifications:PlaySound("nz/round/round_start.mp3", 14)
+		nzNotifications:PlaySound("nz/round/round_end.mp3", 9)
+		nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
 	end
 end, true)
 
 --cheats
-chatcommand.Add("/revive", function(ply, text)
+nzChatCommand.Add("/revive", function(ply, text)
 	local plyToRev = text[1] and player.GetByName(text[1]) or ply
 	if IsValid(plyToRev) and !plyToRev:GetNotDowned() then
 		plyToRev:RevivePlayer()
@@ -136,7 +136,7 @@ chatcommand.Add("/revive", function(ply, text)
 	end
 end, false, "[playerName]   Revive yourself or another player.")
 
-chatcommand.Add("/givepoints", function(ply, text)
+nzChatCommand.Add("/givepoints", function(ply, text)
 	local plyToGiv = player.GetByName(text[1])
 	local points
 
@@ -158,7 +158,7 @@ chatcommand.Add("/givepoints", function(ply, text)
 	end
 end, false, "[playerName] pointAmount   Give points to yourself or another player.")
 
-chatcommand.Add("/giveweapon", function(ply, text)
+nzChatCommand.Add("/giveweapon", function(ply, text)
 	local plyToGiv = player.GetByName(text[1])
 
 	local wep
@@ -180,7 +180,7 @@ chatcommand.Add("/giveweapon", function(ply, text)
 	end
 end, false, "[playerName] weaponName   Give a weapon to yourself or another player.")
 
-chatcommand.Add("/giveperk", function(ply, text)
+nzChatCommand.Add("/giveperk", function(ply, text)
 	local plyToGiv = player.GetByName(text[1])
 
 	local perk
@@ -202,7 +202,7 @@ chatcommand.Add("/giveperk", function(ply, text)
 	end
 end, false, "[playerName] perkID   Give a perk to yourself or another player.")
 
-chatcommand.Add("/targetpriority", function(ply, text)
+nzChatCommand.Add("/targetpriority", function(ply, text)
 	local plyToGiv
 	local strstart, strend = string.find(text[1], "entity(", 1, true)
 	if strstart then
@@ -234,11 +234,11 @@ chatcommand.Add("/targetpriority", function(ply, text)
 	end
 end)
 
-chatcommand.Add("/activateelec", function(ply, text)
+nzChatCommand.Add("/activateelec", function(ply, text)
 	nzElec:Activate()
 end)
 
-chatcommand.Add("/navflush", function(ply, text)
+nzChatCommand.Add("/navflush", function(ply, text)
 	nzNav.FlushAllNavModifications()
 	PrintMessage(HUD_PRINTTALK, "[nZ] Navlocks successfully flushed. Remember to redo them for best playing experience.")
 end)

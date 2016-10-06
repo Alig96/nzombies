@@ -1,2 +1,2 @@
 
-nzEnemies = nzEnemies or {}
+nzEnemies = nzEnemies or AddNZModule("Enemies")

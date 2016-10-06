@@ -158,7 +158,7 @@ nzPowerUps:NewPowerUp("dp", {
 	chance = 5,
 	duration = 30,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/double_points.mp3", 1)
+		nzNotifications:PlaySound("nz/powerups/double_points.mp3", 1)
 	end),
 })
 
@@ -172,7 +172,7 @@ nzPowerUps:NewPowerUp("maxammo", {
 	chance = 5,
 	duration = 0,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/max_ammo.mp3", 2)
+		nzNotifications:PlaySound("nz/powerups/max_ammo.mp3", 2)
 		-- Give everyone ammo
 		for k,v in pairs(player.GetAll()) do
 			nzWeps:GiveMaxAmmo(v)
@@ -190,7 +190,7 @@ nzPowerUps:NewPowerUp("insta", {
 	chance = 5,
 	duration = 30,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/insta_kill.mp3", 1)
+		nzNotifications:PlaySound("nz/powerups/insta_kill.mp3", 1)
 	end),
 })
 
@@ -204,7 +204,7 @@ nzPowerUps:NewPowerUp("nuke", {
 	chance = 5,
 	duration = 0,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/nuke.wav", 1)
+		nzNotifications:PlaySound("nz/powerups/nuke.wav", 1)
 		nzPowerUps:Nuke(ply:GetPos())
 	end),
 })
@@ -219,7 +219,7 @@ nzPowerUps:NewPowerUp("firesale", {
 	chance = 1,
 	duration = 30,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/fire_sale_announcer.wav", 1)
+		nzNotifications:PlaySound("nz/powerups/fire_sale_announcer.wav", 1)
 		nzPowerUps:FireSale()
 	end),
 	expirefunc = function()
@@ -248,8 +248,8 @@ nzPowerUps:NewPowerUp("carpenter", {
 	chance = 5,
 	duration = 0,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/carpenter.wav", 0)
-		nz.Notifications.Functions.PlaySound("nz/powerups/carp_loop.wav", 1)
+		nzNotifications:PlaySound("nz/powerups/carpenter.wav", 0)
+		nzNotifications:PlaySound("nz/powerups/carp_loop.wav", 1)
 		nzPowerUps:Carpenter()
 	end),
 })
@@ -264,7 +264,7 @@ nzPowerUps:NewPowerUp("zombieblood", {
 	chance = 2,
 	duration = 30,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("nz/powerups/zombie_blood.wav", 1)
+		nzNotifications:PlaySound("nz/powerups/zombie_blood.wav", 1)
 		ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 	end),
 	expirefunc = function(self, ply) -- ply is only passed if the powerup is non-global
@@ -282,7 +282,7 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	chance = 2,
 	duration = 30,
 	func = (function(self, ply)
-		nz.Notifications.Functions.PlaySound("weapons/deathmachine_sound.mp3", 1)
+		nzNotifications:PlaySound("weapons/deathmachine_sound.mp3", 1)
 		ply:SetUsingSpecialWeapon(true)
 		ply:Give("nz_death_machine")
 		ply:SelectWeapon("nz_death_machine")

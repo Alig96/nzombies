@@ -240,7 +240,7 @@ function nzRound:Start()
 	--Notify
 	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " started" )
 	hook.Call("OnRoundStart", nzRound, self:GetNumber() )
-	--nz.Notifications.Functions.PlaySound("nz/round/round_start.mp3", 1)
+	--nzNotifications:PlaySound("nz/round/round_start.mp3", 1)
 
 	timer.Create( "NZRoundThink", 0.1, 0, function() self:Think() end )
 
@@ -360,7 +360,7 @@ function nzRound:End()
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
 	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-	nz.Notifications.Functions.PlaySound("nz/round/game_over_4.mp3", 21)
+	nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
 	timer.Simple(10, function()
 		self:ResetGame()
 	end)

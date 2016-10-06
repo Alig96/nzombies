@@ -34,14 +34,17 @@ function ENT:Initialize()
 	local box = self.Box -- self.Box
 
 	if SERVER then
-		//Stop winding up
+		-- Stop winding up
+		if nzMapping.Settings.rboxweps then
+			self.ScrollWepList = table.GetKeys(nzMapping.Settings.rboxweps)
+		end
 		timer.Simple(5, function()
 			self:SetWinding(false)
 			if self:GetWepClass() == "nz_box_teddy" then
 				self:SetModel("models/hoff/props/teddy_bear/teddy_bear.mdl")
 				self:SetAngles( self.Box:GetAngles() + Angle(-90,90,0) )
 				self:SetLocalVelocity(self.Box:GetAngles():Up()*30)
-				nz.Notifications.Functions.PlaySound("nz/randombox/teddy_bear_laugh.wav", 0)
+				nzNotifications:PlaySound("nz/randombox/teddy_bear_laugh.wav", 0)
 				self:SetIsTeddy(true)
 				if IsValid(self.Buyer) then self.Buyer:GivePoints(950) end -- Refund please
 			else
@@ -88,8 +91,8 @@ end
 
 function ENT:WindUp( )
 	local gun
-	if nzMapping.Settings.rboxweps then
-		gun = weapons.Get(nzMapping.Settings.rboxweps[math.random(#nzMapping.Settings.rboxweps)])
+	if self.ScrollWepList then
+		gun = weapons.Get(self.ScrollWepList[math.random(#self.ScrollWepList)])
 	else
 		gun = table.Random(weapons.GetList())
 	end

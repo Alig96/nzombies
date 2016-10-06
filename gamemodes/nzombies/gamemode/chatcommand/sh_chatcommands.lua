@@ -1,4 +1,4 @@
-chatcommand.Add("/cheats", function(ply, text)
+nzChatCommand.Add("/cheats", function(ply, text)
 	if CLIENT then
 		if !IsValid(g_nz_cheats) then
 			g_nz_cheats = vgui.Create("NZCheatFrame")

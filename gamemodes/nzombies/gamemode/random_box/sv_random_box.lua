@@ -50,7 +50,7 @@ function nzRandomBox.DecideWep(ply)
 	end
 
 	local guns = {}
-	local blacklist = table.Copy(nzConfig.WeaponBlackList)
+	local blacklist = nzConfig.WeaponBlackList
 
 	--Add all our current guns to the black list
 	if IsValid(ply) and ply:IsPlayer() then
@@ -61,7 +61,7 @@ function nzRandomBox.DecideWep(ply)
 				if v.ClassName == "nz_touchedlast" then found = true end
 			end
 		end
-		if !found and ply.nz_InSteamGroup then table.insert(guns, "nz_touchedlast") end
+		if !found and ply.nz_InSteamGroup then guns["nz_touchedlast"] = 20 end
 	end
 
 	--Add all guns with no model or wonder weapons that are out to the blacklist
@@ -75,17 +75,17 @@ function nzRandomBox.DecideWep(ply)
 
 	if GetConVar("nz_randombox_maplist"):GetBool() and nzMapping.Settings.rboxweps then
 		for k,v in pairs(nzMapping.Settings.rboxweps) do
-			if !blacklist[v] then
-				table.insert(guns, v)
+			if !blacklist[k] then
+				guns[k] = v
 			end
 		end
 	elseif GetConVar("nz_randombox_whitelist"):GetBool() then
 		-- Load only weapons that have a prefix from the whitelist
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] and !v.NZPreventBox then
+			if !blacklist[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
 				for k2,v2 in pairs(nzConfig.WeaponWhiteList) do
 					if string.sub(v.ClassName, 1, #v2) == v2 then
-						table.insert(guns, v.ClassName)
+						guns[v.ClassName] = 10
 						break
 					end
 				end
@@ -94,13 +94,13 @@ function nzRandomBox.DecideWep(ply)
 	else
 		-- No weapon list and not using whitelist only, add all guns
 		for k,v in pairs( weapons.GetList() ) do
-			if !blacklist[v.ClassName] and !v.NZPreventBox then
-				table.insert(guns, v.ClassName)
+			if !blacklist[v.ClassName] and !v.NZPreventBox and !v.NZTotalBlacklist then
+				guns[v.ClassName] = 10
 			end
 		end
 	end
 
-	local gun = table.Random(guns)
+	local gun = nzMisc.WeightedRandom( guns ) -- Randomly decide by weight
 	gun = hook.Call("OnPlayerBuyBox", nil, ply, gun) or gun
 	
 	return gun

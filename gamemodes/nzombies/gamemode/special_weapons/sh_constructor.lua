@@ -1,5 +1,5 @@
 -- Setup Doors module
-nzSpecialWeapons = nzSpecialWeapons or {}
+nzSpecialWeapons = nzSpecialWeapons or AddNZModule("SpecialWeapons")
 
 nzSpecialWeapons.Categories = nzSpecialWeapons.Categories or {}
 nzSpecialWeapons.Weapons = nzSpecialWeapons.Weapons or {}

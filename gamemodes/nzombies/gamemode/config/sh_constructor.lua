@@ -1,7 +1,5 @@
 -- Main Tables
-nzConfig = nzConfig or {}
--- nzConfig.Functions = {}
--- nzConfig.Data = {}
+nzConfig = nzConfig or AddNZModule("Config")
 
 --  Defaults
 
