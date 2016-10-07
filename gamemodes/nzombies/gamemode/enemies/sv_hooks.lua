@@ -77,7 +77,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 			if hitgroup == HITGROUP_HEAD then dmginfo:ScaleDamage(2) end
 
 			--  Pack-a-Punch doubles damage
-			if dmginfo:GetAttacker():GetActiveWeapon().pap then dmginfo:ScaleDamage(2) end
+			if dmginfo:GetAttacker():GetActiveWeapon():HasNZModifier("pap") then dmginfo:ScaleDamage(2) end
 
 			if zombie:Health() > dmginfo:GetDamage() then
 				if zombie.HasTakenDamageThisTick then return end
@@ -103,6 +103,7 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 					if data.onhit then data.onhit(zombie, attacker, dmginfo, hitgroup) end
 				elseif !zombie.MarkedForDeath then
 					if data.deathfunc then data.deathfunc(zombie, attacker, dmginfo, hitgroup) end
+					print("ded")
 					hook.Call("OnBossKilled", nil, zombie)
 					zombie.MarkedForDeath = true
 				end

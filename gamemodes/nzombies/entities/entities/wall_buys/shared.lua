@@ -225,7 +225,7 @@ if SERVER then
 				--activator:EmitSound("nz/effects/buy.wav")
 			end)
 		elseif string.lower(ammo_type) != "none" and ammo_type != -1 then
-			if activator:GetWeapon(self.WeaponGive).pap then
+			if activator:GetWeapon(self.WeaponGive):HasNZModifier("pap") then
 				activator:Buy(ammo_price_pap, self, function()
 					if give_ammo != 0 then
 						--activator:TakePoints(ammo_price_pap)

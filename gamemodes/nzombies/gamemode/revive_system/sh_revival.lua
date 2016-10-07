@@ -89,7 +89,7 @@ if SERVER then
 			tombstone:Spawn()
 			local weps = {}
 			for k,v in pairs(ply:GetWeapons()) do
-				table.insert(weps, {class = v:GetClass(), pap = v.pap})
+				table.insert(weps, {class = v:GetClass(), pap = v:HasNZModifier("pap")})
 			end
 			local perks = ply.OldPerks
 
@@ -121,7 +121,7 @@ function nzRevive:CreateWhosWhoClone(ply, pos)
 	who.OwnerData.perks = ply.OldPerks or ply:GetPerks()
 	local weps = {}
 	for k,v in pairs(ply:GetWeapons()) do
-		table.insert(weps, {class = v:GetClass(), pap = v.pap, speed = v.speed, dtap = v.dtap})
+		table.insert(weps, {class = v:GetClass(), pap = v:HasNZModifier("pap"), speed = v:HasNZModifier("speed"), dtap = v:HasNZModifier("dtap")})
 	end
 	who.OwnerData.weps = weps
 

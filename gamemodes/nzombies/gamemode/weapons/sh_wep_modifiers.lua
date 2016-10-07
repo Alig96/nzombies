@@ -48,9 +48,9 @@ nzWeps:AddWeaponModifier("dtap", function(wep)
 	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("dtap") != true then
 		print("Applying Dtap to: " .. wep.ClassName)
 		local data = {}
-		//Normal
+		-- Normal
 		data["FireDelay"] = 1.2
-		//Shotgun Cocking and Sniper Bolting
+		-- Shotgun Cocking and Sniper Bolting
 		data["CockTime"] = 1.5
 		data["CockTime_Nomen"] = 1.5
 		data["CockTime_Bipod"] = 1.5
@@ -72,9 +72,9 @@ end, function(wep)
 	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("dtap") then
 		print("Removing Dtap from: " .. wep.ClassName)
 		local data = {}
-		//Normal
+		-- Normal
 		data["FireDelay"] = true
-		//Shotgun Cocking and Sniper Bolting
+		-- Shotgun Cocking and Sniper Bolting
 		data["CockTime"] = true
 		data["CockTime_Nomen"] = true
 		data["CockTime_Bipod"] = true
@@ -95,17 +95,17 @@ nzWeps:AddWeaponModifier("speed", function(wep)
 	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("speed") != true then
 		print("Applying Speed to: " .. wep.ClassName)
 		local data = {}
-		//Normal
+		-- Normal
 		data["ReloadTime"] = 2
 		data["ReloadTime_Nomen"] = 2
 		data["ReloadTime_Empty"] = 2
 		data["ReloadTime_Empty_Nomen"] = 2
-		//BiPod
+		-- BiPod
 		data["ReloadTime_Bipod"] = 2
 		data["ReloadTime_Bipod_Nomen"] = 2
 		data["ReloadTime_Bipod_Empty"] = 2
 		data["ReloadTime_Bipod_Empty_Nomen"] = 2
-		//Shotguns
+		-- Shotguns
 		data["ReloadStartTime"] = 2
 		data["ReloadStartTime_Nomen"] = 2
 		data["ReloadEndTime"] = 2
@@ -148,17 +148,17 @@ end, function(wep)
 	if wep:NZPerkSpecialTreatment() and wep:HasNZModifier("speed") then
 		print("Removing Speed from: " .. wep.ClassName)
 		local data = {}
-		//Normal
+		-- Normal
 		data["ReloadTime"] = true
 		data["ReloadTime_Nomen"] = true
 		data["ReloadTime_Empty"] = true
 		data["ReloadTime_Empty_Nomen"] = true
-		//BiPod
+		-- BiPod
 		data["ReloadTime_Bipod"] = true
 		data["ReloadTime_Bipod_Nomen"] = true
 		data["ReloadTime_Bipod_Empty"] = true
 		data["ReloadTime_Bipod_Empty_Nomen"] = true
-		//Shotguns
+		-- Shotguns
 		data["ReloadStartTime"] = true
 		data["ReloadStartTime_Nomen"] = true
 		data["ReloadEndTime"] = true

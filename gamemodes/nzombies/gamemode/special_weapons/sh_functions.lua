@@ -1,9 +1,3 @@
-game.AddAmmoType( {
-	name = "nz_grenade",
-} )
-game.AddAmmoType( {
-	name = "nz_specialgrenade",
-} )
 
 function nzSpecialWeapons:AddKnife( class, drawonequip, attackholstertime, drawholstertime )
 	local wep = weapons.Get(class)
@@ -112,7 +106,7 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 					self.nzThrowTime = nil
 					self.nzHolsterTime = ct + holstertime
 					self:PrimaryAttack()
-					self.Owner:SetAmmo(self.Owner:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
+					self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("grenade")) - 1, GetNZAmmoID("grenade"))
 				end
 				
 				if self.nzHolsterTime and ct > self.nzHolsterTime then
@@ -178,7 +172,7 @@ function nzSpecialWeapons:AddSpecialGrenade( class, ammo, drawact, throwtime, th
 					self.nzThrowTime = nil
 					self.nzHolsterTime = ct + holstertime
 					self:PrimaryAttack()
-					self.Owner:SetAmmo(self.Owner:GetAmmoCount("nz_specialgrenade") - 1, "nz_specialgrenade")
+					self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("specialgrenade")) - 1, GetNZAmmoID("specialgrenade"))
 				end
 				
 				if self.nzHolsterTime and ct > self.nzHolsterTime then
@@ -250,11 +244,6 @@ CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key tha
 	[KEY_B] = "specialgrenade",
 }]]
 
-local usesammo = {
-	["grenade"] = "nz_grenade",
-	["specialgrenade"] = "nz_specialgrenade",
-}
-
 hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 	--local id = buttonids[but]
 	local id
@@ -262,7 +251,7 @@ hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
 	elseif but == ply:GetInfoNum("nz_key_grenade", KEY_G) then id = "grenade"
 	elseif but == ply:GetInfoNum("nz_key_specialgrenade", KEY_B) then id = "specialgrenade" end
 	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
-		local ammo = usesammo[id]
+		local ammo = GetNZAmmoID(id)
 		if !ammo or ply:GetAmmoCount(ammo) >= 1 then
 			local wep = ply:GetSpecialWeaponFromCategory( id )
 			if IsValid(wep) then
@@ -328,7 +317,7 @@ if SERVER then
 		
 		if !data then return end -- No nothing more if it doesn't have data supplied (e.g. specially added thingies)
 		
-		local ammo = usesammo[id]
+		local ammo = GetNZAmmoID(id)
 		local maxammo = data.maxammo
 		if ammo and maxammo then
 			self:SetAmmo(maxammo, ammo)

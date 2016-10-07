@@ -113,7 +113,7 @@ local function GunHud()
 					local name = wep:GetPrintName()
 					local clip = wep:Clip1()
 					if !name or name == "" then name = wep:GetClass() end
-					if wep.pap then
+					if wep:HasNZModifier("pap") then
 						name = wep.NZPaPName or nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 					end
 					if clip >= 0 then
@@ -399,8 +399,8 @@ end
 
 local grenade_icon = Material("grenade-256.png", "unlitgeneric smooth")
 local function DrawGrenadeHud()
-	local num = LocalPlayer():GetAmmoCount("nz_grenade")
-	local numspecial = LocalPlayer():GetAmmoCount("nz_specialgrenade")
+	local num = LocalPlayer():GetAmmoCount(GetNZAmmoID("grenade") or -1)
+	local numspecial = LocalPlayer():GetAmmoCount(GetNZAmmoID("specialgrenade") or -1)
 	local scale = (ScrW()/1920 + 1)/2
 
 	--print(num)

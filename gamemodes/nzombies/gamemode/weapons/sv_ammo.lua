@@ -28,7 +28,7 @@ function nzWeps:GiveMaxAmmoWep(ply, class, papoverwrite)
 	if !wep.Primary then return end
 	
 	local ammo_type = wep.Primary.Ammo
-	local max_ammo = nzWeps:CalculateMaxAmmo(class, (IsValid(ply:GetWeapon(class)) and ply:GetWeapon(class).pap) or papoverwrite)
+	local max_ammo = nzWeps:CalculateMaxAmmo(class, (IsValid(ply:GetWeapon(class)) and ply:GetWeapon(class):HasNZModifier("pap")) or papoverwrite)
 
 	local curr_ammo = ply:GetAmmoCount( ammo_type )
 	local give_ammo = max_ammo - curr_ammo
@@ -70,7 +70,7 @@ function meta:CalculateMaxAmmo()
 	local clip = self.Primary and self.Primary.ClipSize_Orig or self.Primary.ClipSize or nil
 	if !clip then return 0 end
 	-- When calculated directly on a weapon entity, its clipsize will already have changed from PaP
-	if self.pap then
+	if self:HasNZModifier("pap") then
 		return clip * 10 <= 500 and clip * 10 or clip * math.ceil(500/clip) -- Cap the ammo to stop at the clip that passes 500 max
 	else
 		return clip * 10 <= 300 and clip * 10 or clip * math.ceil(300/clip) -- 300 max for non-pap weapons
