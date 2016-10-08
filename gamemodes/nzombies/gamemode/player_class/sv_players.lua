@@ -39,7 +39,7 @@ local function friendlyFire( ply, ent )
 			return false
 		end
 	elseif ent:IsValidZombie() then
-		if ply:HasPerk("widowswine") and ply:GetAmmoCount("nz_grenade") > 0 then -- WIDOWS WINE TAKE DAMAGE EFFECT
+		if ply:HasPerk("widowswine") and ply:GetAmmoCount(GetNZAmmoID("grenade")) > 0 then -- WIDOWS WINE TAKE DAMAGE EFFECT
 			local pos = ply:GetPos()
 			
 			ply.SELFIMMUNE = true
@@ -59,11 +59,11 @@ local function friendlyFire( ply, ent )
 			
 			for k,v in pairs(zombls) do
 				if IsValid(v) and v:IsValidZombie() then
-					ApplyWebFreeze(20)
+					v:ApplyWebFreeze(20)
 				end
 			end
 			
-			ply:SetAmmo(ply:GetAmmoCount("nz_grenade") - 1, "nz_grenade")
+			ply:SetAmmo(ply:GetAmmoCount(GetNZAmmoID("grenade")) - 1, GetNZAmmoID("grenade"))
 		end
 	end
 end
