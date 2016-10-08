@@ -9,20 +9,22 @@ ENT.WireMat = Material( "effects/tool_tracer" )
 
 ENT.ModelTranslate = {
 	-- 1
-	{model = "models/nzprops/zombies_power_lever_short.mdl"},
+	{model = "models/nzprops/zapper_handle.mdl", gmod_button = true}, -- This one is built like gmod buttons to flip
 	-- 2
-	{model = "models/maxofs2d/button_01.mdl", gmod_button = true},
+	{model = "models/nzprops/zombies_power_lever_short.mdl"},
 	-- 3
-	{model = "models/maxofs2d/button_02.mdl", gmod_button = true},
+	{model = "models/maxofs2d/button_01.mdl", gmod_button = true},
 	-- 4
-	{model = "models/maxofs2d/button_03.mdl", gmod_button = true},
+	{model = "models/maxofs2d/button_02.mdl", gmod_button = true},
 	-- 5
-	{model = "models/maxofs2d/button_04.mdl", gmod_button = true},
+	{model = "models/maxofs2d/button_03.mdl", gmod_button = true},
 	-- 6
-	{model = "models/maxofs2d/button_05.mdl", gmod_button = true},
+	{model = "models/maxofs2d/button_04.mdl", gmod_button = true},
 	-- 7
-	{model = "models/maxofs2d/button_06.mdl", gmod_button = true},
+	{model = "models/maxofs2d/button_05.mdl", gmod_button = true},
 	-- 8
+	{model = "models/maxofs2d/button_06.mdl", gmod_button = true},
+	-- 9
 	{model = "models/maxofs2d/button_slider.mdl", gmod_button = true}
 }
 
@@ -35,14 +37,15 @@ function ENT:SetupDataTables()
 	self:ButtonSetupDataTables()
 
 	local modelTbl = {}
-	modelTbl["Power Switch"] = 1
-	modelTbl["Gmod Button 1"] = 2
-	modelTbl["Gmod Button 2"] = 3
-	modelTbl["Gmod Button 3"] = 4
-	modelTbl["Gmod Button 4"] = 5
-	modelTbl["Gmod Button 5"] = 6
-	modelTbl["Gmod Button 6"] = 7
-	modelTbl["Gmod Button 7"] = 8
+	modelTbl["Trap Handle"] = 1
+	modelTbl["Power Switch"] = 2
+	modelTbl["Gmod Button 1"] = 3
+	modelTbl["Gmod Button 2"] = 4
+	modelTbl["Gmod Button 3"] = 5
+	modelTbl["Gmod Button 4"] = 6
+	modelTbl["Gmod Button 5"] = 7
+	modelTbl["Gmod Button 6"] = 8
+	modelTbl["Gmod Button 7"] = 9
 
 	self:NetworkVar( "Int", 0, "ModelID", {KeyName = "nz_model_id", Edit = {order = -1, type = "Combo", text = "Select a model!", values = modelTbl}} )
 
@@ -128,11 +131,17 @@ function ENT:Ready()
 end
 
 -- IMPLEMENT ME
-function ENT:OnActivation(caller, duration, cooldown) end
+function ENT:OnActivation(caller, duration, cooldown)
+	self:SetSkin(2)
+end
 
-function ENT:OnDeactivation() end
+function ENT:OnDeactivation()
+	self:SetSkin(3)
+end
 
-function ENT:OnReady() end
+function ENT:OnReady()
+	self:SetSkin(1)
+end
 
 function ENT:GetModelInformation()
 	return self.ModelTranslate[self:GetModelID()]
@@ -143,7 +152,7 @@ function ENT:UpdateLever()
 	local TargetPos = 0.0
 	if ( self:IsActive() ) then TargetPos = 1.0 end
 
-	self.PosePosition = math.Approach( self.PosePosition, TargetPos, FrameTime() * 5.0 )
+	self.PosePosition = math.Approach( self.PosePosition, TargetPos, FrameTime() * 3.0 )
 
 	self:SetPoseParameter( "switch", self.PosePosition )
 	self:InvalidateBoneCache()

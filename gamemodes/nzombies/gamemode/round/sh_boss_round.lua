@@ -30,6 +30,7 @@ if SERVER then
 	
 	-- This runs at the start of every round
 	hook.Add("OnRoundStart", "nzBossRoundHandler", function(round)
+		if !nzRound:GetNextBossRound() then return end
 		if round == -1 then -- Round infinity always spawn bosses
 			local diff = nzRound:GetNextBossRound() - round
 			if diff > 0 then

@@ -206,7 +206,9 @@ function nzRound:Prepare()
 	CurRoundOverSpawned = false
 
 	--Start the next round
-	timer.Simple(GetConVar("nz_round_prep_time"):GetFloat(), function() self:Start() end )
+	local time = GetConVar("nz_round_prep_time"):GetFloat()
+	if self:GetNumber() == -1 then time = 20 end
+	timer.Simple(time, function() if self:InProgress() then self:Start() end end )
 
 	if self:IsSpecial() then
 		self:SetNextSpecialRound( self:GetNumber() + GetConVar("nz_round_special_interval"):GetInt() )
@@ -245,6 +247,10 @@ function nzRound:Start()
 	timer.Create( "NZRoundThink", 0.1, 0, function() self:Think() end )
 
 	nzWeps:DoRoundResupply()
+	
+	if self:GetNumber() == -1 then
+		self.InfinityStart = CurTime()
+	end
 end
 
 function nzRound:Think()
@@ -360,7 +366,21 @@ function nzRound:End()
 	--Notify
 	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
 	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-	nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
+	if self:GetNumber() == -1 then
+		if self.InfinityStart then
+			local time = string.FormattedTime(CurTime() - self.InfinityStart)
+			local timestr = string.format("%02i:%02i:%02i", time.h, time.m, time.s)
+			net.Start("nzMajorEEEndScreen")
+				net.WriteBool(false)
+				net.WriteBool(false)
+				net.WriteString("You survived for "..timestr.." in Round Infinity")
+			net.Broadcast()
+		end
+		nzNotifications:PlaySound("nz/round/game_over_-1.mp3", 21)
+	else
+		nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
+	end
+	
 	timer.Simple(10, function()
 		self:ResetGame()
 	end)
@@ -372,6 +392,7 @@ function nzRound:Win(message)
 	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
 	
 	net.Start("nzMajorEEEndScreen")
+		net.WriteBool(true)
 		net.WriteBool(true)
 		net.WriteString(message)
 	net.Broadcast()
@@ -398,6 +419,7 @@ function nzRound:Lose(message)
 	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
 	
 	net.Start("nzMajorEEEndScreen")
+		net.WriteBool(true)
 		net.WriteBool(false)
 		net.WriteString(message)
 	net.Broadcast()

@@ -87,6 +87,8 @@ function ENT:OnDeactivation() end
 
 function ENT:OnReady() end
 
+function ENT:OnPoweredOff() end
+
 function ENT:GetTargetIDText()
 	if self:IsActive() then return "Already activated" end
 	if self:IsCooldownActive() then return "On cooldown" end

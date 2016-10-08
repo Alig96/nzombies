@@ -336,13 +336,17 @@ local prevroundspecial = false
 local function StartChangeRound()
 
 	print(nzRound:GetNumber(), nzRound:IsSpecial())
+	
+	local lastround = nzRound:GetNumber()
 
-	if nzRound:GetNumber() >= 1 then
+	if lastround >= 1 then
 		if prevroundspecial then
 			surface.PlaySound("nz/round/special_round_end.wav")
 		else
 			surface.PlaySound("nz/round/round_end.mp3")
 		end
+	elseif lastround == -2 then
+		surface.PlaySound("nz/round/round_-1_prepare.mp3")
 	else
 		round_num = 0
 	end
@@ -375,7 +379,7 @@ local function StartChangeRound()
 					round_num = nzRound:GetNumber()
 					round_charger = 0.5
 					if round_num == -1 then
-						surface.PlaySound("nz/easteregg/motd_round-03.wav")
+						--surface.PlaySound("nz/easteregg/motd_round-03.wav")
 					elseif nzRound:IsSpecial() then
 						surface.PlaySound("nz/round/special_round_start.wav")
 						prevroundspecial = true

@@ -43,6 +43,7 @@ end
 if CLIENT then
 
 	local function ShowWinScreen()
+		local easteregg = net.ReadBool()
 		local win = net.ReadBool()
 		local msg = net.ReadString()
 		
@@ -75,10 +76,12 @@ if CLIENT then
 			end
 		end)
 		
-		if win then
-			surface.PlaySound(GetGlobalString("winmusic", "nz/easteregg/motd_standard.wav"), 21)
-		else
-			surface.PlaySound(GetGlobalString("losemusic", "nz/round/game_over_4.mp3"), 21)
+		if easteregg then
+			if win then
+				surface.PlaySound(GetGlobalString("winmusic", "nz/easteregg/motd_standard.wav"), 21)
+			else
+				surface.PlaySound(GetGlobalString("losemusic", "nz/round/game_over_4.mp3"), 21)
+			end
 		end
 	end
 	net.Receive("nzMajorEEEndScreen", ShowWinScreen)

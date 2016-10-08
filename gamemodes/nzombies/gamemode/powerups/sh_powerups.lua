@@ -282,7 +282,7 @@ nzPowerUps:NewPowerUp("deathmachine", {
 	chance = 2,
 	duration = 30,
 	func = (function(self, ply)
-		nzNotifications:PlaySound("weapons/deathmachine_sound.mp3", 1)
+		nzNotifications:PlaySound("nz/powerups/deathmachine.mp3", 1)
 		ply:SetUsingSpecialWeapon(true)
 		ply:Give("nz_death_machine")
 		ply:SelectWeapon("nz_death_machine")

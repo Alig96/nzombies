@@ -63,7 +63,7 @@ function SWEP:Equip( owner )
 	owner:SetActiveWeapon("nz_death_machine")
 end
 
-local shootsound = Sound("weapons/loop_l_.wav")
+local shootsound = Sound("nz/deathmachine/loop_l_.wav")
 function SWEP:PrimaryAttack()
 	
 	self:SetNextPrimaryFire(CurTime() + 0.1)
