@@ -46,12 +46,18 @@ end
 function ENT:RemovePlank()
 
 	local plank = table.Random(self.Planks)
-	if plank != nil then
+	
+	if !IsValid(plank) and plank != nil then -- Not valid but not nil (NULL)
+		table.RemoveByValue(self.Planks, plank) -- Remove it from the table
+		self:RemovePlank() -- and try again
+	end
+	
+	if IsValid(plank) then
 		table.RemoveByValue(self.Planks, plank)
 		self:SetNumPlanks( self:GetNumPlanks() - 1 )
 		--self:SetHealth(self:Health()-10)
 
-		//Drop off
+		-- Drop off
 		plank:SetParent(nil)
 		plank:PhysicsInit(SOLID_VPHYSICS)
 		local entphys = plank:GetPhysicsObject()
@@ -60,13 +66,13 @@ function ENT:RemovePlank()
 			 entphys:Wake()
 		end
 		plank:SetCollisionGroup( COLLISION_GROUP_DEBRIS )
-		//Remove
+		-- Remove
 		timer.Simple(2, function() if IsValid(plank) then plank:Remove() end end)
 	end
 end
 
 function ENT:ResetPlanks(nosoundoverride)
-	for i=1, GetConVar("nz_difficulty_barricade_planks_max"):GetInt() do
+	for i=1, table.Count(self.Planks) do
 		self:RemovePlank()
 	end
 	if self:GetHasPlanks() then
