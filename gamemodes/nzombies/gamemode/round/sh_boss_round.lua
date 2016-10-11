@@ -129,22 +129,22 @@ if SERVER then
 end
 
 nzRound.BossData = nzRound.BossData or {}
-function nzRound:AddBossType(id, class, specialspawn, initfunc, spawnfunc, deathfunc, onhit)
+function nzRound:AddBossType(id, class, funcs)
 	if SERVER then
 		if class then
 			local data = {}
 			-- Which entity to spawn
 			data.class = class
 			-- Whether to spawn at special spawnpoints
-			data.specialspawn = specialspawn
+			data.specialspawn = funcs.specialspawn
 			-- Runs on game begin with this boss set, use to set first boss round
-			data.initfunc = initfunc
+			data.initfunc = funcs.initfunc
 			-- Run when the boss spawns, arguments are (boss)
-			data.spawnfunc = spawnfunc
+			data.spawnfunc = funcs.spawnfunc
 			-- Run when the boss dies, arguments are (boss, attacker, dmginfo, hitgroup)
-			data.deathfunc = deathfunc
+			data.deathfunc = funcs.deathfunc
 			-- Whenever the boss is damaged, arguments are (boss, attacker, dmginfo, hitgroup) Called before damage applied (can scale dmginfo)
-			data.onhit = onhit
+			data.onhit = funcs.onhit
 			-- All functions are optional, but death/spawn func is needed to set next boss round! (Unless you got another way)
 			nzRound.BossData[id] = data
 		else
@@ -156,13 +156,18 @@ function nzRound:AddBossType(id, class, specialspawn, initfunc, spawnfunc, death
 	end
 end
 
-nzRound:AddBossType("Panzer", "nz_zombie_boss_panzer", true, function()
-	nzRound:SetNextBossRound(math.random(6,8)) -- Randomly spawn in rounds 6-8
-end, function(panzer)
-	panzer:SetHealth(nzRound:GetNumber() * 75 + 500)
-end, function(panzer, killer, dmginfo, hitgroup)
-	nzRound:SetNextBossRound(nzRound:GetNumber() + math.random(3,5)) -- Delay further boss spawning by 3-5 rounds after its death
-	if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
-		attacker:GivePoints(500) -- Give killer 500 points if not downed
-	end
-end) -- No onhit function, we don't give points on hit for this guy
+nzRound:AddBossType("Panzer", "nz_zombie_boss_panzer", {
+	specialspawn = true,
+	initfunc = function()
+		nzRound:SetNextBossRound(math.random(6,8)) -- Randomly spawn in rounds 6-8
+	end,
+	spawnfunc = function(panzer)
+		panzer:SetHealth(nzRound:GetNumber() * 75 + 500)
+	end,
+	deathfunc = function(panzer, killer, dmginfo, hitgroup)
+		nzRound:SetNextBossRound(nzRound:GetNumber() + math.random(3,5)) -- Delay further boss spawning by 3-5 rounds after its death
+		if IsValid(attacker) and attacker:IsPlayer() and attacker:GetNotDowned() then
+			attacker:GivePoints(500) -- Give killer 500 points if not downed
+		end
+	end,
+}) -- No onhit function, we don't give points on hit for this guy
