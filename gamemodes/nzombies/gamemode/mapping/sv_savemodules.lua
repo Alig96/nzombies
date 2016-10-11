@@ -350,7 +350,15 @@ nzMapping:AddSaveModule("BreakEntry", {
 			nzMapping:BreakEntry(v.pos, v.angle, v.planks, v.jump)
 		end
 	end,
-	cleanents = {"breakable_entry"},
+	cleanents = {"breakable_entry", "breakable_entry_plank"},
+	postrestorefunc = function(data)
+		-- Now we respawn them! :D
+		for k,v in pairs(ents.FindByClass("breakable_entry")) do
+			if IsValid(v) then
+				v:ResetPlanks()
+			end
+		end
+	end,
 })
 
 nzMapping:AddSaveModule("SpecialEntities", {

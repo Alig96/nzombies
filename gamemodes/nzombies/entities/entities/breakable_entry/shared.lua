@@ -7,8 +7,8 @@ ENT.Author			= "Alig96"
 ENT.Contact			= "Don't"
 ENT.Purpose			= ""
 ENT.Instructions	= ""
-//models/props_interiors/elevatorshaft_door01a.mdl
-//models/props_debris/wood_board02a.mdl
+-- models/props_interiors/elevatorshaft_door01a.mdl
+-- models/props_debris/wood_board02a.mdl
 function ENT:Initialize()
 
 	self:SetModel("models/props_c17/fence01b.mdl")
@@ -53,10 +53,6 @@ function ENT:RemovePlank()
 	end
 	
 	if IsValid(plank) then
-		table.RemoveByValue(self.Planks, plank)
-		self:SetNumPlanks( self:GetNumPlanks() - 1 )
-		--self:SetHealth(self:Health()-10)
-
 		-- Drop off
 		plank:SetParent(nil)
 		plank:PhysicsInit(SOLID_VPHYSICS)
@@ -69,12 +65,17 @@ function ENT:RemovePlank()
 		-- Remove
 		timer.Simple(2, function() if IsValid(plank) then plank:Remove() end end)
 	end
+	
+	table.RemoveByValue(self.Planks, plank)
+	self:SetNumPlanks( self:GetNumPlanks() - 1 )
 end
 
 function ENT:ResetPlanks(nosoundoverride)
 	for i=1, table.Count(self.Planks) do
 		self:RemovePlank()
 	end
+	self.Planks = {}
+	self:SetNumPlanks(0)
 	if self:GetHasPlanks() then
 		for i=1, GetConVar("nz_difficulty_barricade_planks_max"):GetInt() do
 			self:AddPlank(!nosoundoverride)
@@ -94,7 +95,7 @@ function ENT:Use( activator, caller )
 end
 
 function ENT:SpawnPlank()
-	//Spawn
+	-- Spawn
 	local angs = {-60,-70,60,70}
 	local plank = ents.Create("breakable_entry_plank")
 	local min = self:GetTriggerJumps() and 0 or -45
