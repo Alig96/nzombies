@@ -225,6 +225,14 @@ function nzMapping:LoadConfig( name, loader )
 
 		-- Set the current config name, we will use this to load scripts via mismatch window
 		nzMapping.CurrentConfig = name
+		
+		if !nzRound:InState(ROUND_CREATE) then
+			for k,v in pairs(ents.GetAll()) do
+				if v.NZOnlyVisibleInCreative then -- This is set in each entity's file
+					v:SetNoDraw(true) -- Yes this improves FPS by ~50% over a client-side convar and round state check
+				end
+			end
+		end
 
 		print("[NZ] Finished loading map config.")
 	else
@@ -360,3 +368,12 @@ hook.Add("Initialize", "nz_Loadmaps", function()
 		nzMapping:LoadConfig( autoload, IsValid(loader) and loader or nil )
 	end)
 end)
+
+function nzMapping:GetConfigs()
+	local tbl = {}
+	tbl.configs = file.Find( "nz/nz_*", "DATA" )
+	tbl.workshopconfigs = file.Find( "nz/nz_*", "LUA" )
+	tbl.officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")
+	
+	return tbl
+end

@@ -64,7 +64,21 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 
 	if !attacker:IsPlayer() then return end
 	if IsValid(zombie) then
-		if zombie:IsValidZombie() then
+		if zombie.NZBossType then
+			if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end -- Bosses can still be invulnerable
+			
+			local data = nzRound:GetBossData(zombie.NZBossType) -- Just in case it was switched mid-game, use the id stored on zombie
+			if data then -- If we got the boss data
+				local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition() ).HitGroup
+				if zombie:Health() > dmginfo:GetDamage() then
+					if data.onhit then data.onhit(zombie, attacker, dmginfo, hitgroup) end
+				elseif !zombie.MarkedForDeath then
+					if data.deathfunc then data.deathfunc(zombie, attacker, dmginfo, hitgroup) end
+					hook.Call("OnBossKilled", nil, zombie)
+					zombie.MarkedForDeath = true
+				end
+			end
+		elseif zombie:IsValidZombie() then
 			if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end
 			local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition( ), dmginfo:GetDamagePosition( ) ).HitGroup
 
@@ -92,21 +106,6 @@ function GM:EntityTakeDamage(zombie, dmginfo)
 				timer.Simple(0, function() if IsValid(zombie) then zombie.HasTakenDamageThisTick = false end end)
 			else
 				nzEnemies:OnEnemyKilled(zombie, attacker, dmginfo, hitgroup)
-			end
-		elseif zombie.NZBossType then
-			if zombie.IsInvulnerable and zombie:IsInvulnerable() then return true end -- Bosses can still be invulnerable
-			
-			local data = nzRound.BossData[zombie.NZBossType] -- Just in case it was switched mid-game, use the id stored on zombie
-			if data then -- If we got the boss data
-				local hitgroup = util.QuickTrace( dmginfo:GetDamagePosition(), dmginfo:GetDamagePosition() ).HitGroup
-				if zombie:Health() > dmginfo:GetDamage() then
-					if data.onhit then data.onhit(zombie, attacker, dmginfo, hitgroup) end
-				elseif !zombie.MarkedForDeath then
-					if data.deathfunc then data.deathfunc(zombie, attacker, dmginfo, hitgroup) end
-					print("ded")
-					hook.Call("OnBossKilled", nil, zombie)
-					zombie.MarkedForDeath = true
-				end
 			end
 		end
 	end

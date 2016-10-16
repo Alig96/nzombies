@@ -14,6 +14,8 @@ ENT.Editable		= true
 ENT.PrintName			= "Radiation"
 ENT.Category			= "Editors"
 
+ENT.NZOnlyVisibleInCreative = true
+
 function ENT:Initialize()
 
 	--BaseClass.Initialize( self )

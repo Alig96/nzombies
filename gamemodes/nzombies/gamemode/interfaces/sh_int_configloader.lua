@@ -18,7 +18,7 @@ if SERVER then
 	end
 	
 	function nzInterfaces.StartVote( time )
-		local tbl = {configs = file.Find( "nz/nz_*", "DATA" ), workshopconfigs = file.Find( "nz/nz_*", "LUA" ), officialconfigs = file.Find("gamemodes/nzombies/officialconfigs/*", "GAME")}
+		local tbl = nzMapping:GetConfigs()
 		
 		votes = {}
 		
@@ -68,7 +68,8 @@ if SERVER then
 				hook.Remove("Think", "nzVoteHandler")
 				timer.Simple(5, function()
 					voting = false
-					nzMapping:LoadConfig( winner )
+					PrintMessage(HUD_PRINTTALK, "The winner is "..winner)
+					--nzMapping:LoadConfig( winner )
 				end)
 			end
 		end)
@@ -82,8 +83,10 @@ if SERVER then
 		end
 	end
 	
-	local function votechange(new, old, ply)
+	local function votechange(newvote, oldvote, ply)
 		if !voting then return end -- We're not even voting, wut?!
+		
+		--print(new, old, ply)
 		
 		net.Start("nzReceiveVotes")
 			net.WriteBool(false) -- We haven't finished yet

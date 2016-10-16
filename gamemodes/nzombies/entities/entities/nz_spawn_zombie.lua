@@ -11,6 +11,8 @@ AccessorFunc(ENT, "iZombiesToSpawn", "ZombiesToSpawn", FORCE_NUMBER)
 AccessorFunc(ENT, "hSpawner", "Spawner")
 AccessorFunc(ENT, "dNextSpawn", "NextSpawn", FORCE_NUMBER)
 
+ENT.NZOnlyVisibleInCreative = true
+
 function ENT:DecrementZombiesToSpawn()
 	self:SetZombiesToSpawn( self:GetZombiesToSpawn() - 1 )
 end

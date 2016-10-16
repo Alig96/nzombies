@@ -86,16 +86,18 @@ function meta:DoorIndex()
 end
 
 function meta:GetDoorData()
+	if !IsValid(self) then return end
 	if self:IsBuyableProp() or self:IsScriptBuyable() then
-		if !nzDoors.PropDoors[self:EntIndex()] then return nil end
+		if !nzDoors.PropDoors[self:EntIndex()] then return end
 		return nzDoors.PropDoors[self:EntIndex()].flags
 	else
-		if !nzDoors.MapDoors[self:DoorIndex()] then return nil end
+		if !nzDoors.MapDoors[self:DoorIndex()] then return end
 		return nzDoors.MapDoors[self:DoorIndex()].flags
 	end
 end
 
 function meta:SetDoorData( tbl )
+	if !IsValid(self) then return end
 	if self:IsBuyableProp() or self:IsScriptBuyable() then
 		if !nzDoors.PropDoors[self:EntIndex()] then nzDoors.PropDoors[self:EntIndex()] = {} end
 		nzDoors.PropDoors[self:EntIndex()].flags = tbl

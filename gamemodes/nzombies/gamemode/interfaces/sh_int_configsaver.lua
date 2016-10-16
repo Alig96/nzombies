@@ -1,6 +1,8 @@
 //
 
 if SERVER then
+	util.AddNetworkString("nz_SaveConfig")
+
 	function nzInterfaces.ConfigSaverHandler( ply, data )
 		if ply:IsSuperAdmin() then
 			nzMapping:SaveConfig( data.name )

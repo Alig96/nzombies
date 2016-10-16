@@ -28,10 +28,12 @@ function nzRevive.PostPlayerDeath(ply)
 end
 
 local function HandleKillCommand(ply)
-	if ply:GetNotDowned() then
-		ply:DownPlayer()
-	else
-		ply:KillDownedPlayer()
+	if ply:IsPlaying() and !ply:IsSpectating() then
+		if ply:GetNotDowned() then
+			ply:DownPlayer()
+		else
+			ply:KillDownedPlayer()
+		end
 	end
 	return false
 end

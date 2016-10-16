@@ -18,7 +18,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Bool", 2, "IsTeddy" )
 end
 
-function ENT:DecideOutcomePerk(specific, ply)
+function ENT:DecideOutcomePerk(ply, specific)
 	if specific then self:SetPerkID(specific) return end
 	
 	if self.TimesUsed > 2 and math.random(100) <= 55 and #ents.FindByClass("wundefizz_machine") > 1 then

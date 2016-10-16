@@ -1,4 +1,6 @@
 function nzDoors:OpenDoor( ent, ply )
+	if !IsValid(ent) then return end
+	
 	local data = ent:GetDoorData()
 	local link = data.link
 	local rebuyable = data.rebuyable

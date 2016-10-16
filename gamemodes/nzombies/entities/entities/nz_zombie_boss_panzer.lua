@@ -120,6 +120,8 @@ function ENT:Initialize()
 		self.NextClawTime = 0
 		self.NextFlameTime = 0
 	end
+	
+	self.ZombieAlive = true
 
 end
 

@@ -619,8 +619,7 @@ function ENT:Alive()
 end
 
 function ENT:OnKilled(dmgInfo)
-
-	if dmgInfo and self.ZombieAlive then -- Only call once!
+	if dmgInfo and self:Alive() then -- Only call once!
 		self:OnZombieDeath(dmgInfo)
 	end
 

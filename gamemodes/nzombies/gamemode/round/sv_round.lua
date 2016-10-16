@@ -460,6 +460,13 @@ function nzRound:Create(on)
 
 			nzMapping:CleanUpMap()
 			nzDoors:LockAllDoors()
+			
+			for k,v in pairs(ents.GetAll()) do
+				if v.NZOnlyVisibleInCreative then
+					v:SetNoDraw(false)
+				end
+			end
+			
 		else
 			PrintMessage( HUD_PRINTTALK, "Can only go in Creative Mode from Waiting state." )
 		end
@@ -469,6 +476,12 @@ function nzRound:Create(on)
 		--We are in play mode
 		for k,v in pairs(player.GetAll()) do
 			v:SetSpectator()
+		end
+		
+		for k,v in pairs(ents.GetAll()) do
+			if v.NZOnlyVisibleInCreative then -- This is set in each entity's file
+				v:SetNoDraw(true) -- Yes this improves FPS by ~50% over a client-side convar and round state check
+			end
 		end
 	else
 		PrintMessage( HUD_PRINTTALK, "Not in Creative Mode." )
