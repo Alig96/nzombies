@@ -120,6 +120,8 @@ end
 
 function nzMapping:LoadConfig( name, loader )
 
+	hook.Call("PreConfigLoad")
+
 	local filepath = "nz/" .. name
 	local location = "DATA"
 
@@ -235,15 +237,19 @@ function nzMapping:LoadConfig( name, loader )
 		end
 
 		print("[NZ] Finished loading map config.")
+		hook.Call("PostConfigLoad", nil, true)
 	else
 		print(filepath)
 		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
-	end
+		hook.Call("PostConfigLoad", nil, false)
+	end	
 
 end
 
 -- The function to clean up the map but not the config!
 function nzMapping:CleanUpMap()
+
+	hook.Call("PreConfigMapCleanup")
 	
 	-- Some default entities to spare:
 	local entClasses = {
@@ -316,6 +322,8 @@ function nzMapping:CleanUpMap()
 			end
 		end
 	end
+	
+	hook.Call("PostConfigMapCleanup")
 end
 
 hook.Add("Initialize", "nz_Loadmaps", function()

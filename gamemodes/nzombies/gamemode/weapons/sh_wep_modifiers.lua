@@ -39,7 +39,7 @@ end
 
 function wepmeta:HasNZModifier(id)
 	if !self.NZModifiers then return false end
-	return self.NZModifiers[modifier] == true
+	return self.NZModifiers[id] == true
 end
 
 -- Let's add the base perks!

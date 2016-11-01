@@ -85,7 +85,9 @@ function Spawner:UpdateWeights()
 				weight = dist
 			end
 		end
-		spawn:SetSpawnWeight(weight)
+		spawn:SetSpawnWeight(10000/weight) -- The spawnweight is inversely related to the distance
+		-- E.g. Distance = 10, 20, weights = 10000/10, 10000/20 = 1000, 500
+		-- We could do 1/weight, but 10000 makes then number easier to read (often around 10-50 depending on the amount of spawns)
 	end
 end
 
@@ -120,31 +122,23 @@ function Spawner:UpdateValidSpawns()
 		vspawn:SetZombiesToSpawn(zombiesToSpawn)
 		debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "%: 100, #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 	else
-		-- The math here finds the total of the inverted relative weights
-		-- E.g. if 3 spawnpoints have the weights 10, 20, 30, then spawnpoint 1 has (60-10) = 50.
-		-- All spawnpoints then have relation of 5, 4, 3, and the "inverted total" is 12
-		-- The inverted total can be calculated like this regardless of how many spawnpoints there are unless it's only 1 (becomes 0)
-		local inverttotal = total * (numspawns - 1)
 		local totalDistributed = 0
 		
 		for k, vspawn in pairs(self.tValidSpawns) do
 			local w = vspawn:GetSpawnWeight() -- The weight
 			if w > 0 then -- 0 weight is disabled (or it'd take all the zombies)
-				local toSpawn = math.Round(((total - w)/inverttotal) * zombiesToSpawn)
-				-- Example from above, 100 total zombies: ((60-10)/120) * 100 = 5/12 * 100 = 41 zombies
-				-- ((60-20)/120) * 100 = 4/12 * 100 = 33 zombies, ((60-30)/120) * 100 = 3/12 * 100 = 25 zombies
-				-- Total = 41 + 33 + 25 = 99 (due to rounding)
+				local toSpawn = math.Round((w/total) * zombiesToSpawn)
 				
 				if zombiesToSpawn - totalDistributed - toSpawn <= 0 or k == numspawns then -- If we're using more than our total or it's the last one
 					toSpawn = zombiesToSpawn - totalDistributed -- Then just give the rest
 					vspawn:SetZombiesToSpawn(toSpawn)
-					debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round(((total - w)/inverttotal), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
+					debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round((w/total), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 					break -- Just stop here, we got no more zombies to distribute
 				end
 				
 				vspawn:SetZombiesToSpawn(toSpawn)
 				totalDistributed = totalDistributed + toSpawn
-				debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round(((total - w)/inverttotal), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
+				debugoverlay.Text(vspawn:GetPos() + Vector(0,0,75), "W: "..math.Round(w, 2)..", %: "..math.Round((w/total), 2)..", #: "..tostring(toSpawn)..", B: "..tostring(vspawn:IsSuitable())..", T: "..math.Round(vspawn:GetNextSpawn()-CurTime(), 2)..", ST: "..(vspawn:GetSpawner() and math.Round(vspawn:GetSpawner():GetNextSpawn() - CurTime(), 2) or "nil"), 4)
 			end
 		end
 	end

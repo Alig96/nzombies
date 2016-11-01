@@ -762,7 +762,6 @@ function ENT:ChaseTarget( options )
 		if path:IsValid() and math.abs(self:GetPos().z - path:GetClosestPosition(self:EyePos() + self.loco:GetGroundMotionVector() * scanDist).z) > 22 and (goal and goal.type != 1) then
 			self:Jump()
 		end
-
 		--[[if path:IsValid() and goal.type == 4 then
 			--self.loco:SetVelocity( Vector( 0, 0, 1000 ) )
 			self:SetPos( path:GetClosestPosition( goal.ladder:GetTopForwardArea():GetCenter() ) )

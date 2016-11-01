@@ -1,4 +1,4 @@
-//
+--
 
 function nzElec:Activate(nochat)
 
