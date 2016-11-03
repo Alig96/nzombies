@@ -58,7 +58,7 @@ This is an edited version from Aligs original featuring these changes:
 	- Better editing in creative mode
 		- Undo system
 		- Context Menu to quickly edit properties without equipping tool (Hold C)
-		- Many more props, light effects, sky/fog/sun editors, fire entites, and more ...
+		- Many more props, light effects, sky/fog/sun editors, fire entities, and more ...
 
 - Map Settings tool!
 	- Decide which weapons the random box can spawn
@@ -87,7 +87,7 @@ This is an edited version from Aligs original featuring these changes:
 		- Otherwise Triggers will close it again and because we locked it, we can't reopen
 	- You can now lock buttons with a price (Say to trigger doors or elevators, or maybe even traps)
 	- Doors only lock if they have a price; doors without will force themselves to stay open when they try to close
-	- Doors can be set to "Repurchasable" which will make them not lock (E.g. to use on Elevator buttons)
+	- Doors can be set to "Re-purchasable" which will make them not lock (E.g. to use on Elevator buttons)
 	- Doors have "Purchasable" option to completely disable E input (E.g. to use on doors that shouldn't lock but open by button)
 	
 - Misc changes
