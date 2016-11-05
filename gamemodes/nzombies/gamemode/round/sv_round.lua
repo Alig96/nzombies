@@ -321,6 +321,8 @@ function nzRound:ResetGame()
 	for k,v in pairs( player.GetAll() ) do
 		v:KillDownedPlayer( true )
 		v.SoloRevive = nil -- Reset Solo Revive counter
+		v:SetPreventPerkLoss(false)
+		v:RemovePerks()
 	end
 
 	--Remove all enemies
@@ -374,6 +376,7 @@ function nzRound:End()
 				net.WriteBool(false)
 				net.WriteBool(false)
 				net.WriteString("You survived for "..timestr.." in Round Infinity")
+				net.WriteBool(false)
 			net.Broadcast()
 		end
 		nzNotifications:PlaySound("nz/round/game_over_-1.mp3", 21)
@@ -388,40 +391,71 @@ function nzRound:End()
 	hook.Call( "OnRoundEnd", nzRound )
 end
 
-function nzRound:Win(message)
+function nzRound:Win(message, keepplaying, camstart, camend, time)
 	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
 	
 	net.Start("nzMajorEEEndScreen")
 		net.WriteBool(true)
 		net.WriteBool(true)
 		net.WriteString(message)
+		if camstart and camend then
+			net.WriteBool(true)
+			net.WriteVector(camstart)
+			net.WriteVector(camend)
+		else
+			net.WriteBool(false)
+		end
 	net.Broadcast()
 	
 	-- Set round state to Game Over
-	nzRound:SetState( ROUND_GO )
-	--Notify with chat message
-	PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
-	PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
-	
-	if self.OverrideEndSlomo then
-		game.SetTimeScale(0.25)
-		timer.Simple(2, function() game.SetTimeScale(1) end)
+	if !keepplaying then
+		nzRound:SetState( ROUND_GO )
+		--Notify with chat message
+		PrintMessage( HUD_PRINTTALK, "GAME OVER!" )
+		PrintMessage( HUD_PRINTTALK, "Restarting in 10 seconds!" )
+		
+		if self.OverrideEndSlomo then
+			game.SetTimeScale(0.25)
+			timer.Simple(2, function() game.SetTimeScale(1) end)
+		end
+		
+		timer.Simple(time or 10, function()
+			nzRound:ResetGame()
+		end)
+		
+		hook.Call( "OnRoundEnd", nzRound )
+	else
+		for k,v in pairs(player.GetAllPlaying()) do
+			v:SetTargetPriority(TARGET_PRIORITY_NONE)
+		end
+		if self.OverrideEndSlomo then
+			game.SetTimeScale(0.25)
+			timer.Simple(2, function() game.SetTimeScale(1) end)
+		end
+		timer.Simple(time or 10, function()
+			for k,v in pairs(player.GetAllPlaying()) do
+				v:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+				v:GivePermaPerks()
+			end
+		end)
 	end
-	
-	timer.Simple(10, function()
-		nzRound:ResetGame()
-	end)
 
-	hook.Call( "OnRoundEnd", nzRound )
 end
 
-function nzRound:Lose(message)
+function nzRound:Lose(message, camstart, camend, time)
 	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
 	
 	net.Start("nzMajorEEEndScreen")
 		net.WriteBool(true)
 		net.WriteBool(false)
 		net.WriteString(message)
+		if camstart and camend then
+			net.WriteBool(true)
+			net.WriteVector(camstart)
+			net.WriteVector(camend)
+		else
+			net.WriteBool(false)
+		end
 	net.Broadcast()
 	
 	-- Set round state to Game Over
@@ -435,7 +469,7 @@ function nzRound:Lose(message)
 		timer.Simple(2, function() game.SetTimeScale(1) end)
 	end
 	
-	timer.Simple(10, function()
+	timer.Simple(time or 10, function()
 		nzRound:ResetGame()
 	end)
 

@@ -1,8 +1,10 @@
-//
+-- 
 
 function nzPlayers.PlayerNoClip( ply, desiredState )
 	if ply:Alive() and nzRound:InState( ROUND_CREATE ) then
 		return ply:IsInCreative()
+	--else
+		--return GetConVar("nz_allow_noclip"):GetBool()
 	end
 end
 
@@ -25,6 +27,9 @@ local function playerLeft( ply )
 	-- it will now detect leaving players via entity removed, to take kicking banning etc into account.
 	if ply:IsPlayer() then
 		ply:DropOut()
+		if IsValid(ply.TimedUseEntity) then
+			ply:StopTimedUse()
+		end
 	end
 end
 

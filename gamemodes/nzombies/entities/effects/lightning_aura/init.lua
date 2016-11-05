@@ -14,18 +14,28 @@ function EFFECT:Init( data )
 	self.Size = data:GetRadius() or 1
 	self.MaxArcs = 2
 	self.Parent = data:GetEntity()
+	self:SetParent(self.Parent)
 	self.Frequency = data:GetMagnitude()/10 or 0.01
 	self.Pos = self.Parent:WorldSpaceCenter()
+	local scale = data:GetScale()
 	if self.Parent.LightningAura then
-		if data:GetScale() then
-			self.Parent.LightningAura = CurTime() + data:GetScale()
+		if scale then
+			if scale > 0 then
+				self.Parent.LightningAura = CurTime() + scale
+			else
+				self.Parent.LightningAura = true
+			end
 		else
 			self.Parent.LightningAura = CurTime() + 10 -- Default time for this effect
 		end
 		self.KILL = true
 	else
-		if data:GetScale() then
-			self.Parent.LightningAura = CurTime() + data:GetScale()
+		if scale then
+			if scale > 0 then
+				self.Parent.LightningAura = CurTime() + scale
+			else
+				self.Parent.LightningAura = true
+			end
 		else
 			self.Parent.LightningAura = CurTime() + 10 -- Default time for this effect
 		end
@@ -36,7 +46,7 @@ function EFFECT:Init( data )
 		self.Arcs = {}
 		self.Queue = 1
 
-		self:SetRenderBoundsWS( self.Pos, self.Pos, Vector(100,100,100) )
+		self:SetRenderBounds( Vector(0,0,0), Vector(0,0,0), Vector(50,50,50) )
 	end
 
 end
@@ -50,12 +60,13 @@ function EFFECT:Think()
 
 	if IsValid(self.Parent) then
 		self.Pos = self.Parent:WorldSpaceCenter()
+		self:SetPos(self.Pos)
 	end
 
 	self.Life = self.Life + FrameTime()
 	--self.Alpha = 255 * ( 1 - self.Life )
 
-	if self.NextArc <= self.Life then
+	if self.NextArc <= self.Life and self.Pos then
 
 		local size = #self.Arcs
 		--add a arc to the array
@@ -159,9 +170,9 @@ function EFFECT:Render()
 	render.SetMaterial( self.MatGlowCenter )
 	render.DrawSprite( self.Pos, math.random(15,40)*self.Size, math.random(15,40)*self.Size, Color(math.random(50,150),math.random(100,200),255,math.random(200,250)))
 	
-	if !self.Parent:GetNoDraw() then
-		self.Parent:DrawModel() -- Always draw the model in front
-	end
+	--if !self.Parent:GetNoDraw() then
+		--self.Parent:DrawModel() -- Always draw the model in front
+	--end
 end
 
 function EFFECT:RenderArc(arc, edge)

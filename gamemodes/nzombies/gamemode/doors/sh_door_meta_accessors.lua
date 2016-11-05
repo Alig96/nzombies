@@ -118,7 +118,7 @@ function nzDoors:DoorIndexByID( id )
 end
 
 function nzDoors:SetDoorDataByID( id, prop, tbl )
-	if !tbl then return end
+	--if !tbl then return end
 	if prop then
 		if !self.PropDoors[id] then self.PropDoors[id] = {} end
 		self.PropDoors[id].flags = tbl

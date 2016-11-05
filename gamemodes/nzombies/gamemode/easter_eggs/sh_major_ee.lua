@@ -46,26 +46,39 @@ if CLIENT then
 		local easteregg = net.ReadBool()
 		local win = net.ReadBool()
 		local msg = net.ReadString()
+		local endcam = net.ReadBool()
+		
+		local startpos
+		local endpos
+		if endcam then
+			startpos = net.ReadVector()
+			endpos = net.ReadVector()
+		end
 		
 		local w = ScrW() / 2
 		local h = ScrH() / 2
 		local font = "DermaLarge"
 		
-		local time = CurTime()
-		local override = GetGlobalVector("endcamerapos", 1)
-		if type(override) ~= "number" then
-			local endposition = override
-			
+		if startpos and endpos then
+			local time = CurTime()
+			local dir = endpos - startpos
+			local ang = dir:Angle()
 			hook.Add("CalcView", "nzCalcEndCameraView", function(ply, origin, angles, fov, znear, zfar)
-				if !nzRound:InState( ROUND_GO ) then
+				if !nzRound:InState( ROUND_GO ) and !nzRound:InState( ROUND_INIT ) then
 					hook.Remove("CalcView", "nzCalcEndCameraView")
 				end
 				
-				local delta = math.Clamp((CurTime() - time) * 2, 0, 1)
-	 
-				local start = endposition * delta + origin * (1 - delta)
-				local tr = util.TraceHull({start = start, endpos = start + delta * 64 * Angle(0, CurTime() * 30, 0):Forward(), mins = Vector(-2, -2, -2), maxs = Vector(2, 2, 2), filter = player.GetAll(), mask = MASK_SOLID})
-				return {origin = tr.HitPos + tr.HitNormal, angles = (start - tr.HitPos):Angle()}
+				local delta = math.Clamp((CurTime()-time)/20, 0, 1)
+				local pos = startpos + dir*delta
+				
+				return {origin = pos, angles = ang, drawviewer = true}
+			end)
+			hook.Add("CalcViewModelView", "nzCalcEndCameraView", function(wep, vm, oldpos, oldang, pos, ang)
+				if !nzRound:InState( ROUND_GO ) and !nzRound:InState( ROUND_INIT ) then
+					hook.Remove("CalcViewModelView", "nzCalcEndCameraView")
+				end
+				
+				return oldpos - ang:Forward()*10, ang
 			end)
 		end
 		

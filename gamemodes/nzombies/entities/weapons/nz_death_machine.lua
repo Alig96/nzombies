@@ -98,10 +98,6 @@ function SWEP:PostDrawViewModel()
 
 end
 
-function SWEP:DrawWorldModel()
-
-end
-
 function SWEP:NZSpecialHolster(wep)
 	if IsValid(self.Owner) then
 		self.Owner:RemovePowerUp("deathmachine")

@@ -187,7 +187,7 @@ function SWEP:Deploy()
 	if ( game.SinglePlayer() ) then self:CallOnClient( "Deploy" ) end
 end
 
-function SWEP:Holster()
+function SWEP:Holster(wep)
 	if nzTools.ToolData[self.ToolMode] and nzTools.ToolData[self.ToolMode].OnHolster then
 		nzTools.ToolData[self.ToolMode].OnHolster(self, self.Owner, self.Owner.NZToolData)
 	end

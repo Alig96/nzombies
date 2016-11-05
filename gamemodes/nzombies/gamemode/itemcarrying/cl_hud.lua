@@ -8,7 +8,7 @@ local function DrawItemCarryHud()
 		local item = nzItemCarry.Items[v]
 		if item and item.icon then
 			surface.SetMaterial(item.icon)
-			surface.DrawTexturedRect(ScrW() - 400*scale - num*32*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+			surface.DrawTexturedRect(ScrW() - 400*scale - num*40*scale, ScrH() - 90*scale, 30*scale, 30*scale)
 			num = num + 1
 		end
 	end

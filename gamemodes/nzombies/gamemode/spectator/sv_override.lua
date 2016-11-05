@@ -45,8 +45,24 @@ end
 
 hook.Add( "PlayerUse", "disableDeadUse", disableDeadUse)
 
-local function disableDeadPickups( ply, ent )
-	if !ply:Alive() then return false end
+local hooks = hook.GetTable().AllowPlayerPickup
+for k,v in pairs(hooks) do
+	hook.Remove("AllowPlayerPickup", k)
 end
 
-hook.Add( "AllowPlayerPickup", "disableDeadPickups", disableDeadPickups)
+local function disableDeadPickups( ply, ent )
+	if !ply:Alive() then
+		return false
+	else
+		-- This will allow pickups even if the weapon can't holster
+		local wep = ply:GetActiveWeapon()
+		if IsValid(wep) and !wep:IsSpecial() then
+			local holster = wep.Holster
+			wep.Holster = function() return true end
+			timer.Simple(0, function() wep.Holster = holster end)
+		end
+		return true
+	end
+end
+
+hook.Add( "AllowPlayerPickup", "1_nzDisableDeadPickups", disableDeadPickups)

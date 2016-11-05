@@ -6,7 +6,7 @@ if SERVER then
 	
 		if block or self:HasPerk(id) then return end
 		local perkData = nzPerks:Get(id)
-		if perkData == nil then return false end
+		if !perkData or !perkData.func then return false end
 		
 		local given = perkData.func(id, self, machine)
 		
@@ -95,7 +95,9 @@ if SERVER then
 	function playerMeta:GivePermaPerks()
 		self:SetPreventPerkLoss(true)
 		for k,v in pairs(nzPerks:GetList()) do
-			self:GivePerk(k)
+			if !nzPerks:Get(k).blockget then
+				self:GivePerk(k)
+			end
 		end
 	end
 end

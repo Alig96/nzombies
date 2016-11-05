@@ -233,36 +233,38 @@ function nzSpecialWeapons:AddDisplay( class, drawfunc, returnfunc )
 end
 
 
+if CLIENT then
+	CreateClientConVar("nz_key_knife", KEY_V, true, true, "Sets the key that triggers Knife. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+	CreateClientConVar("nz_key_grenade", KEY_G, true, true, "Sets the key that throws Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
+	CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 
-CreateClientConVar("nz_key_knife", KEY_V, true, true, "Sets the key that triggers Knife. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
-CreateClientConVar("nz_key_grenade", KEY_G, true, true, "Sets the key that throws Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
-CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
-
---[[local buttonids = {
-	[KEY_V] = "knife",
-	[KEY_G] = "grenade",
-	[KEY_B] = "specialgrenade",
-}]]
-
-hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
-	--local id = buttonids[but]
-	local id
-	if but == ply:GetInfoNum("nz_key_knife", KEY_V) then id = "knife"
-	elseif but == ply:GetInfoNum("nz_key_grenade", KEY_G) then id = "grenade"
-	elseif but == ply:GetInfoNum("nz_key_specialgrenade", KEY_B) then id = "specialgrenade" end
-	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
-		local ammo = GetNZAmmoID(id)
-		if !ammo or ply:GetAmmoCount(ammo) >= 1 then
-			local wep = ply:GetSpecialWeaponFromCategory( id )
-			if IsValid(wep) then
-				if SERVER then
-					ply:SetUsingSpecialWeapon(true)
-					ply:SetActiveWeapon(nil)
+	hook.Add("CreateMove", "nzSpecialWeaponSelect", function( cmd )
+		local id
+		if input.IsKeyDown(ply:GetInfoNum("nz_key_knife", KEY_V)) then id = "knife"
+		elseif input.IsKeyDown(ply:GetInfoNum("nz_key_grenade", KEY_G)) then id = "grenade"
+		elseif input.IsKeyDown(ply:GetInfoNum("nz_key_specialgrenade", KEY_B)) then id = "specialgrenade" end
+		if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
+			local ammo = GetNZAmmoID(id)
+			if !ammo or ply:GetAmmoCount(ammo) >= 1 then
+				local wep = ply:GetSpecialWeaponFromCategory( id )
+				if IsValid(wep) then
+					ply:SelectWeapon(wep:GetClass())
 				end
-				ply:SelectWeapon(wep:GetClass())
-				ply.nzSpecialButtonDown = true
 			end
 		end
+	end)
+	
+end
+
+hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
+	if but == ply:GetInfoNum("nz_key_knife", KEY_V) or
+	but == ply:GetInfoNum("nz_key_grenade", KEY_G) or
+	but == ply:GetInfoNum("nz_key_specialgrenade", KEY_B) then
+		ply.nzSpecialButtonDown = true
+	end
+	
+	if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
+		
 	end
 end)
 
@@ -361,27 +363,40 @@ if SERVER then
 	end)
 end
 
--- Prevent players from manually switching to the weapon if it is special - it is handled by the bind
+-- Players switching to special weapons can then no longer switch away until its action has been completed
 function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
-	-- In case a player is trying to switch both to and from a non-special weapon, but their status is stuck to true
-	if IsValid(ply) and ply:GetUsingSpecialWeapon() and (!IsValid(oldwep) or !oldwep:IsSpecial()) and !newwep:IsSpecial() then
-		-- It should never happen as a player shouldn't be able to use non-special weapons with the status on, but it may get stuck
-		ply:SetUsingSpecialWeapon(false)
-		print(ply:Nick().."'s UsingSpecialWeapon status was true but he isn't equipped with a special weapon and isn't trying to. Resetting ...")
-	end
 	if IsValid(oldwep) and IsValid(newwep) then
-		if (!ply:GetUsingSpecialWeapon() and newwep:IsSpecial()) then return true end
-		if (ply:GetUsingSpecialWeapon() and oldwep:IsSpecial()) then
-			if oldwep.NZSpecialHolster then
-				local allow = oldwep:NZSpecialHolster(newwep)
-				if allow then
-					ply:SetUsingSpecialWeapon(false)
+	
+		if oldwep != newwep and !oldwep:IsSpecial() then
+			ply.NZPrevWep = oldwep -- Store previous weapon if it's not special and not the same
+		end
+		
+		if ply:GetUsingSpecialWeapon() then
+			if oldwep:IsSpecial() then
+				if oldwep.NZSpecialHolster then
+					local allow = oldwep:NZSpecialHolster(newwep)
+					if allow then
+						ply:SetUsingSpecialWeapon(false)
+					end
+					return !allow -- With this function, it determines if we can holster
+				else
+					return true -- Otherwise we CAN'T get away from this weapon until SetUsingSpecialWeapon is false!
 				end
-				return !allow
+			else -- Switching away from a non-sepcial when we have special set; reset it!
+				ply:SetUsingSpecialWeapon(false)
+			end
+		else -- Not using special weapons
+			if newwep:IsSpecial() then -- Switching to a special one, turn Using Special on!
+				local ammo = GetNZAmmoID(newwep:GetSpecialCategory())
+				if !ammo or ply:GetAmmoCount(ammo) >= 1 then
+					ply:SetUsingSpecialWeapon(true)
+					return false -- We allow it when it's either not using ammo or we have enough
+				else
+					return true -- With ammo and less than 1 left, we don't switch :(
+				end
+				
 			end
 		end
-		if oldwep != newwep and !oldwep:IsSpecial() then
-			ply.NZPrevWep = oldwep
-		end
+		
 	end
 end

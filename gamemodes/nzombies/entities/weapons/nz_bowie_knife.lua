@@ -81,7 +81,7 @@ function SWEP:Deploy()
 end
 
 function SWEP:PrimaryAttack()
-	// Only the player fires this way so we can cast
+	-- Only the player fires this way so we can cast
 	
 	local ply = self.Owner;
 

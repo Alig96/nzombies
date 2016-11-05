@@ -1,4 +1,4 @@
-//
+--
 
 local traceents = {
 	["wall_buys"] = function(ent)
@@ -169,6 +169,8 @@ end
 local function GetText( ent )
 
 	if !IsValid(ent) then return "" end
+	
+	if ent.GetNZTargetText then return ent:GetNZTargetText() end
 
 	local class = ent:GetClass()
 	local text = ""

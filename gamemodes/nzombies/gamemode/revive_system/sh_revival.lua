@@ -1,4 +1,5 @@
-//
+--
+
 if SERVER then
 	hook.Add("Think", "CheckDownedPlayersTime", function()
 		for k,v in pairs(nzRevive.Players) do
