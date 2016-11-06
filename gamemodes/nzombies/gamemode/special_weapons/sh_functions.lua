@@ -232,22 +232,40 @@ function nzSpecialWeapons:AddDisplay( class, drawfunc, returnfunc )
 	end
 end
 
-
 if CLIENT then
 	CreateClientConVar("nz_key_knife", KEY_V, true, true, "Sets the key that triggers Knife. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 	CreateClientConVar("nz_key_grenade", KEY_G, true, true, "Sets the key that throws Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 	CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
-
+	
+	local defaultkeys = nzSpecialWeapons.Keys
+	
+	function GetSpecialWeaponIDFromInput()
+		local ply = LocalPlayer()
+		if !ply.NZSpecialWeapons then return end
+		
+		local id
+		local wep
+		
+		for k,v in pairs(ply.NZSpecialWeapons) do
+			local key = input.IsKeyDown(ply:GetInfoNum("nz_key_"..k, defaultkeys[k] or -1))
+			if key then
+				id = k
+				wep = v
+				break
+			end
+		end
+		
+		return id, wep
+	end
+	
 	hook.Add("CreateMove", "nzSpecialWeaponSelect", function( cmd )
 		if vgui.CursorVisible() then return end
-		local id
-		if input.IsKeyDown(ply:GetInfoNum("nz_key_knife", KEY_V)) then id = "knife"
-		elseif input.IsKeyDown(ply:GetInfoNum("nz_key_grenade", KEY_G)) then id = "grenade"
-		elseif input.IsKeyDown(ply:GetInfoNum("nz_key_specialgrenade", KEY_B)) then id = "specialgrenade" end
+		local ply = LocalPlayer()
+		local id, wep = GetSpecialWeaponIDFromInput()
 		if id and (ply:GetNotDowned() or id == "knife") and !ply:GetUsingSpecialWeapon() then
 			local ammo = GetNZAmmoID(id)
 			if !ammo or ply:GetAmmoCount(ammo) >= 1 then
-				local wep = ply:GetSpecialWeaponFromCategory( id )
+				--local wep = ply:GetSpecialWeaponFromCategory( id )
 				if IsValid(wep) then
 					ply:SelectWeapon(wep:GetClass())
 				end
@@ -255,6 +273,14 @@ if CLIENT then
 		end
 	end)
 	
+	hook.Add("HUDWeaponPickedUp", "nzSpecialWeaponAddClient", function(wep)
+		local ply = LocalPlayer()
+		local id = IsValid(wep) and wep:IsSpecial() and wep:GetSpecialCategory()
+		if !ply.NZSpecialWeapons then ply.NZSpecialWeapons = {} end
+		if id and !IsValid(ply.NZSpecialWeapons[id]) then
+			ply.NZSpecialWeapons[id] = wep
+		end
+	end)
 end
 
 hook.Add("PlayerButtonDown", "nzSpecialWeaponsHandler", function(ply, but)
@@ -390,6 +416,11 @@ function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 			if newwep:IsSpecial() then -- Switching to a special one, turn Using Special on!
 				local ammo = GetNZAmmoID(newwep:GetSpecialCategory())
 				if !ammo or ply:GetAmmoCount(ammo) >= 1 then
+				
+					local holster = oldwep.Holster
+					oldwep.Holster = function() return true end -- Allow instant holstering
+					timer.Simple(0, function() oldwep.Holster = holster end)
+					
 					ply:SetUsingSpecialWeapon(true)
 					return false -- We allow it when it's either not using ammo or we have enough
 				else

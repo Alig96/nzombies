@@ -45,8 +45,14 @@ SWEP.Secondary.Ammo			= "none"
 
 SWEP.NZPreventBox = true
 --SWEP.NZTotalBlacklist = true
---SWEP.NZSpecialCategory = "display" -- This makes it count as special, as well as what category it replaces
--- (display is generic stuff that should only be carried temporarily and never holstered and kept)
+SWEP.NZSpecialCategory = "shield" -- This makes it count as special, as well as what category it replaces
+-- Since this is a unique ID, it won't replace any other special weapon and it won't be selectable, so we call this function:
+
+nzSpecialWeapons:RegisterSpecialWeaponCategory("shield", KEY_N) -- This also adds a convar to rebind (with that default)
+
+function SWEP:NZSpecialHolster(wep)
+	return true -- This lets us always holster it even though it is a special weapon
+end
 
 function SWEP:SetupDataTables()
 	self:NetworkVar("Bool", 0, "Electrified")
@@ -55,6 +61,7 @@ end
 function SWEP:Initialize()
 
 	self:SetHoldType( self.HoldType )
+	print(self.NZSpecialHolster)
 
 end
 
@@ -121,10 +128,6 @@ function SWEP:PrimaryAttack()
 		end
 	end
 	
-end
-
-function SWEP:NZSpecialHolster(wep)
-	return true
 end
 
 function SWEP:OnRemove()
