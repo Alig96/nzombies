@@ -239,6 +239,7 @@ if CLIENT then
 	CreateClientConVar("nz_key_specialgrenade", KEY_B, true, true, "Sets the key that throws Special Grenades. Uses numbers from gmod's KEY_ enums: http://wiki.garrysmod.com/page/Enums/KEY")
 
 	hook.Add("CreateMove", "nzSpecialWeaponSelect", function( cmd )
+		if vgui.CursorVisible() then return end
 		local id
 		if input.IsKeyDown(ply:GetInfoNum("nz_key_knife", KEY_V)) then id = "knife"
 		elseif input.IsKeyDown(ply:GetInfoNum("nz_key_grenade", KEY_G)) then id = "grenade"

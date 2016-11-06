@@ -582,8 +582,9 @@ function mapscript.OnGameBegin()
 					running = false
 					maxtime = nil
 					hook.Remove("Think", "nzmapscript_EE_ButtonPuzzle") -- This fails it and you need to retry
-				elseif nextflip < CurTime() then -- It's time for a random flip!
+				elseif nextflip and nextflip < CurTime() then -- It's time for a random flip!
 					light:SetModel("models/props_c17/light_cagelight01_on.mdl")
+					nextflip = nil
 					maxtime = CurTime() + 3
 				end
 			end)
