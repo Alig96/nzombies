@@ -245,7 +245,7 @@ function mapscript.electrify()
 			return TRANSMIT_ALWAYS -- Then our effect will work no matter where it is
 		end
 		elecent:SetModel("models/hunter/blocks/cube025x025x025.mdl")
-		--elecent:SetNoDraw(true)
+		elecent:SetNoDraw(true)
 		elecent:Spawn()
 		elecent.HitPlayer = NULL
 		elecent.OnTakeDamage = function(self, dmginfo)
