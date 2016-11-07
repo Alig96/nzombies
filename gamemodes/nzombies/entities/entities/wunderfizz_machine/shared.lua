@@ -128,6 +128,7 @@ function ENT:Use(activator, caller)
 							local e = EffectData()
 							e:SetEntity(self.Bottle)
 							e:SetMagnitude(1.1)
+							e:SetScale(5)
 							util.Effect("lightning_aura", e)
 						end
 					end)

@@ -17,9 +17,9 @@ local shieldparts = {
 	},
 	[2] = { -- Radiator
 		{pos = Vector(1200, -669, 274), ang = Angle(0,43,0)},
-		{pos = Vector(941, -372, 382), ang = Angle(-90, -175, 180)},
+		{pos = Vector(935, -349, 379), ang = Angle(-90, -133, 180)},
 		{pos = Vector(1116, -250, 274), ang = Angle(0,0,0)},
-		{pos = Vector(1007, -1200, 269), ang = Angle(45,-180,0)},
+		{pos = Vector(1130, -1058, 269), ang = Angle(45,-90,0)},
 		{pos = Vector(803, -1775, 338), ang = Angle(0,0,0)},
 	},
 	[3] = { -- Posts
@@ -122,7 +122,7 @@ fuses:SetDropOnDowned(true)
 
 fuses:SetResetFunction( function(self)
 	for k,v in pairs(validfuses) do
-		if !v.done and (!IsValid(v.ent) or (v.ent:IsPlayer() and !v.ent:IsPlaying())) then -- Only spawn those that are not being carried
+		if !v.done and (!IsValid(v.ent) or (v.ent:IsPlayer() and (!v.ent:IsPlaying() or !v.ent:HasCarryItem("fuses")))) then -- Only spawn those that are not being carried
 			local ent = ents.Create("nz_script_prop")
 			ent:SetModel("models/healthvial.mdl")
 			ent:SetPos(v.pos)
@@ -174,7 +174,7 @@ chargedfuses:SetDropOnDowned(true)
 
 chargedfuses:SetResetFunction( function(self)
 	for k,v in pairs(validfuses) do -- They share the table
-		if v.done and (!IsValid(v.ent) or (v.ent:IsPlayer() and !v.ent:IsPlaying())) then -- Reset the finished ones not being carried
+		if v.done and (!IsValid(v.ent) or (v.ent:IsPlayer() and (!v.ent:IsPlaying() or !v.ent:HasCarryItem("chargedfuses")))) then -- Reset the finished ones not being carried
 			local ent = ents.Create("nz_script_prop")
 			ent:SetModel("models/healthvial.mdl")
 			ent:SetPos(v.pos)
@@ -227,21 +227,26 @@ local elecbuttonpos = {
 	Vector(808, -985, 180),
 	Vector(935, -150, 180),
 	Vector(24, -1452, 194),
-	Vector(-344, -1200, 186)
+	Vector(-344, -1200, 186),
+	Vector(133, -1717, 185),
+	Vector(892, 785, 189)
 }
 local elecent
-local function electrify()
+local elechit
+function mapscript.electrify()
 	local rand = math.random(#elecbuttonpos)
 	local pos = elecbuttonpos[rand]
 	
+	elechit = false
+	
 	if !IsValid(elecent) then
 		elecent = ents.Create("nz_script_prop")
-		elecent:SetModel("models/hunter/blocks/cube025x025x025.mdl")
-		elecent:SetNoDraw(true)
-		elecent:Spawn()
-		elecent.UpdateTransmitState = function(self)
-			return TRANSMIT_ALWAYS
+		function elecent:UpdateTransmitState()
+			return TRANSMIT_ALWAYS -- Then our effect will work no matter where it is
 		end
+		elecent:SetModel("models/hunter/blocks/cube025x025x025.mdl")
+		--elecent:SetNoDraw(true)
+		elecent:Spawn()
 		elecent.HitPlayer = NULL
 		elecent.OnTakeDamage = function(self, dmginfo)
 			if nzEE.Major.CurrentStep == 2 then
@@ -254,6 +259,7 @@ local function electrify()
 					end
 					self.HitPlayer = att
 					wep:SetElectrified(true)
+					elechit = true
 				end
 			end
 		end
@@ -261,7 +267,7 @@ local function electrify()
 	elecent:SetPos(pos)
 	timer.Simple(0.5, function()
 		local e = EffectData()
-		e:SetScale(0)
+		e:SetScale(-1)
 		e:SetEntity(elecent)
 		util.Effect("lightning_aura", e)
 	end)
@@ -270,12 +276,13 @@ local elecgatebuttonshit = 0
 local function finalelectric()
 	if !IsValid(elecent) then
 		elecent = ents.Create("nz_script_prop")
+		function elecent:UpdateTransmitState()
+			return TRANSMIT_ALWAYS
+		end
 		elecent:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 		elecent:SetNoDraw(true)
 		elecent:Spawn()
-		elecent.UpdateTransmitState = function(self)
-			return TRANSMIT_ALWAYS
-		end
+		
 	end
 	elecent.OnTakeDamage = function(self, dmginfo)
 		local att = dmginfo:GetAttacker()
@@ -295,13 +302,13 @@ local function finalelectric()
 	util.Effect("lightning_aura", e)
 	
 	local ent2 = ents.Create("nz_script_prop")
+	function ent2:UpdateTransmitState()
+		return TRANSMIT_ALWAYS -- Then our effect will work no matter where it is
+	end
 	ent2:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 	ent2:SetNoDraw(true)
 	ent2:SetPos(Vector(1966, -862, 232))
 	ent2:Spawn()
-	ent2.UpdateTransmitState = function(self)
-		return TRANSMIT_ALWAYS
-	end
 	ent2.OnTakeDamage = function(self, dmginfo)
 		local att = dmginfo:GetAttacker()
 		local wep = att:GetActiveWeapon()
@@ -565,7 +572,7 @@ function mapscript.OnGameBegin()
 		if !running and finishedcount > completed then
 			running = true
 			light:SetModel("models/props_c17/light_cagelight01_off.mdl")
-			local time = CurTime() + 30 -- When it ends
+			local time = CurTime() + 60 -- When it ends
 			nextflip = CurTime() + math.random(5,10)
 			
 			hook.Add("Think", "nzmapscript_EE_ButtonPuzzle", function()
@@ -585,7 +592,7 @@ function mapscript.OnGameBegin()
 				elseif nextflip and nextflip < CurTime() then -- It's time for a random flip!
 					light:SetModel("models/props_c17/light_cagelight01_on.mdl")
 					nextflip = nil
-					maxtime = CurTime() + 3
+					maxtime = CurTime() + 5
 				end
 			end)
 		elseif running then
@@ -639,7 +646,7 @@ function mapscript.OnGameBegin()
 		if nzEE.Major.CurrentStep == 2 then
 			local wep = dmginfo:GetAttacker():GetActiveWeapon()
 			if IsValid(wep) and wep:GetClass() == "nz_zombieshield" then
-				if wep:GetElectrified() then
+				if wep:GetElectrified() and elechit then
 					elechits = elechits + 1
 					self:EmitSound("ambient/energy/zap"..math.random(1,9)..".wav")
 					local light = elights[elechits]
@@ -647,7 +654,7 @@ function mapscript.OnGameBegin()
 					if elechits == 4 then
 						finalelectric()
 						elecrunning = nil
-					else
+					elseif elechits < 4 then
 						elights[elechits+1]:SetModel("models/props_c17/light_cagelight01_on.mdl")
 						electrify()
 					end
@@ -749,6 +756,7 @@ function mapscript.OnGameBegin()
 		if IsValid(v.ent) and v.ent:GetClass() == "nz_script_prop" then
 			v.ent:Remove() -- Remove all valid fuses so we can reset
 		end
+		v.ent = nil
 		v.done = false
 	end
 	

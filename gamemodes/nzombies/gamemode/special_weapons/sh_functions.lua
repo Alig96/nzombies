@@ -394,8 +394,11 @@ end
 function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 	if IsValid(oldwep) and IsValid(newwep) then
 	
-		if oldwep != newwep and !oldwep:IsSpecial() then
-			ply.NZPrevWep = oldwep -- Store previous weapon if it's not special and not the same
+		if !oldwep:IsSpecial() then
+			if oldwep != newwep then
+				ply.NZPrevWep = oldwep -- Store previous weapon if it's not special and not the same
+			end
+			ply:SetUsingSpecialWeapon(false)
 		end
 		
 		if ply:GetUsingSpecialWeapon() then

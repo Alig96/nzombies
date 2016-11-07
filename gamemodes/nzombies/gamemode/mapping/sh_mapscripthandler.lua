@@ -150,3 +150,7 @@ if CLIENT then
 	end)
 
 end
+
+function nzMapping:GetMapScript()
+	return self.ScriptHooks
+end
