@@ -89,7 +89,7 @@ function ENT:OnReady() end
 
 function ENT:OnPoweredOff() end
 
-function ENT:GetTargetIDText()
+function ENT:GetNZTargetText()
 	if self:IsActive() then return "Already activated" end
 	if self:IsCooldownActive() then return "On cooldown" end
 	if not self:IsElectircityNeeded() and nzElec:IsOn() and self:IsRemoteActivated() then
@@ -131,41 +131,3 @@ if CLIENT then
 	end
 
 end
-
-local function drawTargetID()
-
-	local tr = util.GetPlayerTrace( LocalPlayer() )
-	local trace = util.TraceLine(tr)
-	if (not trace.Hit) then return end
-	if (not trace.HitNonWorld) then return end
-
-	if (not trace.Entity:IsActivatable()) then return end
-
-	local text = trace.Entity:GetTargetIDText()
-
-	if not text then return end
-
-	local font = "nz.display.hud.small"
-	surface.SetFont( font )
-	local w = surface.GetTextSize(text)
-
-	local MouseX, MouseY = gui.MousePos()
-
-	if ( MouseX == 0 and MouseY == 0 ) then
-
-		MouseX = ScrW() / 2
-		MouseY = ScrH() / 2
-
-	end
-
-	local x = MouseX
-	local y = MouseY
-
-	x = x - w / 2
-	y = y + 30
-
-	-- The fonts internal drop shadow looks lousy with AA on
-	draw.SimpleText(text, font, x + 1, y + 1, Color(255,255,255,255) )
-end
-
-hook.Add("HUDDrawTargetID", "activatable_target_id", drawTargetID)

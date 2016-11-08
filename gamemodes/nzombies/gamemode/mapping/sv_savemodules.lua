@@ -1,5 +1,5 @@
 -- In here we have all default savemodules. You can add your own with the function used here:
--- nzMapping:AddSaveModule(id, savefunc, loadfunc, cleanents, cleanfunc, prerestorefunc, postrestorefunc)
+-- nzMapping:AddSaveModule(id, {savefunc, loadfunc, cleanents, cleanfunc, prerestorefunc, postrestorefunc})
 
 -- Savefunc should return the table to be written into the save file
 
@@ -31,8 +31,8 @@
 -- postrestorefunc: Run after MAP is cleaned and NOT config (optional)
 
 -- Note: MAP is cleaned after EVERY game (restore funcs)!
--- MAP cleanup ignores all entity types returned by CLEANFUNC!
--- Always return entity types that relate to your module that should NOT be removed on reset, but SHOULD on clean!
+-- MAP cleanup ignores all entity types in CLEANENTS!
+-- Always add entity types that relate to your module that should NOT be removed on reset, but SHOULD on clean!
 
 nzMapping:AddSaveModule("ZedSpawns", {
 	savefunc = function()
@@ -170,7 +170,7 @@ nzMapping:AddSaveModule("PropEffects", {
 			nzMapping:SpawnEffect(v.pos, v.angle, v.model)
 		end
 	end,
-	cleanents = {"nz_prop_effect"},
+	cleanents = {"nz_prop_effect", "nz_prop_effect_attachment"},
 })
 
 nzMapping:AddSaveModule("EasterEggs", {

@@ -46,8 +46,10 @@ end
 hook.Add( "PlayerUse", "disableDeadUse", disableDeadUse)
 
 local hooks = hook.GetTable().AllowPlayerPickup
-for k,v in pairs(hooks) do
-	hook.Remove("AllowPlayerPickup", k)
+if hooks then
+	for k,v in pairs(hooks) do
+		hook.Remove("AllowPlayerPickup", k)
+	end
 end
 
 local function disableDeadPickups( ply, ent )

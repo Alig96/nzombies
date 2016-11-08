@@ -95,27 +95,29 @@ function nzPowerUps:FireSale()
 	
 	for k,v in pairs(all) do
 		if !v.HasBox then
-			if v != nil and !v.HasBox then
-				local box = ents.Create( "random_box" )
-				box:SetPos( v:GetPos() )
-				box:SetAngles( v:GetAngles() )
-				box:Spawn()
-				--box:PhysicsInit( SOLID_VPHYSICS )
-				box.SpawnPoint = v
-				v.FireSaleBox = box
+			local box = ents.Create( "random_box" )
+			box:SetPos( v:GetPos() )
+			box:SetAngles( v:GetAngles() )
+			box:Spawn()
+			--box:PhysicsInit( SOLID_VPHYSICS )
+			box.SpawnPoint = v
+			v.FireSaleBox = box
 
-				local phys = box:GetPhysicsObject()
-				if phys:IsValid() then
-					phys:EnableMotion(false)
-				end
-			else
-				print("No random box spawns have been set.")
+			local phys = box:GetPhysicsObject()
+			if phys:IsValid() then
+				phys:EnableMotion(false)
 			end
+			
+			box:EmitSound("nz_firesale_jingle")
+		else
+			local sound = ents.Create("nz_prop_effect_attachment")
+			sound:SetNoDraw(true)
+			sound:SetPos(v:GetPos())
+			sound:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+			sound:Spawn()
+			sound:EmitSound("nz_firesale_jingle")
+			v.FireSaleBox = sound
 		end
-	end
-	
-	for k,v in pairs(ents.FindByClass("random_box")) do
-		v:EmitSound("nz_firesale_jingle")
 	end
 end
 

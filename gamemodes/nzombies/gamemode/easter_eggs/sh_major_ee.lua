@@ -46,10 +46,11 @@ if CLIENT then
 		local easteregg = net.ReadBool()
 		local win = net.ReadBool()
 		local msg = net.ReadString()
+		local camtime = net.ReadFloat()
+		local time = CurTime() + camtime
 		local endcam = net.ReadBool()
 		
-		local startpos
-		local endpos
+		local startpos, endpos
 		if endcam then
 			startpos = net.ReadVector()
 			endpos = net.ReadVector()
@@ -59,32 +60,31 @@ if CLIENT then
 		local h = ScrH() / 2
 		local font = "DermaLarge"
 		
-		if startpos and endpos then
-			local time = CurTime()
+		if startpos and endpos and time then
 			local dir = endpos - startpos
 			local ang = dir:Angle()
 			hook.Add("CalcView", "nzCalcEndCameraView", function(ply, origin, angles, fov, znear, zfar)
-				if !nzRound:InState( ROUND_GO ) and !nzRound:InState( ROUND_INIT ) then
+				if time < CurTime() then
 					hook.Remove("CalcView", "nzCalcEndCameraView")
 				end
 				
-				local delta = math.Clamp((CurTime()-time)/20, 0, 1)
-				local pos = startpos + dir*delta
+				local delta = math.Clamp((time-CurTime())/camtime, 0, 1)
+				local pos = endpos - dir*delta
 				
 				return {origin = pos, angles = ang, drawviewer = true}
 			end)
 			hook.Add("CalcViewModelView", "nzCalcEndCameraView", function(wep, vm, oldpos, oldang, pos, ang)
-				if !nzRound:InState( ROUND_GO ) and !nzRound:InState( ROUND_INIT ) then
+				if time < CurTime() then
 					hook.Remove("CalcViewModelView", "nzCalcEndCameraView")
 				end
 				
-				return oldpos - ang:Forward()*10, ang
+				return oldpos - ang:Forward()*50, ang
 			end)
 		end
 		
 		hook.Add("HUDPaint", "nzDrawEEEndScreen", function()
 			draw.SimpleText(msg, font, w, h, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			if !nzRound:InState( ROUND_GO ) then
+			if time < CurTime() then
 				hook.Remove("HUDPaint", "nzDrawEEEndScreen")
 			end
 		end)

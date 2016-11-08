@@ -380,6 +380,8 @@ function nzRound:End()
 			net.Broadcast()
 		end
 		nzNotifications:PlaySound("nz/round/game_over_-1.mp3", 21)
+	elseif nzMapping.OfficialConfig then
+		nzNotifications:PlaySound("nz/round/game_over_5.mp3", 21)
 	else
 		nzNotifications:PlaySound("nz/round/game_over_4.mp3", 21)
 	end
@@ -391,17 +393,32 @@ function nzRound:End()
 	hook.Call( "OnRoundEnd", nzRound )
 end
 
-function nzRound:Win(message, keepplaying, camstart, camend, time)
+function nzRound:Win(message, keepplaying, time, camstart, camend)
 	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
+	local time = time or 10
 	
 	net.Start("nzMajorEEEndScreen")
 		net.WriteBool(true)
 		net.WriteBool(true)
 		net.WriteString(message)
+		net.WriteFloat(time)
+		
 		if camstart and camend then
 			net.WriteBool(true)
 			net.WriteVector(camstart)
 			net.WriteVector(camend)
+			
+			local endtime = CurTime() + time
+			local dir = camend - camstart
+			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function( ply )
+				local delta = math.Clamp((endtime-CurTime())/time, 0, 1)
+				local pos = camstart + dir*delta
+				AddOriginToPVS(pos)
+				
+				if endtime < CurTime() then
+					hook.Remove("SetupPlayerVisibility", "nzEndCameraPVS")
+				end
+			end)
 		else
 			net.WriteBool(false)
 		end
@@ -419,7 +436,7 @@ function nzRound:Win(message, keepplaying, camstart, camend, time)
 			timer.Simple(2, function() game.SetTimeScale(1) end)
 		end
 		
-		timer.Simple(time or 10, function()
+		timer.Simple(time, function()
 			nzRound:ResetGame()
 		end)
 		
@@ -432,27 +449,42 @@ function nzRound:Win(message, keepplaying, camstart, camend, time)
 			game.SetTimeScale(0.25)
 			timer.Simple(2, function() game.SetTimeScale(1) end)
 		end
-		timer.Simple(time or 10, function()
+		timer.Simple(time, function()
 			for k,v in pairs(player.GetAllPlaying()) do
 				v:SetTargetPriority(TARGET_PRIORITY_PLAYER)
-				v:GivePermaPerks()
+				--v:GivePermaPerks()
 			end
 		end)
 	end
 
 end
 
-function nzRound:Lose(message, camstart, camend, time)
+function nzRound:Lose(message, time, camstart, camend)
 	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
+	local time = time or 10
 	
 	net.Start("nzMajorEEEndScreen")
 		net.WriteBool(true)
 		net.WriteBool(false)
 		net.WriteString(message)
+		net.WriteFloat(time)
+		
 		if camstart and camend then
 			net.WriteBool(true)
 			net.WriteVector(camstart)
 			net.WriteVector(camend)
+			
+			local endtime = CurTime() + time
+			local dir = camend - camstart
+			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function( ply )
+				local delta = math.Clamp((endtime-CurTime())/time, 0, 1)
+				local pos = camstart + dir*delta
+				AddOriginToPVS(pos)
+				
+				if endtime < CurTime() then
+					hook.Remove("SetupPlayerVisibility", "nzEndCameraPVS")
+				end
+			end)
 		else
 			net.WriteBool(false)
 		end
@@ -469,7 +501,7 @@ function nzRound:Lose(message, camstart, camend, time)
 		timer.Simple(2, function() game.SetTimeScale(1) end)
 	end
 	
-	timer.Simple(time or 10, function()
+	timer.Simple(time, function()
 		nzRound:ResetGame()
 	end)
 

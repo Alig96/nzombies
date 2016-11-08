@@ -124,10 +124,12 @@ function nzMapping:LoadConfig( name, loader )
 
 	local filepath = "nz/" .. name
 	local location = "DATA"
+	local official = false
 
 	if string.GetExtensionFromFilename(name) == "lua" then
 		if file.Exists("gamemodes/nzombies/officialconfigs/"..name, "GAME") then
 			location, filepath = "GAME", "gamemodes/nzombies/officialconfigs/"..name
+			official = true
 		else
 			location = "LUA"
 		end
@@ -227,6 +229,7 @@ function nzMapping:LoadConfig( name, loader )
 
 		-- Set the current config name, we will use this to load scripts via mismatch window
 		nzMapping.CurrentConfig = name
+		nzMapping.OfficialConfig = official
 		
 		if !nzRound:InState(ROUND_CREATE) then
 			for k,v in pairs(ents.GetAll()) do

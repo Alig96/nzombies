@@ -1006,6 +1006,7 @@ function ENT:Attack( data )
 						dmgInfo:SetDamageType( data.dmgtype )
 						dmgInfo:SetDamageForce( data.dmgforce )
 					self:GetTarget():TakeDamageInfo(dmgInfo)
+					if !IsValid(self:GetTarget()) then return end
 					self:GetTarget():EmitSound( data.hitsound, 50, math.random( 80, 160 ) )
 					self:GetTarget():ViewPunch( data.viewpunch )
 					self:GetTarget():SetVelocity( data.dmgforce )

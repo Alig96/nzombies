@@ -46,17 +46,20 @@ local usesammo = {
 	["specialgrenade"] = "nz_specialgrenade",
 }
 
-function nzWeps:GiveMaxAmmo(ply)
-	for k,v in pairs(ply:GetWeapons()) do
+local plymeta = FindMetaTable("Player")
+function plymeta:GiveMaxAmmo()
+	for k,v in pairs(self:GetWeapons()) do
 		if !v:IsSpecial() then
 			v:GiveMaxAmmo()
 		else
-		
-			local ammo = usesammo[v:GetSpecialCategory()]
-			local maxammo = nzSpecialWeapons.Weapons[v:GetClass()].maxammo
+			local wepdata = nzSpecialWeapons.Weapons[v:GetClass()] or v.NZSpecialWeaponData
+			if !wepdata then return end
+			
+			local ammo = usesammo[v:GetSpecialCategory()] or wepdata.ammotype
+			local maxammo = wepdata.maxammo
 			
 			if ammo and maxammo then
-				ply:SetAmmo(maxammo, ammo)
+				self:SetAmmo(maxammo, GetNZAmmoID(ammo) or ammo) -- Special weapon ammo or just that ammo
 			end
 			
 		end

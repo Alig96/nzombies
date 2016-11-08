@@ -38,7 +38,7 @@ if SERVER then
 		local PowerupData = self:Get(id)
 
 		if !PowerupData.global then
-			ply:GivePowerUp(id, PowerupData.duration)
+			if IsValid(ply) then ply:GivePowerUp(id, PowerupData.duration) end
 		else
 			if PowerupData.duration != 0 then
 				-- Activate for a certain time
@@ -52,7 +52,7 @@ if SERVER then
 		end
 
 		-- Notify
-		ply:EmitSound("nz/powerups/power_up_grab.wav")
+		if IsValid(ply) then ply:EmitSound("nz/powerups/power_up_grab.wav") end
 		PowerupData.func(id, ply)
 	end
 
@@ -225,14 +225,15 @@ nzPowerUps:NewPowerUp("firesale", {
 	expirefunc = function()
 		local tbl = ents.FindByClass("random_box_spawns")
 		for k,v in pairs(tbl) do
-			if IsValid(v.FireSaleBox) then
-				v.FireSaleBox:StopSound("nz_firesale_jingle")
-				v.FireSaleBox.FireSaling = false
-				v.FireSaleBox:MarkForRemoval()
-			end
-			if IsValid(v.Box) then
-				v.Box:StopSound("nz_firesale_jingle")
-				v.Box.FireSaling = false
+			local box = v.FireSaleBox
+			if IsValid(box) then
+				box:StopSound("nz_firesale_jingle")
+				if box.MarkForRemoval then
+					box:MarkForRemoval()
+					box.FireSaling = false
+				else
+					box:Remove()
+				end
 			end
 		end
 	end,

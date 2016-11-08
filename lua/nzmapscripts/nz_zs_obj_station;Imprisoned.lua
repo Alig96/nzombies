@@ -385,7 +385,7 @@ nzEE.Major:AddStep( function() -- Step 4, trigger the core's destruction
 	nzRound:RoundInfinity()
 	local corekilled = ents.FindByName("corekill_button2")[1]
 	corekilled:CallOnRemove("nzee_win", function(self)
-		nzRound:Win("You blew up the core after "..round.." rounds!", true, Vector(1623, -1257, 187), Vector(1623, -1382, 227), 20)
+		nzRound:Win("You blew up the core after "..round.." rounds!", true, 20, Vector(1623, -1257, 187), Vector(1623, -1382, 227))
 		nzRound:SetNumber(round) -- You win! Now continue from the round you got to +1 (for some reason this is -2)
 		nzRound:SetState(ROUND_GO) -- Set this to prevent more zombies from spawning
 		timer.Simple(20, function()

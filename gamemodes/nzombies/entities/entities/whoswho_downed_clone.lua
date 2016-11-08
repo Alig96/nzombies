@@ -103,7 +103,7 @@ function ENT:RevivePlayer()
 				ply:GivePerk(v)
 			end
 		end
-		nzWeps:GiveMaxAmmo(ply)
+		ply:GiveMaxAmmo()
 	end
 	
 	-- Everything bought as the clone will be refunded, even doors
