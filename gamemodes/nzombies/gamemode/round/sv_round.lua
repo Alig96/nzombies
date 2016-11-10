@@ -254,6 +254,7 @@ function nzRound:Start()
 end
 
 function nzRound:Think()
+	if self.Frozen then return end
 	hook.Call( "OnRoundThink", self )
 	--If all players are dead, then end the game.
 	if #player.GetAllPlayingAndAlive() < 1 then
@@ -393,36 +394,9 @@ function nzRound:End()
 	hook.Call( "OnRoundEnd", nzRound )
 end
 
-function nzRound:Win(message, keepplaying, time, camstart, camend)
+function nzRound:Win(message, keepplaying, time)
 	if !message then message = "You survived after " .. self:GetNumber() .. " rounds!" end
 	local time = time or 10
-	
-	net.Start("nzMajorEEEndScreen")
-		net.WriteBool(true)
-		net.WriteBool(true)
-		net.WriteString(message)
-		net.WriteFloat(time)
-		
-		if camstart and camend then
-			net.WriteBool(true)
-			net.WriteVector(camstart)
-			net.WriteVector(camend)
-			
-			local endtime = CurTime() + time
-			local dir = camend - camstart
-			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function( ply )
-				local delta = math.Clamp((endtime-CurTime())/time, 0, 1)
-				local pos = camstart + dir*delta
-				AddOriginToPVS(pos)
-				
-				if endtime < CurTime() then
-					hook.Remove("SetupPlayerVisibility", "nzEndCameraPVS")
-				end
-			end)
-		else
-			net.WriteBool(false)
-		end
-	net.Broadcast()
 	
 	-- Set round state to Game Over
 	if !keepplaying then
@@ -462,33 +436,6 @@ end
 function nzRound:Lose(message, time, camstart, camend)
 	if !message then message = "You got overwhelmed after " .. self:GetNumber() .. " rounds!" end
 	local time = time or 10
-	
-	net.Start("nzMajorEEEndScreen")
-		net.WriteBool(true)
-		net.WriteBool(false)
-		net.WriteString(message)
-		net.WriteFloat(time)
-		
-		if camstart and camend then
-			net.WriteBool(true)
-			net.WriteVector(camstart)
-			net.WriteVector(camend)
-			
-			local endtime = CurTime() + time
-			local dir = camend - camstart
-			hook.Add("SetupPlayerVisibility", "nzEndCameraPVS", function( ply )
-				local delta = math.Clamp((endtime-CurTime())/time, 0, 1)
-				local pos = camstart + dir*delta
-				AddOriginToPVS(pos)
-				
-				if endtime < CurTime() then
-					hook.Remove("SetupPlayerVisibility", "nzEndCameraPVS")
-				end
-			end)
-		else
-			net.WriteBool(false)
-		end
-	net.Broadcast()
 	
 	-- Set round state to Game Over
 	nzRound:SetState( ROUND_GO )
@@ -610,6 +557,10 @@ function nzRound:SetupGame()
 
 	hook.Call( "OnGameBegin", nzRound )
 
+end
+
+function nzRound:Freeze(bool)
+	self.Frozen = bool
 end
 
 function nzRound:RoundInfinity(nokill)

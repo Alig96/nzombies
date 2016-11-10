@@ -233,7 +233,7 @@ local elecbuttonpos = {
 }
 local elecent
 local elechit
-function mapscript.electrify()
+local function electrify()
 	local rand = math.random(#elecbuttonpos)
 	local pos = elecbuttonpos[rand]
 	
@@ -296,10 +296,12 @@ local function finalelectric()
 		end
 	end
 	elecent:SetPos(Vector(2217, -862, 232))
-	local e = EffectData()
-	e:SetScale(0)
-	e:SetEntity(elecent)
-	util.Effect("lightning_aura", e)
+	timer.Simple(0.5, function()
+		local e = EffectData()
+		e:SetScale(-1)
+		e:SetEntity(elecent)
+		util.Effect("lightning_aura", e)
+	end)
 	
 	local ent2 = ents.Create("nz_script_prop")
 	function ent2:UpdateTransmitState()
@@ -323,6 +325,8 @@ local function finalelectric()
 
 	timer.Simple(0.5, function()
 		if IsValid(ent2) then
+			local e = EffectData()
+			e:SetScale(-1)
 			e:SetEntity(ent2)
 			util.Effect("lightning_aura", e)
 		end
@@ -331,6 +335,7 @@ end
 
 nzEE.Major:AddStep( function() -- Step 1, get to the key (fairly long step)
 	nzDoors:OpenLinkedDoors("ee_door")
+	nzNotifications:PlaySound("nz/easteregg/motd_round-01.wav", 0)
 	local ent
 	for k,v in pairs(ents.FindByName("door_key_5")) do
 		if IsValid(v) then
@@ -348,6 +353,9 @@ end)
 
 local forcefieldgens = {}
 nzEE.Major:AddStep( function() -- Step 2, Open control room gate (fairly long step too)
+	nzNotifications:PlaySound("nz/easteregg/motd_round-04.wav", 5)
+	nzNotifications:PlaySound("ambient/machines/thumper_startup1.wav", 2)
+	nzNotifications:PlaySound("ambient/machines/thumper_hit.wav", 0)
 	for k,v in pairs(forcefieldgens) do -- This enables the next step
 		if IsValid(v) then
 			v:SetSubMaterial(1, "")
@@ -374,25 +382,58 @@ nzEE.Major:AddStep( function() -- Step 3, Shut down forcefield
 			v:Remove() -- Closes the forcefield
 		end
 	end
+	for k,v in pairs(ents.FindByName("panel1")) do
+		v:SetSubMaterial(1, "color")
+	end
+	for k,v in pairs(ents.FindByName("panel2")) do
+		v:SetSubMaterial(0, "color")
+	end
 	local corekillstart = ents.FindByName("shield_button1")[1]
 	corekillstart:CallOnRemove("nzee_core", function()
 		nzEE.Major:CompleteStep(4) -- Triggers the final step
 	end)
 end)
 
+local roundwegotto
 nzEE.Major:AddStep( function() -- Step 4, trigger the core's destruction
-	local round = nzRound:GetNumber()
+	roundwegotto = nzRound:GetNumber()
 	nzRound:RoundInfinity()
 	local corekilled = ents.FindByName("corekill_button2")[1]
 	corekilled:CallOnRemove("nzee_win", function(self)
-		nzRound:Win("You blew up the core after "..round.." rounds!", true, 20, Vector(1623, -1257, 187), Vector(1623, -1382, 227))
-		nzRound:SetNumber(round) -- You win! Now continue from the round you got to +1 (for some reason this is -2)
-		nzRound:SetState(ROUND_GO) -- Set this to prevent more zombies from spawning
-		timer.Simple(20, function()
-			nzPowerUps:Nuke(nil, true, false)
-			nzRound:Prepare() -- We continue now with perma perks :D
-		end)
+		nzEE.Major:CompleteStep(5)
 	end)
+end)
+
+nzEE.Major:AddStep( function() -- Step 5, You win :D
+	nzEE.Cam:QueueView(5, nil, nil, nil, true)
+	nzEE.Cam:Text("You blew up the core after "..roundwegotto.." rounds!")
+	nzEE.Cam:Function( function()
+		game.SetTimeScale(0.2)
+		nzRound:Freeze(true) -- Prevents switching and spawning
+	end)
+	nzEE.Cam:Music("nz/easteregg/motd_standard.wav")
+	nzEE.Cam:QueueView(15, Vector(1623, -1257, 187), Vector(1623, -1382, 227), nil, true)
+	nzEE.Cam:Text("You blew up the core after "..roundwegotto.." rounds!")
+	nzEE.Cam:Function( function()
+		nzRound.Number = roundwegotto or 0
+		game.SetTimeScale(1)
+		for k,v in pairs(player.GetAll()) do
+			v:SetTargetPriority(TARGET_PRIORITY_NONE)
+			v:Freeze(true)
+		end
+	end)
+	nzEE.Cam:QueueView(1)
+	nzEE.Cam:Function( function()
+		nzPowerUps:Nuke(nil, true, false)
+		nzRound:Freeze(false)
+		nzRound:Prepare() -- We continue now with perma perks :D
+		for k,v in pairs(player.GetAll()) do
+			v:GivePermaPerks()
+			v:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+			v:Freeze(false)
+		end
+	end)
+	nzEE.Cam:Begin()
 end)
 
 function mapscript.OnGameBegin()
@@ -572,12 +613,14 @@ function mapscript.OnGameBegin()
 		if !running and finishedcount > completed then
 			running = true
 			light:SetModel("models/props_c17/light_cagelight01_off.mdl")
+			but:EmitSound("buttons/button3.wav")
 			local time = CurTime() + 60 -- When it ends
 			nextflip = CurTime() + math.random(5,10)
 			
 			hook.Add("Think", "nzmapscript_EE_ButtonPuzzle", function()
 				if time < CurTime() then -- We finished the time!
 					light:SetModel("models/props_c17/light_cagelight02_on.mdl")
+					but:EmitSound("buttons/button19.wav")
 					completed = completed + 1
 					running = false
 					if completed == 3 then
@@ -586,6 +629,7 @@ function mapscript.OnGameBegin()
 					hook.Remove("Think", "nzmapscript_EE_ButtonPuzzle")
 				elseif maxtime and maxtime < CurTime() then -- The flip happened more than 3 seconds ago :(
 					light:SetModel("models/props_c17/light_cagelight02_off.mdl")
+					but:EmitSound("buttons/combine_button_locked.wav")
 					running = false
 					maxtime = nil
 					hook.Remove("Think", "nzmapscript_EE_ButtonPuzzle") -- This fails it and you need to retry
@@ -599,9 +643,11 @@ function mapscript.OnGameBegin()
 			if maxtime then -- We hit the button while it was running and you had to hit it!
 				maxtime = nil
 				light:SetModel("models/props_c17/light_cagelight01_off.mdl")
+				but:EmitSound("buttons/combine_button1.wav")
 				nextflip = CurTime() + math.random(2,15) -- It'll happen again >:D
 			else -- We pushed when we didn't have to touch it! :(
 				light:SetModel("models/props_c17/light_cagelight02_off.mdl")
+				but:EmitSound("buttons/combine_button_locked.wav")
 				running = false
 				maxtime = nil
 				hook.Remove("Think", "nzmapscript_EE_ButtonPuzzle") -- This fails it and you need to retry
@@ -665,6 +711,7 @@ function mapscript.OnGameBegin()
 	end
 	epanel.OnUsed = function(self, ply)
 		if nzEE.Major.CurrentStep == 2 and !elecrunning then
+			self:EmitSound("ambient/levels/labs/electric_explosion4.wav")
 			electrify()
 			elecrunning = true
 			elights[1]:SetModel("models/props_c17/light_cagelight01_on.mdl")
@@ -686,6 +733,7 @@ function mapscript.OnGameBegin()
 				self:SetSubMaterial(1, "color")
 				doneforcefields = doneforcefields + 1
 				self.HasBeenPaPShot = true
+				self:EmitSound("ambient/machines/thumper_shutdown1.wav", 100)
 				if doneforcefields == 3 then
 					nzEE.Major:CompleteStep(3)
 				end
@@ -712,6 +760,7 @@ function mapscript.OnGameBegin()
 				self:SetSubMaterial(1, "color")
 				doneforcefields = doneforcefields + 1
 				self.HasBeenPaPShot = true
+				self:EmitSound("ambient/machines/thumper_shutdown1.wav", 100)
 				if doneforcefields == 3 then
 					nzEE.Major:CompleteStep(3)
 				end
@@ -738,6 +787,7 @@ function mapscript.OnGameBegin()
 				self:SetSubMaterial(1, "color")
 				doneforcefields = doneforcefields + 1
 				self.HasBeenPaPShot = true
+				self:EmitSound("ambient/machines/thumper_shutdown1.wav", 100)
 				if doneforcefields == 3 then
 					nzEE.Major:CompleteStep(3)
 				end
@@ -762,6 +812,13 @@ function mapscript.OnGameBegin()
 	
 	for k,v in pairs(ents.FindByName("key_case")) do
 		v:Remove() -- Prevent the key from auto-spawning
+	end
+	
+	for k,v in pairs(ents.FindByName("gate_button_1")) do
+		v:Remove() -- We don't want players accidentally opening these doors
+	end
+	for k,v in pairs(ents.FindByName("gate_button_2")) do
+		v:Remove()
 	end
 	
 	fuses:Reset()
