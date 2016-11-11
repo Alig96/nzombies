@@ -6,34 +6,22 @@ local function DrawItemCarryHud()
 	local num = 0
 	for k,v in pairs(ply:GetCarryItems()) do
 		local item = nzItemCarry.Items[v]
-		if item and item.icon then
-			surface.SetMaterial(item.icon)
-			surface.DrawTexturedRect(ScrW() - 400*scale - num*40*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+		if item then
+			if item.model then
+				surface.SetMaterial(item.model)
+				surface.DrawTexturedRect(ScrW() - 400*scale - num*40*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+				if item.icon then
+					surface.SetMaterial(item.icon)
+					surface.DrawTexturedRect(ScrW() - 384*scale - num*40*scale, ScrH() - 90*scale, 16*scale, 16*scale)
+				end
+			elseif item.icon then
+				surface.SetMaterial(item.icon)
+				surface.DrawTexturedRect(ScrW() - 400*scale - num*40*scale, ScrH() - 90*scale, 30*scale, 30*scale)
+			end
 			num = num + 1
 		end
 	end
-	--[[local num = LocalPlayer():GetAmmoCount("nz_grenade")
-	local numspecial = LocalPlayer():GetAmmoCount("nz_specialgrenade")
-	local scale = (ScrW()/1920 + 1)/2
-
-	--print(num)
-	if num > 0 then
-		surface.SetMaterial(grenade_icon)
-		surface.SetDrawColor(255,255,255)
-		for i = num, 1, -1 do
-			--print(i)
-			surface.DrawTexturedRect(ScrW() - 250*scale - i*10*scale, ScrH() - 90*scale, 30*scale, 30*scale)
-		end
-	end
-	if numspecial > 0 then
-		surface.SetMaterial(grenade_icon)
-		surface.SetDrawColor(255,100,100)
-		for i = numspecial, 1, -1 do
-			--print(i)
-			surface.DrawTexturedRect(ScrW() - 300*scale - i*10*scale, ScrH() - 90*scale, 30*scale, 30*scale)
-		end
-	end
-	--surface.DrawTexturedRect(ScrW()/2, ScrH()/2, 100, 100)]]
+	
 end
 
 local itemnotif = itemnotif or {}
@@ -85,10 +73,9 @@ local function DrawItemCarryNotifications()
 	local num = 0
 	for k,v in pairs(itemnotif) do
 		local item = nzItemCarry.Items[k]
-		if item and item.icon then
+		if item and (item.icon or item.model) then
 			local avatar = v.avatar
 			local time = v.time
-			surface.SetMaterial(item.icon)
 			if time < CurTime() then
 				local fade = (1-(CurTime()-time))*255
 				surface.SetDrawColor(255,255,255, fade)
@@ -100,8 +87,20 @@ local function DrawItemCarryNotifications()
 				end
 			end
 			
-			local x = ScrW() - 96 - num*35
-			surface.DrawTexturedRect(x, 32, 64, 64)
+			local x = ScrW() - 96 - num*66
+			
+			if item.model then
+				surface.SetMaterial(item.model)
+				surface.DrawTexturedRect(x, 32, 64, 64)
+				if item.icon then
+					surface.SetMaterial(item.icon)
+					surface.DrawTexturedRect(x+48, 26, 16, 16)
+				end
+			else
+				surface.SetMaterial(item.icon)
+				surface.DrawTexturedRect(x, 32, 64, 64)
+			end
+			
 			if IsValid(avatar) then
 				avatar:SetPos(x + 32, 75)
 			end

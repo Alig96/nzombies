@@ -263,7 +263,7 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 				if newammo <= 0 then newammo = 2 end
 				wep.Primary.old_ClipSize = wep.Primary.ClipSize
 				wep.Primary.ClipSize = newammo
-				wep:SetClip1(newammo)
+				if SERVER then wep:SetClip1(newammo) end
 				
 				if wep:IsCW2() and SERVER then
 					wep.Primary.ClipSize_Orig = newammo

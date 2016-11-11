@@ -17,6 +17,7 @@ if SERVER then
 			text = data.text,
 			hastext = data.hastext,
 			icon = data.icon,
+			model = data.model,
 		}
 		
 		net.Start( "nzItemCarryUpdate" )
@@ -78,13 +79,39 @@ end
 if CLIENT then
 	
 	-- Server to client (Client)
+	local generatingicons = {}
+	hook.Add("SpawniconGenerated", "nzItemCarryIconGeneration", function(model, path, left)
+		if generatingicons[model] then
+			if IsValid(generatingicons[model].vgui) then
+				generatingicons[model].vgui:Remove()
+			end
+			if generatingicons[model].item then
+				generatingicons[model].item.model = Material(path)
+			end
+			generatingicons[model] = nil
+			print("Generated icon for "..model, path)
+		end
+	end)
+	
 	local function ReceiveItemObject( length )
 		local id = net.ReadString()
 		local data = net.ReadTable()
 		
 		-- Precache the material here
 		--print(data.icon)
-		if data.icon and data.icon != "" then data.icon = Material(data.icon) end
+		if data.icon and data.icon != "" then data.icon = Material(data.icon) else data.icon = nil end
+		
+		if data.model and data.model != "" then
+			local model = data.model..".mdl"
+			data.model = Material("spawnicons/"..data.model..".png")
+			if data.model:IsError() and (!generatingicons[model] or !IsValid(generatingicons[model].vgui)) then
+				local s = vgui.Create("SpawnIcon")
+				s:SetModel(model)
+				generatingicons[model] = {vgui = s, item = data}
+			end
+		else
+			data.model = nil
+		end
 		
 		nzItemCarry.Items[id] = data
 		--PrintTable(nzItemCarry.Items[id])

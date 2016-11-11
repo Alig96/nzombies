@@ -36,7 +36,14 @@ function ENT:Initialize()
 		local wep = weapons.Get(self:GetWepClass())
 		if wep then
 			if wep.DrawWorldModel then self.WorldModelFunc = wep.DrawWorldModel end
-			util.PrecacheModel(wep.WM or wep.WorldModel)
+			
+			-- Forced precaching!
+			local model = ClientsideModel("models/hoff/props/teddy_bear/teddy_bear.mdl")
+			util.PrecacheModel(wep.VM or wep.ViewModel)
+			model:SetModel(wep.ViewModel)
+			if wep.VM then model:SetModel(wep.VM) end
+			model:Remove()
+			
 			self:RecalculateModelOutlines()
 		end
 	end

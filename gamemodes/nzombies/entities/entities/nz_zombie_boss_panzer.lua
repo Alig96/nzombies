@@ -622,11 +622,11 @@ function ENT:GrabPlayer(ply)
 		self:SetSequence(self:LookupSequence("nz_grapple_flamethrower"))
 		self:SetCycle(0)
 		self:StartFlames()
-	else
+	--[[elseif ply then
 		self.loco:SetDesiredSpeed(self:GetRunSpeed())
 		self:SetSpecialAnimation(false)
 		self:SetBlockAttack(false)
-		self:SetStop(false)
+		self:SetStop(false)]]
 	end
 end
 

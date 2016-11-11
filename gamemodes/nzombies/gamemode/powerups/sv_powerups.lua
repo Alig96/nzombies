@@ -47,11 +47,12 @@ function nzPowerUps:Nuke(pos, nopoints, noeffect)
 		end
 	else
 		for k,v in pairs(ents.GetAll()) do
-			if nzConfig.ValidEnemies[v:GetClass()] then
+			if v:IsValidZombie() then
 				if IsValid(v) then
 					local insta = DamageInfo()
 					insta:SetDamage(v:Health())
 					insta:SetAttacker(Entity(0))
+					insta:SetInflictor(Entity(0))
 					insta:SetDamageType(DMG_BLAST_SURFACE)
 					timer.Simple(0.1, function() if IsValid(v) then v:TakeDamageInfo( insta ) end end)
 				end

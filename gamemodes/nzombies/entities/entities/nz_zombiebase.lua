@@ -339,9 +339,9 @@ function ENT:RunBehaviour()
 						self:TimeOut(1)
 					end
 				elseif pathResult == "timeout" then --asume pathing timedout, maybe we are stuck maybe we are blocked by barricades
-					local barricade = self:CheckForBarricade()
+					local barricade, dir = self:CheckForBarricade()
 					if barricade then
-						self:OnBarricadeBlocking( barricade )
+						self:OnBarricadeBlocking( barricade, dir )
 					else
 						self:OnPathTimeOut()
 					end
@@ -437,7 +437,7 @@ function ENT:OnTargetInAttackRange()
 	end
 end
 
-function ENT:OnBarricadeBlocking( barricade )
+function ENT:OnBarricadeBlocking( barricade, dir )
 	if (IsValid(barricade) and barricade:GetClass() == "breakable_entry" ) then
 		if barricade:GetNumPlanks() > 0 then
 			timer.Simple(0.3, function()
@@ -473,9 +473,9 @@ function ENT:OnBarricadeBlocking( barricade )
 			end
 
 			-- this will cause zombies to attack the barricade until it's destroyed
-			local stillBlocked = self:CheckForBarricade()
+			local stillBlocked, dir = self:CheckForBarricade()
 			if stillBlocked then
-				self:OnBarricadeBlocking(stillBlocked)
+				self:OnBarricadeBlocking(stillBlocked, dir)
 				return
 			end
 
@@ -484,7 +484,7 @@ function ENT:OnBarricadeBlocking( barricade )
 		elseif barricade:GetTriggerJumps() and self.TriggerBarricadeJump then
 			local dist = barricade:GetPos():DistToSqr(self:GetPos())
 			if dist <= 3500 + (1000 * self.BarricadeJumpTries) then
-				self:TriggerBarricadeJump()
+				self:TriggerBarricadeJump(barricade, dir)
 				self.BarricadeJumpTries = 0
 			else
 				-- If we continuously fail, we need to increase the check range (if it is a bigger prop)
@@ -912,10 +912,10 @@ function ENT:CheckForBarricade()
 	--debugoverlay.Cross(self:GetPos() + Vector( 0, 0, self:OBBCenter().z ), 1)
 
 	if IsValid( trL.Entity ) and trL.Entity:GetClass() == "breakable_entry" then
-		return trL.Entity
+		return trL.Entity, trL.HitNormal
 	end
 
-	--perform a hull trace if line didnt hit just to make sure
+	-- Perform a hull trace if line didnt hit just to make sure
 	local dataH = {}
 	dataH.start = self:GetPos()
 	dataH.endpos = self:GetPos() + self.BarricadeCheckDir * 48
@@ -925,14 +925,14 @@ function ENT:CheckForBarricade()
 	local trH = util.TraceHull(dataH )
 
 	if IsValid( trH.Entity ) and trH.Entity:GetClass() == "breakable_entry" then
-		return trH.Entity
+		return trH.Entity, trH.HitNormal
 	end
 
 	return nil
 
 end
 
---A standard attack you can use it or create something fancy yourself
+-- A standard attack you can use it or create something fancy yourself
 function ENT:Attack( data )
 
 	self:SetLastAttack(CurTime())
@@ -1341,14 +1341,14 @@ function ENT:UpdateSequence()
 	end
 end
 
-function ENT:TriggerBarricadeJump()
+function ENT:TriggerBarricadeJump( barricade, dir )
 	if !self:GetSpecialAnimation() and (!self.NextBarricade or CurTime() > self.NextBarricade) then
 		self:SetSpecialAnimation(true)
 		self:SetBlockAttack(true)
 		
 		local id, dur, speed
 		local actstage = self.ActStages[self:GetActStage()]
-		local animtbl = actstage and actstage.barricadejumps
+		local animtbl = actstage and actstage.barricadejumps or (self.ActStages[1] and self.ActStages[1].barricadejumps)
 		
 		if type(animtbl) == "number" then -- ACT_ is a number, this is set if it's an ACT
 			id = self:SelectWeightedSequence(animtbl)
@@ -1371,7 +1371,7 @@ function ENT:TriggerBarricadeJump()
 		end
 		
 		self:SetSolidMask(MASK_SOLID_BRUSHONLY)
-		--self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS_TRIGGER)
 		--self.loco:SetAcceleration( 5000 )
 		self.loco:SetDesiredSpeed(speed)
 		self:SetVelocity(self:GetForward() * speed)
@@ -1388,6 +1388,19 @@ function ENT:TriggerBarricadeJump()
 			self.loco:SetDesiredSpeed(self:GetRunSpeed())
 			self:UpdateSequence()
 		end)
+		
+		local pos = barricade:GetPos() - dir * 40
+		
+		--debugoverlay.Cross(pos, 5, 5)
+		-- This forces us to move straight through the barricade
+		-- in the opposite direction of where we hit the trace from
+		self:MoveToPos(pos, {
+			lookahead = 40,
+			tolerance = 1,
+			draw = false,
+			maxage = 3,
+			repath = 3,
+		})
 	end
 end
 

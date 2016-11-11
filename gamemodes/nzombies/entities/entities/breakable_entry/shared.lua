@@ -111,9 +111,9 @@ function ENT:SpawnPlank()
 end
 
 function ENT:Touch(ent)
-	if self:GetTriggerJumps() and self:GetNumPlanks() == 0 then
-		if ent.TriggerBarricadeJump then ent:TriggerBarricadeJump() end
-	end
+	--if self:GetTriggerJumps() and self:GetNumPlanks() == 0 then
+		--if ent.TriggerBarricadeJump then ent:TriggerBarricadeJump(self, self:GetTouchTrace().HitNormal) end
+	--end
 end
 
 hook.Add("ShouldCollide", "zCollisionHook", function(ent1, ent2)

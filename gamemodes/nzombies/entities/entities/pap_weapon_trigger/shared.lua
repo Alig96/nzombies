@@ -30,9 +30,6 @@ function ENT:Use( activator, caller )
 	if activator == self:GetPaPOwner() then
 		local class = self:GetWepClass()
 		local weapon = activator:Give(class)
-		if !self.RerollingAtts then -- A 2000 point reroll should not give max ammo
-			nzWeps:GiveMaxAmmoWep(activator, class, true) -- We give pap ammo count
-		end
 		timer.Simple(0, function()
 			if IsValid(weapon) and IsValid(activator) then
 				if activator:HasPerk("speed") and weapon:IsFAS2() then
@@ -42,10 +39,14 @@ function ENT:Use( activator, caller )
 					weapon:ApplyNZModifier("dtap")
 				end
 				weapon:ApplyNZModifier("pap")
+				weapon:SetClip1(weapon.Primary.ClipSize)
 				if IsValid(self.wep) then
 					self.wep.machine:SetBeingUsed(false)
 					self.wep:Remove()
 				end
+			end
+			if !self.RerollingAtts then -- A 2000 point reroll should not give max ammo
+				nzWeps:GiveMaxAmmoWep(activator, class, true) -- We give pap ammo count
 			end
 			self:Remove()
 		end)

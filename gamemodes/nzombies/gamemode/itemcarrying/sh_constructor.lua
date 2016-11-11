@@ -9,7 +9,8 @@ if SERVER then
 		items = {},
 		text = nil, -- Nil makes default texts
 		hastext = nil,
-		icon = "",
+		icon = "", -- Icon, if model is set this is drawn on top in the corner, otherwise just this
+		model = nil, -- Model of the spawnicon, if not set the icon takes its place
 		shared = false,
 		dropondowned = true,
 		dropfunction = function(self, ply)
@@ -53,9 +54,13 @@ if SERVER then
 		SetHasText = function(self, text)
 			self.hastext = text
 		end,
-		-- Sets the icon displayed on the HUD and scoreboard
+		-- Sets the icon displayed in the corner of the spawnicon, or fully if no model was provided
 		SetIcon = function(self, iconpath)
 			self.icon = iconpath
+		end,
+		-- Sets the model displayed the spawnicon for on HUD and scoreboard
+		SetModel = function(self, model)
+			self.model = model and string.StripExtension(model) or nil
 		end,
 		-- Sets whether all players "has" the item when it is picked up
 		SetShared = function(self, bool)

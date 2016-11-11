@@ -19,9 +19,11 @@ function ENT:Initialize()
 		self:SetSolid(SOLID_VPHYSICS)
 		phys = self:GetPhysicsObject()
 
-		if phys and phys:IsValid() then
+		if phys and IsValid(phys) then
+			phys:SetMass(8)
 			phys:Wake()
 			phys:SetAngleDragCoefficient(1000)
+			--print(phys:GetMass())
 		end
 		
 		self:CollisionRulesChanged()

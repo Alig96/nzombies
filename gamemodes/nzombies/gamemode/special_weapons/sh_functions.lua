@@ -78,47 +78,35 @@ function nzSpecialWeapons:AddGrenade( class, ammo, drawact, throwtime, throwfunc
 	
 		local oldthink = wep.Think
 		
-		if throwfunc then
-			function wep:Think()
-				local ct = CurTime()
-				
-				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					self.nzThrowTime = nil
-					self.nzHolsterTime = ct + holstertime
-					throwfunc(self) -- If a function was specified (e.g. to run a certain func on the weapon), then do that
-					-- The above function needs to subtract the grenade ammo (unless they're going for something special)
-				end
-				
-				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self.nzHolsterTime = nil
-					self.Owner:SetUsingSpecialWeapon(false)
-					self:Holster()
-					self.Owner:EquipPreviousWeapon()
-				end
-				
-				oldthink(self)
-			end
-		else
-			function wep:Think()
-				local ct = CurTime()
-				
-				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					self.nzThrowTime = nil
-					self.nzHolsterTime = ct + holstertime
-					self:PrimaryAttack()
-					self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("grenade")) - 1, GetNZAmmoID("grenade"))
-				end
-				
-				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self.nzHolsterTime = nil
-					self.Owner:SetUsingSpecialWeapon(false)
-					self:Holster()
-					self.Owner:EquipPreviousWeapon()
-				end
-				
-				oldthink(self)
+		if !throwfunc then
+			local primary = wep.PrimaryAttack
+			throwfunc = function(self)
+				primary(self)
+				self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("grenade")) - 1, GetNZAmmoID("grenade"))
 			end
 		end
+		
+		function wep:Think()
+			local ct = CurTime()
+			
+			if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
+				self.nzThrowTime = nil
+				self.nzHolsterTime = ct + holstertime
+				throwfunc(self) -- If a function was specified (e.g. to run a certain func on the weapon), then do that
+				-- The above function needs to subtract the grenade ammo (unless they're going for something special)
+			end
+			
+			if self.nzHolsterTime and ct > self.nzHolsterTime then
+				self.nzHolsterTime = nil
+				self.Owner:SetUsingSpecialWeapon(false)
+				self:Holster()
+				self.Owner:EquipPreviousWeapon()
+			end
+			
+			oldthink(self)
+		end
+		
+		function wep:PrimaryAttack() end
 		
 		weapons.Register(wep, class)
 	end
@@ -145,45 +133,31 @@ function nzSpecialWeapons:AddSpecialGrenade( class, ammo, drawact, throwtime, th
 	
 		local oldthink = wep.Think
 		
-		if throwfunc then
-			function wep:Think()
-				local ct = CurTime()
-				
-				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					self.nzThrowTime = nil
-					self.nzHolsterTime = ct + holstertime
-					throwfunc(self)
-				end
-				
-				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self.nzHolsterTime = nil
-					self.Owner:SetUsingSpecialWeapon(false)
-					self:Holster()
-					self.Owner:EquipPreviousWeapon()
-				end
-				
-				oldthink(self)
+		if !throwfunc then
+			local primary = wep.PrimaryAttack
+			throwfunc = function(self)
+				primary(self)
+				self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("specialgrenade")) - 1, GetNZAmmoID("specialgrenade"))
 			end
-		else
-			function wep:Think()
-				local ct = CurTime()
-				
-				if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
-					self.nzThrowTime = nil
-					self.nzHolsterTime = ct + holstertime
-					self:PrimaryAttack()
-					self.Owner:SetAmmo(self.Owner:GetAmmoCount(GetNZAmmoID("specialgrenade")) - 1, GetNZAmmoID("specialgrenade"))
-				end
-				
-				if self.nzHolsterTime and ct > self.nzHolsterTime then
-					self.nzHolsterTime = nil
-					self.Owner:SetUsingSpecialWeapon(false)
-					self:Holster()
-					self.Owner:EquipPreviousWeapon()
-				end
-				
-				oldthink(self)
+		end
+		
+		function wep:Think()
+			local ct = CurTime()
+			
+			if self.nzThrowTime and ct > self.nzThrowTime and (!self.Owner.nzSpecialButtonDown or !self.Owner:GetNotDowned()) then
+				self.nzThrowTime = nil
+				self.nzHolsterTime = ct + holstertime
+				throwfunc(self)
 			end
+			
+			if self.nzHolsterTime and ct > self.nzHolsterTime then
+				self.nzHolsterTime = nil
+				self.Owner:SetUsingSpecialWeapon(false)
+				self:Holster()
+				self.Owner:EquipPreviousWeapon()
+			end
+			
+			oldthink(self)
 		end
 		
 		weapons.Register(wep, class)

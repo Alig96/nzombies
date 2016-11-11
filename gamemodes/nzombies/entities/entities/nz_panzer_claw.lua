@@ -116,6 +116,7 @@ function ENT:Release()
 			net.Broadcast()
 		end
 	end
+	self.GrabbedPlayer = nil
 end
 
 if CLIENT then
