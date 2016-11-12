@@ -239,11 +239,11 @@ function nzMapping:LoadConfig( name, loader )
 			end
 		end
 
-		print("[NZ] Finished loading map config.")
+		print("[nZ] Finished loading map config.")
 		hook.Call("PostConfigLoad", nil, true)
 	else
 		print(filepath)
-		print("[NZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
+		print("[nZ] Warning: NO MAP CONFIG FOUND! Make a config in game using the /create command, then use /save to save it all!")
 		hook.Call("PostConfigLoad", nil, false)
 	end	
 
@@ -379,6 +379,14 @@ hook.Add("Initialize", "nz_Loadmaps", function()
 		nzMapping:LoadConfig( autoload, IsValid(loader) and loader or nil )
 	end)
 end)
+
+function nzMapping:QueueConfig( name, loader )
+	if name then
+		self.QueuedConfig = {config = name, loader = loader}
+	else
+		self.QueueConfig = nil
+	end
+end
 
 function nzMapping:GetConfigs()
 	local tbl = {}

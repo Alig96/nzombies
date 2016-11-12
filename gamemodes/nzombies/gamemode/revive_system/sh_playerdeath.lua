@@ -15,7 +15,7 @@ function nzRevive.DoPlayerDeath(ply, dmg)
 					ply:KillDownedPlayer() -- Kill them if they are already downed
 				end
 			end
-		elseif !ply:GetNotDowned() then 
+		elseif !ply:GetNotDowned() then
 			return true -- Downed players cannot take non-fatal damage
 		end
 	end
@@ -28,7 +28,7 @@ function nzRevive.PostPlayerDeath(ply)
 end
 
 local function HandleKillCommand(ply)
-	if ply:IsPlaying() and !ply:IsSpectating() then
+	if (ply:IsPlaying() and !ply:IsSpectating()) or ply:IsInCreative() then
 		if ply:GetNotDowned() then
 			ply:DownPlayer()
 		else
@@ -38,7 +38,7 @@ local function HandleKillCommand(ply)
 	return false
 end
 
-//Hooks
+-- Hooks
 hook.Add("EntityTakeDamage", "nzDownKilledPlayers", nzRevive.DoPlayerDeath)
 hook.Add("PostPlayerDeath", "nzPlayerDeathRevivalReset", nzRevive.PostPlayerDeath)
 hook.Add("CanPlayerSuicide", "nzSuicideDowning", HandleKillCommand)

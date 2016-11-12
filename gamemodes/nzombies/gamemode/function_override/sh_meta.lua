@@ -206,7 +206,7 @@ function GM:EntityFireBullets(ent, data)
 	-- Fire the PaP shooting sound if the weapon is PaP'd
 	--print(wep, wep:HasNZModifier("pap"))
 	if ent:IsPlayer() and IsValid(ent:GetActiveWeapon()) and ent:GetActiveWeapon():HasNZModifier("pap") then
-		ent:GetActiveWeapon():EmitSound("nz/effects/pap_shoot_glock20.wav", 60, 100)
+		ent:EmitSound("nz/effects/pap_shoot_glock20.wav", 60, 100, 0.7)
 	end
 
 	-- Perform a trace that filters out entities from the table above

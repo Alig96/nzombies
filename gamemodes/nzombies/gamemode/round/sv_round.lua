@@ -21,7 +21,7 @@ function nzRound:Init()
 
 end
 
-function nzRound:Prepare()
+function nzRound:Prepare( time )
 
 	if self:IsSpecial() then -- From previous round
 		local data = self:GetSpecialRoundData()
@@ -46,7 +46,7 @@ function nzRound:Prepare()
 
 	--Notify
 	--PrintMessage( HUD_PRINTTALK, "ROUND: " .. self:GetNumber() .. " preparing" )
-	hook.Call( "OnRoundPreperation", nzRound, self:GetNumber() )
+	hook.Call( "OnRoundPreparation", nzRound, self:GetNumber() )
 	--Play the sound
 
 	--Spawn all players
@@ -206,9 +206,17 @@ function nzRound:Prepare()
 	CurRoundOverSpawned = false
 
 	--Start the next round
-	local time = GetConVar("nz_round_prep_time"):GetFloat()
+	local time = time or GetConVar("nz_round_prep_time"):GetFloat()
 	if self:GetNumber() == -1 then time = 20 end
-	timer.Simple(time, function() if self:InProgress() then self:Start() end end )
+	--timer.Simple(time, function() if self:InProgress() then self:Start() end end )
+	
+	local starttime = CurTime() + time
+	hook.Add("Think", "nzRoundPreparing", function()
+		if CurTime() > starttime then
+			if self:InProgress() then self:Start() end
+			hook.Remove("Think", "nzRoundPreparing")
+		end
+	end)
 
 	if self:IsSpecial() then
 		self:SetNextSpecialRound( self:GetNumber() + GetConVar("nz_round_special_interval"):GetInt() )
@@ -360,6 +368,11 @@ function nzRound:ResetGame()
 	--Reset easter eggs
 	nzEE:Reset()
 	nzEE.Major:Reset()
+	
+	-- Load queued config if any
+	if nzMapping.QueuedConfig then
+		nzMapping:LoadConfig(nzMapping.QueuedConfig.config, nzMapping.QueuedConfig.loader)
+	end
 
 end
 
@@ -569,5 +582,6 @@ function nzRound:RoundInfinity(nokill)
 	end
 
 	nzRound:SetNumber( -2 )
+	nzRound:SetState(ROUND_PROG)
 	nzRound:Prepare()
 end

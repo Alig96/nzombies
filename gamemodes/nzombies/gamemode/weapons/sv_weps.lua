@@ -69,6 +69,7 @@ local function OnWeaponAdded( weapon )
 					weapon.Weight = 0
 				end)
 			end
+			if weapon.NearWallEnabled then weapon.NearWallEnabled = false end
 		end)
 	end
 	

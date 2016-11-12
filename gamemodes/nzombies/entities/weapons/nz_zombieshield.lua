@@ -76,6 +76,13 @@ function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW)
 	self.WepOwner = self.Owner
 	self:CallOnClient("Deploy")
+	
+	local viewmodel = self.Owner:GetViewModel()
+	if IsValid(viewmodel) then
+		viewmodel:SetBodygroup(0,self:GetBodygroup(0))
+		viewmodel:SetBodygroup(1,self:GetBodygroup(1))
+		viewmodel:SetBodygroup(2,self:GetBodygroup(2))
+	end
 end
 
 function SWEP:Holster()
@@ -85,6 +92,12 @@ function SWEP:Holster()
 		else
 			self:Remove()
 		end
+	end
+	local viewmodel = self.Owner:GetViewModel()
+	if IsValid(viewmodel) then
+		viewmodel:SetBodygroup(0,0)
+		viewmodel:SetBodygroup(1,0)
+		viewmodel:SetBodygroup(2,0)
 	end
 	return true
 end
@@ -121,7 +134,7 @@ function SWEP:PrimaryAttack()
 			self:EmitSound("physics/metal/metal_box_impact_hard"..math.random(1,3)..".wav")
 			if self:GetElectrified() then
 				local ent = self.Owner:TraceHullAttack( vecSrc, tracehit.HitPos, Vector( -5, -5, -5 ), Vector( 5, 5, 36 ), 450, DMG_SHOCK, 100 )
-				if IsValid(ent) then ent:EmitSound("ambient/energy/zap"..math.random(1,9)..".wav") end
+				if IsValid(ent) then timer.Simple(0, function() self:EmitSound("ambient/energy/zap"..math.random(1,9)..".wav") end) end
 			else
 				self.Owner:TraceHullAttack( vecSrc, tracehit.HitPos, Vector( -5, -5, -5 ), Vector( 5, 5, 36 ), 250, DMG_CLUB, 100 )
 			end
@@ -143,6 +156,27 @@ function SWEP:GetViewModelPosition( pos, ang )
 	return pos, ang
  
 end
+
+function SWEP:SetDamage(value)
+	if self.DamagedVariant == value then return end
+	
+	self.DamagedVariant = value
+	self:SetBodygroup(0,value)
+	self:SetBodygroup(1,value)
+	self:SetBodygroup(2,value)
+	
+	if self.Owner:GetActiveWeapon() == self then
+		local viewmodel = self.Owner:GetViewModel()
+		if IsValid(viewmodel) then
+			viewmodel:SetBodygroup(0,value)
+			viewmodel:SetBodygroup(1,value)
+			viewmodel:SetBodygroup(2,value)
+		end
+	end
+	
+	self:EmitSound("physics/metal/metal_sheet_impact_hard"..math.random(6,8)..".wav")
+end
+	
 
 if CLIENT then
 	function SWEP:DrawWorldModel()

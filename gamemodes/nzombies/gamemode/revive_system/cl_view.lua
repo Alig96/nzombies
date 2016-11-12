@@ -1,4 +1,4 @@
-//Useful ToScreen replacement for better directional
+-- Useful ToScreen replacement for better directional
 function XYCompassToScreen(pos, boundary)
 	local boundary = boundary or 0
 	local eyedir = EyeVector()
@@ -199,8 +199,8 @@ local bloodpulse = true --if true, going up
 local pulse = 0
 local function DrawDamagedOverlay()
 	if GetConVar("nz_bloodoverlay"):GetBool() and LocalPlayer():Alive() then
-		local fade = (math.Clamp(LocalPlayer():Health()/LocalPlayer():GetMaxHealth(), 0.2, 0.5)-0.2)/0.3
-		local fade2 = 1 - math.Clamp(LocalPlayer():Health()/LocalPlayer():GetMaxHealth(), 0, 0.5)/0.5
+		local fade = (math.Clamp(LocalPlayer():Health()/LocalPlayer():GetMaxHealth(), 0.3, 0.7)-0.3)/0.4
+		local fade2 = 1 - math.Clamp(LocalPlayer():Health()/LocalPlayer():GetMaxHealth(), 0, 0.7)/0.7
 		
 		surface.SetMaterial(blood_overlay)
 		surface.SetDrawColor(255,255,255,255-fade*255)

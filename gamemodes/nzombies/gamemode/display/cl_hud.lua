@@ -300,6 +300,7 @@ end
 local round_white = 0
 local round_alpha = 255
 local round_num = 0
+local infmat = Material("materials/round_-1.png", "smooth")
 local function RoundHud()
 
 	local text = ""
@@ -309,7 +310,11 @@ local function RoundHud()
 	local round = round_num
 	local col = Color(200 + round_white*55, round_white, round_white,round_alpha)
 	if round == -1 then
-		text = "∞"
+		--text = "∞"
+		surface.SetMaterial(infmat)
+		surface.SetDrawColor(col.r,round_white,round_white,round_alpha)
+		surface.DrawTexturedRect(w - 25, h - 100, 200, 100)
+		return
 	elseif round < 11 then
 		for i = 1, round do
 			if i == 5 or i == 10 then
@@ -438,7 +443,7 @@ hook.Add("HUDPaint", "vultureVision", VultureVision )
 hook.Add("HUDPaint", "roundnumHUD", RoundHud )
 hook.Add("HUDPaint", "grenadeHUD", DrawGrenadeHud )
 
-hook.Add("OnRoundPreperation", "BeginRoundHUDChange", StartChangeRound)
+hook.Add("OnRoundPreparation", "BeginRoundHUDChange", StartChangeRound)
 hook.Add("OnRoundStart", "EndRoundHUDChange", EndChangeRound)
 
 local blockedweps = {
@@ -474,6 +479,8 @@ function GM:HUDWeaponPickedUp( wep )
 
 	table.insert( self.PickupHistory, pickup )
 	self.PickupHistoryLast = pickup.time
+	
+	if wep.NearWallEnabled then wep.NearWallEnabled = false end
 
 end
 

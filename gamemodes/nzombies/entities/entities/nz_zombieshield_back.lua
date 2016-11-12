@@ -14,7 +14,10 @@ ENT.RenderGroup		= RENDERGROUP_BOTH
 function ENT:Initialize()
 
 	self:SetModel("models/weapons/w_zombieshield.mdl")
-	self:SetHealth(450) -- 15 hits (30 damage per hit)
+	if SERVER then
+		self:SetHealth(450) -- 15 hits (30 damage per hit)
+		self:SetMaxHealth(450)
+	end
 	self:SetParent(self.Owner)
 	self:AddEffects(EF_BONEMERGE)
 	
@@ -50,7 +53,19 @@ function ENT:OnTakeDamage(dmginfo)
 	if self:Health() <= 0 then
 		self.Owner:EmitSound("physics/metal/metal_box_break"..math.random(1,2)..".wav")
 		self.Owner:StripWeapon("nz_zombieshield")
+		self.Owner:EquipPreviousWeapon()
 	else
+		local pct = self:Health()/self:GetMaxHealth()
+		if pct < 0.2 then
+			self:SetBodygroup(0,2)
+			self.Weapon:SetDamage(2)
+		elseif pct < 0.6 then
+			self:SetBodygroup(0,1)
+			self.Weapon:SetDamage(1)
+		else
+			self:SetBodygroup(0,0)
+			self.Weapon:SetDamage(0)
+		end
 		self:EmitSound("physics/metal/metal_box_impact_hard"..math.random(1,3)..".wav")
 	end
 end

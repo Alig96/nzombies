@@ -4,7 +4,7 @@ end
 
 local states = {
 	[ROUND_INIT] = "OnRoundInit",
-	[ROUND_PREP] = "OnRoundPreperation",
+	[ROUND_PREP] = "OnRoundPreparation",
 	[ROUND_PROG] = "OnRoundStart",
 	[ROUND_GO] = "OnRoundEnd",
 	[ROUND_CREATE] = "OnRoundCreative",

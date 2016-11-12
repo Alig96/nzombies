@@ -305,7 +305,7 @@ if CLIENT then
 		local win = net.ReadBool()
 		local msg = net.ReadString()
 		local camtime = net.ReadFloat()
-		local time = RealTime() + camtime
+		local time = CurTime() + camtime
 		local endcam = net.ReadBool()
 		
 		local startpos, endpos
@@ -322,17 +322,17 @@ if CLIENT then
 			local dir = endpos - startpos
 			local ang = dir:Angle()
 			hook.Add("CalcView", "nzCalcEndCameraView", function(ply, origin, angles, fov, znear, zfar)
-				if time < RealTime() then
+				if time < CurTime() then
 					hook.Remove("CalcView", "nzCalcEndCameraView")
 				end
 				
-				local delta = math.Clamp((time-RealTime())/camtime, 0, 1)
+				local delta = math.Clamp((time-CurTime())/camtime, 0, 1)
 				local pos = endpos - dir*delta
 				
 				return {origin = pos, angles = ang, drawviewer = true}
 			end)
 			hook.Add("CalcViewModelView", "nzCalcEndCameraView", function(wep, vm, oldpos, oldang, pos, ang)
-				if time < RealTime() then
+				if time < CurTime() then
 					hook.Remove("CalcViewModelView", "nzCalcEndCameraView")
 				end
 				
@@ -342,7 +342,7 @@ if CLIENT then
 		
 		hook.Add("HUDPaint", "nzDrawEEEndScreen", function()
 			draw.SimpleText(msg, font, w, h, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-			if time < RealTime() then
+			if time < CurTime() then
 				hook.Remove("HUDPaint", "nzDrawEEEndScreen")
 			end
 		end)

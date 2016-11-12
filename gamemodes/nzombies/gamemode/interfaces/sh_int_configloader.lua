@@ -17,7 +17,7 @@ if SERVER then
 		nextvote = nextvote or CurTime() + convartime*60
 	end
 	
-	function nzInterfaces.StartVote( time )
+	function nzInterfaces.StartVote( time, caller )
 		local tbl = nzMapping:GetConfigs()
 		
 		votes = {}
@@ -68,8 +68,13 @@ if SERVER then
 				hook.Remove("Think", "nzVoteHandler")
 				timer.Simple(5, function()
 					voting = false
-					PrintMessage(HUD_PRINTTALK, "The winner is "..winner)
-					--nzMapping:LoadConfig( winner )
+					--PrintMessage(HUD_PRINTTALK, "[nZ] The winner is "..winner)
+					if nzRound:InProgress() then
+						PrintMessage(HUD_PRINTTALK, "[nZ] The config will be loaded after the current game.")
+						nzMapping:QueueConfig( winner, caller ) -- Caller of the vote is responsible for mismatch if done via nz_rtv command
+					else
+						nzMapping:LoadConfig( winner, caller )
+					end
 				end)
 			end
 		end)
@@ -82,6 +87,11 @@ if SERVER then
 			nextvote = nil
 		end
 	end
+	concommand.Add("nz_rtv", function(ply,cmd,args,argstr)
+		local time = args[1] and tonumber(args[1]) or 30
+		nzInterfaces.StartVote(time, ply)
+	end, nil, "Starts a config vote. Accepts 1 argument: The amount of time to have the vote running. Defaults to 30 seconds.",
+	FCVAR_SERVER_CAN_EXECUTE)
 	
 	local function votechange(newvote, oldvote, ply)
 		if !voting then return end -- We're not even voting, wut?!

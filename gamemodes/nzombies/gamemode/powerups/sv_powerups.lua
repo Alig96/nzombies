@@ -31,30 +31,39 @@ function nzPowerUps:Nuke(pos, nopoints, noeffect)
 	local highesttime = 0
 	if pos and type(pos) == "Vector" then
 		for k,v in pairs(ents.GetAll()) do
-			if nzConfig.ValidEnemies[v:GetClass()] then
+			if v:IsValidZombie() then
 				if IsValid(v) then
 					v:SetBlockAttack(true) -- They cannot attack now!
 					local insta = DamageInfo()
-					insta:SetDamage(v:Health())
 					insta:SetAttacker(Entity(0))
 					insta:SetDamageType(DMG_BLAST_SURFACE)
 					-- Delay the death by the distance from the position in milliseconds
 					local time = v:GetPos():Distance(pos)/1000
 					if time > highesttime then highesttime = time end
-					timer.Simple(time, function() if IsValid(v) then v:TakeDamageInfo( insta ) end end)
+					timer.Simple(time, function()
+						if IsValid(v) then
+							insta:SetDamage(v:Health())
+							v:TakeDamageInfo( insta )
+						end
+					end)
 				end
 			end
 		end
 	else
 		for k,v in pairs(ents.GetAll()) do
 			if v:IsValidZombie() then
+				print(v, IsValid(v))
 				if IsValid(v) then
 					local insta = DamageInfo()
-					insta:SetDamage(v:Health())
 					insta:SetAttacker(Entity(0))
 					insta:SetInflictor(Entity(0))
 					insta:SetDamageType(DMG_BLAST_SURFACE)
-					timer.Simple(0.1, function() if IsValid(v) then v:TakeDamageInfo( insta ) end end)
+					timer.Simple(0.1, function()
+						if IsValid(v) then
+							insta:SetDamage(v:Health())
+							v:TakeDamageInfo( insta )
+						end
+					end)
 				end
 			end
 		end
