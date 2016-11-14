@@ -66,7 +66,7 @@ function ENT:GetTarget()
 end
 
 function ENT:HasValidTarget()
-	return IsValid(self:GetTarget()) and self:GetTarget():IsZombie() and self:GetPos():Distance(self.eTarget:GetPos()) < self.fAttackRange and self.eTarget:Health() > 0
+	return IsValid(self:GetTarget()) and self:GetTarget():IsValidZombie() and self:GetPos():Distance(self.eTarget:GetPos()) < self.fAttackRange and self.eTarget:Health() > 0
 end
 
 --Targetfinding

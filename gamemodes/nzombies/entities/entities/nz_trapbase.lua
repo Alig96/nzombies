@@ -7,6 +7,8 @@ ENT.Base = "nz_activatable"
 
 ENT.PrintName = "nz_trapbase"
 
+ENT.bPhysgunNoCollide = true
+
 DEFINE_BASECLASS("nz_activatable")
 
 function ENT:SetupDataTables()

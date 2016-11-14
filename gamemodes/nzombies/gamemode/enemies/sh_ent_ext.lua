@@ -94,3 +94,8 @@ end
 nzEnemies:AddValidZombieType("nz_zombie_walker")
 nzEnemies:AddValidZombieType("nz_zombie_special_burning")
 nzEnemies:AddValidZombieType("nz_zombie_special_dog")
+
+
+function meta:ShouldPhysgunNoCollide()
+	return self.bPhysgunNoCollide
+end
