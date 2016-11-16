@@ -146,6 +146,9 @@ if SERVER then
 		end
 		
 		self:RemoveAllPowerUps()
+		
+		self:SetPos(self:GetPos() + Vector(0,0,25))
+		self:ResetHull()
 	end
 
 end
@@ -176,5 +179,5 @@ end
 local oldshootpos = playerMeta.GetShootPos
 function playerMeta:GetShootPos()
 	if self:GetNotDowned() then return oldshootpos(self) end
-	return oldshootpos(self) + Vector(0,0,-30)
+	return oldshootpos(self) + Vector(0,0,-15)
 end

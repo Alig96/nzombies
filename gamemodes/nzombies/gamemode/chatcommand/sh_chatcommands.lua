@@ -87,8 +87,8 @@ end, false, "   Generate a new naviagtion mesh.")
 
 nzChatCommand.Add("/save", SERVER, function(ply, text)
 	if nzRound:InState( ROUND_CREATE ) then
-		-- nzMapping:SaveConfig()
 		net.Start("nz_SaveConfig")
+			net.WriteString(nzMapping.CurrentConfig or "")
 		net.Send(ply)
 	else
 		ply:PrintMessage( HUD_PRINTTALK, "[nZ] You can't save a config outside of creative mode." )

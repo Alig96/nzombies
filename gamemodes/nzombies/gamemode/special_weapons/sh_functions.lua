@@ -388,6 +388,7 @@ function GM:PlayerSwitchWeapon(ply, oldwep, newwep)
 				end
 			else -- Switching away from a non-sepcial when we have special set; reset it!
 				ply:SetUsingSpecialWeapon(false)
+				return false -- Allow
 			end
 		else -- Not using special weapons
 			if newwep:IsSpecial() then -- Switching to a special one, turn Using Special on!

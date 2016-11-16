@@ -68,7 +68,7 @@ end
 
 local function DrawColorModulation()
 	if nzRevive.Players[LocalPlayer():EntIndex()] then
-		local fadeadd = ((1/GetConVar("nz_downtime"):GetFloat()) * FrameTime()) * -1 	//Change 45 to the revival time
+		local fadeadd = ((1/GetConVar("nz_downtime"):GetFloat()) * FrameTime()) * -1 	-- Change 45 to the revival time
 		tab[ "$pp_colour_colour" ] = math.Approach(tab[ "$pp_colour_colour" ], 0, fadeadd)
 		tab[ "$pp_colour_addr" ] = math.Approach(tab[ "$pp_colour_addr" ], 0.5, fadeadd *-0.5)
 		tab[ "$pp_colour_mulr" ] = math.Approach(tab[ "$pp_colour_mulr" ], 1, -fadeadd)
@@ -277,7 +277,7 @@ local function DrawWhosWhoOverlay()
 	end]]
 end
 
-//Hooks
+-- Hooks
 hook.Add("CalcView", "CalcDownedView", CalcDownView )
 hook.Add("CalcViewModelView", "CalcDownedViewmodelView", CalcDownViewmodelView )
 hook.Add("RenderScreenspaceEffects", "DrawColorModulation", DrawColorModulation)

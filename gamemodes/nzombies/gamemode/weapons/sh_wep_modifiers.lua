@@ -248,6 +248,7 @@ end
 nzWeps:AddWeaponModifier("pap", function(wep)
 	if !wep:HasNZModifier("pap") then
 		print("Applying PaP to: " .. (wep.ClassName or tostring(wep)))
+		local ply = wep.Owner
 		--wep:SetMaterial("models/XQM/LightLineRed_tool.vtf")
 
 		-- Call OnPaP function for specially coded weapons
@@ -315,19 +316,35 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 			end
 			
 			if CLIENT then
-				wep.PaPMats = {}
-				local model = ClientsideModel(wep.VM or wep.ViewModel)
-				local mats = model:GetMaterials()
-				PrintTable(mats)
-				if table.Count(mats) >= 1 then
-					for k,v in pairs(mats) do
-						print(k,v,string.find(v, "hand"))
-						if !string.find(v, "hand") and !string.find(v, "accessor") then -- Accessories or accessory
-							wep.PaPMats[k - 1] = true
+				local bannedmatnames = {"hand", "arm", "accessor"}
+				local function IsGoodMaterial(str)
+					for k,v in pairs(bannedmatnames) do
+						if string.find(str, v) then
+							return false
 						end
 					end
+					return true
 				end
-				model:Remove()
+				
+				wep.PaPMats = {}
+				local modelstr = wep.VM or wep.ViewModel or wep:GetViewModel()
+				if modelstr then
+					local model = ClientsideModel(modelstr)
+					local mats = model:GetMaterials()
+					PrintTable(mats)
+					if table.Count(mats) >= 1 then
+						local num = 2
+						for k,v in pairs(mats) do
+							if IsGoodMaterial(v) then
+								if num%3 > 0 then
+									wep.PaPMats[k - 1] = true
+								end
+								num = num + 1
+							end
+						end
+					end
+					model:Remove()
+				end
 			end
 			
 		end
@@ -433,20 +450,24 @@ if SERVER then
 end
 
 if CLIENT then
+	CreateClientConVar("nz_papcamo", 1, true, false, "Sets whether Pack-a-Punch applies a camo to your viewmodel")
+
 	local function PaPCamoUpdate(vm, old, new)
 		local wep = LocalPlayer():GetActiveWeapon()
 		--vm:SetSubMaterial()
+		if !IsValid(wep) then return end
 		local view = wep.CW_VM or wep.Wep or vm or LocalPlayer():GetViewModel()
 		if IsValid(view) then
 			view:SetSubMaterial()
+			if !GetConVar("nz_papcamo"):GetBool() then return end
 			if wep.PaPMats then
 				for k,v in pairs(wep.PaPMats) do
-					print(k)
+					--print(k)
 					view:SetSubMaterial(k, "models/XQM/LightLinesRed_tool.vtf")
 				end
 			end
 		end
 	end
 	hook.Add("OnViewModelChanged", "nzPaPCamoUpdate", PaPCamoUpdate)
-	net.Receive("nzPaPCamo", function() print("Got it!") PaPCamoUpdate() end)
+	net.Receive("nzPaPCamo", function() PaPCamoUpdate() end)
 end

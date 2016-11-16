@@ -39,7 +39,7 @@ local function PlayerDownedParameters(ply, vel, seqspeed)
 		--
 		return true
 	elseif ply.NZDownedAnim then
-		ply:SetPos(ply:GetPos() + Vector(0,0,25))
+		--ply:SetPos(ply:GetPos() + Vector(0,0,25))
 		ply:ResetHull()
 		ply.NZDownedAnim = false
 	end
