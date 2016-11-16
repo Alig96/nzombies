@@ -49,7 +49,7 @@ end
 
 local function CalcDownView(ply, pos, ang, fov, znear, zfar)
 	if nzRevive.Players[LocalPlayer():EntIndex()] then
-		local pos = pos + Vector(0,0,-30)
+		local pos = pos + Vector(0,0,-15)
 		local ang = ang + Angle(0,0,20)
 		
 		return {origin = pos, angles = ang, fov = fov, znear = znear, zfar = zfar, drawviewer = false }
@@ -58,7 +58,7 @@ end
 
 local function CalcDownViewmodelView(wep, vm, oldpos, oldang, pos, ang)
 	if nzRevive.Players[LocalPlayer():EntIndex()] then
-		local oldpos = oldpos + Vector(0,0,-30)
+		local oldpos = oldpos + Vector(0,0,-15)
 		local oldang = oldang + Angle(0,0,20)
 		if wep:IsCW2() or wep:IsFAS2() then oldpos = oldpos + oldang:Up() * -100 end
 		

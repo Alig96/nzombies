@@ -38,13 +38,13 @@ function ENT:Initialize()
 	if CLIENT then
 		self.Light = ClientsideModel("models/effects/vol_light128x512.mdl")
 		local ang = self:GetAngles()
-		self.Light:SetAngles(Angle(ang[1], ang[2], 180))
+		self.Light:SetAngles(Angle(0, ang[2], 180))
 		self.Light:SetPos(self:GetPos() - Vector(0,0,50))
-		self.Light:SetParent(self)
+		--self.Light:SetParent(self)
 		self.Light:SetColor(Color(150,200,255))
 		self.Light:DrawShadow(false)
 		local min, max = self.Light:GetRenderBounds()
-		self.Light:SetRenderBounds(Vector(min.x, min.y, min.z*10), Vector(max.x, max.y, max.z*10))
+		self.Light:SetRenderBounds(Vector(min.x, min.y, min.z), Vector(max.x, max.y, max.z*10))
 		
 		local scale = Vector( 1, 1, 5 )
 		local mat = Matrix()
@@ -147,13 +147,13 @@ function ENT:MoveAway()
 
 	-- Move Up
 	timer.Simple( 1, function()
-			local c = 0
 			timer.Create( "moveAway", 5, 1, function()
-				self.Moveing = false
+				self.Moving = false
 				timer.Destroy("moveAway")
 				timer.Destroy("shake")
 
-				self.SpawnPoint.HasBox = false
+				self.SpawnPoint.Box = nil
+				self.SpawnPoint:SetBodygroup(1,0)
 				self:MoveToNewSpot(self.SpawnPoint)
 				self:EmitSound("nz/randombox/poof.wav")
 				self:Remove()
@@ -165,7 +165,7 @@ function ENT:MoveAway()
 			self:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
 			self:GetPhysicsObject():SetDamping(100, 0)
 			self:CollisionRulesChanged()
-			self:SetLocalVelocity(self:GetAngles():Up()*100)
+			self:SetLocalVelocity(ang:Up()*100)
 			timer.Simple(1.5, function()
 				self:SetLocalVelocity( Vector(0,0,0) )
 				self:SetVelocity( Vector(0,0,0) )
@@ -178,6 +178,9 @@ function ENT:MoveAway()
 						self:SetLocalAngularVelocity( Angle(0, 0, 750) )
 						timer.Simple(0.2, function()
 							self:SetLocalAngularVelocity( Angle(0, 0, 1000) )
+							timer.Simple(0.2, function()
+								self:SetLocalAngularVelocity( Angle(0, 0, 2000) )
+							end)
 						end)
 					end)
 				end)

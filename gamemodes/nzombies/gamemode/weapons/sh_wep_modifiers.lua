@@ -313,6 +313,23 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 					end
 				end
 			end
+			
+			if CLIENT then
+				wep.PaPMats = {}
+				local model = ClientsideModel(wep.VM or wep.ViewModel)
+				local mats = model:GetMaterials()
+				PrintTable(mats)
+				if table.Count(mats) >= 1 then
+					for k,v in pairs(mats) do
+						print(k,v,string.find(v, "hand"))
+						if !string.find(v, "hand") and !string.find(v, "accessor") then -- Accessories or accessory
+							wep.PaPMats[k - 1] = true
+						end
+					end
+				end
+				model:Remove()
+			end
+			
 		end
 	else
 		local block
@@ -385,6 +402,51 @@ end, function(wep)
 				wep:SetClip1(wep.Primary.ClipSize)
 			end
 		end
+		
+		wep.PaPMats = nil
 		-- Since attachments are given to the player and not the weapon, we can't remove them again without removing all :(
 	else return true end
 end)
+
+if SERVER then
+	util.AddNetworkString("nzPaPCamo")
+	hook.Add("PlayerSwitchWeapon", "nzPaPCamoUpdate", function(ply, old, new)
+		--[[print("Switch!")
+		if IsValid(new) and IsFirstTimePredicted() then
+			local vm = ply:GetViewModel()
+			print("Reset material")
+			vm:SetSubMaterial() -- Reset
+			if new.PaPMats then
+				for k,v in pairs(new.PaPMats) do
+					print(k)
+					vm:SetSubMaterial(k, "models/XQM/LightLineRed_tool.vtf")
+				end
+			end
+			print("Set material")
+			vm:SetMaterial("models/XQM/LightLineRed_tool.vtf")
+		end]]
+		if IsFirstTimePredicted() then
+			net.Start("nzPaPCamo")
+			net.Send(ply)
+		end
+	end)
+end
+
+if CLIENT then
+	local function PaPCamoUpdate(vm, old, new)
+		local wep = LocalPlayer():GetActiveWeapon()
+		--vm:SetSubMaterial()
+		local view = wep.CW_VM or wep.Wep or vm or LocalPlayer():GetViewModel()
+		if IsValid(view) then
+			view:SetSubMaterial()
+			if wep.PaPMats then
+				for k,v in pairs(wep.PaPMats) do
+					print(k)
+					view:SetSubMaterial(k, "models/XQM/LightLinesRed_tool.vtf")
+				end
+			end
+		end
+	end
+	hook.Add("OnViewModelChanged", "nzPaPCamoUpdate", PaPCamoUpdate)
+	net.Receive("nzPaPCamo", function() print("Got it!") PaPCamoUpdate() end)
+end
