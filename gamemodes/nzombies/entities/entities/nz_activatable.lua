@@ -9,6 +9,7 @@ ENT.Editable = true
 ENT.PrintName = "nz_activatable"
 
 ENT.bIsActivatable = true
+ENT.bPhysgunNoCollide = true
 
 function ENT:SetupDataTables()
 	self:NetworkVar( "String", 0, "NZName", {KeyName = "nz_name", Edit = {order = 1, type = "Generic"}} )
