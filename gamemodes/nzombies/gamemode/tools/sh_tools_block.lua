@@ -69,9 +69,9 @@ nzTools:CreateTool("block", {
 				end
 				Blockmodel.Paint = function(self)
 					self.OverlayFade = math.Clamp( ( self.OverlayFade or 0 ) - RealFrameTime() * 640 * 2, 0, 255 )
-					if data.model == v.model then
-						surface.SetDrawColor(0,0,200)
-						self:DrawOutlinedRect()
+
+					if data.model == v.model or self:IsHovered() then
+						self.OverlayFade = math.Clamp( self.OverlayFade + RealFrameTime() * 640 * 8, 0, 255 )
 					end
 				end
 			end

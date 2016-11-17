@@ -1,14 +1,28 @@
 nzTools:CreateTool("traps_logic", {
 	displayname = "Traps, Buttons, Logic",
-	desc = "LMB: Create Entity, RMB: Remove Entity",
+	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity",
 	condition = function(wep, ply)
 		return true
 	end,
 	PrimaryAttack = function(wep, ply, tr, data)
-		local ent = ents.Create(data.classname)
+		local ent
+		if data.clone then
+			ent = duplicator.CreateEntityFromTable(ply, data.dupe)
+			if !IsValid(ent) then return end
+		else
+			ent = ents.Create(data.classname)
+		end
 		ent:SetPos(tr.HitPos)
 		ent:Activate()
 		ent:Spawn()
+
+		if data.clone then
+			for k, v in pairs(data.dupe.DT) do
+				if ent["Set" .. k] then
+					timer.Simple( 0.1, function() ent["Set" .. k](ent, v) end)
+				end
+			end
+		end
 	end,
 	SecondaryAttack = function(wep, ply, tr, data)
 		if IsValid(tr.Entity) then
@@ -16,6 +30,7 @@ nzTools:CreateTool("traps_logic", {
 		end
 	end,
 	Reload = function(wep, ply, tr, data)
+		ply:SetNZToolData({dupe = duplicator.CopyEntTable( tr.Entity ), clone = true})
 	end,
 	OnEquip = function(wep, ply, data)
 
@@ -25,9 +40,9 @@ nzTools:CreateTool("traps_logic", {
 	end
 }, {
 	displayname = "Traps, Buttons, Logic",
-	desc = "LMB: Create Entity, RMB: Remove Entity",
+	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity",
 	icon = "icon16/controller.png",
-	weight = 15,
+	weight = 40,
 	condition = function(wep, ply)
 		return nzTools.Advanced
 	end,
@@ -45,31 +60,37 @@ nzTools:CreateTool("traps_logic", {
 		end
 
 		local function genSpawnList(tbl, parent)
-			local list	= vgui.Create( "DIconLayout", parent )
-			list:Dock(FILL)
-			list:SetPos( 0, 0 )
-			list:SetSpaceY( 5 )
-			list:SetSpaceX( 5 )
-
-			for name, classname in pairs(tbl) do
-				local model = baseclass.Get(classname).SpawnIcon
+			for _, classname in pairs(tbl) do
+				local info = baseclass.Get(classname)
+				local model = info.SpawnIcon
+				local name = info.PrintName
+				local desc = info.Description
 				if model then
-					local entityIcon = list:Add( "SpawnIcon" )
-					entityIcon:SetSize( 60, 60 )
+					local panel = vgui.Create("DPanel", parent)
+					panel:Dock(TOP)
+					panel:DockMargin(2, 0, 2, 2)
+					panel:DockPadding(2, 2, 2, 2)
+					panel:SetHeight(64)
+
+					local entityIcon = vgui.Create( "SpawnIcon", panel )
+					entityIcon:Dock(LEFT)
 					entityIcon:SetModel(model)
-					entityIcon:SetFont("DermaLarge")
-					entityIcon:SetTextColor(Color(0, 0, 0))
 					entityIcon:SetTooltip(name)
+					entityIcon:SetWidth(64)
 					entityIcon.DoClick = function()
-						cont.UpdateData({classname = classname})
+						cont.UpdateData({classname = classname, clone = false})
 					end
-					entityIcon.Paint = function(self)
-						self.OverlayFade = math.Clamp( ( self.OverlayFade or 0 ) - RealFrameTime() * 640 * 2, 0, 255 )
-						if data.classname == classname then
-							surface.SetDrawColor(0,0,200)
-							self:DrawOutlinedRect()
-						end
-					end
+
+					local richText = vgui.Create( "RichText" , panel)
+					richText:SetFontInternal("DermaDefault")
+					richText:InsertColorChange(9, 9, 9, 255)
+					richText:AppendText(name .. "\n\n")
+					richText:InsertColorChange(40, 40, 40, 255)
+					richText:AppendText(desc)
+					richText:Dock(FILL)
+
+					panel:InvalidateLayout( true )
+					panel:SizeToChildren( false, true )
 				end
 			end
 
@@ -80,24 +101,17 @@ nzTools:CreateTool("traps_logic", {
 		traps:SetExpanded( 1 )
 		traps:SetLabel( "Traps" )
 		traps:Dock(TOP)
-		traps:SetHeight(200)
 
-		local trapsScroll = vgui.Create( "DScrollPanel", traps )
-		trapsScroll:Dock(FILL)
-
-		genSpawnList(nzTraps:GetAll(), trapsScroll)
+		genSpawnList(nzTraps:GetAll(), traps)
 
 
 		local logic = vgui.Create( "DCollapsibleCategory", cont )
 		logic:SetExpanded( 1 )
 		logic:SetLabel( "Logic" )
 		logic:Dock(TOP)
-		logic:SetHeight(200)
 
-		local logicScroll = vgui.Create( "DScrollPanel", logic )
-		logicScroll:Dock(FILL)
-
-		genSpawnList(nzLogic:GetAll(), logicScroll)
+		PrintTable(nzLogic:GetAll())
+		genSpawnList(nzLogic:GetAll(), logic)
 
 		return cont
 	end,

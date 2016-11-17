@@ -3,10 +3,10 @@ AddCSLuaFile( )
 ENT.Type = "anim"
 ENT.Base = "base_entity"
 
-nzLogic:Register("Button", "nz_button")
+nzLogic:Register("nz_button")
 ENT.SpawnIcon = "models/nzprops/zapper_handle.mdl"
-
-ENT.PrintName = "nz_button"
+ENT.PrintName = "Button"
+ENT.Description = "Simple Button that can trigger one or multiple other logic entities or traps."
 
 ENT.WireMat = Material( "cable/cable2" )
 
@@ -77,10 +77,13 @@ function ENT:OnModelChange(name, old, new)
 end
 
 function ENT:Initialize()
+	self:SetModel(self.ModelTranslate[self:GetModelID()].model)
+
 	self:PhysicsInit( SOLID_VPHYSICS )
-	self:SetMoveType( MOVETYPE_NONE )
 	self:SetSolid( SOLID_VPHYSICS )
 
+	local phys = self:GetPhysicsObject()
+	phys:EnableMotion(false)
 	self.PosePosition = 0
 end
 

@@ -3,10 +3,10 @@ AddCSLuaFile( )
 ENT.Type = "anim"
 ENT.Base = "base_entity"
 
-ENT.PrintName = "nz_button_and"
-
-nzLogic:Register("AND Button/Gate", "nz_button_and")
+nzLogic:Register("nz_button_and")
 ENT.SpawnIcon = "models/maxofs2d/button_03.mdl"
+ENT.PrintName = "AND Gate/Button"
+ENT.Description = "This Gate will trigger if all activators linked to this butoons are activate at the same time."
 
 DEFINE_BASECLASS("nz_button")
 

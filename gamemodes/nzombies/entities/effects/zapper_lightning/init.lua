@@ -45,9 +45,9 @@ function EFFECT:Render()
 	render.DrawBeam(
 		self.StartPos,
 		self.EndPos,
-		8,
+		12,
 		texcoord,
 		texcoord + ((self.StartPos - self.EndPos):Length() / 128),
-		Color(200, 240, math.random(230, 255), math.random(200, 255))
+		Color(math.random(200, 255), math.random(220, 255), math.random(150, 200))
 	)
 end

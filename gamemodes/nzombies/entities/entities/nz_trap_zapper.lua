@@ -1,16 +1,15 @@
 AddCSLuaFile( )
 
 -- Register teh trap
-nzTraps:Register("Tesla Coil", "nz_trap_zapper")
+nzTraps:Register("nz_trap_zapper")
+ENT.PrintName = "Tesla Coil"
+ENT.SpawnIcon = "models/nzprops/zapper_coil.mdl"
+ENT.Description = "Tesla trap that will kill zombies in front of it."
 
 ENT.Type = "anim"
 ENT.Base = "nz_trapbase"
 
-ENT.PrintName = "Turret"
-
 ENT.MatDebug = Material("cable/cable2")
-
-ENT.SpawnIcon = "models/nzprops/zapper_coil.mdl"
 
 DEFINE_BASECLASS("nz_trapbase")
 
@@ -60,7 +59,7 @@ if CLIENT then
 		BaseClass.Draw(self)
 		local texcoord = math.Rand( 0, 1 )
 		render.SetMaterial(self.MatDebug)
-		render.DrawBeam(self:GetPos() + self:OBBCenter(), self:GetPos() + self:GetUp() * 70, 1, texcoord, texcoord + 1, Color( 255, 50, 76 ))
+		render.DrawBeam(self:GetPos() + self:GetUp() * 10, self:GetPos() + self:GetUp() * 70, 1, texcoord, texcoord + 1, Color( 250, 150, 106 ))
 	end
 end
 

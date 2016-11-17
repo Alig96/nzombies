@@ -1,16 +1,15 @@
 AddCSLuaFile( )
 
 -- Register teh trap
-nzTraps:Register("Turret", "nz_trap_turret")
+nzTraps:Register("nz_trap_turret")
+ENT.PrintName = "Turret"
+ENT.SpawnIcon = "models/weapons/w_mach_m249para.mdl"
+ENT.Description = "Simple Turret trap that will attack zombies around it."
 
 ENT.Type = "anim"
 ENT.Base = "nz_trapbase"
 
-ENT.PrintName = "Turret"
-
 DEFINE_BASECLASS("nz_trapbase")
-
-ENT.SpawnIcon = "models/weapons/w_mach_m249para.mdl"
 
 function ENT:Initialize()
 	self:SetModel( "models/props_trainstation/trainstation_ornament001.mdl" )
