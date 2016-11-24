@@ -13,8 +13,16 @@ nzTools:CreateTool("traps_logic", {
 			ent = ents.Create(data.classname)
 		end
 		ent:SetPos(tr.HitPos)
+		--ent:SetAngles(tr.HitNormal:Angle() + Angle(90,0,0))
 		ent:Activate()
 		ent:Spawn()
+		
+		if IsValid(ply) then
+			undo.Create( "Logic/Trap" )
+				undo.SetPlayer( ply )
+				undo.AddEntity( ent )
+			undo.Finish()
+		end
 
 		if data.clone then
 			for k, v in pairs(data.dupe.DT) do

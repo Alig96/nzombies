@@ -101,7 +101,7 @@ function ENT:GetNZTargetText()
 	else
 		if self:IsRemoteActivated() then return false end
 		if self:GetCost() > 0 then
-			return "Press E to activate " .. self:GetNZName() .. " for " .. self:GetCost() .. "points."
+			return "Press E to activate " .. self:GetNZName() .. " for " .. self:GetCost() .. " points."
 		else
 			return "Press E to activate " .. self:GetNZName() .. "."
 		end

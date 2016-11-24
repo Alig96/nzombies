@@ -83,6 +83,9 @@ if SERVER then
 		self.DownPoints = nil
 		self.HasWhosWho = nil
 		self.DownedWithSoloRevive = nil
+		
+		self:SetPos(self:GetPos() + Vector(0,0,25))
+		self:ResetHull()
 	end
 
 	function playerMeta:StartRevive(revivor, nosync)
@@ -147,7 +150,7 @@ if SERVER then
 		
 		self:RemoveAllPowerUps()
 		
-		self:SetPos(self:GetPos() + Vector(0,0,25))
+		--self:SetPos(self:GetPos() + Vector(0,0,25))
 		self:ResetHull()
 	end
 

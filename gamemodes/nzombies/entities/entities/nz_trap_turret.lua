@@ -20,8 +20,8 @@ function ENT:SetupDataTables()
 	self:SetAttackRange(1200)
 	self:SetDamagePerHit(20)
 
-	self:NetworkVarNotify("AttackRange", function() self.Gun:SetAttackRange(self:GetAttackRange()) end)
-	self:NetworkVarNotify("DamagePerHit", function() self.Gun:SetDamagePerHit(self:GetDamagePerHit()) end)
+	self:NetworkVarNotify("AttackRange", function() if IsValid(self.Gun) then self.Gun:SetAttackRange(self:GetAttackRange()) end end)
+	self:NetworkVarNotify("DamagePerHit", function() if IsValid(self.Gun) then self.Gun:SetDamagePerHit(self:GetDamagePerHit()) end end)
 end
 
 function ENT:Initialize()
@@ -53,3 +53,7 @@ function ENT:OnDeactivation()
 end
 
 function ENT:OnReady() end
+
+function ENT:OnRemove()
+	if IsValid(self.Gun) then self.Gun:Remove() end
+end
