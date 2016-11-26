@@ -9,12 +9,16 @@ local function register (tbl, classname)
 	table.insert(tbl, classname)
 end
 
-function nzTraps:Register( classname)
-	register(self.Registry, classname)
+function nzTraps:Register(classname)
+	if !table.HasValue(self.Registry, classname) then
+		register(self.Registry, classname)
+	end
 end
 
 function nzLogic:Register(classname)
-	register(self.Registry, classname)
+	if !table.HasValue(self.Registry, classname) then
+		register(self.Registry, classname)
+	end
 end
 
 function nzTraps:GetAll()

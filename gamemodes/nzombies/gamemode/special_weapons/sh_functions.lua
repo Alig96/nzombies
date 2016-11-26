@@ -49,7 +49,7 @@ function nzSpecialWeapons:AddKnife( class, drawonequip, attackholstertime, drawh
 		
 		local oldholster = wep.Holster
 		function wep:Holster( wep2 )
-			self.Owner:SetUsingSpecialWeapon(false)
+			if SERVER then self.Owner:SetUsingSpecialWeapon(false) end
 			return oldholster(self, wep2)
 		end
 		

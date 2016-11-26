@@ -390,6 +390,7 @@ local function onPhysgunPickup( ply, ent )
 		-- Ghost the entity so we can put them in walls.
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(false)
+		phys:Wake()
 	end
 
 end
@@ -401,6 +402,7 @@ local function onPhysgunDrop( ply, ent )
 		local phys = ent:GetPhysicsObject()
 		phys:EnableCollisions(true)
 		phys:EnableMotion(false)
+		phys:Sleep()
 	end
 
 end

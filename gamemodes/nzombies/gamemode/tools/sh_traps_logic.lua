@@ -14,8 +14,8 @@ nzTools:CreateTool("traps_logic", {
 		end
 		ent:SetPos(tr.HitPos)
 		--ent:SetAngles(tr.HitNormal:Angle() + Angle(90,0,0))
-		ent:Activate()
 		ent:Spawn()
+		ent:Activate()
 		
 		if IsValid(ply) then
 			undo.Create( "Logic/Trap" )

@@ -21,7 +21,7 @@ function ENT:SetupDataTables()
 	self:NetworkVar( "Float", 4, "NextZap" )
 
 	self:SetZapDelayMin(0.5)
-	self:SetZapDelayMax(1.5)
+	self:SetZapDelayMax(1)
 end
 
 function ENT:Initialize()
@@ -40,10 +40,25 @@ end
 function ENT:OnActivation()
 	if SERVER then
 		self:SetNextZap(CurTime() + math.Rand(self:GetZapDelayMin(), self:GetZapDelayMax()))
+		
+		--[[local tr = util.TraceLine({
+			start = self:GetPos(),
+			endpos = self:GetPos() + self:GetUp() * 500,
+			mask = MASK_SOLID_BRUSHONLY,
+		})
+		
+		debugoverlay.Cross(tr.HitPos, 30, 5)
+		debugoverlay.Cross(self:GetPos(), 30, 5)
+		print("Yeh", self:GetPos(), tr.HitPos, Entity(1):GetPos())
+		
+		
+		
+		self:SetCollisionBoundsWS(pos1, pos2)]]
 	end
 end
 
 function ENT:OnDeactivation()
+	
 end
 
 function ENT:OnReady() end
@@ -67,10 +82,7 @@ function ENT:Zap()
 	local tr = util.QuickTrace(self:GetPos(), self:GetUp() * 500, self)
 
 	local ent = tr.Entity
-
-	if IsValid(ent) and ent:IsValidZombie() then
-		ent:Kill()
-	end
+	self:ZapTarget(ent)	
 
 	self:SetNextZap(CurTime() + math.Rand(self:GetZapDelayMin(), self:GetZapDelayMax()))
 
@@ -84,4 +96,10 @@ function ENT:Zap()
 	effectData:SetMagnitude(0.5)
 
 	util.Effect("zapper_lightning", effectData)
+end
+
+function ENT:ZapTarget(ent)
+	if IsValid(ent) and ent:IsValidZombie() then
+		ent:Kill()
+	end
 end
