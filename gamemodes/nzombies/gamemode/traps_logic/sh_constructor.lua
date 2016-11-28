@@ -55,6 +55,6 @@ if SERVER then
 				end
 			end
 		end,
-		cleanents = {"invis_damage_wall"},
+		cleanents = {"nz_button", "nz_button_and", "nz_trap_turret", "nz_trap_turret_gun", "nz_trap_zapper"},
 	})
 end
