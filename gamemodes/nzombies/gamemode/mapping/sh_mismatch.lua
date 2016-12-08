@@ -488,7 +488,7 @@ CreateMismatchCheck("Map Script", function()
 	end, function( data )
 
 		if data.load then
-			nzMapping:LoadScript(nzMapping.CurrentConfig)
+			nzMapping:LoadScript(nzMapping.ConfigFile)
 		end
 
 		nzMapping.MismatchData["Map Script"] = nil

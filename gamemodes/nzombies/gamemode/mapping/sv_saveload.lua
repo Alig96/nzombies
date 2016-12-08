@@ -114,6 +114,7 @@ function nzMapping:ClearConfig(noclean)
 	nzItemCarry:CleanUp()
 
 	nzMapping.CurrentConfig = nil
+	nzMapping.ConfigFile = nil
 
 	if !noclean then
 		game.CleanUpMap() -- No need for restorative measures (nzMapping:CleanUpMap())
@@ -234,6 +235,7 @@ function nzMapping:LoadConfig( name, loader )
 		-- Set the current config name, we will use this to load scripts via mismatch window
 		nzMapping.CurrentConfig = configname
 		nzMapping.OfficialConfig = official
+		nzMapping.ConfigFile = name
 		
 		if !nzRound:InState(ROUND_CREATE) then
 			for k,v in pairs(ents.GetAll()) do
