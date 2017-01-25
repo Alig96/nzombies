@@ -367,24 +367,26 @@ nzWeps:AddWeaponModifier("pap", function(wep)
 					return true
 				end
 				
-				wep.PaPMats = {}
-				local modelstr = wep.VM or wep.ViewModel or wep:GetViewModel()
-				if modelstr then
-					local model = ClientsideModel(modelstr)
-					local mats = model:GetMaterials()
-					PrintTable(mats)
-					if table.Count(mats) >= 1 then
-						local num = 2
-						for k,v in pairs(mats) do
-							if IsGoodMaterial(v) then
-								if num%3 > 0 then
-									wep.PaPMats[k - 1] = true
+				if !wep.PaPMats then -- Only if the weapon doesn't already have
+					wep.PaPMats = {} -- Generate PaP mats for this weapon
+					local modelstr = wep.VM or wep.ViewModel or wep:GetViewModel()
+					if modelstr then
+						local model = ClientsideModel(modelstr)
+						local mats = model:GetMaterials()
+						PrintTable(mats)
+						if table.Count(mats) >= 1 then
+							local num = 2
+							for k,v in pairs(mats) do
+								if IsGoodMaterial(v) then
+									if num%3 > 0 then
+										wep.PaPMats[k - 1] = true
+									end
+									num = num + 1
 								end
-								num = num + 1
 							end
 						end
+						model:Remove()
 					end
-					model:Remove()
 				end
 			end
 			
@@ -461,7 +463,7 @@ end, function(wep)
 			end
 		end
 		
-		wep.PaPMats = nil
+		--wep.PaPMats = nil
 		-- Since attachments are given to the player and not the weapon, we can't remove them again without removing all :(
 	else return true end
 end)
@@ -469,20 +471,6 @@ end)
 if SERVER then
 	util.AddNetworkString("nzPaPCamo")
 	hook.Add("PlayerSwitchWeapon", "nzPaPCamoUpdate", function(ply, old, new)
-		--[[print("Switch!")
-		if IsValid(new) and IsFirstTimePredicted() then
-			local vm = ply:GetViewModel()
-			print("Reset material")
-			vm:SetSubMaterial() -- Reset
-			if new.PaPMats then
-				for k,v in pairs(new.PaPMats) do
-					print(k)
-					vm:SetSubMaterial(k, "models/XQM/LightLineRed_tool.vtf")
-				end
-			end
-			print("Set material")
-			vm:SetMaterial("models/XQM/LightLineRed_tool.vtf")
-		end]]
 		if IsFirstTimePredicted() then
 			net.Start("nzPaPCamo")
 			net.Send(ply)
@@ -501,9 +489,10 @@ if CLIENT then
 		if IsValid(view) then
 			view:SetSubMaterial()
 			if !GetConVar("nz_papcamo"):GetBool() then return end
-			if wep.PaPMats then
+			if wep.PaPCamo then -- You can also use a function
+				wep:PaPCamo(view)
+			elseif wep.PaPMats then -- Will be generated if not defined in the weapon file
 				for k,v in pairs(wep.PaPMats) do
-					--print(k)
 					view:SetSubMaterial(k, "models/XQM/LightLinesRed_tool.vtf")
 				end
 			end

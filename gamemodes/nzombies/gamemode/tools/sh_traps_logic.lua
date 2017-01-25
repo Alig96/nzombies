@@ -1,6 +1,6 @@
 nzTools:CreateTool("traps_logic", {
 	displayname = "Traps, Buttons, Logic",
-	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity",
+	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity, C: Edit Properties",
 	condition = function(wep, ply)
 		return true
 	end,
@@ -48,7 +48,7 @@ nzTools:CreateTool("traps_logic", {
 	end
 }, {
 	displayname = "Traps, Buttons, Logic",
-	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity",
+	desc = "LMB: Create Entity, RMB: Remove Entity, R: Duplicate Entity, C: Edit Properties",
 	icon = "icon16/controller.png",
 	weight = 40,
 	condition = function(wep, ply)

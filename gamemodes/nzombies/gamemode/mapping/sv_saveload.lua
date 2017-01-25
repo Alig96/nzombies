@@ -156,6 +156,11 @@ function nzMapping:LoadConfig( name, loader )
 		nzMapping:UnloadScript()
 
 		local data = util.JSONToTable( file.Read( filepath, location ) )
+		
+		if !data then
+			print("Critical Warning: Could not read data from file! Is the save corrupted? It might be possible to recover with manual text editing.")
+			return
+		end
 
 		local version = data.version
 

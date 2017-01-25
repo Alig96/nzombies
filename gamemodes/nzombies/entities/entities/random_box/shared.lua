@@ -147,47 +147,45 @@ function ENT:MoveAway()
 
 	-- Move Up
 	timer.Simple( 1, function()
-			timer.Create( "moveAway", 5, 1, function()
-				self.Moving = false
-				timer.Destroy("moveAway")
-				timer.Destroy("shake")
+		timer.Create( "moveAway", 5, 1, function()
+			self.Moving = false
+			timer.Destroy("moveAway")
+			timer.Destroy("shake")
 
-				self.SpawnPoint.Box = nil
-				self.SpawnPoint:SetBodygroup(1,0)
-				self:MoveToNewSpot(self.SpawnPoint)
-				self:EmitSound("nz/randombox/poof.wav")
-				self:Remove()
-			end)
-			--print(self:GetMoveType())
+			self.SpawnPoint.Box = nil
+			--self.SpawnPoint:SetBodygroup(1,0)
+			self:MoveToNewSpot(self.SpawnPoint)
+			self:EmitSound("nz/randombox/poof.wav")
+			self:Remove()
+		end)
+		--print(self:GetMoveType())
+		self:SetMoveType(MOVETYPE_FLY)
+		self:SetGravity(0.1)
+		self:SetNotSolid(true)
+		self:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
+		self:GetPhysicsObject():SetDamping(100, 0)
+		self:CollisionRulesChanged()
+		self:SetLocalVelocity(ang:Up()*100)
+		timer.Simple(1.5, function()
+			self:SetLocalVelocity( Vector(0,0,0) )
+			self:SetVelocity( Vector(0,0,0) )
 			self:SetMoveType(MOVETYPE_FLY)
-			self:SetGravity(0.1)
-			self:SetNotSolid(true)
-			self:SetCollisionBounds(Vector(0,0,0), Vector(0,0,0))
-			self:GetPhysicsObject():SetDamping(100, 0)
-			self:CollisionRulesChanged()
-			self:SetLocalVelocity(ang:Up()*100)
-			timer.Simple(1.5, function()
-				self:SetLocalVelocity( Vector(0,0,0) )
-				self:SetVelocity( Vector(0,0,0) )
-				self:SetMoveType(MOVETYPE_FLY)
-				self:Open()
-				self:SetLocalAngularVelocity( Angle(0, 0, 250) )
+			self:Open()
+			self:SetLocalAngularVelocity( Angle(0, 0, 250) )
+			timer.Simple(0.5, function()
+				self:SetLocalAngularVelocity( Angle(0, 0, 500) )
 				timer.Simple(0.5, function()
-					self:SetLocalAngularVelocity( Angle(0, 0, 500) )
-					timer.Simple(0.5, function()
-						self:SetLocalAngularVelocity( Angle(0, 0, 750) )
+					self:SetLocalAngularVelocity( Angle(0, 0, 750) )
+					timer.Simple(0.2, function()
+						self:SetLocalAngularVelocity( Angle(0, 0, 1000) )
 						timer.Simple(0.2, function()
-							self:SetLocalAngularVelocity( Angle(0, 0, 1000) )
-							timer.Simple(0.2, function()
-								self:SetLocalAngularVelocity( Angle(0, 0, 2000) )
-							end)
+							self:SetLocalAngularVelocity( Angle(0, 0, 2000) )
 						end)
 					end)
 				end)
 			end)
 		end)
-
-
+	end)
 end
 
 function ENT:MoveToNewSpot(oldspot)
@@ -224,11 +222,18 @@ if CLIENT then
 			end
 		end
 	end )]]
-	
-	function ENT:OnRemove()
+
+end
+
+function ENT:OnRemove()
+	if CLIENT then
 		if IsValid(self.Light) then
 			self.Light:Remove()
 		end
+	else
+		if IsValid(self.SpawnPoint) then
+			--self.SpawnPoint.Box = nil
+			self.SpawnPoint:SetBodygroup(1,0)
+		end
 	end
-
 end
