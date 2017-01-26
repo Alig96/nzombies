@@ -23,7 +23,7 @@ function nzSpecialWeapons:ModifyWeapon(wep, id, data)
 	
 	local bool = tbl[1](wep, pass) -- Run the function with the data, return whether it worked or not
 	if bool then
-		wep.NZSpecialData = pass
+		wep.NZSpecialWeaponData = pass
 		wep.NZSpecialCategory = id -- Mark as special from now on
 		
 		if isentity(wep) then -- Reregister it on the player if it is currently being carried
@@ -156,6 +156,7 @@ nzSpecialWeapons:RegisterModifier("grenade", function(wep, data)
 	end
 end, {
 	MaxAmmo = 4,
+	AmmoType = "nz_grenade",
 	DrawAct = false, -- False/nil makes default
 	ThrowTime = 0.85,
 	ThrowFunction = false, -- False/nil uses default PrimaryAttack function
@@ -216,6 +217,7 @@ nzSpecialWeapons:RegisterModifier("specialgrenade", function(wep, data)
 	end
 end, {
 	MaxAmmo = 3,
+	AmmoType = "nz_specialgrenade",
 	DrawAct = false, -- False/nil makes default
 	ThrowTime = 1.2,
 	ThrowFunction = false, -- False/nil uses default PrimaryAttack function
@@ -421,7 +423,7 @@ if SERVER then
 		self.NZSpecialWeapons[id] = wep
 		nzSpecialWeapons:SendSpecialWeaponAdded(self, wep, id)
 		
-		local data = wep.NZSpecialData
+		local data = wep.NZSpecialWeaponData
 		
 		if !data then return end -- No nothing more if it doesn't have data supplied (e.g. specially added thingies)
 		
