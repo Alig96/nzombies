@@ -183,9 +183,9 @@ end)
 hook.Add( "PlayerBeingRevived", "TFAVOX_nZombies_Revive", function( ply, revivor )
 	if IsValid(revivor) and TFAVOX_IsValid(revivor) then
 		if revivor.TFAVOX_Sounds then
-			local sndtbl = ply.TFAVOX_Sounds['nzombies'].revive
+			local sndtbl = revivor.TFAVOX_Sounds['nzombies'].revive
 			if sndtbl and sndtbl['reviving'] then
-				TFAVOX_PlayVoicePriority( ply, sndtbl['reviving'], 0 )
+				TFAVOX_PlayVoicePriority( revivor, sndtbl['reviving'], 0 )
 			end
 		end
 	end

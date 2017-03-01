@@ -346,7 +346,7 @@ local femaletbl = {
 				"vo/npc/female01/question31.wav",
 				"vo/npc/female01/squad_affirm05.wav",
 				"vo/npc/female01/squad_affirm06.wav",
-				"vo/npc/female01/waitingforsomebody.wav",
+				"vo/npc/female01/waitingsomebody.wav",
 			})
 		},
 		['packapunch'] = {
@@ -367,7 +367,7 @@ local femaletbl = {
 				"vo/npc/female01/littlecorner01.wav",
 				"vo/npc/female01/readywhenyouare01.wav",
 				"vo/npc/female01/readywhenyouare02.wav",
-				"vo/npc/female01/waitingforsomebody.wav",
+				"vo/npc/female01/waitingsomebody.wav",
 				"vo/npc/female01/zombies02.wav",
 			})
 		},
@@ -387,7 +387,7 @@ local femaletbl = {
 				"vo/npc/female01/question31.wav",
 				"vo/npc/female01/squad_affirm05.wav",
 				"vo/npc/female01/squad_affirm06.wav",
-				"vo/npc/female01/waitingforsomebody.wav",
+				"vo/npc/female01/waitingsomebody.wav",
 			})
 		},
 	}
@@ -718,7 +718,7 @@ local maletbl = {
 				"vo/npc/male01/question31.wav",
 				"vo/npc/male01/squad_affirm05.wav",
 				"vo/npc/male01/squad_affirm06.wav",
-				"vo/npc/male01/waitingforsomebody.wav",
+				"vo/npc/male01/waitingsomebody.wav",
 			})
 		},
 		['packapunch'] = {
@@ -739,7 +739,7 @@ local maletbl = {
 				"vo/npc/male01/littlecorner01.wav",
 				"vo/npc/male01/readywhenyouare01.wav",
 				"vo/npc/male01/readywhenyouare02.wav",
-				"vo/npc/male01/waitingforsomebody.wav",
+				"vo/npc/male01/waitingsomebody.wav",
 				"vo/npc/male01/zombies02.wav",
 			})
 		},
@@ -759,7 +759,7 @@ local maletbl = {
 				"vo/npc/male01/question31.wav",
 				"vo/npc/male01/squad_affirm05.wav",
 				"vo/npc/male01/squad_affirm06.wav",
-				"vo/npc/male01/waitingforsomebody.wav",
+				"vo/npc/male01/waitingsomebody.wav",
 			})
 		},
 	}

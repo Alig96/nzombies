@@ -182,7 +182,12 @@ nzPerks:NewPerk("pap", {
 	condition = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
 		if (!wep:HasNZModifier("pap") or wep:CanRerollPaP()) and !machine:GetBeingUsed() then
-			return true
+			local reroll = false
+			if wep:HasNZModifier("pap") and wep:CanRerollPaP() then
+				reroll = true
+			end
+			local cost = reroll and 2000 or 5000
+			return ply:GetPoints() >= cost
 		else
 			ply:PrintMessage( HUD_PRINTTALK, "This weapon is already Pack-a-Punched")
 			return false
@@ -190,9 +195,6 @@ nzPerks:NewPerk("pap", {
 	end,
 	func = function(self, ply, machine)
 		local wep = ply:GetActiveWeapon()
-		hook.Call("OnPlayerBuyPackAPunch", nil, ply, wep, machine)
-		
-		ply:Give("nz_packapunch_arms")
 	
 		local reroll = false
 		if wep:HasNZModifier("pap") and wep:CanRerollPaP() then
@@ -200,7 +202,10 @@ nzPerks:NewPerk("pap", {
 		end
 		local cost = reroll and 2000 or 5000
 
-		return ply:Buy(cost, machine, function()
+		ply:Buy(cost, machine, function()
+			hook.Call("OnPlayerBuyPackAPunch", nil, ply, wep, machine)
+		
+			ply:Give("nz_packapunch_arms")
 
 			machine:SetBeingUsed(true)
 			machine:EmitSound("nz/machines/pap_up.wav")
@@ -211,7 +216,7 @@ nzPerks:NewPerk("pap", {
 			local ang = machine:GetAngles()
 			e:SetOrigin(machine:GetPos() + ang:Up()*35 + ang:Forward()*20 - ang:Right()*2)
 			e:SetMagnitude(3)
-			util.Effect("pap_glow", e, false, true)
+			util.Effect("pap_glow", e, true, true)
 
 			wep:Remove()
 			local wep = ents.Create("pap_weapon_fly")
