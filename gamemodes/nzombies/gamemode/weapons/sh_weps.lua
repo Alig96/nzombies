@@ -48,15 +48,15 @@ function wepMeta:IsTFA()
 end
 
 function wepMeta:CanRerollPaP()
-	return (wep.OnRePaP or (wep.Attachments and ((wep:IsCW2() and CustomizableWeaponry) or wep:IsTFA()) or wep:IsFAS2()))
+	return (self.OnRePaP or (self.Attachments and ((self:IsCW2() and CustomizableWeaponry) or self:IsTFA()) or self:IsFAS2()))
 end
 
 local old = wepMeta.GetPrintName
 function wepMeta:GetPrintName()
-	local name = old(wep)
-	if !name or name == "" then name = wep:GetClass() end
-	if wep:HasNZModifier("pap") then
-		name = wep.NZPaPName or nz.Display_PaPNames[wep:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
+	local name = old(self)
+	if !name or name == "" then name = self:GetClass() end
+	if self:HasNZModifier("pap") then
+		name = self.NZPaPName or nz.Display_PaPNames[self:GetClass()] or nz.Display_PaPNames[name] or "Upgraded "..name
 	end
 	return name
 end
