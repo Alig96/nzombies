@@ -31,7 +31,7 @@ end)
 hook.Add( "OnPlayerGetPerk", "TFAVOX_nZombies_Perks", function( ply, id, machine )
 	timer.Simple(1, function()
 		if IsValid(ply) and TFAVOX_IsValid(ply) and ply:HasPerk(id) then
-			if ply.TFAVOX_Sounds then
+			if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 				local sndtbl = ply.TFAVOX_Sounds['nzombies'].perk
 				if sndtbl then
 					if (not sndtbl[id]) or math.random(0,3) == 0 then id = "generic" end
@@ -118,7 +118,7 @@ hook.Add( "OnPlayerPickupPowerUp", "TFAVOX_nZombies_Powerups", function( ply, id
 	timer.Simple(2.5, function()
 		if nzRound:InProgress() then
 			if IsValid(ply) and TFAVOX_IsValid(ply) then
-				if ply.TFAVOX_Sounds then
+				if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 					local sndtbl = ply.TFAVOX_Sounds['nzombies'].powerup
 					if sndtbl then
 						if (not sndtbl[id]) or math.random(0,3) == 0 then id = "generic" end
@@ -135,7 +135,7 @@ end)
 
 hook.Add( "PlayerDowned", "TFAVOX_nZombies_Revive", function( ply )
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].revive
 			if sndtbl and sndtbl['downed'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['downed'], 0 )
@@ -182,7 +182,7 @@ end)
 
 hook.Add( "PlayerBeingRevived", "TFAVOX_nZombies_Revive", function( ply, revivor )
 	if IsValid(revivor) and TFAVOX_IsValid(revivor) then
-		if revivor.TFAVOX_Sounds then
+		if revivor.TFAVOX_Sounds and revivor.TFAVOX_Sounds.nzombies then
 			local sndtbl = revivor.TFAVOX_Sounds['nzombies'].revive
 			if sndtbl and sndtbl['reviving'] then
 				TFAVOX_PlayVoicePriority( revivor, sndtbl['reviving'], 0 )
@@ -193,7 +193,7 @@ end)
 
 hook.Add( "PlayerRevived", "TFAVOX_nZombies_Revive", function( ply )
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].revive
 			if sndtbl and sndtbl['revived'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['revived'], 0 )
@@ -248,7 +248,7 @@ end)
 
 hook.Add( "OnPlayerBuyBox", "TFAVOX_nZombies_Box", function(ply, gun)
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].facility
 			if sndtbl and sndtbl['randombox'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['randombox'], 0 )
@@ -259,7 +259,7 @@ end)
 
 hook.Add( "OnPlayerBuyBox", "TFAVOX_nZombies_Box", function(ply, gun)
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].facility
 			if sndtbl and sndtbl['randombox'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['randombox'], 0 )
@@ -270,7 +270,7 @@ end)
 
 hook.Add( "OnPlayerBuyWunderfizz", "TFAVOX_nZombies_Wunderfizz", function(ply, perk)
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].facility
 			if sndtbl and sndtbl['wunderfizz'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['wunderfizz'], 0 )
@@ -281,7 +281,7 @@ end)
 
 hook.Add( "OnPlayerBuyPackAPunch", "TFAVOX_nZombies_Packapunch", function(ply, gun)
 	if IsValid(ply) and TFAVOX_IsValid(ply) then
-		if ply.TFAVOX_Sounds then
+		if ply.TFAVOX_Sounds and ply.TFAVOX_Sounds.nzombies then
 			local sndtbl = ply.TFAVOX_Sounds['nzombies'].facility
 			if sndtbl and sndtbl['packapunch'] then
 				TFAVOX_PlayVoicePriority( ply, sndtbl['packapunch'], 0 )
