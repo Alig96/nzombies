@@ -40,7 +40,7 @@ if SERVER then
 
 		if !PowerupData.global then
 			if IsValid(ply) then
-				if not nzPowerUps.ActivePlayerPowerUps[ply][id] then -- If you don't have the powerup
+				if not nzPowerUps.ActivePlayerPowerUps[ply] or not nzPowerUps.ActivePlayerPowerUps[ply][id] then -- If you don't have the powerup
 					PowerupData.func(id, ply)
 				end
 				ply:GivePowerUp(id, PowerupData.duration)
@@ -52,9 +52,9 @@ if SERVER then
 					PowerupData.func(id, ply)
 				end
 				self.ActivePowerUps[id] = CurTime() + PowerupData.duration
-			--else
+			else
 				-- Activate Once
-
+				PowerupData.func(id, ply)
 			end
 			-- Sync to everyone
 			self:SendSync()

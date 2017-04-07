@@ -128,12 +128,12 @@ if SERVER then
 
 	-- Overwrite Compute so that it computes with nZombies pathfinding if a custom func is not given
 	local compute = Path.Compute
-	function Path:Compute(from, to, func)
-		compute(self, from, to, func or function( area, fromArea, ladder, elevator, length )
+	function Path:Compute(bot, to, func)
+		compute(self, bot, to, func or function( area, fromArea, ladder, elevator, length )
 			if ( !IsValid( fromArea ) ) then
 				return 0
 			else
-				if ( !self.loco:IsAreaTraversable( area ) ) then
+				if ( !bot.loco:IsAreaTraversable( area ) ) then
 					return -1
 				end
 				-- Prevent movement through either locked navareas or areas with closed doors
@@ -150,7 +150,7 @@ if SERVER then
 				local cost = dist + fromArea:GetCostSoFar()
 				--check height change
 				local deltaZ = fromArea:ComputeAdjacentConnectionHeightChange( area )
-				if ( deltaZ >= self.loco:GetStepHeight() ) then
+				if ( deltaZ >= bot.loco:GetStepHeight() ) then
 					-- use player default max jump height even thouh teh zombie will jump a bit higher
 					if ( deltaZ >= 64 ) then
 						--too high to reach
@@ -159,7 +159,7 @@ if SERVER then
 					--jumping is slower than flat ground
 					local jumpPenalty = 1.1
 					cost = cost + jumpPenalty * dist
-				elseif ( deltaZ < -self.loco:GetDeathDropHeight() ) then
+				elseif ( deltaZ < -bot.loco:GetDeathDropHeight() ) then
 					--too far to drop
 					return -1
 				end
