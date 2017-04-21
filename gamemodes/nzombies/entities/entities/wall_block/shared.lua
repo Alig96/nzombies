@@ -42,8 +42,8 @@ function ENT:Initialize()
 	self:SetCustomCollisionCheck(true)
 
 	-- YES! Finally found a way to make bullets pass through without disabling solidity!
-	self:AddSolidFlags(FSOLID_CUSTOMRAYTEST)
-	self:AddSolidFlags(FSOLID_CUSTOMBOXTEST)
+	--self:AddSolidFlags(FSOLID_CUSTOMRAYTEST)
+	--self:AddSolidFlags(FSOLID_CUSTOMBOXTEST)
 	
 end
 

@@ -1,3 +1,95 @@
+
+local models = {
+	"models/nzombies_plates/plate.mdl",
+	"models/nzombies_plates/plate1.mdl",
+	"models/nzombies_plates/plate1x1.mdl",
+	"models/nzombies_plates/plate1x2.mdl",
+	"models/nzombies_plates/plate1x3.mdl",
+	"models/nzombies_plates/plate1x4.mdl",
+	"models/nzombies_plates/plate1x5.mdl",
+	"models/nzombies_plates/plate1x6.mdl",
+	"models/nzombies_plates/plate1x7.mdl",
+	"models/nzombies_plates/plate1x8.mdl",
+	"models/nzombies_plates/plate1x16.mdl",
+	"models/nzombies_plates/plate1x24.mdl",
+	"models/nzombies_plates/plate1x32.mdl",
+	"models/nzombies_plates/plate2.mdl",
+	"models/nzombies_plates/plate2x2.mdl",
+	"models/nzombies_plates/plate2x3.mdl",
+	"models/nzombies_plates/plate2x4.mdl",
+	"models/nzombies_plates/plate2x5.mdl",
+	"models/nzombies_plates/plate2x6.mdl",
+	"models/nzombies_plates/plate2x7.mdl",
+	"models/nzombies_plates/plate2x8.mdl",
+	"models/nzombies_plates/plate2x16.mdl",
+	"models/nzombies_plates/plate2x24.mdl",
+	"models/nzombies_plates/plate2x32.mdl",
+	"models/nzombies_plates/plate3.mdl",
+	"models/nzombies_plates/plate3x3.mdl",
+	"models/nzombies_plates/plate3x4.mdl",
+	"models/nzombies_plates/plate3x5.mdl",
+	"models/nzombies_plates/plate3x6.mdl",
+	"models/nzombies_plates/plate3x7.mdl",
+	"models/nzombies_plates/plate3x8.mdl",
+	"models/nzombies_plates/plate3x16.mdl",
+	"models/nzombies_plates/plate3x24.mdl",
+	"models/nzombies_plates/plate3x32.mdl",
+	"models/nzombies_plates/plate4.mdl",
+	"models/nzombies_plates/plate4x4.mdl",
+	"models/nzombies_plates/plate4x5.mdl",
+	"models/nzombies_plates/plate4x6.mdl",
+	"models/nzombies_plates/plate4x7.mdl",
+	"models/nzombies_plates/plate4x8.mdl",
+	"models/nzombies_plates/plate4x16.mdl",
+	"models/nzombies_plates/plate4x24.mdl",
+	"models/nzombies_plates/plate4x32.mdl",
+	"models/nzombies_plates/plate5.mdl",
+	"models/nzombies_plates/plate5x5.mdl",
+	"models/nzombies_plates/plate5x6.mdl",
+	"models/nzombies_plates/plate5x7.mdl",
+	"models/nzombies_plates/plate5x8.mdl",
+	"models/nzombies_plates/plate5x16.mdl",
+	"models/nzombies_plates/plate5x24.mdl",
+	"models/nzombies_plates/plate5x32.mdl",
+	"models/nzombies_plates/plate6.mdl",
+	"models/nzombies_plates/plate6x6.mdl",
+	"models/nzombies_plates/plate6x7.mdl",
+	"models/nzombies_plates/plate6x8.mdl",
+	"models/nzombies_plates/plate6x16.mdl",
+	"models/nzombies_plates/plate6x24.mdl",
+	"models/nzombies_plates/plate6x32.mdl",
+	"models/nzombies_plates/plate7.mdl",
+	"models/nzombies_plates/plate7x7.mdl",
+	"models/nzombies_plates/plate7x8.mdl",
+	"models/nzombies_plates/plate7x16.mdl",
+	"models/nzombies_plates/plate7x24.mdl",
+	"models/nzombies_plates/plate7x32.mdl",
+	"models/nzombies_plates/plate8.mdl",
+	"models/nzombies_plates/plate8x8.mdl",
+	"models/nzombies_plates/plate8x16.mdl",
+	"models/nzombies_plates/plate8x24.mdl",
+	"models/nzombies_plates/plate8x32.mdl",
+	"models/nzombies_plates/plate16.mdl",
+	"models/nzombies_plates/plate16x16.mdl",
+	"models/nzombies_plates/plate16x24.mdl",
+	"models/nzombies_plates/plate16x32.mdl",
+	"models/nzombies_plates/plate24x24.mdl",
+	"models/nzombies_plates/plate24x32.mdl",
+	"models/nzombies_plates/plate32x32.mdl",
+	
+	"models/nzombies_plates/platehole1x1.mdl",
+	"models/nzombies_plates/platehole1x2.mdl",
+	"models/nzombies_plates/platehole2x2.mdl",
+	"models/nzombies_plates/platehole3.mdl",
+	"models/nzombies_plates/tri1x1.mdl",
+	"models/nzombies_plates/tri2x1.mdl",
+	"models/nzombies_plates/tri3x1.mdl",
+	
+	"models/nzombies_plates/plate1x3x1trap.mdl",
+	"models/nzombies_plates/plate1x4x2trap.mdl",
+	"models/nzombies_plates/plate1x4x2trap1.mdl",
+}
+
 nzTools:CreateTool("block", {
 	displayname = "Invisible Block Spawner",
 	desc = "LMB: Create Invisible Block, RMB: Remove Invisible Block, R: Change Model",
@@ -56,23 +148,21 @@ nzTools:CreateTool("block", {
 		List:SetSpaceY( 5 )
 		List:SetSpaceX( 5 )
 
-		local models = util.KeyValuesToTable((file.Read("settings/spawnlist/default/023-general.txt", "MOD")))
+		local models = models
 
-		for k,v in pairs(models["contents"]) do
-			if v.model then
-				local Blockmodel = List:Add( "SpawnIcon" )
-				Blockmodel:SetSize( 40, 40 )
-				Blockmodel:SetModel(v.model)
-				Blockmodel.DoClick = function()
-					data.model = v.model
-					Scroll.UpdateData(Scroll.CompileData())
-				end
-				Blockmodel.Paint = function(self)
-					self.OverlayFade = math.Clamp( ( self.OverlayFade or 0 ) - RealFrameTime() * 640 * 2, 0, 255 )
+		for k,v in pairs(models) do
+			local Blockmodel = List:Add( "SpawnIcon" )
+			Blockmodel:SetSize( 40, 40 )
+			Blockmodel:SetModel(v)
+			Blockmodel.DoClick = function()
+				data.model = v
+				Scroll.UpdateData(Scroll.CompileData())
+			end
+			Blockmodel.Paint = function(self)
+				self.OverlayFade = math.Clamp( ( self.OverlayFade or 0 ) - RealFrameTime() * 640 * 2, 0, 255 )
 
-					if data.model == v.model or self:IsHovered() then
-						self.OverlayFade = math.Clamp( self.OverlayFade + RealFrameTime() * 640 * 8, 0, 255 )
-					end
+				if data.model == v or self:IsHovered() then
+					self.OverlayFade = math.Clamp( self.OverlayFade + RealFrameTime() * 640 * 8, 0, 255 )
 				end
 			end
 		end
@@ -80,7 +170,7 @@ nzTools:CreateTool("block", {
 		return Scroll
 	end,
 	defaultdata = {
-		model = "models/hunter/plates/plate2x2.mdl"
+		model = "models/nzombies_platess/plate2x2.mdl"
 	},
 })
 

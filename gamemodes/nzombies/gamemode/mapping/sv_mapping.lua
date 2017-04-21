@@ -167,11 +167,20 @@ end
 
 function nzMapping:BlockSpawn(pos, ang, model, ply)
 	local block = ents.Create( "wall_block" )
-	block:SetModel( model )
+	
+	-- Replace with nZombies versions of the same model (if exist) which are grate-based (bullets go through)
+	local model2 = string.Replace(model, "/hunter/plates/", "/nzombies_plates/")
+	if !util.IsValidModel(model2) then
+		model2 = model
+	end
+	print(model2)
+	
+	block:SetModel( model2 )
 	block:SetPos( pos )
 	block:SetAngles( ang )
 	block:Spawn()
 	block:PhysicsInit( SOLID_VPHYSICS )
+	print(block:GetModel())
 
 	local phys = block:GetPhysicsObject()
 	if IsValid(phys) then
