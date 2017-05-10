@@ -89,3 +89,7 @@ function nz.Rounds.Functions.Create(ply)
 	//SetPos
 
 end
+
+function GM:PlayerDisconnected( ply )
+ table.RemoveByValue(nz.Rounds.Data.CurrentPlayers, ply)
+end
