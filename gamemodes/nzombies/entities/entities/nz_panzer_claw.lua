@@ -73,7 +73,7 @@ function ENT:Grab(ply, pos) -- Pos is used for clients who may not have the Panz
 			if mv:GetVelocity():Length() > 100 then -- Keep a speed over 100
 				breaktime = CurTime() + 3 -- Then we keep delaying when to "break" the hook
 			elseif CurTime() > breaktime then -- But if you haven't been over 100 speed for the time
-				self:Release() -- Break the hook!				
+				if IsValid(pl) then self:Release() end -- Break the hook!				
 			end
 			
 			if SERVER then
@@ -130,7 +130,7 @@ if CLIENT then
 			if grab then
 				ent:Grab(LocalPlayer(), pos)
 			else
-				ent:Release()
+				if IsValid(ent) then ent:Release() end
 			end
 		end
 	end)
