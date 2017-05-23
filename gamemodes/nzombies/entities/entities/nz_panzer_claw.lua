@@ -130,7 +130,7 @@ if CLIENT then
 			if grab then
 				ent:Grab(LocalPlayer(), pos)
 			else
-				ent:Release()
+				if IsValid(ent) then ent:Release() end
 			end
 		end
 	end)
