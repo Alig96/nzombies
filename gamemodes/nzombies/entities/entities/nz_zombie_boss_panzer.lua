@@ -500,7 +500,7 @@ end
 function ENT:OnRemove()
 	if IsValid(self.ClawHook) then self.ClawHook:Remove() end
 	if IsValid(self.GrabbedPlayer) then self.GrabbedPlayer:SetMoveType(MOVETYPE_WALK) end
-	if self.FireEmitter then self.FireEmitter:Finish() end
+	if IsValid(self.FireEmitter) then self.FireEmitter:Finish() end
 end
 
 function ENT:StartFlames(time)
