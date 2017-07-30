@@ -48,7 +48,7 @@ function nzRevive.HandleRevive(ply, ent)
 					ply.Reviving = nil
 				end
 			end
-		elseif IsValid(ply.Reviving) and ply.Reviving != dply -- Holding E on another player or no player
+		elseif ply.LastReviveTime ~= nil and IsValid(ply.Reviving) and ply.Reviving != dply -- Holding E on another player or no player
 		and ct > ply.LastReviveTime + revivefailtime then -- and for longer than fail time window
 			local id = ply.Reviving:EntIndex()
 			if nzRevive.Players[id] then
