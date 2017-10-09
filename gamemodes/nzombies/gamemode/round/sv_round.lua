@@ -360,6 +360,9 @@ function nzRound:ResetGame()
 	for _, ply in pairs(player.GetAll()) do
 		ply:SetPoints(0) --Reset all player points
 		ply:RemovePerks() --Remove all players perks
+		ply:SetTotalRevives(0) --Reset all player total revive
+		ply:SetTotalDowns(0) --Reset all player total down
+		ply:SetTotalKills(0) --Reset all player total kill
 	end
 
 	--Clean up powerups
