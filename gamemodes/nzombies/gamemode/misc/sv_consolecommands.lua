@@ -1,7 +1,7 @@
 -- Actual Commands
 
 -- Quick reload for dedicated severs
-concommand.Add("nz_qr", function()
+concommand.Add("nz_qr", function(ply)
 if !IsValid(ply) or ply:IsSuperAdmin() then
 	RunConsoleCommand("changelevel", game.GetMap())
 	end
