@@ -163,11 +163,52 @@ function SetPermaElectrify(penis)
 	penis.Think = PermaElectrify
 end
 
+function ZapZombies(vec1, vec2, ply)
+	timer.Simple(2, function()
+		for _, zom in pairs(ents.FindInBox(vec1, vec2)) do
+			if zom:IsValidZombie() then
+				--Do zombie effect
+				timer.Simple(2, function()
+					if IsValid(zom) then
+						local insta = DamageInfo()
+						insta:SetAttacker(ply)
+						insta:SetDamageType() --Need to find an acceptable damage type, old was DMG_BLAST_SURFACE
+						insta:SetDamage(zom:Health())
+						zom:TakeDamageInfo(insta)
+						mapscript.bloodGodKills = mapscript.bloodGodKills + 1
+					end
+				end)
+			end
+		end
+	end)
+end
+
 function mapscript.OnGameBegin()
     gascans:Reset()
 	flashlight:Reset()
     
     --Need to lock the elevator doors & buttons here
+	mapscript.bloodGodKills = 0
+	local initialUse = false
+	local killSwitch = ents.GetMapCreatedEntity("")
+	killSwitch.OnUsed = function(ply)
+		if !nzElec:IsOn() or switchTwoOn then
+			return false
+		end
+
+		if !initialUse then
+			initialUse = true
+			--Replace the power switch here
+		end
+
+		switchOneOn = true
+		--Do room effect
+		ZapZombies(Vector(), Vector(), ply)
+	end
+	killSwitch = ents.GetMapCreatedEntity("")
+	killSwitch.OnUsed = function(ply)
+		
+	end
 
     for _, ply in pairs(player.GetAll()) do
         ply:Flashlight(false)
