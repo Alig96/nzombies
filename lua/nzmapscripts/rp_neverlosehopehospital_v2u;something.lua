@@ -190,9 +190,9 @@ function mapscript.OnGameBegin()
     --Need to lock the elevator doors & buttons here
 	mapscript.bloodGodKills = 0
 	local initialUse = false
-	local killSwitch = ents.GetMapCreatedEntity("")
+	local killSwitch = ents.GetMapCreatedEntity("1556") --Non-bloody room button
 	killSwitch.OnUsed = function(ply)
-		if !nzElec:IsOn() or switchTwoOn then
+		if !nzElec:IsOn() or switchOneOn or switchTwoOn then
 			return false
 		end
 
@@ -203,11 +203,16 @@ function mapscript.OnGameBegin()
 
 		switchOneOn = true
 		--Do room effect
-		ZapZombies(Vector(), Vector(), ply)
+		ZapZombies(Vector(-884.5, 3540, 64), Vector(-1200.5, 3888, 64), ply)
 	end
-	killSwitch = ents.GetMapCreatedEntity("")
+	killSwitch = ents.GetMapCreatedEntity("1650") --Bloody room button
 	killSwitch.OnUsed = function(ply)
-		
+        if !nzElec:IsOn() or switchOneOn or switchTwoOn then
+			return false
+		end
+        
+        switchTwoOn = true
+        ZapZombies(Vector(11, 3540, 64), Vector(-304.5, 3888, 64), ply)
 	end
 
     for _, ply in pairs(player.GetAll()) do
@@ -215,7 +220,7 @@ function mapscript.OnGameBegin()
         --ply:AllowFlashlight(false)
     end
 
-	//Creates the 2 generators
+	--Creates the 2 generators
     for num, tab in pairs(generators) do
 		poweredgenerators[num] = false
 		local gen = ents.Create("nz_script_prop")
@@ -297,8 +302,8 @@ end
 
 /*
 Test Effects:
-	util.Effect("lightning_prespawn", )
-	util.Effect("lightning_strike", )
+	util.Effect("lightning_prespawn", ) - Hellhound pre-spawn effect
+	util.Effect("lightning_strike", ) - Hellspawn spawn effect
 
 Puzzle Ideas:
 	- Melee some object? Imprisoned incorporated a custom melee weapon that can melee objects in the map
@@ -319,8 +324,12 @@ Useful EE function:
 	nzRound:Freeze(true) --Prevents switching and spawning
 
 Entity IDs:
-Power wing buttons:	- 1556
-					- 1650 (bloody room)
-
-
+    Radio: 1456
+    Camera console: 1455
+    Jail door: 2778 - should auto-open on game start
+    Generator to restart power: 2767
+    Basement console: 2056
+    Basement lever: 1920
+    Basement radio: 2144
+    Basement lever (sparking): 1921
 */
