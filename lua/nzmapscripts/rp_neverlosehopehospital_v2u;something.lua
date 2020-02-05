@@ -50,6 +50,28 @@ local flashlights = {
 	}
 }
 
+--Possible spots players may teleport to on power generator flippage
+local possibleTeleports = {
+	{ --Blocked-off area teleport (otherwise inaccessible)
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0), post = true}
+	},
+	{ --Basement teleport (essentially useless), 3 spots so it feels more genuinely random
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)},
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)},
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)}
+	},
+	{ --Random spots in areas that MUST have been purchased thus far (essentially useless), 3 spots again
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)},
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)},
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)}
+	},
+	{ --"Bunker" area w/ PaP
+		{pos = Vector(0, 0, 0), ang = Angle(0, 0, 0), post = true}
+	}
+}
+
+local spawnTeleport = {pos = Vector(0, 0, 0), ang = Angle(0, 0, 0)}
+
 local gascans = nzItemCarry:CreateCategory("gascan")
 gascans:SetIcon("spawnicons/models/props_junk/metalgascan.png") --spawnicons/models/props_junk/gascan001a.png
 gascans:SetText("Press E to pick up the gas can.")
@@ -163,6 +185,7 @@ function SetPermaElectrify(penis)
 	penis.Think = PermaElectrify
 end
 
+--How should the effect work? Nothing for 2 seconds then the zap? Do any of the effects follow the zombies as they move?
 function ZapZombies(vec1, vec2, ply)
 	timer.Simple(2, function()
 		for _, zom in pairs(ents.FindInBox(vec1, vec2)) do
@@ -183,6 +206,41 @@ function ZapZombies(vec1, vec2, ply)
 	end)
 end
 
+function SpecialTeleport(ply, pos, ang)
+	ply:GodEnable()
+	ply:Lock()
+
+	timer.Simple(1, function() --Enough time to see the lever flip
+		--Do HUD effect here
+
+		ply:SetNoDraw(true)
+		--ply:Freeze(true)
+		ply:SetPos(pos)
+		ply:SetAngles(ang)
+
+		local effectData = EffectData()
+		effectData:SetOrigin(pos)
+		effectData:SetMagnitude(2)
+		effectData:SetEntity(nil)
+		util.Effect("lightning_prespawn", effectData)
+
+		timer.Simple(1.4, function()
+			effectData = EffectData()
+			effectData:SetStart( ply:GetPos() + Vector(0, 0, 1000) )
+			effectData:SetOrigin( ply:GetPos() )
+			effectData:SetMagnitude( 0.75 )
+			util.Effect("lightning_strike", effectData)
+
+			ply:SetNoDraw(false)
+			ply:GodDisable()
+			ply:UnLock()
+			timer.Simple(1, function() --We don't want the player spawning inside a zombie and not being able to move
+				ply:SetCollisionGroup(COLLISION_GROUP_NONE) --TO CHECK
+			end)
+		end)
+	end)
+end
+
 function mapscript.OnGameBegin()
     gascans:Reset()
 	flashlight:Reset()
@@ -194,11 +252,6 @@ function mapscript.OnGameBegin()
 	killSwitch.OnUsed = function(ply)
 		if !nzElec:IsOn() or switchOneOn or switchTwoOn then
 			return false
-		end
-
-		if !initialUse then
-			initialUse = true
-			--Replace the power switch here
 		end
 
 		switchOneOn = true
@@ -213,6 +266,58 @@ function mapscript.OnGameBegin()
         
         switchTwoOn = true
         ZapZombies(Vector(11, 3540, 64), Vector(-304.5, 3888, 64), ply)
+	end
+
+	local sparkLever = ents.GetMapCreatedEntity("1921")
+	sparkLever.OnUsed = function(ply)
+		if !sparkFlipped then
+			sparkFlipped = true
+		else
+			sparkFlipped = false
+		end
+		--Play an indicating sound
+	end
+
+	local nonSparkLever = ents.GetMapCreatedEntity("1920")
+	nonSparkLever = function(ply)
+		if !nonSparkFlipped then
+			nonSparkFlipped = true
+		else
+			nonSparkFlipped = false
+		end
+		--Play an indicating sound
+	end
+
+	local neitherFlippedOption = table.Copy(possibleTeleports[1])
+	table.remove(possibleTeleports, 1)
+	local randValue = math.random(1, 3)
+	local bothFlippedOption = table.Copy(possibleTeleports[randValue])
+	table.remove(possibleTeleports, randValue)
+	randValue = math.random(1, 2)
+	local nonSparkFlippedOption = table.Copy(possibleTeleports[randValue])
+	table.remove(possibleTeleports, randValue)
+	local sparkFlippedOption = table.Copy(possibleTeleports[1])
+
+	--The generator power switch that teleports the player
+	newPowerSwitch = ents.GetMapCreatedEntity("2767")
+	newPowerSwitch.OnUsed = function(ply)
+		if nzElec:IsOn() then
+			--Since a solo player may explore this area before doing anything with the EE, "punish" them instead
+			--Do some effect and damage the player
+		end
+
+		local teleportAgain = false
+		if !sparkFlipped and !nonSparkFlipped then
+			SpecialTeleport(ply, neitherFlippedOption[math.random(#neitherFlippedOption)].pos, neitherFlippedOption[math.random(#neitherFlippedOption)].ang)
+			teleportAgain = true
+		elseif sparkFlipped and !nonSparkFlipped then
+			SpecialTeleport(ply, sparkFlippedOption[math.random(#neitherFlippedOption)].pos, sparkFlippedOption[math.random(#neitherFlippedOption)].ang)
+			if sparkFlippedOption
+		elseif !sparkFlipped and nonSparkFlipped then
+			SpecialTeleport(ply, nonSparkFlippedOption[math.random(#neitherFlippedOption)].pos, nonSparkFlippedOption[math.random(#neitherFlippedOption)].ang)
+		else
+			SpecialTeleport(ply, bothFlippedOption[math.random(#neitherFlippedOption)].pos, bothFlippedOption[math.random(#neitherFlippedOption)].ang)
+		end
 	end
 
     for _, ply in pairs(player.GetAll()) do
@@ -297,8 +402,18 @@ function mapscript.OnGameBegin()
 end
 
 function mapscript.ElectricityOn()
-	--Remove the grayscale effect here
+	if !postFirstActivation then
+		--Remove the grayscale effect here
+
+		timer.Simple(5, function()
+			--Move the power switch outside of the map and replace it with a decoy
+		end)
+	end
+
+	postFirstActivation = true
 end
+
+--Need to delete the decoy power switch on game end
 
 /*
 Test Effects:
