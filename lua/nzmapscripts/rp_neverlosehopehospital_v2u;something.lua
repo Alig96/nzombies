@@ -306,18 +306,45 @@ function mapscript.OnGameBegin()
 			--Do some effect and damage the player
 		end
 
-		local teleportAgain = false
-		if !sparkFlipped and !nonSparkFlipped then
-			SpecialTeleport(ply, neitherFlippedOption[math.random(#neitherFlippedOption)].pos, neitherFlippedOption[math.random(#neitherFlippedOption)].ang)
+		local teleportAgain, randomValue = false
+        if !sparkFlipped and !nonSparkFlipped then
+            randomValue = math.random(#neitherFlippedOption)
+			SpecialTeleport(ply, neitherFlippedOption[randomValue].pos, neitherFlippedOption[randomValue].ang)
 			teleportAgain = true
-		elseif sparkFlipped and !nonSparkFlipped then
-			SpecialTeleport(ply, sparkFlippedOption[math.random(#neitherFlippedOption)].pos, sparkFlippedOption[math.random(#neitherFlippedOption)].ang)
-			if sparkFlippedOption
-		elseif !sparkFlipped and nonSparkFlipped then
-			SpecialTeleport(ply, nonSparkFlippedOption[math.random(#neitherFlippedOption)].pos, nonSparkFlippedOption[math.random(#neitherFlippedOption)].ang)
-		else
-			SpecialTeleport(ply, bothFlippedOption[math.random(#neitherFlippedOption)].pos, bothFlippedOption[math.random(#neitherFlippedOption)].ang)
-		end
+        elseif sparkFlipped and !nonSparkFlipped then
+            randomValue = math.random(#sparkFlippedOption)
+			SpecialTeleport(ply, sparkFlippedOption[randomValue].pos, sparkFlippedOption[randomValue].ang)
+            if sparkFlippedOption.post then
+                teleportAgain = true
+            end
+        elseif !sparkFlipped and nonSparkFlipped then
+            randomValue = math.random(#nonSparkFlippedOption)
+            SpecialTeleport(ply, nonSparkFlippedOption[randomValue].pos, nonSparkFlippedOption[randomValue)].ang)
+            if nonSparkFlippedOption.post then
+                teleportAgain = true
+            end
+        else
+            randomValue = math.random(#bothFlippedOption)
+            SpecialTeleport(ply, bothFlippedOption[randomValue].pos, bothFlippedOption[randomValue)].ang)
+            if bothFlippedOption.post then
+                teleportAgain = true
+            end
+        end
+        
+        if teleportAgain then
+            teleportTimers = teleportTimers or {}
+            teleportTimers[ply:SteamID()] = 120 + math.random(-30, 30)
+
+            timer.Create(ply:SteamID() + "TeleportTimer", 1, 0, function()
+                if !teleportTimers[ply:SteamID()] then 
+                    timer.Remove(ply:SteamID() + "TeleportTimer")
+                end
+                if teleportTimers[ply:SteamID()] == 0 then
+                    timer.Remove(ply:SteamID() + "TeleportTimer")
+                    SpecialTeleport(ply, neitherFlippedOption[randomValue].pos, neitherFlippedOption[randomValue].ang)
+                end
+            end)
+        end
 	end
 
     for _, ply in pairs(player.GetAll()) do
