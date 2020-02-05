@@ -168,8 +168,8 @@ function Electrify(ent)
 end
 
 --//Creates a never-ending lightning aura around the given ent
-function SetPermaElectrify(penis) 
-	local function PermaElectrify(ent)
+function SetPermaElectrify(ent, enable) 
+	local function PermaElectrify(ent_)
 		if not game.active then --Find the appropriate variable/function return
 			return false
 		end
@@ -177,16 +177,22 @@ function SetPermaElectrify(penis)
 		if effecttimer < CurTime() then
 			local effect = EffectData()
 			effect:SetScale(1)
-			effect:SetEntity(ent)
+			effect:SetEntity(ent_)
 			util.Effect("lightning_aura", effect)
 			effecttimer = CurTime() + 0.5
 		end
 	end
-	penis.Think = PermaElectrify
+
+	if enable then
+		ent.Think = PermaElectrify --May not really work on the player class
+	else
+		ent.Think = function() end
+	end
 end
 
 --How should the effect work? Nothing for 2 seconds then the zap? Do any of the effects follow the zombies as they move?
 function ZapZombies(vec1, vec2, ply)
+	EmitSound("", vec1:Cross(vec2), 1) --Zap sfx
 	timer.Simple(2, function()
 		for _, zom in pairs(ents.FindInBox(vec1, vec2)) do
 			if zom:IsValidZombie() then
@@ -206,36 +212,47 @@ function ZapZombies(vec1, vec2, ply)
 	end)
 end
 
-function SpecialTeleport(ply, pos, ang)
+function SpecialTeleport(ply, pos, ang, delay)
 	ply:GodEnable()
 	ply:Lock()
+	SetPermaElectrify(ply, true)
+	timer.Simple(delay or 0, function()
+		--Play build-up sound
+	end)
 
-	timer.Simple(1, function() --Enough time to see the lever flip
-		--Do HUD effect here
-
-		ply:SetNoDraw(true)
+	timer.Simple(--[[buildupSoundLength]] + (delay or 0), function() --Delay the teleport for a bit to play sounds
+		ply:SetNoDraw(true) --may also need to set their equipped weapons invisible
 		--ply:Freeze(true)
 		ply:SetPos(pos)
 		ply:SetAngles(ang)
+		SetPermaElectrify(ply, false)
 
-		local effectData = EffectData()
-		effectData:SetOrigin(pos)
-		effectData:SetMagnitude(2)
-		effectData:SetEntity(nil)
-		util.Effect("lightning_prespawn", effectData)
+		--Do HUD effects
+		--Play sound effects
 
-		timer.Simple(1.4, function()
-			effectData = EffectData()
-			effectData:SetStart( ply:GetPos() + Vector(0, 0, 1000) )
-			effectData:SetOrigin( ply:GetPos() )
-			effectData:SetMagnitude( 0.75 )
-			util.Effect("lightning_strike", effectData)
+		timer.Simple(--[[fullEffectLength]] - 1.4, function()
+			local effectData = EffectData()
+			effectData:SetOrigin(pos)
+			effectData:SetMagnitude(2)
+			effectData:SetEntity(nil)
+			util.Effect("lightning_prespawn", effectData)
 
-			ply:SetNoDraw(false)
-			ply:GodDisable()
-			ply:UnLock()
-			timer.Simple(1, function() --We don't want the player spawning inside a zombie and not being able to move
-				ply:SetCollisionGroup(COLLISION_GROUP_NONE) --TO CHECK
+			timer.Simple(1.4, function()
+				effectData = EffectData()
+				effectData:SetStart( ply:GetPos() + Vector(0, 0, 1000) )
+				effectData:SetOrigin( ply:GetPos() )
+				effectData:SetMagnitude( 0.75 )
+				util.Effect("lightning_strike", effectData)
+
+				ply:SetNoDraw(false)
+				ply:GodDisable()
+				ply:UnLock()
+				timer.Simple(1, function() --We don't want the player spawning inside a zombie and not being able to move
+					ply:SetCollisionGroup(COLLISION_GROUP_NONE) --TO CHECK
+					timer.Simple(1, function()
+						ply:SetCollisionGroup() --Change back
+					end)
+				end)
 			end)
 		end)
 	end)
@@ -309,23 +326,23 @@ function mapscript.OnGameBegin()
 		local teleportAgain, randomValue = false
         if !sparkFlipped and !nonSparkFlipped then
             randomValue = math.random(#neitherFlippedOption)
-			SpecialTeleport(ply, neitherFlippedOption[randomValue].pos, neitherFlippedOption[randomValue].ang)
+			SpecialTeleport(ply, neitherFlippedOption[randomValue].pos, neitherFlippedOption[randomValue].ang, 1)
 			teleportAgain = true
         elseif sparkFlipped and !nonSparkFlipped then
             randomValue = math.random(#sparkFlippedOption)
-			SpecialTeleport(ply, sparkFlippedOption[randomValue].pos, sparkFlippedOption[randomValue].ang)
+			SpecialTeleport(ply, sparkFlippedOption[randomValue].pos, sparkFlippedOption[randomValue].ang, 1)
             if sparkFlippedOption.post then
                 teleportAgain = true
             end
         elseif !sparkFlipped and nonSparkFlipped then
             randomValue = math.random(#nonSparkFlippedOption)
-            SpecialTeleport(ply, nonSparkFlippedOption[randomValue].pos, nonSparkFlippedOption[randomValue)].ang)
+            SpecialTeleport(ply, nonSparkFlippedOption[randomValue].pos, nonSparkFlippedOption[randomValue)].ang, 1)
             if nonSparkFlippedOption.post then
                 teleportAgain = true
             end
         else
             randomValue = math.random(#bothFlippedOption)
-            SpecialTeleport(ply, bothFlippedOption[randomValue].pos, bothFlippedOption[randomValue)].ang)
+            SpecialTeleport(ply, bothFlippedOption[randomValue].pos, bothFlippedOption[randomValue)].ang, 1)
             if bothFlippedOption.post then
                 teleportAgain = true
             end
@@ -336,13 +353,18 @@ function mapscript.OnGameBegin()
             teleportTimers[ply:SteamID()] = 120 + math.random(-30, 30)
 
             timer.Create(ply:SteamID() + "TeleportTimer", 1, 0, function()
-                if !teleportTimers[ply:SteamID()] then 
+                if !teleportTimers[ply:SteamID()] or !IsValid(ply) then 
                     timer.Remove(ply:SteamID() + "TeleportTimer")
                 end
-                if teleportTimers[ply:SteamID()] == 0 then
+                if teleportTimers[ply:SteamID()] == 0 or !ply:GetNotDowned then
                     timer.Remove(ply:SteamID() + "TeleportTimer")
-                    SpecialTeleport(ply, neitherFlippedOption[randomValue].pos, neitherFlippedOption[randomValue].ang)
+                    SpecialTeleport(ply, Vector(), Angle()) --Should be back to spawn
                 end
+				--[[if teleportTimers[ply:SteamID()] == 10 then --or some number 
+					--Do something
+				end]]
+
+				teleportTimers[ply:SteamID()] = teleportTimers[ply:SteamID()] - 1
             end)
         end
 	end
