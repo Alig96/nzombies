@@ -3,10 +3,13 @@ util.AddNetworkString("RunTeleportOverlay")
 util.AddNetworkString("StopOverlay")
 util.AddNetworkString("StartBloodCount")
 util.AddNetworkString("UpdateBloodCount")
+util.AddNetworkString("SendBatteryLevel")
 
 local mapscript = {}
 mapscript.bloodGodKills = 0
 mapscript.bloodGodKillsGoal = 30
+mapscript.batteryLevels = {}
+mapscript.flashlightStatuses = {}
 
 --The gas cans used to fill the generators, 2 cans per generator
 --lua_run print(Entity(1):GetEyeTrace().Entity:GetPos())
@@ -39,22 +42,16 @@ local generators = {
     {pos = Vector(-2723, 1790, 27.5), ang = Angle(0, -90, 0)}
 }
 
---The "pile" of flashlights
-local flashlights = {
-	{	
-		{pos = Vector(-129.59, 2925.20, 37.49), ang = Angle(-5.13, -178.49, -1.89)},
-		{pos = Vector(-96.75, 2923.43, 37.78), ang = Angle(-5.41, -173.46, 43.86)}
-	},
-	{	
-		{pos = Vector(-2317.48, 1602.08, 1.13), ang = Angle(-3.56, -12.71, -74.99)},
-		{pos = Vector(-2322.29, 1603.04, 1.76), ang = Angle(-3.38, 174.16, -107.26)},
-		{pos = Vector(-2319.76, 1605.84, 4.06), ang = Angle(90.00, -135.0, 180)}
-	},
-	{	
-		{pos = Vector(-3070.06, 3085.94, 4.13), ang = Angle(86.38, -171.26, -70.16)},
-		{pos = Vector(-3068.96, 3090.52, 2.40), ang = Angle(-2.93, 121.29, 166.81)},
-		{pos = Vector(-3066.16, 3088.57, 1.22), ang = Angle(-2.76, -60.67, -86.96)}
-	}
+--Batteries
+local batteries = {
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()},
+	{pos = Vector(), ang = Angle()}
 }
 
 --Possible spots players may teleport to on power generator flippage
@@ -150,39 +147,53 @@ gascans:SetCondition( function(self, ply)
 end)
 gascans:Update()
 
-local flashlight = nzItemCarry:CreateCategory("flashlight")
-flashlight:SetIcon("spawnicons/zworld_equipment/flashlight.png")
-flashlight:SetText("Press E to pick up a flashlight.")
-flashlight:SetDropOnDowned(false)
-flashlight:SetShowNotification(true)
-flashlight:SetResetFunction(function(self)
-	if flashlights.spawned then
-		for _, ent in pairs(flashlights.spawned) do
+local battery = nzItemCarry:CreateCategory("battery")
+battery:SetIcon("spawnicons/zworld_equipment/.png")
+battery:SetText("Press E to pick up a battery.")
+battery:SetDropOnDowned(false)
+battery:SetShowNotification(true)
+battery:SetResetFunction(function(self)
+	--[[if batteries.spawned then
+		for _, ent in pairs(batteries.spawned) do
 			ent:Remove()
-			flashlights.spawned[_] = nil
+			batteries.spawned[_] = nil
 		end
-	end
+	end]]
 
-	for _, info in pairs(flashlights[math.random(1, #flashlights)]) do
-		local ent = ents.Create("nz_script_prop")
-		ent:SetModel("zworld_equipment/flashlight.mdl")
+	for _, info in pairs(batteries) do
+		--[[local ent = ents.Create("nz_script_prop")
+		ent:SetModel("zworld_equipment/.mdl")
 		ent:SetPos(info.pos)
 		ent:SetAngles(info.ang)
 		ent:Spawn()
-		flashlights.spawned = flashlights.spawned or {}
-		flashlights.spawned[#flashlights.spawned + 1] = ent
-		self:RegisterEntity(ent)
+		ent.charge = math.random(50, 100)
+		batteries.spawned[#batteries.spawned + 1] = ent
+		info.spawned = true
+		self:RegisterEntity(ent)]]
+		if info.ent and info.spawned then
+			info.ent:Remove()
+			info.spawned = false
+		end
 	end
 end)
-flashlight:SetPickupFunction(function(self, ply, ent)
+battery:SetPickupFunction(function(self, ply, ent)
 	ply:GiveCarryItem(self.id)
     ply:AllowFlashlight(true)
-    mapscript.FlashlightStatuses[ply] = true
+    mapscript.flashlightStatuses[ply] = true
+	mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] + ent.charge, 0, 100)
+	
+	for k, v in pairs(batteries) do
+		if v.ent == ent then
+			ent:Remove()
+			v.spawned = false
+			break
+		end
+	end
 end)
-flashlight:SetCondition( function(self, ply)
-	return !ply:HasCarryItem("flashlight")
+battery:SetCondition( function(self, ply)
+	return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
 end)
-flashlight:Update()
+battery:Update()
 
 --//Creates the lightning aura once around the given ent (lasts 0.5 seconds, approximately)
 function Electrify(ent)
@@ -305,13 +316,12 @@ end
 
 function mapscript.OnGameBegin()
     gascans:Reset()
-    flashlight:Reset()
-    mapscript.FlashlightStatuses = {}
+    battery:Reset()
 
-    timer.Simple( 0, function()
-        for k, v in pairs( player.GetAll() ) do
-            mapscript.FlashlightStatuses[ v ] = false
-            v:AllowFlashlight( false )
+    timer.Simple(0, function()
+        for k, v in pairs(player.GetAll()) do
+            mapscript.flashlightStatuses[v] = false
+            v:AllowFlashlight(false)
         end
     end )
     
@@ -322,7 +332,9 @@ function mapscript.OnGameBegin()
             end]]
         end
     end)
+
     --Need to lock the elevator doors & buttons here
+
 	mapscript.bloodGodKills = 0
 	local initialUse = false
 	local killSwitch = ents.GetMapCreatedEntity("1556") --Non-bloody room button
@@ -342,6 +354,7 @@ function mapscript.OnGameBegin()
 			return false
 		end
         
+		but:EmitSound("buttons/button24.wav")
         switchTwoOn = true
         ZapZombies(2, Vector(11, 3540, 64), Vector(-304.5, 3888, 64), ply)
 	end
@@ -510,22 +523,47 @@ function mapscript.OnGameBegin()
 			end
 		end
 	end
+
+	--Timer for checking battery levels
+	timer.Create("BatteryChecks", 1, 0, function()
+		for k, v in pairs(player.GetAll()) do
+			if v:Alive() and mapscript.batteryLevels[ply:SteamID()] then
+				if mapscript.batteryLevels[ply:SteamID()] == 0 then
+					v:Flashlight(false) --turns off the flashlight
+					v:AllowFlashlight(false) --prevents the flashlight from changing states
+				end
+				if v:FlashlightIsOn() then
+					mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] - 1, 0, 100)
+					net.Start("SendBatteryLevel")
+						net.WriteInt(mapscript.batteryLevels[ply:SteamID()], 6)
+					net.Send(v)
+				end
+			end
+		end
+	end)
 end
 
 function mapscript.OnRoundStart()
+	--Redundant flashlight setting, for when players join mid-game
     timer.Simple(0, function()
         for k, v in pairs(player.GetAll()) do
-            if mapscript.FlashlightStatuses[v] then 
+            if mapscript.flashlightStatuses[v] then 
                 v:AllowFlashlight(true)
             else 
-                mapscript.FlashlightStatuses[v] = false
+                mapscript.flashlightStatuses[v] = false
                 v:AllowFlashlight(false)
             end
 
             net.Start("StartBloodCount")
             net.Send(v)
         end
-    end )
+    end)
+
+	--Randomly (re)spawn batteries
+	local notSpawned = table.Copy(batteries)
+	for k, v in pairs(batteries) do
+
+	end
 end
 
 function mapscript.ElectricityOn()

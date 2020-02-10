@@ -120,6 +120,12 @@ net.Receive("UpdateBloodCount", function()
     surface.PlaySound("ambient/alarms/warningbell1.wav")
 end)
 
+batteryLevel = 0
+net.Receive("SendBatteryLevel", function()
+    local newLevel = net.ReadInt(6)
+    batteryLevel = math.Clamp(newLevel, 0, 100)
+end)
+
 chalkMessages = {
     counter = {pos1 = Vector(-568, 3552, 170.5), pos2 = Vector(-402, 3552, 137), num = 0, goal = 30},
     msg1 = {pos1 = Vector(-1664.0, 2378.5, 125.8), pos2 = Vector(-1664, 2210.75, 58.5), msg = "Blood for the Blood God"},
@@ -146,3 +152,5 @@ hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
         cam.End3D2D()
     end
 end)
+
+--Set up battery drawing on the screen here
