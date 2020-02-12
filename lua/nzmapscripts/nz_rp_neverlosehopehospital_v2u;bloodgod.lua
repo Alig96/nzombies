@@ -4,6 +4,9 @@ util.AddNetworkString("StopOverlay")
 util.AddNetworkString("StartBloodCount")
 util.AddNetworkString("UpdateBloodCount")
 util.AddNetworkString("SendBatteryLevel")
+util.AddNetworkString("RunSound")
+
+--[[    Post script-load work    ]]
 
 local mapscript = {}
 mapscript.bloodGodKills = 0
@@ -11,10 +14,9 @@ mapscript.bloodGodKillsGoal = 30
 mapscript.batteryLevels = {}
 mapscript.flashlightStatuses = {}
 
---The gas cans used to fill the generators, 2 cans per generator
---lua_run print(Entity(1):GetEyeTrace().Entity:GetPos())
+--The gas cans used to fill the generators
 local gascanspawns = {
-    { --Can 1, found around the power rooms
+    { --Can 1, found around the power room
         {pos = Vector(-214, 2372, 15), ang = Angle(0, -90, 0)},
         {pos = Vector(-114, 2932, 14.75), ang = Angle(-36, -98.5, 0)},
         {pos = Vector(-1923.25, 3534.25, 15.25), ang = Angle(0, 106, 0)}
@@ -22,7 +24,7 @@ local gascanspawns = {
     { --Can 2, found in the bathroom & beyond areas
         {pos = Vector(-3972.647949, 2598.693848, 15.330338), ang = Angle(0, -180, 0)},
         {pos = Vector(-5784.763184, 2332.365723, 260.4929), ang = Angle(-89.5, -146, -57.5)},
-        {pos = Vector(-5627.165039, 2128.645020, 15.2646), ang = Angle(0, 0, 0)}
+        {pos = Vector(-6898.134766, 2221.869385, 15.725049), ang = Angle(-22.767, -8.385, 0.0)}
     },
     { --Can 3, found in the tiled corridors after the long hallways
         {pos = Vector(-3959, 4838.75, 79), ang = Angle(0, 0, 0)},
@@ -36,22 +38,41 @@ local gascanspawns = {
     }
 }
 
-local poweredgenerators = {}
-local generators = {
-    {pos = Vector(-2241.5, 1219.5, 27.5), ang = Angle(0, -180, 0)},
-    {pos = Vector(-2723, 1790, 27.5), ang = Angle(0, -90, 0)}
-}
-
 --Batteries
 local batteries = {
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()},
-	{pos = Vector(), ang = Angle()}
+	{pos = Vector(-2436.871582, 1014.399536, 46.50404), ang = Angle(-55.045, 151.149, -167.21)},
+	{pos = Vector(-1786.455444, 2370.384521, 48.57032), ang = Angle(-37.775, -64.178, 11.95)},
+	{pos = Vector(-1979.874268, 3566.959473, 37.85770), ang = Angle(-37.916, 51.778, 11.93)},
+	{pos = Vector(-97.313683, 2924.940186, 37.81508), ang = Angle(-37.314, -118.791, 12.04)},
+	{pos = Vector(-2902.511963, 2597.846436, 48.59691), ang = Angle(-38.151, -84.157, 11.88)},
+	{pos = Vector(-4622.492188, 3658.279297, -92.48356), ang = Angle(-36.196, -164.181, 11.34)},
+	{pos = Vector(-6782.381836, 3432.891602, 34.38910), ang = Angle(-37.794, 157.666, 11.94)},
+    {pos = Vector(-3403.921875, 3300.159668, 18.95353), ang = Angle(-53.143, 85.770, -168.46)},
+    {pos = Vector(-3647.955078, 6750.748047, 112.58902), ang = Angle(-40.741, 55.908, 14.65)},
+    {pos = Vector(-4929.287109, 7471.330566, 101.76261), ang = Angle(-26.939, -4.668, 9.41)},
+    {pos = Vector(-5460.764160, 7138.412598, 104.58886), ang = Angle(-38.037, 73.588, 11.90)},
+    {pos = Vector(-5473.729980, 7142.676270, 104.53120), ang = Angle(-37.222, 42.693, 12.05)},
+    {pos = Vector(-5536.578125, 10493.915039, 81.09477), ang = Angle(-36.348, 35.411, 11.37)},
+    {pos = Vector(-5536.988281, 10531.532227, 81.09297), ang = Angle(-36.311, -43.786, 11.36)},
+    {pos = Vector(-4273.901855, 10044.547852, 112.55004), ang = Angle(-61.845, -110.469, -164.04)},
+    {pos = Vector(-4270.998047, 10008.869141, 112.57056), ang = Angle(58.348, -49.255, -8.13)},
+    {pos = Vector(-4270.181152, 9983.740234, 112.65776), ang = Angle(42.282, 107.380, 175.01)},
+    {pos = Vector(-4273.702637, 9886.146484, 112.59091), ang = Angle(56.654, 167.444, -11.40)},
+    {pos = Vector(-4272.020020, 9822.676758, 112.52522), ang = Angle(-53.056, -105.436, -163.68)},
+    {pos = Vector(-4274.509277, 9803.791992, 112.66100), ang = Angle(34.587, -25.402, 174.65)},
+    {pos = Vector(-2430.007080, 1346.526367, -3528.44970), ang = Angle(64.863, 66.468, -14.13)},
+    {pos = Vector(-2433.776855, 1347.847412, -3528.48461), ang = Angle(-52.461, 142.025, -167.32)},
+    {pos = Vector(-3339.458984, 1488.409424, -3549.39941), ang = Angle(71.161, -74.220, -19.93)},
+    {pos = Vector(-3364.109375, 662.760254, -3549.39843), ang = Angle(61.172, -85.910, -14.430)},
+    {pos = Vector(-3360.204834, 572.172607, -3549.368652), ang = Angle(-38.956, 132.059, 12.01)},
+    {pos = Vector(-3364.406982, 566.230713, -3549.42529), ang = Angle(-60.017, 123.212, -164.98)},
+    {pos = Vector(-5174.005859, 560.970459, -3531.32959), ang = Angle(30.249, 21.286, 173.75)},
+    {pos = Vector(-5174.726074, 578.369934, -3531.48828), ang = Angle(-51.760, 97.969, -169.90)},
+    {pos = Vector(-3269.567871, 2077.697754, -3549.38061), ang = Angle(-38.943, -139.653, 11.97)},
+    {pos = Vector(-3282.178711, 2076.142822, -3549.47021), ang = Angle(-58.391, 58.327, -166.00)},
+    {pos = Vector(-2439.740967, 781.870728, 46.52282), ang = Angle(-61.265, 11.267, -170.51)},
+    {pos = Vector(158.518555, 3749.448486, 34.58102), ang = Angle(-38.046, -115.702, 11.60)},
+    {pos = Vector(-351.988251, 2292.685791, 52.67468), ang = Angle(-38.877, -170.935, 10.76)}
 }
 
 --Possible spots players may teleport to on power generator flippage
@@ -147,30 +168,15 @@ gascans:SetCondition( function(self, ply)
 end)
 gascans:Update()
 
+--Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
-battery:SetIcon("spawnicons/zworld_equipment/.png")
+battery:SetIcon("spawnicons/zworld_equipment/zpile.png")
 battery:SetText("Press E to pick up a battery.")
 battery:SetDropOnDowned(false)
 battery:SetShowNotification(true)
 battery:SetResetFunction(function(self)
-	--[[if batteries.spawned then
-		for _, ent in pairs(batteries.spawned) do
-			ent:Remove()
-			batteries.spawned[_] = nil
-		end
-	end]]
-
 	for _, info in pairs(batteries) do
-		--[[local ent = ents.Create("nz_script_prop")
-		ent:SetModel("zworld_equipment/.mdl")
-		ent:SetPos(info.pos)
-		ent:SetAngles(info.ang)
-		ent:Spawn()
-		ent.charge = math.random(50, 100)
-		batteries.spawned[#batteries.spawned + 1] = ent
-		info.spawned = true
-		self:RegisterEntity(ent)]]
-		if info.ent and info.spawned then
+		if info.spawned and info.ent and info.ent:IsValid() then
 			info.ent:Remove()
 			info.spawned = false
 		end
@@ -194,6 +200,8 @@ battery:SetCondition( function(self, ply)
 	return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
 end)
 battery:Update()
+
+--[[    Non-mapscript functions    ]]
 
 --//Creates the lightning aura once around the given ent (lasts 0.5 seconds, approximately)
 function Electrify(ent)
@@ -226,6 +234,7 @@ function SetPermaElectrify(ent, enable)
 	end
 end
 
+--This function is only ever ran with electricity being on
 function ZapZombies(id, vec1, vec2, ply)
     if id == 1 then
         ents.GetMapCreatedEntity("1556"):EmitSound("misc/charge_up.ogg", 75, 100, 1, CHAN_AUTO)
@@ -258,6 +267,9 @@ function ZapZombies(id, vec1, vec2, ply)
 			end
         end
         
+        nzElec:Reset()
+        ents.GetMapCreatedEntity("2767"):Fire("Use")
+
         timer.Simple(2, function()
             net.Start("UpdateBloodCount")
                 net.WriteInt(math.Clamp(mapscript.bloodGodKills, 0, 999), 16)
@@ -314,9 +326,48 @@ function SpecialTeleport(ply, pos, ang, delay)
 	end)
 end
 
+--Generates a random set length totalDesired of values between 1 and maxNum as a table, returns nil if the 2 params are equal or total is under max
+function GenerateRandomSet(maxNum, totalDesired)
+    if totalDesired >= maxNum then
+        return
+    end
+
+    local throwawayTab = {}
+    for counter = 1, totalDesired do
+        local randomNum = math.random(1, maxNum)
+        while throwawayTab[randomNum] do
+            randomNum = math.random(1, maxNum)
+        end
+        throwawayTab[randomNum] = true
+    end
+
+    return throwawayTab
+    --[[local returnTab = {}
+    for k, v in pairs(throwawayTab) do
+        returnTab[#returnTab + 1] = k
+    end
+
+    return returnTab]]
+end
+
+--[[    Mapscript functions    ]]
+
 function mapscript.OnGameBegin()
     gascans:Reset()
     battery:Reset()
+
+    local throwawayTab = GenerateRandomSet(#batteries, #batteries / 2)
+    for k, v in pairs(batteries) do
+        if throwawayTab[k] then
+            local ent = ents.Create("nz_script_prop")
+			ent:SetModel("zworld_equipment/zpile.mdl")
+			ent:SetPos(v.pos)
+			ent:SetAngles(v.ang)
+			ent:Spawn()
+            battery:RegisterEntity(ent)
+            v.spawned = true
+        end
+    end
 
     timer.Simple(0, function()
         for k, v in pairs(player.GetAll()) do
@@ -340,7 +391,6 @@ function mapscript.OnGameBegin()
 	local killSwitch = ents.GetMapCreatedEntity("1556") --Non-bloody room button
 	killSwitch.OnUsed = function(but, ply)
         if !nzElec:IsOn() --[[or switchOneOn or switchTwoOn]] then
-            --but:EmitSound("ambient/buttons/button2.wav") - Already emits this sound
 			return
 		end
 
@@ -365,8 +415,12 @@ function mapscript.OnGameBegin()
 			sparkFlipped = true
 		else
 			sparkFlipped = false
-		end
-		--Play an indicating sound
+        end
+
+        local throwawayTab = {1, 3, 4} --Have to do this stupid work-around since these are hl2 sounds and there's no teleport2.wav
+        net.Start("RunSound")
+            net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
+        net.Broadcast()
 	end
 
 	local nonSparkLever = ents.GetMapCreatedEntity("1920")
@@ -375,8 +429,12 @@ function mapscript.OnGameBegin()
 			nonSparkFlipped = true
 		else
 			nonSparkFlipped = false
-		end
-		--Play an indicating sound
+        end
+        
+		local throwawayTab = {1, 3, 4}
+        net.Start("RunSound")
+            net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
+        net.Broadcast()
 	end
 
 	local neitherFlippedOption = table.Copy(possibleTeleports[1])
@@ -392,17 +450,30 @@ function mapscript.OnGameBegin()
 	--The generator power switch that teleports the player
 	newPowerSwitch = ents.GetMapCreatedEntity("2767")
     newPowerSwitch.OnUsed = function(but, ply)
-        if delay then return end
+        if powerSwitchDelay or !ply then return end
 
-        local delay = true
+        powerSwitchDelay = true
         SetPermaElectrify(but, true)
         Electrify(ply)
-        timer.Simple(30, function() delay = false SetPermaElectrify(but, false) end)
+        timer.Simple(30, function() powerSwitchDelay = false SetPermaElectrify(but, false) end)
 
 		if nzElec:IsOn() then
-			--Since a solo player may explore this area before doing anything with the EE, "punish" them instead
-			--Do some sound effect and damage the player
-		end
+            but:EmitSound("ambient/energy/zap" .. math.random(9) .. ".wav")
+
+            local insta = DamageInfo()
+            insta:SetAttacker(but)
+            insta:SetDamageType(DMG_SHOCK) --Need to find an acceptable damage type, old was DMG_BLAST_SURFACE
+            insta:SetDamage(ply:Health() - 1)
+            ply:TakeDamageInfo(insta)
+
+            timer.Simple(2, function()
+                ents.GetMapCreatedEntity("2767"):Fire("Use")
+            end)
+        else
+            timer.Simple(1, function()
+                nzElec:Activate()
+            end)
+        end
 
 		local teleportAgain, randomValue = false
         if !sparkFlipped and !nonSparkFlipped then
@@ -441,9 +512,6 @@ function mapscript.OnGameBegin()
                     timer.Remove(ply:SteamID() .. "TeleportTimer")
                     SpecialTeleport(ply, spawnTeleport.pos, spawnTeleport.ang)
                 end
-				--[[if teleportTimers[ply:SteamID()] == 10 then --or some number 
-					--Do something
-				end]]
 
 				teleportTimers[ply:SteamID()] = teleportTimers[ply:SteamID()] - 1
             end)
@@ -451,91 +519,82 @@ function mapscript.OnGameBegin()
         return true
 	end
 
-	--Creates the 2 generators
-    for num, tab in pairs(generators) do
-		poweredgenerators[num] = false
-		local gen = ents.Create("nz_script_prop")
-		gen:SetPos(tab.pos)
-		gen:SetAngles(tab.ang)
-		gen:SetModel("models/props_wasteland/laundry_washer003.mdl")
-		gen:SetNWString("NZText", "You must fill this generator with gasoline to power it.")
-		gen:SetNWString("NZRequiredItem", "gascan")
-		gen:SetNWString("NZHasText", "Press E to fuel this generator with gasoline.")
-		gen:Spawn()
-		gen:Activate()
-		gen.OnUsed = function(self, ply)
-			if ply:HasCarryItem("gascan") and not poweredgenerators[num] and not delay then
-                local delay = true
-				local halffilled = false
+    --Creates the elevator generator
+    local gasLevel = 0;
+    local gen = ents.Create("nz_script_prop")
+    gen:SetPos(Vector(-2723, 1790, 27.5))
+    gen:SetAngles(Angle(0, -90, 0))
+    gen:SetModel("models/props_wasteland/laundry_washer003.mdl")
+    gen:SetNWString("NZText", "You must fill this generator with gasoline to power it.")
+    gen:SetNWString("NZRequiredItem", "gascan")
+    gen:SetNWString("NZHasText", "Press E to fuel this generator with gasoline.")
+    gen:Spawn()
+    gen:Activate()
+    gen.OnUsed = function(self, ply)
+        if ply:HasCarryItem("gascan") and !generatorPowered and !gasDelay then
+            gasDelay = true
+            gasLevel = gasLevel + 1
 
-				for num, tab in pairs(gascanspawns) do
-					if tab == ply.ent then
-						tab.used = true
-						tab.held = false
-						continue
-					end
-				end
+            --This feels unnecessary
+            for num, tab in pairs(gascanspawns) do
+                if tab.ent == ply.ent then
+                    tab.used = true
+                    tab.held = false
+                    continue
+                end
+            end
 
-                delay = true
-                gen:SetNWString("NZText", "")
-                gen:SetNWString("NZHasText", "")
+            gen:SetNWString("NZText", "")
+            gen:SetNWString("NZHasText", "")
+            gen:EmitSound("nz/effects/gas_pour.wav")
 
-				--Plays the generator fueling and generator humming sounds
-				timer.Simple(4, function()
-					if not gen then return end
-                    delay = false
+            --After the gas_pour sound has played
+            timer.Simple(4, function()
+                if not gen then return end
+                gasDelay = false
 
-                    if halffilled then
-                        poweredgenerators[num] = true
-                        gen:SetNWString("NZText", "This generator is powered on.")
-                        gen:SetNWString("NZHasText", "This generator has already been fueled.")
-                        gen:EmitSound("player/items/gas_can_fill_pour_01.wav") --gen:EmitSound( "l4d2/gas_pour.wav" )
+                if gasLevel == 4 then
+                    generatorPowered = true
+                    gen:SetNWString("NZText", "This generator is powered on.")
+                    gen:SetNWString("NZHasText", "") --There shouldn't be any more
+                    gen:EmitSound("nz/effects/generator_start.wav")
 
-						if k == 1 then //The first generator leads to the PaP area
-
-						else //The second genereator leads to more of the playable area
-
-						end
-	
-						timer.Simple(4, function()
-							gen:EmitSound("level/generator_start_loop.wav")
-							timer.Simple(9, function()
-								timer.Create("Gen" .. num, 3, 0, function()
-									if not gen then return end
-									gen:EmitSound("l4d2/generator_humm.ogg")
-								end)
-							end)
-						end)
-                    else
-                        halffilled = true
-                        ply:RemoveCarryItem("gascan")
-                        gen:EmitSound("player/items/gas_can_fill_pour_01.wav")
-						gen:SetNWString("NZText", "You must fill this generator with gasoline to power it.")
-						gen:SetNWString("NZHasText", "Press E to fuel this generator with gasoline.")
-                    end
-				end)
-			end
-		end
-		gen.Think = function()
-			--If a new script is loaded, destory the generator humming sounds
-			if not poweredgenerators[num] and timer.Exists("Gen" .. num) then
-				timer.Destroy("Gen" .. num)
-			end
-		end
-	end
+                    --After the 9 second generator_start sound has played
+                    timer.Simple(9, function()
+                        --Call up the elevator
+                        gen:EmitSound("nz/effects/generator_humm.ogg")
+                        timer.Create("GeneratorHumm", 3, 0, function()
+                            if not gen then return end
+                            gen:EmitSound("nz/effects/generator_humm.ogg")
+                        end)
+                    end)
+                else
+                    ply:RemoveCarryItem("gascan")
+                    gen:SetNWString("NZText", "You must fill this generator with more gasoline to power it.")
+                    gen:SetNWString("NZHasText", "Press E to fuel this generator with gasoline.")
+                end
+            end)
+        end
+    end
+    gen.Think = function()
+        --If the generator is removed, or the game has ended, destroy the "on" sound & timer
+        if (!generatorPowered and gen:IsValid() or !gen:IsValid()) and timer.Exists("GeneratorHumm") then
+            timer.Destroy("GeneratorHumm")
+        end
+    end
 
 	--Timer for checking battery levels
 	timer.Create("BatteryChecks", 1, 0, function()
 		for k, v in pairs(player.GetAll()) do
-			if v:Alive() and mapscript.batteryLevels[ply:SteamID()] then
-				if mapscript.batteryLevels[ply:SteamID()] == 0 then
+			if v:Alive() and mapscript.batteryLevels[v:SteamID()] then
+				if mapscript.batteryLevels[v:SteamID()] == 0 then
 					v:Flashlight(false) --turns off the flashlight
 					v:AllowFlashlight(false) --prevents the flashlight from changing states
 				end
 				if v:FlashlightIsOn() then
-					mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] - 1, 0, 100)
+					mapscript.batteryLevels[c:SteamID()] = math.Clamp(mapscript.batteryLevels[c:SteamID()] - 1, 0, 100)
 					net.Start("SendBatteryLevel")
-						net.WriteInt(mapscript.batteryLevels[ply:SteamID()], 6)
+						net.WriteInt(mapscript.batteryLevels[c:SteamID()], 6)
 					net.Send(v)
 				end
 			end
@@ -560,25 +619,48 @@ function mapscript.OnRoundStart()
     end)
 
 	--Randomly (re)spawn batteries
-	local notSpawned = table.Copy(batteries)
+	local notSpawned = {}
 	for k, v in pairs(batteries) do
-
-	end
+        if !v.spawned then
+            notSpawned[#notSpawned + 1] = v
+        end
+    end
+    
+    newBat = notSpawned[math.random(#notSpawned)]
+    local ent = ents.Create("nz_script_prop")
+    ent:SetModel("zworld_equipment/zpile.mdl")
+    ent:SetPos(newBat.pos)
+    ent:SetAngles(newBat.ang)
+    ent:Spawn()
+    battery:RegisterEntity(ent)
 end
 
 function mapscript.ElectricityOn()
-	if !postFirstActivation then
-		ents.FindByClass("edit_color")[1]:SetContrast(1)
+    if !postFirstActivation then
+        local colorEditor = ents.FindByClass("edit_color")[1]
+        local contrastScale = 0.5 --This is the value it's set to in the config, we scale this value up here
+        timer.Create("RemoveGrayscale", 0.5, 10, function()
+            contrastScale = contrastScale + 0.05
+            colorEditor:SetContrast(contrastScale)
+        end)
+
+        ents.GetMapCreatedEntity("2767"):Fire("Use")
 
 		timer.Simple(5, function()
-			--Move the power switch outside of the map and replace it with a decoy
+            local fakeSwitch, fakeLever = ents.Create(class), ents.Create(class)
+            --Do more
+
+            ents.FindByClass("power_box")[1]:SetPos()
 		end)
 	end
-
+    
 	postFirstActivation = true
 end
 
---Need to delete the decoy power switch on game end
+function mapscript.OnGameEnd()
+    powerSwitch = ents.FindByClass("power_box")[1]
+	if powerSwitch and IsValid(powerSwitch) then powerSwitch:Remove() end
+end
 
 return mapscript
 

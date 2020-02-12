@@ -110,6 +110,11 @@ net.Receive("StopOverlay", function()
     if Screen and ispanel( Screen ) then Screen:Remove() end
 end)
 
+net.Receive("RunSound", function()
+    soundtoRun = net.ReadString()
+    surface.PlaySound(soundToRun)
+end)
+
 net.Receive("StartBloodCount", function()
     startedChalk = true
 end)
@@ -129,7 +134,8 @@ end)
 chalkMessages = {
     counter = {pos1 = Vector(-568, 3552, 170.5), pos2 = Vector(-402, 3552, 137), num = 0, goal = 30},
     msg1 = {pos1 = Vector(-1664.0, 2378.5, 125.8), pos2 = Vector(-1664, 2210.75, 58.5), msg = "Blood for the Blood God"},
-    msg2 = {pos1 = Vector(-751.5, 2880.2, 104.2), pos2 = Vector(-630.5, 2880.2, 59.8), msg = "Arcs of Blue make it True"},
+    msg2 = {pos1 = Vector(-751.5, 2880.2, 104.2), pos2 = Vector(-630.5, 2880.2, 59.8), msg = "Arcs of Blue Make it True"},
+    msg3 = {pos1 = Vector(-1216.6, 2768.9, 94.7), pos2 = Vector(-1216.6, 2869.6, 51.8), msg = "Bring Forth the Lambs to Slaughter"}
 }
 local chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
 
@@ -147,10 +153,14 @@ hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
         cam.Start3D2D(v.pos1, Angle(0, 0, 0), 1)
             surface.SetFont("nz.display.hud.main")
             surface.SetDrawColor(255, 255, 255)
-            surface.SetMaterial(chalkmaterial)
+            --surface.SetMaterial(chalkmaterial)
+            surface.SetTextPos(30, 30)
             surface.DrawText(text)
         cam.End3D2D()
     end
 end)
 
 --Set up battery drawing on the screen here
+hook.Add("HUDPaintBackground", "BatteryDisplay", function()
+    --Do stuff
+end)
