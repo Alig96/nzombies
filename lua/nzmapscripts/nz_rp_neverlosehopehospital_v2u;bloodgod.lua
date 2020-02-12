@@ -114,92 +114,94 @@ for k, v in pairs(zapRoomEffectLocations[1]) do
     zapRoomEffectLocations[2][k] = {start = v.start + Vector(895.97, 0, 0), origin = v.origin + Vector(895.97, 0, 0)}
 end
 
+local radiosByID = {"1456", "2144", "1403"}
+
 local gascans = nzItemCarry:CreateCategory("gascan")
-gascans:SetIcon("spawnicons/models/props_junk/metalgascan.png") --spawnicons/models/props_junk/gascan001a.png
-gascans:SetText("Press E to pick up the gas can.")
-gascans:SetDropOnDowned(false)
-gascans:SetShowNotification(true)
-gascans:SetResetFunction(function(self)
-	for num, tab in pairs(gascanspawns) do
-        subtab = tab[math.random(1, #tab)]
-		if tab.ent then
-			tab.ent:Remove()
-		end
-		local ent = ents.Create("nz_script_prop")
-		ent:SetModel("models/props_junk/metalgascan.mdl")
-		ent:SetPos(subtab.pos)
-		ent:SetAngles(subtab.ang)
-		ent:Spawn()
-		tab.ent = ent
-		self:RegisterEntity(ent)
-	end
-end)
-gascans:SetDropFunction(function(self, ply )
-    --Must keep track of held & dropped gas cans, so on map reset the gas cans are removed properly
-	for num, tab in pairs(gascanspawns) do
-		if tab.held == ply then
+	gascans:SetIcon("spawnicons/models/props_junk/metalgascan.png") --spawnicons/models/props_junk/gascan001a.png
+	gascans:SetText("Press E to pick up the gas can.")
+	gascans:SetDropOnDowned(false)
+	gascans:SetShowNotification(true)
+	gascans:SetResetFunction(function(self)
+		for num, tab in pairs(gascanspawns) do
+			subtab = tab[math.random(1, #tab)]
+			if tab.ent then
+				tab.ent:Remove()
+			end
 			local ent = ents.Create("nz_script_prop")
 			ent:SetModel("models/props_junk/metalgascan.mdl")
-			ent:SetPos(ply:GetPos())
-			ent:SetAngles(Angle(0, 0, 0))
+			ent:SetPos(subtab.pos)
+			ent:SetAngles(subtab.ang)
 			ent:Spawn()
-			ent:DropToFloor()
-			ply:RemoveCarryItem("gascan")
-			tab.held = nil
-			ply.ent = nil
+			tab.ent = ent
 			self:RegisterEntity(ent)
-			break
 		end
-	end
-end)
-gascans:SetPickupFunction(function(self, ply, ent)
-	for num, tab in pairs(gascanspawns) do
-		if tab.ent == ent then
-			ply:GiveCarryItem(self.id)
-			ent:Remove()
-			tab.held = ply
-			ply.ent = ent
-			break
+	end)
+	gascans:SetDropFunction(function(self, ply )
+		--Must keep track of held & dropped gas cans, so on map reset the gas cans are removed properly
+		for num, tab in pairs(gascanspawns) do
+			if tab.held == ply then
+				local ent = ents.Create("nz_script_prop")
+				ent:SetModel("models/props_junk/metalgascan.mdl")
+				ent:SetPos(ply:GetPos())
+				ent:SetAngles(Angle(0, 0, 0))
+				ent:Spawn()
+				ent:DropToFloor()
+				ply:RemoveCarryItem("gascan")
+				tab.held = nil
+				ply.ent = nil
+				self:RegisterEntity(ent)
+				break
+			end
 		end
-	end
-end)
-gascans:SetCondition( function(self, ply)
-	return !ply:HasCarryItem("gascan")
-end)
-gascans:Update()
+	end)
+	gascans:SetPickupFunction(function(self, ply, ent)
+		for num, tab in pairs(gascanspawns) do
+			if tab.ent == ent then
+				ply:GiveCarryItem(self.id)
+				ent:Remove()
+				tab.held = ply
+				ply.ent = ent
+				break
+			end
+		end
+	end)
+	gascans:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("gascan")
+	end)
+	gascans:Update()
 
 --Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
-battery:SetIcon("spawnicons/zworld_equipment/zpile.png")
-battery:SetText("Press E to pick up a battery.")
-battery:SetDropOnDowned(false)
-battery:SetShowNotification(true)
-battery:SetResetFunction(function(self)
-	for _, info in pairs(batteries) do
-		if info.spawned and info.ent and info.ent:IsValid() then
-			info.ent:Remove()
-			info.spawned = false
+	battery:SetIcon("spawnicons/zworld_equipment/zpile.png")
+	battery:SetText("Press E to pick up a battery.")
+	battery:SetDropOnDowned(false)
+	battery:SetShowNotification(true)
+	battery:SetResetFunction(function(self)
+		for _, info in pairs(batteries) do
+			if info.spawned and info.ent and info.ent:IsValid() then
+				info.ent:Remove()
+				info.spawned = false
+			end
 		end
-	end
-end)
-battery:SetPickupFunction(function(self, ply, ent)
-	ply:GiveCarryItem(self.id)
-    ply:AllowFlashlight(true)
-    mapscript.flashlightStatuses[ply] = true
-	mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] + ent.charge, 0, 100)
-	
-	for k, v in pairs(batteries) do
-		if v.ent == ent then
-			ent:Remove()
-			v.spawned = false
-			break
+	end)
+	battery:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+		ply:AllowFlashlight(true)
+		mapscript.flashlightStatuses[ply] = true
+		mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] + ent.charge, 0, 100)
+		
+		for k, v in pairs(batteries) do
+			if v.ent == ent then
+				ent:Remove()
+				v.spawned = false
+				break
+			end
 		end
-	end
-end)
-battery:SetCondition( function(self, ply)
-	return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
-end)
-battery:Update()
+	end)
+	battery:SetCondition( function(self, ply)
+		return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
+	end)
+	battery:Update()
 
 --[[    Non-mapscript functions    ]]
 
@@ -242,7 +244,7 @@ function ZapZombies(id, vec1, vec2, ply)
         ents.GetMapCreatedEntity("1650"):EmitSound("misc/charge_up.ogg", 75, 100, 1, CHAN_AUTO)
     end
 
-    timer.Simple(7, function() --May instead be 7 seconds?
+    timer.Simple(7.5, function()
         for _, info in pairs(zapRoomEffectLocations[id]) do
             local effectData = EffectData()
             effectData:SetStart(info.start)
@@ -267,14 +269,21 @@ function ZapZombies(id, vec1, vec2, ply)
 			end
         end
         
-        nzElec:Reset()
-        ents.GetMapCreatedEntity("2767"):Fire("Use")
+		timer.Simple(2, function()
+			nzElec:Reset()
+			ents.GetMapCreatedEntity("2767"):Fire("Use")
+			--Play some "backup power enabled" sound? Should explain why there's lights
 
-        timer.Simple(2, function()
-            net.Start("UpdateBloodCount")
-                net.WriteInt(math.Clamp(mapscript.bloodGodKills, 0, 999), 16)
-            net.Broadcast()
-        end)
+			timer.Simple(2, function()
+				net.Start("UpdateBloodCount")
+					net.WriteInt(math.Clamp(mapscript.bloodGodKills, 0, 999), 16)
+				net.Broadcast()
+
+				if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
+					--Do something here
+				end
+			end)
+		end)
 	end)
 end
 
@@ -375,13 +384,12 @@ function mapscript.OnGameBegin()
             v:AllowFlashlight(false)
         end
     end )
-    
-    timer.Simple(3, function()
-        for k, v in pairs(player.GetAll()) do
-            --[[if v:Alive() then
-                v:SendLua("surface.PlaySound(\"misc/evilgiggle.ogg)\"")
-            end]]
-        end
+
+	timer.Create("RadioSounds", 60 + math.random(-30, 30), 0, function()
+		local soundToPlay = "" --probably shouldn't play anything unqiue, only sounds we can repeat
+		for k, v in pairs(radiosByID) do
+			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay)
+		end
     end)
 
     --Need to lock the elevator doors & buttons here
@@ -520,7 +528,7 @@ function mapscript.OnGameBegin()
 	end
 
     --Creates the elevator generator
-    local gasLevel = 0;
+    local gasLevel = 0
     local gen = ents.Create("nz_script_prop")
     gen:SetPos(Vector(-2723, 1790, 27.5))
     gen:SetAngles(Angle(0, -90, 0))
@@ -663,6 +671,21 @@ function mapscript.OnGameEnd()
 end
 
 return mapscript
+
+--[[	Any hooks    ]]
+
+hook.Add("OnDoorUnlocked", "CreepyLaugh", function(_, _, link, _, ply)
+	if link == "1" then
+		local throwaway = ents.Create("")
+		throwaway:SetPos(Vector())
+		throwaway:SetAngles(Angle())
+		throwaway:Spawn()
+		throwaway:SetNoDraw(true)
+		throwaway:EmitSound("misc/evilgiggle.ogg", 100, 100, 1, CHAN_AUTO)
+		--:EmitSound(string soundName, number soundLevel=75, number pitchPercent=100, number volume=1, number channel=CHAN_AUTO)
+		timer.Simple(10, function() throwaway:Remove() end)	
+	end
+end)
 
 /*
 Test Effects:
