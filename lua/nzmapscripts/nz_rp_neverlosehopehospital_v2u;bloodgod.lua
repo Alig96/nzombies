@@ -5,6 +5,8 @@ util.AddNetworkString("StartBloodCount")
 util.AddNetworkString("UpdateBloodCount")
 util.AddNetworkString("SendBatteryLevel")
 util.AddNetworkString("RunSound")
+util.AddNetworkString("StartTeleportTimer")
+util.AddNetworkString("UpdateTeleportTimer")
 
 --[[    Post script-load work    ]]
 
@@ -124,7 +126,7 @@ local gascans = nzItemCarry:CreateCategory("gascan")
 	gascans:SetResetFunction(function(self)
 		for num, tab in pairs(gascanspawns) do
 			subtab = tab[math.random(1, #tab)]
-			if tab.ent then
+			if tab.ent and tab.ent:IsValid() then
 				tab.ent:Remove()
 			end
 			local ent = ents.Create("nz_script_prop")
@@ -172,7 +174,7 @@ local gascans = nzItemCarry:CreateCategory("gascan")
 
 --Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
-	battery:SetIcon("spawnicons/zworld_equipment/zpile.png")
+	battery:SetIcon("spawnicons/models/zworld_equipment/zpile.png")
 	battery:SetText("Press E to pick up a battery.")
 	battery:SetDropOnDowned(false)
 	battery:SetShowNotification(true)
@@ -188,7 +190,11 @@ local battery = nzItemCarry:CreateCategory("battery")
 		ply:GiveCarryItem(self.id)
 		ply:AllowFlashlight(true)
 		mapscript.flashlightStatuses[ply] = true
-		mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] + ent.charge, 0, 100)
+        mapscript.batteryLevels[ply:SteamID()] = math.Clamp(mapscript.batteryLevels[ply:SteamID()] + ent.charge, 0, 100)
+        
+        net.Start("SendBatteryLevel")
+            net.WriteInt(mapscript.batteryLevels[ply:SteamID()], 16)
+        net.Send(ply)
 		
 		for k, v in pairs(batteries) do
 			if v.ent == ent then
@@ -369,12 +375,14 @@ function mapscript.OnGameBegin()
     for k, v in pairs(batteries) do
         if throwawayTab[k] then
             local ent = ents.Create("nz_script_prop")
-			ent:SetModel("zworld_equipment/zpile.mdl")
+			ent:SetModel("models/zworld_equipment/zpile.mdl")
 			ent:SetPos(v.pos)
 			ent:SetAngles(v.ang)
 			ent:Spawn()
             battery:RegisterEntity(ent)
             v.spawned = true
+            v.ent = ent
+            ent.charge = math.random(25, 80)
         end
     end
 
@@ -385,8 +393,9 @@ function mapscript.OnGameBegin()
         end
     end )
 
-	timer.Create("RadioSounds", 60 + math.random(-30, 30), 0, function()
-		local soundToPlay = "" --probably shouldn't play anything unqiue, only sounds we can repeat
+    timer.Create("RadioSounds", 60 + math.random(-30, 30), 0, function()
+        local sounds = {"numbers", "numbers2", "numbers3", "static", "static1", "static2", "whispers"}
+		local soundToPlay = "radio sounds/" .. sounds[math.random(#sounds)] .. ".ogg"
 		for k, v in pairs(radiosByID) do
 			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay)
 		end
@@ -511,6 +520,9 @@ function mapscript.OnGameBegin()
         if teleportAgain then
             teleportTimers = teleportTimers or {}
             teleportTimers[ply:SteamID()] = 120 + math.random(-30, 30)
+            net.Start("StartTeleportTimer")
+                net.WriteInt(teleportTimers[ply:SteamID()], 16)
+            net.Send(ply)
 
             timer.Create(ply:SteamID() .. "TeleportTimer", 1, 0, function()
                 if !teleportTimers[ply:SteamID()] or !IsValid(ply) then 
@@ -521,7 +533,10 @@ function mapscript.OnGameBegin()
                     SpecialTeleport(ply, spawnTeleport.pos, spawnTeleport.ang)
                 end
 
-				teleportTimers[ply:SteamID()] = teleportTimers[ply:SteamID()] - 1
+                teleportTimers[ply:SteamID()] = teleportTimers[ply:SteamID()] - 1
+                net.Start("UpdateTeleportTimer")
+                    net.WriteInt(teleportTimers[ply:SteamID()], 16)
+                net.Send(ply)
             end)
         end
         return true
@@ -597,12 +612,13 @@ function mapscript.OnGameBegin()
 			if v:Alive() and mapscript.batteryLevels[v:SteamID()] then
 				if mapscript.batteryLevels[v:SteamID()] == 0 then
 					v:Flashlight(false) --turns off the flashlight
-					v:AllowFlashlight(false) --prevents the flashlight from changing states
+                    v:AllowFlashlight(false) --prevents the flashlight from changing states
+                    v:RemoveCarryItem("battery")
 				end
 				if v:FlashlightIsOn() then
-					mapscript.batteryLevels[c:SteamID()] = math.Clamp(mapscript.batteryLevels[c:SteamID()] - 1, 0, 100)
+					mapscript.batteryLevels[v:SteamID()] = math.Clamp(mapscript.batteryLevels[v:SteamID()] - 1, 0, 100)
 					net.Start("SendBatteryLevel")
-						net.WriteInt(mapscript.batteryLevels[c:SteamID()], 6)
+						net.WriteInt(mapscript.batteryLevels[v:SteamID()], 6)
 					net.Send(v)
 				end
 			end
@@ -611,7 +627,7 @@ function mapscript.OnGameBegin()
 end
 
 function mapscript.OnRoundStart()
-	--Redundant flashlight setting, for when players join mid-game
+	--Redundant flashlight-setting, for when players join mid-game
     timer.Simple(0, function()
         for k, v in pairs(player.GetAll()) do
             if mapscript.flashlightStatuses[v] then 
@@ -630,17 +646,22 @@ function mapscript.OnRoundStart()
 	local notSpawned = {}
 	for k, v in pairs(batteries) do
         if !v.spawned then
-            notSpawned[#notSpawned + 1] = v
+            notSpawned[#notSpawned + 1] = {v, k}
         end
+    end
+    for k, v in pairs(player.GetAll()) do
+        mapscript.batteryLevels[v:SteamID()] = mapscript.batteryLevels[v:SteamID()] or 0
     end
     
     newBat = notSpawned[math.random(#notSpawned)]
     local ent = ents.Create("nz_script_prop")
-    ent:SetModel("zworld_equipment/zpile.mdl")
-    ent:SetPos(newBat.pos)
-    ent:SetAngles(newBat.ang)
+    ent:SetModel("models/zworld_equipment/zpile.mdl")
+    ent:SetPos(newBat[1].pos)
+    ent:SetAngles(newBat[1].ang)
     ent:Spawn()
     battery:RegisterEntity(ent)
+    batteries[newBat[2]].ent = ent
+    ent.charge = math.random(25, 80)
 end
 
 function mapscript.ElectricityOn()
@@ -655,37 +676,41 @@ function mapscript.ElectricityOn()
         ents.GetMapCreatedEntity("2767"):Fire("Use")
 
 		timer.Simple(5, function()
-            local fakeSwitch, fakeLever = ents.Create(class), ents.Create(class)
+            local fakeSwitch, fakeLever = ents.Create("nz_script_prop"), ents.Create("nz_script_prop")
             --Do more
 
-            ents.FindByClass("power_box")[1]:SetPos()
+            --ents.FindByClass("power_box")[1]:SetPos()
 		end)
 	end
-    
 	postFirstActivation = true
 end
 
 function mapscript.OnGameEnd()
     powerSwitch = ents.FindByClass("power_box")[1]
-	if powerSwitch and IsValid(powerSwitch) then powerSwitch:Remove() end
+    if powerSwitch and IsValid(powerSwitch) then 
+        powerSwitch:Remove()
+    end
 end
-
-return mapscript
 
 --[[	Any hooks    ]]
 
-hook.Add("OnDoorUnlocked", "CreepyLaugh", function(_, _, link, _, ply)
-	if link == "1" then
-		local throwaway = ents.Create("")
-		throwaway:SetPos(Vector())
-		throwaway:SetAngles(Angle())
+hook.Add("OnDoorUnlocked", "CreepyLaugh", function(door, link, _, ply, _)
+    --print("Y U NO WORK? ", a, b, door, link, ply)
+    if link == "a1" then
+        print("link = a1 passed")
+        local throwaway = ents.Create("nz_script_prop")
+        throwaway:SetModel("models/hunter/blocks/cube025x025x025.mdl")
+		throwaway:SetPos(Vector(-2368, 682.5, 121.5))
+		throwaway:SetAngles(Angle(0, 0, 0))
 		throwaway:Spawn()
 		throwaway:SetNoDraw(true)
-		throwaway:EmitSound("misc/evilgiggle.ogg", 100, 100, 1, CHAN_AUTO)
+		throwaway:EmitSound("misc/evilgiggle.ogg", 75, 100, 1, CHAN_AUTO)
 		--:EmitSound(string soundName, number soundLevel=75, number pitchPercent=100, number volume=1, number channel=CHAN_AUTO)
 		timer.Simple(10, function() throwaway:Remove() end)	
 	end
 end)
+
+return mapscript
 
 /*
 Test Effects:

@@ -1,3 +1,4 @@
+--Snagged off the gmod wiki
 function draw.Circle( x, y, radius, seg )
     local cir = {}
 
@@ -11,6 +12,71 @@ function draw.Circle( x, y, radius, seg )
     table.insert( cir, { x = x + math.sin( a ) * radius, y = y + math.cos( a ) * radius, u = math.sin( a ) / 2 + 0.5, v = math.cos( a ) / 2 + 0.5 } )
 
     surface.DrawPoly( cir )
+end
+
+--Snagged off a github page
+function draw.Arc(cx, cy, radius, thickness, startang, endang, roughness, color)
+    local triarc = {}
+    -- local deg2rad = math.pi / 180
+    
+    -- Define step
+    local roughness = math.max(roughness or 1, 1)
+    local step = roughness
+    
+    -- Correct start/end ang
+    local startang,endang = startang or 0, endang or 0
+    
+    if startang > endang then
+        step = math.abs(step) * -1
+    end
+    
+    -- Create the inner circle's points.
+    local inner = {}
+    local r = radius - thickness
+    for deg=startang, endang, step do
+        local rad = math.rad(deg)
+        -- local rad = deg2rad * deg
+        local ox, oy = cx+(math.cos(rad)*r), cy+(-math.sin(rad)*r)
+        table.insert(inner, {
+            x=ox,
+            y=oy,
+            u=(ox-cx)/radius + .5,
+            v=(oy-cy)/radius + .5,
+        })
+    end	
+    
+    -- Create the outer circle's points.
+    local outer = {}
+    for deg=startang, endang, step do
+        local rad = math.rad(deg)
+        -- local rad = deg2rad * deg
+        local ox, oy = cx+(math.cos(rad)*radius), cy+(-math.sin(rad)*radius)
+        table.insert(outer, {
+            x=ox,
+            y=oy,
+            u=(ox-cx)/radius + .5,
+            v=(oy-cy)/radius + .5,
+        })
+    end	
+    
+    -- Triangulize the points.
+    for tri=1,#inner*2 do -- twice as many triangles as there are degrees.
+        local p1,p2,p3
+        p1 = outer[math.floor(tri/2)+1]
+        p3 = inner[math.floor((tri+1)/2)+1]
+        if tri%2 == 0 then --if the number is even use outer.
+            p2 = outer[math.floor((tri+1)/2)]
+        else
+            p2 = inner[math.floor((tri+1)/2)]
+        end
+    
+        table.insert(triarc, {p1,p2,p3})
+    end
+
+    surface.SetDrawColor(color)
+    for k, v in ipairs(triarc) do
+        surface.DrawPoly(v)
+    end
 end
 
 net.Receive("RunFireOverlay", function()
@@ -66,7 +132,7 @@ net.Receive("RunTeleportOverlay", function()
     overlayPanel2.Paint = function()
     end
 
-    LocalPlayer():ScreenFade(SCREENFADE.OUT, Color(0, 0, 0), 1.5, 2)
+    LocalPlayer():ScreenFade(SCREENFADE.OUT, Color(0, 0, 0), 1.5, 3)
     surface.PlaySound("teleporter/teleport_sound.ogg")
     
     timer.Simple(2, function()
@@ -116,7 +182,7 @@ net.Receive("RunSound", function()
 end)
 
 net.Receive("StartBloodCount", function()
-    startedChalk = true
+    drawMessages = true
 end)
 
 net.Receive("UpdateBloodCount", function()
@@ -125,7 +191,19 @@ net.Receive("UpdateBloodCount", function()
     surface.PlaySound("ambient/alarms/warningbell1.wav")
 end)
 
+net.Receive("StartTeleportTimer", function()
+    totalTime = net.ReadInt(16)
+    drawTimer = true
+    timeLeft = 0
+end)
+
+net.Receive("UpdateTeleportTimer", function()
+    local updateTo = net.ReadInt(16)
+    timeLeft = math.Round(math.Clamp(updateTo, 0, totalTime) / totalTime * 360)
+end)
+
 batteryLevel = 0
+batteryIMG = Material("hud/flashlight.png")
 net.Receive("SendBatteryLevel", function()
     local newLevel = net.ReadInt(6)
     batteryLevel = math.Clamp(newLevel, 0, 100)
@@ -140,7 +218,7 @@ chalkMessages = {
 local chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
 
 hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
-    if !startedChalk then return end
+    if !drawMessages then return end
 
     --local trace = LocalPlayer():GetEyeTrace()
     --local angle = trace.HitNormal:Angle()
@@ -161,6 +239,51 @@ hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
 end)
 
 --Set up battery drawing on the screen here
-hook.Add("HUDPaintBackground", "BatteryDisplay", function()
-    --Do stuff
+hook.Add("HUDPaint", "BatteryDisplay", function() --HUDPaintBackground
+    local w, h = ScrW(), ScrH()
+    local scale = ((w / 1920) + 1) / 2
+    local drawW = w - (630 * scale) - (128 / 2) + 40
+    local drawH = h - ((225 / 2) * scale) - (128 / 2) + 58
+
+    --A lot smaller since all of the code is in the draw.Arc function
+    if drawTimer then
+        surface.SetTexture(surface.GetTextureID("models/props_combine/com_shield001a"))
+        draw.Arc(100, 100, 80, 80, 90, -270 + timeLeft, 3, Color(0, 0, 0))
+    end
+
+    --Since we're drawing the battery to the left of cod_hud, need to copy distance drawing from the gamemode's cl_hud
+    if batteryLevel then
+        surface.SetMaterial(batteryIMG)
+        surface.SetDrawColor(150, 0, 0)
+        surface.DrawTexturedRect(drawW - 25, drawH - 27, 128 / 2, 128 / 2)
+
+        draw.NoTexture()
+        draw.RoundedBox(4, drawW, drawH, 14, 28, Color(0, 0, 0))
+
+        local fade = math.sin(CurTime() * 12)
+        if batteryLevel < 25  and batteryLevel > 0 then
+            draw.RoundedBox(4, drawW + 1, drawH + 28 - 8, 12, 6, Color(255 * fade, 255 * fade, 255 * fade))
+        end
+        if batteryLevel > 25 then
+            if batteryLevel < 30 then
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 8, 12, 6, Color(255 * fade, 255 * fade, 255 * fade))
+            else
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 8, 12, 6, Color(255, 255, 255))
+            end
+        end
+        if batteryLevel > 50 then
+            if batteryLevel < 55 then
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 17, 12, 6, Color(255 * fade, 255 * fade, 255 * fade))
+            else
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 17, 12, 6, Color(255, 255, 255))
+            end
+        end
+        if batteryLevel > 75 then
+            if batteryLevel < 80 then
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 26, 12, 6, Color(255 * fade, 255 * fade, 255 * fade))
+            else
+                draw.RoundedBox(4, drawW + 1, drawH + 28 - 26, 12, 6, Color(255, 255, 255))
+            end
+        end
+    end
 end)
