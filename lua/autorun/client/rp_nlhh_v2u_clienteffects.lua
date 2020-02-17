@@ -132,7 +132,7 @@ net.Receive("RunTeleportOverlay", function()
     overlayPanel2.Paint = function()
     end
 
-    LocalPlayer():ScreenFade(SCREENFADE.OUT, Color(0, 0, 0), 1.5, 3)
+    LocalPlayer():ScreenFade(SCREENFADE.OUT, Color(0, 0, 0), 1.5, 2.5)
     surface.PlaySound("teleporter/teleport_sound.ogg")
     
     timer.Simple(2, function()

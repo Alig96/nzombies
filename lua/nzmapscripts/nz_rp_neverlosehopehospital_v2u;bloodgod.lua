@@ -170,7 +170,7 @@ local gascans = nzItemCarry:CreateCategory("gascan")
 	gascans:SetCondition( function(self, ply)
 		return !ply:HasCarryItem("gascan")
 	end)
-	gascans:Update()
+gascans:Update()
 
 --Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
@@ -207,7 +207,19 @@ local battery = nzItemCarry:CreateCategory("battery")
 	battery:SetCondition( function(self, ply)
 		return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
 	end)
-	battery:Update()
+battery:Update()
+
+local allZombieSpawns = {}
+for k, v in pairs(ents.GetAll()) do
+    if v:GetClass() == "nz_spawn_zombies" then
+        v.spawnNav = navmesh.GetNearestNavArea(v:GetPos())
+        table.insert(allZombieSpawns, v)
+    end 
+end
+
+for k, v in pairs(navmesh.GetAllNavAreas()) do
+
+end
 
 --[[    Non-mapscript functions    ]]
 
@@ -266,10 +278,10 @@ function ZapZombies(id, vec1, vec2, ply)
 					if IsValid(ent) then
 						local insta = DamageInfo()
 						insta:SetAttacker(ply)
-						insta:SetDamageType(DMG_MISSILEDEFENSE) --Need to find an acceptable damage type, old was DMG_BLAST_SURFACE
+						insta:SetDamageType(DMG_MISSILEDEFENSE)
 						insta:SetDamage(ent:Health())
 						ent:TakeDamageInfo(insta)
-						mapscript.bloodGodKills = mapscript.bloodGodKills + 1
+						mapscript.bloodGodKills = math.Approach(mapscript.bloodGodKills, mapscript.bloodGodKillsGoal, 1) --This technically counts players too
 					end
 				end)
 			end
@@ -282,11 +294,14 @@ function ZapZombies(id, vec1, vec2, ply)
 
 			timer.Simple(2, function()
 				net.Start("UpdateBloodCount")
-					net.WriteInt(math.Clamp(mapscript.bloodGodKills, 0, 999), 16)
+					net.WriteInt(math.Clamp(mapscript.bloodGodKills, 0, mapscript.bloodGodKillsGoal), 16)
 				net.Broadcast()
 
 				if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
-					--Do something here
+					net.Start("RunSound")
+                        net.WriteString("misc/evilgiggle.ogg")
+                    net.Broadcast()
+
 				end
 			end)
 		end)
@@ -357,12 +372,6 @@ function GenerateRandomSet(maxNum, totalDesired)
     end
 
     return throwawayTab
-    --[[local returnTab = {}
-    for k, v in pairs(throwawayTab) do
-        returnTab[#returnTab + 1] = k
-    end
-
-    return returnTab]]
 end
 
 --[[    Mapscript functions    ]]
@@ -393,7 +402,7 @@ function mapscript.OnGameBegin()
         end
     end )
 
-    timer.Create("RadioSounds", 60 + math.random(-30, 30), 0, function()
+    timer.Create("RadioSounds", math.random(20, 50), 0, function()
         local sounds = {"numbers", "numbers2", "numbers3", "static", "static1", "static2", "whispers"}
 		local soundToPlay = "radio sounds/" .. sounds[math.random(#sounds)] .. ".ogg"
 		for k, v in pairs(radiosByID) do
@@ -500,21 +509,15 @@ function mapscript.OnGameBegin()
         elseif sparkFlipped and !nonSparkFlipped then
             randomValue = math.random(#sparkFlippedOption)
 			SpecialTeleport(ply, sparkFlippedOption[randomValue].pos, sparkFlippedOption[randomValue].ang, 1)
-            if sparkFlippedOption.post then
-                teleportAgain = true
-            end
+            teleportAgain = sparkFlippedOption.post
         elseif !sparkFlipped and nonSparkFlipped then
             randomValue = math.random(#nonSparkFlippedOption)
             SpecialTeleport(ply, nonSparkFlippedOption[randomValue].pos, nonSparkFlippedOption[randomValue].ang, 1)
-            if nonSparkFlippedOption.post then
-                teleportAgain = true
-            end
+            teleportAgain = nonSparkFlippedOption.post
         else
             randomValue = math.random(#bothFlippedOption)
             SpecialTeleport(ply, bothFlippedOption[randomValue].pos, bothFlippedOption[randomValue].ang, 1)
-            if bothFlippedOption.post then
-                teleportAgain = true
-            end
+            teleportAgain = bothFlippedOption.post
         end
         
         if teleportAgain then
@@ -694,7 +697,7 @@ end
 
 --[[	Any hooks    ]]
 
-hook.Add("OnDoorUnlocked", "CreepyLaugh", function(door, link, _, ply, _)
+--[[hook.Add("OnDoorUnlocked", "CreepyLaugh", function(door, link, _, ply, _)
     --print("Y U NO WORK? ", a, b, door, link, ply)
     if link == "a1" then
         print("link = a1 passed")
@@ -708,6 +711,11 @@ hook.Add("OnDoorUnlocked", "CreepyLaugh", function(door, link, _, ply, _)
 		--:EmitSound(string soundName, number soundLevel=75, number pitchPercent=100, number volume=1, number channel=CHAN_AUTO)
 		timer.Simple(10, function() throwaway:Remove() end)	
 	end
+end)]]
+
+hook.Add("Think", "CNavAreaChecking", function()
+    local 
+    if 
 end)
 
 return mapscript
@@ -737,14 +745,8 @@ Useful EE function:
 	nzRound:Freeze(true) --Prevents switching and spawning
 
 Entity IDs:
-    Radio: 1456
     Camera console: 1455
     Jail door: 2778 - should auto-open on game start
-    Generator to restart power: 2767
     Basement console: 2056
-    Basement lever: 1920
-    Basement radio: 2144
-    Basement lever (sparking): 1921 (first one)
     Bunker console: 1359
-    Bunker radio: 1403
 */
