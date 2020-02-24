@@ -19,24 +19,22 @@ mapscript.flashlightStatuses = {}
 --The gas cans used to fill the generators
 local gascanspawns = {
     { --Can 1, found around the power room
-        {pos = Vector(-214, 2372, 15), ang = Angle(0, -90, 0)},
-        {pos = Vector(-114, 2932, 14.75), ang = Angle(-36, -98.5, 0)},
-        {pos = Vector(-1923.25, 3534.25, 15.25), ang = Angle(0, 106, 0)}
+        {pos = Vector(-214, 2372, 15), ang = Angle(0, -90, 0)}, --By jugg
+        {pos = Vector(-693.2, 3046.3, 13.9), ang = Angle(-0, 87.8, 0)}, --In the un-barricaded operating room
+        {pos = Vector(-1923.25, 3534.25, 15.25), ang = Angle(0, 106, 0)} --By AR-15 wallbuy
     },
     { --Can 2, found in the bathroom & beyond areas
-        {pos = Vector(-3972.647949, 2598.693848, 15.330338), ang = Angle(0, -180, 0)},
-        {pos = Vector(-5784.763184, 2332.365723, 260.4929), ang = Angle(-89.5, -146, -57.5)},
-        {pos = Vector(-6898.134766, 2221.869385, 15.725049), ang = Angle(-22.767, -8.385, 0.0)}
+        {pos = Vector(-3972.647949, 2598.693848, 15.330338), ang = Angle(0, -180, 0)}, --In bathroom
+        {pos = Vector(-5784.763184, 2332.365723, 260.4929), ang = Angle(-89.5, -146, -57.5)}, --In "vent" area
+        {pos = Vector(-6958.002930, 3406.063477, 13.222458), ang = Angle(-35.5, 89.1, 0)} --In the teleport-only area
     },
-    { --Can 3, found in the tiled corridors after the long hallways
-        {pos = Vector(-3959, 4838.75, 79), ang = Angle(0, 0, 0)},
-        {pos = Vector(-6857, 9401, 79.3), ang = Angle(0, 85.5, 0)},
-        {pos = Vector(-6239.5, 7497.5, 79.3), ang = Angle(0, 178, 0)}
+    { --Can 3, found before or after the long hallways
+        {pos = Vector(-2822.691406, 2577.959961, 14.340928), ang = Angle(-0.000, -0.440, 0.000)},
+        {pos = Vector(-3575.974854, 2580.693359, 13.587985), ang = Angle(0.453, -17.249, 0.216)},
+        {pos = Vector(-3664.124512, 7118.309570, 76.736771), ang = Angle(-21.987, -47.260, -1.129)}
     },
-    { --Can 4, found in the hospital wing after the tiled corridors
-        {pos = Vector(-5548, 10435.5, 79.25), ang = Angle(0, 82, 0)},
-        {pos = Vector(-6529, 9991.5, 83.5), ang = Angle(26, -109, 0)},
-        {pos = Vector(-4294.5, 10248.75, 797), ang = Angle(-32.5, 136.5, 0)}
+    { --Can 4, found behind the destructible wall
+        {pos = Vector(-1521.962036, 3592.954590, 12.954604), ang = Angle(-30.518, 93.740, -1.926)}
     }
 }
 
@@ -75,6 +73,24 @@ local batteries = {
     {pos = Vector(-2439.740967, 781.870728, 46.52282), ang = Angle(-61.265, 11.267, -170.51)},
     {pos = Vector(158.518555, 3749.448486, 34.58102), ang = Angle(-38.046, -115.702, 11.60)},
     {pos = Vector(-351.988251, 2292.685791, 52.67468), ang = Angle(-38.877, -170.935, 10.76)}
+}
+
+local areasByVector = {
+    { --Spawn area & beyond
+        {pos1 = Vector(223.3, 4672.2, -50.0), pos2 = Vector(-4224.0, -1505.1, 256.0)}, --This pair overlaps parts of areasByVector[1][2] & areasByVector[1][3], but that's okay
+        {pos1 = Vector(-6873.0, 10810.0, 320.0), pos2 = Vector(-2137.0, 4672.2, -50.0)},
+        {pos1 = Vector(-4768, 3008.0, -50.0), pos2 = Vector(-3968.0, 2308.0, 128.0)},
+    },
+    { --Generator area
+        {pos1 = Vector(-4864.0, 2596.0, 0.0), pos2 = Vector(-5695.0, 3451.5, 192)},
+        {pos1 = Vector(-5055.0, 3397.4, 128), pos2 = Vector(-4608.4, 4543, -128)}
+    },
+    { --Teleport area
+        {pos1 = Vector(-6336.0, 3904.0, -32.0), pos2 = Vector(-7424.0, 2080.0, 192.0)}
+    },
+    { --Basement area
+        {pos1 = Vector(-5513.0, -63.5, -3632.6), pos2 = Vector(-2305.0, 2368.4, -3392.0)}
+    }
 }
 
 --Possible spots players may teleport to on power generator flippage
@@ -175,7 +191,7 @@ gascans:Update()
 --Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
 	battery:SetIcon("spawnicons/models/zworld_equipment/zpile.png")
-	battery:SetText("Press E to pick up a battery.")
+    battery:SetText("Press E to insert battery into flashlight.")
 	battery:SetDropOnDowned(false)
 	battery:SetShowNotification(true)
 	battery:SetResetFunction(function(self)
@@ -209,19 +225,85 @@ local battery = nzItemCarry:CreateCategory("battery")
 	end)
 battery:Update()
 
-local allZombieSpawns = {}
-for k, v in pairs(ents.GetAll()) do
-    if v:GetClass() == "nz_spawn_zombies" then
-        v.spawnNav = navmesh.GetNearestNavArea(v:GetPos())
-        table.insert(allZombieSpawns, v)
+local key = nzItemCarry:CreateCategory("key")
+    key:SetIcon("spawnicons/")
+    key:SetText("Press E to pick up the keys.")
+    key:SetDropOnDowned(false)
+    key:SetShowNotification(true)
+    key:SetResetFunction(function(self)
+		local ent = ents.Create("nz_script_prop")
+        ent:SetModel("models/zpprops/keychain.md")
+        ent:SetPos(Vector(-3075.5, 377.5, 32.5))
+        ent:SetAngles(Angle(1.418, -47.206, 1.038))
+        ent:Spawn()
+        self:RegisterEntity(ent)
+	end)
+	key:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+        ent:Remove()
+	end)
+	key:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("key")
+	end)
+key:Update()
+
+--[[    Non-mapscript functions    ]]
+
+function GetNavFlood(navArea, tab)
+    for k, v in pairs(navArea:GetAdjacentAreas()) do 
+        if not tab[v:GetID()] then 
+            tab[v:GetID()] = true 
+            GetNavFlood(v, tab) 
+        end 
     end 
 end
 
-for k, v in pairs(navmesh.GetAllNavAreas()) do
+local NavAreaPrimarySeed = navmesh.GetNavAreaByID(5263) --The primary play area, contains 75% of the map
+local NavAreaPrimaryList = {[5263] = true}
+GetNavFlood(NavAreaPrimarySeed, NavAreaPrimaryList)
+local NavAreaGeneratorSeed = navmesh.GetNavAreaByID(55) --The generator play area, very small, where the players teleport away from
+local NavAreaGeneratorList = {[55] = true}
+GetNavFlood(NavAreaGeneratorSeed, NavAreaGeneratorList)
+local NavAreaTeleportSeed = navmesh.GetNavAreaByID(34) --The teleport-only play area players teleport to when no basement levers have been flipped
+local NavAreaTeleportList = {[34] = true}
+GetNavFlood(NavAreaTeleportSeed, NavAreaTeleportList)
+local NavAreaBasementSeed = navmesh.GetNavAreaByID(77) --The entire basement play area
+local NavAreaBasementList = {[77] = true}
+GetNavFlood(NavAreaBasementSeed, NavAreaBasementList)
 
+local allZombieSpawns = {{}, {}, {}, {}}
+for k, v in pairs(ents.GetAll()) do
+    if v:GetClass() == "nz_spawn_zombie_normal" or v:GetClass() == "nz_spawn_zombie_special" then
+        v.spawnNav = navmesh.GetNearestNavArea(v:GetPos())
+        v.spawnNavID = v.spawnNav:GetID()
+        --No loop since no table
+        if NavAreaPrimaryList[v.spawnNavID] then
+            table.insert(allZombieSpawns[1], v)
+            v.spawnZone = 1
+        elseif NavAreaGeneratorList[v.spawnNavID] then
+            table.insert(allZombieSpawns[2], v)
+            v.spawnZone = 2
+        elseif NavAreaTeleportList[v.spawnNavID] then
+            table.insert(allZombieSpawns[3], v)
+            v.spawnZone = 3
+        elseif NavAreaBasementList[v.spawnNavID] then
+            table.insert(allZombieSpawns[4], v)
+            v.spawnZone = 4
+        end
+    end 
 end
 
---[[    Non-mapscript functions    ]]
+--Uses the ID to respawn all zombie entities of the specific ID, called when players have moved beyond a map area, via a ladder, teleporting, or the elevator
+function CleanupZombies(id)
+    print("CleanupZombies call with id " .. id)
+    for k, v in pairs(ents.GetAll()) do
+        if v:GetClass() == "nz_zombie_walker" or v:GetClass() == "nz_zombie_special_dog" or v:GetClass() == "nz_zombie_special_burning" then
+            if v.spawnZone == id then
+                v:RespawnZombie()
+            end
+        end
+    end
+end
 
 --//Creates the lightning aura once around the given ent (lasts 0.5 seconds, approximately)
 function Electrify(ent)
@@ -377,9 +459,12 @@ end
 --[[    Mapscript functions    ]]
 
 function mapscript.OnGameBegin()
+    --Reset pick-up-able objects
     gascans:Reset()
     battery:Reset()
+    key:Reset()
 
+    --Spawns the initial set of batteries
     local throwawayTab = GenerateRandomSet(#batteries, #batteries / 2)
     for k, v in pairs(batteries) do
         if throwawayTab[k] then
@@ -389,12 +474,17 @@ function mapscript.OnGameBegin()
 			ent:SetAngles(v.ang)
 			ent:Spawn()
             battery:RegisterEntity(ent)
+
             v.spawned = true
             v.ent = ent
             ent.charge = math.random(25, 80)
+
+            ent:SetNWString("NZRequiredItem", "battery")
+            ent:SetNWString("NZHasText", "Press E to add battery to your flashlight.")
         end
     end
 
+    --Disables flashlights on all players
     timer.Simple(0, function()
         for k, v in pairs(player.GetAll()) do
             mapscript.flashlightStatuses[v] = false
@@ -402,39 +492,114 @@ function mapscript.OnGameBegin()
         end
     end )
 
+    --Creates spooky noises to play from radios
     timer.Create("RadioSounds", math.random(20, 50), 0, function()
         local sounds = {"numbers", "numbers2", "numbers3", "static", "static1", "static2", "whispers"}
 		local soundToPlay = "radio sounds/" .. sounds[math.random(#sounds)] .. ".ogg"
 		for k, v in pairs(radiosByID) do
-			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay)
+			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay, 90) --ent:EmitSound(soundName, soundLevel=75, pitchPercent=100, volume=1, channel=CHAN_AUTO)
 		end
     end)
 
-    --Need to lock the elevator doors & buttons here
+    --The ent blocking passage after the long hallways
+    local wallBlock = ents.Create("nz_script_prop")
+    wallBlock:SetModel("models/hunter/plates/plate3x3.mdl")
+    wallBlock:SetPos(Vector(-3600.7, 6482.8, 120.5))
+    wallBlock:SetAngles(Angle(90, 90, 180))
+    wallBlock:SetMaterial("models/props_combine/com_shield001a")
 
+    --The combine console that enables the map-spawned consoles to remove the above ent blocking passage
+    mapscript.onLockdown = true
+    local comConsole = ents.Create("nz_script_prop")
+    comConsole:SetModel("")
+    comConsole:SetPos(Vector())
+    comConsole:SetAngles(Angle())
+    comConsole:SetNWString("Press E to begin rescinding building system lockdown.")
+    comConsole.OnUsed = function()
+        if mapscript.onLockdown and nzElec:IsOn() then
+            --Do some button-pressing sound
+            mapscript.onLockdown = false
+            for k, v in ipairs(mapscript.consoleButtons) do
+                ents.GetMapCreatedEntity(v):SetNWString("Press E to further rescind building system lockdown.")
+            end
+        end
+    end
+
+    --Lock & apply text to the basement elevator
+    local elDoor1 = ents.GetMapCreatedEntity("1825")
+    elDoor1:Fire("Lock")
+    elDoor1:SetNWString("NZText", "You must power the generator before calling the elevator")
+    local elDoor2 = ents.GetMapCreatedEntity("1826")
+    elDoor2:Fire("Lock")
+    elDoor2:SetNWString("NZText", "You must power the generator before calling the elevator")
+    local elButton = ents.GetMapCreatedEntity("2304")
+    elButton:Fire("Lock")
+    elButton:SetNWString("NZText", "You must power the generator before calling the elevator")
+    --Lock the bunker elevator
+    ents.GetMapCreatedEntity("1477"):Fire("Lock")
+    ents.GetMapCreatedEntity("1478"):Fire("Lock")
+    ents.GetMapCreatedEntity("1488"):Fire("Lock")
+    --Open the jail door in front of power generator room
+    ents.GetMapCreatedEntity("2778"):Fire("Use")
+    --Locks the door the padlock is "attached" to
+    ents.GetMapCreatedEntity("1567"):Fire("Lock")
+
+    --Creates the padlock required to unlock to access power & zap rooms
+    local padlock = ents.Create("nz_script_prop")
+    padlock:SetPos(Vector(-1066.5, 2811.75, 38.9))
+    padlock:SetAngles(Angle(0, 180, 0))
+    padlock:SetModel("models/props_wasteland/prison_padlock001a.mdl")
+    padlock:SetNWString("NZText", "Locked")
+    padlock:SetNWString("NZRequiredItem", "key")
+    padlock:SetNWString("NZHasText", "Press E to unlock the padlock")
+    padlock:Spawn()
+    padlock:Activate()
+    padlock.OnUsed = function(ent, ply)
+        if ply:HasCarryItem("key") then
+            ply:RemoveCarryItem("key")
+            --Play unlock sound
+            timer.Simple(0, function() --Length of the sound
+                padlock:SetModel("models/props_wasteland/prison_padlock001b.mdl")
+                padlock:GetPhysicsObject():EnableMotion(true)
+                padlock:GetPhysicsObject():ApplyForceCenter(Vector(0, 0, 0))
+                padlock:SetCollisionGroup(COLLISION_GROUP_WORLD)
+                padlock:SetNWString("NZText", "")
+
+                local door = ents.GetMapCreatedEntity("1567")
+                door:Fire("Unlock")
+                door:Fire("Use")
+                door:Fire("Lock")
+            end)
+        end
+    end
+
+    --Sets up the blood god easter egg zap buttons
 	mapscript.bloodGodKills = 0
 	local initialUse = false
 	local killSwitch = ents.GetMapCreatedEntity("1556") --Non-bloody room button
 	killSwitch.OnUsed = function(but, ply)
-        if !nzElec:IsOn() --[[or switchOneOn or switchTwoOn]] then
-			return
+        if !nzElec:IsOn() or switchOneOn or switchTwoOn then
+			return false
 		end
 
         but:EmitSound("buttons/button24.wav")
         switchOneOn = true
         ZapZombies(1, Vector(-884.5, 3540, 64), Vector(-1200.5, 3888, 64), ply)
+        timer.Simple(10, function() switchOneOn = false end)
 	end
 	killSwitch = ents.GetMapCreatedEntity("1650") --Bloody room button
 	killSwitch.OnUsed = function(but, ply)
-        if !nzElec:IsOn() --[[or switchOneOn or switchTwoOn]] then
+        if !nzElec:IsOn() or switchOneOn or switchTwoOn then
 			return false
 		end
         
 		but:EmitSound("buttons/button24.wav")
         switchTwoOn = true
         ZapZombies(2, Vector(11, 3540, 64), Vector(-304.5, 3888, 64), ply)
+        timer.Simple(10, function() switchTwoOn = false end)
 	end
 
+    --Sets up the special functionality for the levers in the basement
 	local sparkLever = ents.GetMapCreatedEntity("1921")
 	sparkLever.OnUsed = function(but, ply)
 		if !sparkFlipped then
@@ -448,7 +613,6 @@ function mapscript.OnGameBegin()
             net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
         net.Broadcast()
 	end
-
 	local nonSparkLever = ents.GetMapCreatedEntity("1920")
 	nonSparkLever.OnUsed = function(but, ply)
 		if !nonSparkFlipped then
@@ -463,6 +627,7 @@ function mapscript.OnGameBegin()
         net.Broadcast()
 	end
 
+    --Randomizes the teleport possibilities when the generator switch is flipped, both unflipped remains the same always
 	local neitherFlippedOption = table.Copy(possibleTeleports[1])
 	table.remove(possibleTeleports, 1)
 	local randValue = math.random(1, 3)
@@ -522,7 +687,7 @@ function mapscript.OnGameBegin()
         
         if teleportAgain then
             teleportTimers = teleportTimers or {}
-            teleportTimers[ply:SteamID()] = 120 + math.random(-30, 30)
+            teleportTimers[ply:SteamID()] = math.random(30, 60)
             net.Start("StartTeleportTimer")
                 net.WriteInt(teleportTimers[ply:SteamID()], 16)
             net.Send(ply)
@@ -534,6 +699,9 @@ function mapscript.OnGameBegin()
                 if teleportTimers[ply:SteamID()] == 0 or !ply:GetNotDowned() then
                     timer.Remove(ply:SteamID() .. "TeleportTimer")
                     SpecialTeleport(ply, spawnTeleport.pos, spawnTeleport.ang)
+                    net.Start("UpdateTeleportTimer")
+                        net.WriteInt(0, 16)
+                    net.Send(ply)
                 end
 
                 teleportTimers[ply:SteamID()] = teleportTimers[ply:SteamID()] - 1
@@ -570,6 +738,7 @@ function mapscript.OnGameBegin()
                 end
             end
 
+            ply:RemoveCarryItem("gascan")
             gen:SetNWString("NZText", "")
             gen:SetNWString("NZHasText", "")
             gen:EmitSound("nz/effects/gas_pour.wav")
@@ -585,9 +754,19 @@ function mapscript.OnGameBegin()
                     gen:SetNWString("NZHasText", "") --There shouldn't be any more
                     gen:EmitSound("nz/effects/generator_start.wav")
 
+                    elDoor1:Fire("Unlock")
+                    elDoor2:Fire("Unlock")
+                    elDoor1:SetNWString("NZText", "")
+                    elDoor2:SetNWString("NZText", "")
+                    elButton:SetNWString("NZText", "")
+
                     --After the 9 second generator_start sound has played
                     timer.Simple(9, function()
-                        --Call up the elevator
+                        elButton:Fire("Unlock")
+                        elButton:Fire("Use")
+                        elButton:SetNWString("NZText", "The elevator is being called up")
+                        nzDoors:OpenLinkedDoors("d1")
+
                         gen:EmitSound("nz/effects/generator_humm.ogg")
                         timer.Create("GeneratorHumm", 3, 0, function()
                             if not gen then return end
@@ -595,7 +774,6 @@ function mapscript.OnGameBegin()
                         end)
                     end)
                 else
-                    ply:RemoveCarryItem("gascan")
                     gen:SetNWString("NZText", "You must fill this generator with more gasoline to power it.")
                     gen:SetNWString("NZHasText", "Press E to fuel this generator with gasoline.")
                 end
@@ -609,6 +787,24 @@ function mapscript.OnGameBegin()
         end
     end
 
+    --Sets up the map-spawned consoles to disable the combine wall, after the long corridors
+    mapscript.consoleButtons = {"1455", "2056", "1359", pressed = 0}
+    for k, v in ipairs(mapscript.consoleButtons) do --Doesn't loop through [pressed] as it's not indexed numerically
+        local console = ents.GetMapCreatedEntity(v)
+        console:SetNWString("Currently in system lockdown.")
+        console.OnUsed = function()
+            if !mapscript.onLockdown and !tab[v] then
+                tab[v] = true
+                mapscript.consoleButtons.pressed = mapscript.consoleButtons.pressed + 1
+                console:SetNWString("")
+                if pressed == 3 then
+                    --Play sound/effect or something?
+                    wallBlock:Remove()
+                end
+            end
+        end
+    end
+
 	--Timer for checking battery levels
 	timer.Create("BatteryChecks", 1, 0, function()
 		for k, v in pairs(player.GetAll()) do
@@ -618,10 +814,10 @@ function mapscript.OnGameBegin()
                     v:AllowFlashlight(false) --prevents the flashlight from changing states
                     v:RemoveCarryItem("battery")
 				end
-				if v:FlashlightIsOn() then
-					mapscript.batteryLevels[v:SteamID()] = math.Clamp(mapscript.batteryLevels[v:SteamID()] - 1, 0, 100)
+                if v:FlashlightIsOn() then
+					mapscript.batteryLevels[v:SteamID()] = math.Approach(mapscript.batteryLevels[v:SteamID()], 0, -1)--[[math.Clamp(mapscript.batteryLevels[v:SteamID()] - 1, 0, 100)]]
 					net.Start("SendBatteryLevel")
-						net.WriteInt(mapscript.batteryLevels[v:SteamID()], 6)
+						net.WriteInt(mapscript.batteryLevels[v:SteamID()], 16)
 					net.Send(v)
 				end
 			end
@@ -665,6 +861,8 @@ function mapscript.OnRoundStart()
     battery:RegisterEntity(ent)
     batteries[newBat[2]].ent = ent
     ent.charge = math.random(25, 80)
+    ent:SetNWString("NZRequiredItem", "battery")
+    ent:SetNWString("NZHasText", "Press E to add battery to your flashlight.")
 end
 
 function mapscript.ElectricityOn()
@@ -673,7 +871,7 @@ function mapscript.ElectricityOn()
         local contrastScale = 0.5 --This is the value it's set to in the config, we scale this value up here
         timer.Create("RemoveGrayscale", 0.5, 10, function()
             contrastScale = contrastScale + 0.05
-            colorEditor:SetContrast(contrastScale)
+            colorEditor:SetContrast(contrastScale) --is erroring?
         end)
 
         ents.GetMapCreatedEntity("2767"):Fire("Use")
@@ -697,26 +895,128 @@ end
 
 --[[	Any hooks    ]]
 
---[[hook.Add("OnDoorUnlocked", "CreepyLaugh", function(door, link, _, ply, _)
-    --print("Y U NO WORK? ", a, b, door, link, ply)
-    if link == "a1" then
-        print("link = a1 passed")
-        local throwaway = ents.Create("nz_script_prop")
-        throwaway:SetModel("models/hunter/blocks/cube025x025x025.mdl")
-		throwaway:SetPos(Vector(-2368, 682.5, 121.5))
-		throwaway:SetAngles(Angle(0, 0, 0))
-		throwaway:Spawn()
-		throwaway:SetNoDraw(true)
-		throwaway:EmitSound("misc/evilgiggle.ogg", 75, 100, 1, CHAN_AUTO)
-		--:EmitSound(string soundName, number soundLevel=75, number pitchPercent=100, number volume=1, number channel=CHAN_AUTO)
-		timer.Simple(10, function() throwaway:Remove() end)	
-	end
-end)]]
-
 hook.Add("Think", "CNavAreaChecking", function()
-    local 
-    if 
+    if nzRound:GetState() == ROUND_CREATE then
+        return
+    end
+    mapscript.area1 = mapscript.area1 or 0
+    mapscript.area2 = mapscript.area2 or 0
+    mapscript.area3 = mapscript.area3 or 0
+    mapscript.area4 = mapscript.area4 or 0
+
+    local area1, area2, area3, area4 = 0, 0, 0, 0
+    for k, v in pairs(player.GetAll()) do
+        if v:Alive() then
+            for _, tab in pairs(areasByVector[1]) do
+                if v:GetPos():WithinAABox(tab.pos1, tab.pos2) then
+                    area1 = area1 + 1
+                end
+            end
+
+            for _, tab in pairs(areasByVector[2]) do
+                if v:GetPos():WithinAABox(tab.pos1, tab.pos2) then
+                    area2 = area2 + 1
+                end
+            end
+
+            for _, tab in pairs(areasByVector[3]) do
+                if v:GetPos():WithinAABox(tab.pos1, tab.pos2) then
+                    area3 = area3 + 1
+                end
+            end
+
+            for _, tab in pairs(areasByVector[4]) do
+                if v:GetPos():WithinAABox(tab.pos1, tab.pos2) then
+                    area4 = area4 + 1
+                end
+            end
+        end
+    end
+
+    --Really ugly as 4 big-ass if statements
+    --I should call update() on the one spawner ent to force the change immediately, but it's done every 4 seconds anyway
+    if area1 != mapscript.area1 then
+        print("Player count mismatch in area 1, old value: " .. mapscript.area1 .. ", new value: " .. area1)
+        mapscript.area1 = area1
+        if area1 < 1 then
+            for k, v in pairs(allZombieSpawns[1]) do
+                v.disabled = true
+            end
+            CleanupZombies(1)
+        else
+            for k, v in pairs(allZombieSpawns[1]) do
+                v.disabled = false
+            end
+        end
+    end
+    if area2 != mapscript.area2 then
+        print("Player count mismatch in area 2, old value: " .. mapscript.area2 .. ", new value: " .. area2)
+        mapscript.area2 = area2
+        if area2 < 1 then
+            for k, v in pairs(allZombieSpawns[2]) do
+                v.disabled = true
+            end
+            CleanupZombies(2)
+        else
+            for k, v in pairs(allZombieSpawns[2]) do
+                v.disabled = false
+            end
+        end
+    end
+    if area3 != mapscript.area3 then
+        print("Player count mismatch in area 3, old value: " .. mapscript.area3 .. ", new value: " .. area3)
+        mapscript.area3 = area3
+        if area3 < 1 then
+            for k, v in pairs(allZombieSpawns[3]) do
+                v.disabled = true
+            end
+            CleanupZombies(3)
+        else
+            for k, v in pairs(allZombieSpawns[3]) do
+                v.disabled = false
+            end
+        end
+    end
+    if area4 != mapscript.area4 then
+        print("Player count mismatch in area 4, old value: " .. mapscript.area4 .. ", new value: " .. area4)
+        mapscript.area4 = area4
+        if area4 < 1 then
+            for k, v in pairs(allZombieSpawns[4]) do
+                v.disabled = true
+            end
+            CleanupZombies(4)
+        else
+            for k, v in pairs(allZombieSpawns[4]) do
+                v.disabled = false
+            end
+        end
+    end
 end)
+
+hook.Add("OnZombieSpawned", "AssignSpawnID", function(zom, spawner)
+    zom.spawnZone = spawner.spawnZone
+end)
+
+--[[    Overwritten Functions    ]]
+
+--Overrides default function, enables the "disabling" of spawns, used when players enter a different area
+function Spawner:UpdateWeights()
+	local plys = player.GetAllTargetable()
+	for _, spawn in pairs(self.tSpawns) do
+		-- reset
+        spawn:SetSpawnWeight(0)
+        if !spawn.disabled then
+            local weight = math.huge
+            for _, ply in pairs(plys) do
+                local dist = spawn:GetPos():Distance(ply:GetPos())
+                if dist < weight then
+                    weight = dist
+                end
+            end
+            spawn:SetSpawnWeight(10000/weight)
+        end
+	end
+end
 
 return mapscript
 
@@ -749,4 +1049,6 @@ Entity IDs:
     Jail door: 2778 - should auto-open on game start
     Basement console: 2056
     Bunker console: 1359
+    Destructable wall: 1563
+    Door to the "zap" rooms: 1567
 */

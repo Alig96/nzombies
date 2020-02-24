@@ -182,6 +182,7 @@ net.Receive("RunSound", function()
 end)
 
 net.Receive("StartBloodCount", function()
+    print("CLIENT received call to begin BloodCount messages")
     drawMessages = true
 end)
 
@@ -195,25 +196,31 @@ net.Receive("StartTeleportTimer", function()
     totalTime = net.ReadInt(16)
     drawTimer = true
     timeLeft = 0
+    print("CLIENT received call to begin TeleportTimer overlay, received int: " .. totalTime)
 end)
 
 net.Receive("UpdateTeleportTimer", function()
     local updateTo = net.ReadInt(16)
-    timeLeft = math.Round(math.Clamp(updateTo, 0, totalTime) / totalTime * 360)
+    timeLeft = math.Round(totalTime - math.Clamp(updateTo, 0, totalTime) / totalTime * 360)
+    print("CLIENT received call to update TeleportTimer overlay, received int: " .. updateTo, totalTime, timeLeft)
+    if updateTo == 0 then
+        drawTimer = false
+    end
 end)
 
 batteryLevel = 0
 batteryIMG = Material("hud/flashlight.png")
 net.Receive("SendBatteryLevel", function()
-    local newLevel = net.ReadInt(6)
+    local newLevel = net.ReadInt(16)
     batteryLevel = math.Clamp(newLevel, 0, 100)
 end)
 
 chalkMessages = {
     counter = {pos1 = Vector(-568, 3552, 170.5), pos2 = Vector(-402, 3552, 137), num = 0, goal = 30},
-    msg1 = {pos1 = Vector(-1664.0, 2378.5, 125.8), pos2 = Vector(-1664, 2210.75, 58.5), msg = "Blood for the Blood God"},
-    msg2 = {pos1 = Vector(-751.5, 2880.2, 104.2), pos2 = Vector(-630.5, 2880.2, 59.8), msg = "Arcs of Blue Make it True"},
-    msg3 = {pos1 = Vector(-1216.6, 2768.9, 94.7), pos2 = Vector(-1216.6, 2869.6, 51.8), msg = "Bring Forth the Lambs to Slaughter"}
+    msg1 = {pos1 = Vector(-1664.0, 2378.5, 125.8), pos2 = Vector(-1664, 2210.75, 58.5), msg = "Blood for the Blood God"}, --You need to kill zombies
+    msg2 = {pos1 = Vector(-751.5, 2880.2, 104.2), pos2 = Vector(-630.5, 2880.2, 59.8), msg = "Arcs of Blue Make it True"}, --You need to kill them with lightning
+    msg3 = {pos1 = Vector(-1216.6, 2768.9, 94.7), pos2 = Vector(-1216.6, 2869.6, 51.8), msg = "Bring Forth the Lambs to Slaughter"}, --Bring them into these rooms
+    msg4 = {pos1 = Vector(), pos2 = Vector(), msg = "Without a Light, a Soul is Lost"}, --You'll get lost and die without a flashlight
 }
 local chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
 
