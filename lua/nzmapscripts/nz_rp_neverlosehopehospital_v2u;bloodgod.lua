@@ -393,7 +393,8 @@ end
 --This function teleports the player to the given pos with the given angle after a possible delay, and plays HUD and sound effects on the client
 function SpecialTeleport(ply, pos, ang, delay)
 	ply:GodEnable()
-	ply:Lock()
+    ply:Lock()
+    ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 	--SetPermaElectrify(ply, true)
 	timer.Simple(delay or 0, function()
         net.Start("RunTeleportOverlay")
@@ -426,6 +427,7 @@ function SpecialTeleport(ply, pos, ang, delay)
 				ply:SetNoDraw(false)
 				ply:GodDisable()
                 ply:UnLock()
+                ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
                 --Alternative idea to changing the collision group, we could also just kill the zombies in a box around it
 				timer.Simple(1, function() --We don't want the player spawning inside a zombie and not being able to move
 					ply:SetCollisionGroup(COLLISION_GROUP_NONE) --TO CHECK
