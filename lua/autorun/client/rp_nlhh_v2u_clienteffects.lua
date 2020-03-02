@@ -177,32 +177,39 @@ net.Receive("StopOverlay", function()
 end)
 
 net.Receive("RunSound", function()
-    soundtoRun = net.ReadString()
-    surface.PlaySound(soundToRun)
+    soundToRun = net.ReadString()
+    surface.PlaySound(tostring(soundToRun))
 end)
 
+drawMessages = false
 net.Receive("StartBloodCount", function()
-    print("CLIENT received call to begin BloodCount messages")
+    print("CLIENT received net message StartBloodCount")
     drawMessages = true
 end)
 
 net.Receive("UpdateBloodCount", function()
     local updateTo = net.ReadInt(16)
-    chalkMessages.counter.num = updateTo
-    surface.PlaySound("ambient/alarms/warningbell1.wav")
+    if updateTo != chalkMessages.counter.num then --Only because I want the bell to play when kills have been added
+        chalkMessages.counter.num = updateTo
+        surface.PlaySound("ambient/alarms/warningbell1.wav")
+    end
+end)
+
+net.Receive("UpdateChalkMessage", function()
+    local index = net.ReadString()
+    local newMsg = net.ReadString()
+    chalkMessages[index].msg = newMsg
 end)
 
 net.Receive("StartTeleportTimer", function()
     totalTime = net.ReadInt(16)
     drawTimer = true
     timeLeft = 0
-    print("CLIENT received call to begin TeleportTimer overlay, received int: " .. totalTime)
 end)
 
 net.Receive("UpdateTeleportTimer", function()
     local updateTo = net.ReadInt(16)
-    timeLeft = math.Round(totalTime - math.Clamp(updateTo, 0, totalTime) / totalTime * 360)
-    print("CLIENT received call to update TeleportTimer overlay, received int: " .. updateTo, totalTime, timeLeft)
+    timeLeft = math.Round((totalTime - math.Clamp(updateTo, 0, totalTime)) / totalTime * 360)
     if updateTo == 0 then
         drawTimer = false
     end
@@ -212,35 +219,43 @@ batteryLevel = 0
 batteryIMG = Material("hud/flashlight.png")
 net.Receive("SendBatteryLevel", function()
     local newLevel = net.ReadInt(16)
+    if newLevel > batteryLevel then
+        --play some sound
+    end
+    --Play a sound when it runs out?
     batteryLevel = math.Clamp(newLevel, 0, 100)
 end)
 
 chalkMessages = {
-    counter = {pos1 = Vector(-568, 3552, 170.5), pos2 = Vector(-402, 3552, 137), num = 0, goal = 30},
-    msg1 = {pos1 = Vector(-1664.0, 2378.5, 125.8), pos2 = Vector(-1664, 2210.75, 58.5), msg = "Blood for the Blood God"}, --You need to kill zombies
-    msg2 = {pos1 = Vector(-751.5, 2880.2, 104.2), pos2 = Vector(-630.5, 2880.2, 59.8), msg = "Arcs of Blue Make it True"}, --You need to kill them with lightning
-    msg3 = {pos1 = Vector(-1216.6, 2768.9, 94.7), pos2 = Vector(-1216.6, 2869.6, 51.8), msg = "Bring Forth the Lambs to Slaughter"}, --Bring them into these rooms
-    msg4 = {pos1 = Vector(), pos2 = Vector(), msg = "Without a Light, a Soul is Lost"}, --You'll get lost and die without a flashlight
+    counter = {pos1 = Vector(-513.988129, 3552.188965, 161.082184), rot = Angle(0, 0, 0), num = 0, goal = 20},
+    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "Blood for the Blood God"},
+    msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   Arcs of Blue", "Make it True"}},
+    msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"Bring  Forth", "          the   Lambs", "               to     Slaughter"}},
+    msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"Without a Torch", "    a Soul is Lost"}},
+    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I Remain Yet Unsatisfied"}
 }
-local chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
 
+--Draw the messages along the walls
 hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
     if !drawMessages then return end
-
-    --local trace = LocalPlayer():GetEyeTrace()
-    --local angle = trace.HitNormal:Angle()
-
-    local text = ""
+    
     for k, v in pairs(chalkMessages) do
         if !v.msg then text = v.num .. " dead"
         else text = v.msg end
 
-        cam.Start3D2D(v.pos1, Angle(0, 0, 0), 1)
+        cam.Start3D2D(v.pos1, Angle(0, 0, 90) + v.rot, 0.5)
+            draw.NoTexture()
             surface.SetFont("nz.display.hud.main")
             surface.SetDrawColor(255, 255, 255)
-            --surface.SetMaterial(chalkmaterial)
-            surface.SetTextPos(30, 30)
-            surface.DrawText(text)
+            if istable(v.msg) then
+                for k, v in pairs(v.msg) do
+                    surface.SetTextPos(0, 48 * (k - 1))
+                    surface.DrawText(v)
+                end
+            else
+                surface.SetTextPos(0, 0)
+                surface.DrawText(text)
+            end
         cam.End3D2D()
     end
 end)

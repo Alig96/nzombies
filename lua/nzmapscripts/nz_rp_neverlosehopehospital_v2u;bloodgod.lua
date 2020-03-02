@@ -7,12 +7,13 @@ util.AddNetworkString("SendBatteryLevel")
 util.AddNetworkString("RunSound")
 util.AddNetworkString("StartTeleportTimer")
 util.AddNetworkString("UpdateTeleportTimer")
+util.AddNetworkString("UpdateChalkMessage")
 
 --[[    Post script-load work    ]]
 
 local mapscript = {}
 mapscript.bloodGodKills = 0
-mapscript.bloodGodKillsGoal = 30
+mapscript.bloodGodKillsGoal = 20
 mapscript.batteryLevels = {}
 mapscript.flashlightStatuses = {}
 
@@ -72,7 +73,13 @@ local batteries = {
     {pos = Vector(-3282.178711, 2076.142822, -3549.47021), ang = Angle(-58.391, 58.327, -166.00)},
     {pos = Vector(-2439.740967, 781.870728, 46.52282), ang = Angle(-61.265, 11.267, -170.51)},
     {pos = Vector(158.518555, 3749.448486, 34.58102), ang = Angle(-38.046, -115.702, 11.60)},
-    {pos = Vector(-351.988251, 2292.685791, 52.67468), ang = Angle(-38.877, -170.935, 10.76)}
+    {pos = Vector(-351.988251, 2292.685791, 52.67468), ang = Angle(-38.877, -170.935, 10.76)},
+    {pos = Vector(-2438.876465, 1012.538818, 46.576851), ang = Angle(-45.786, -23.365, 11.249)},
+    {pos = Vector(-2943.356201, 376.680359, 32.539017), ang = Angle(-52.924, 54.885, -167.160)},
+    {pos = Vector(-1634.872925, 2501.901611, 48.442104), ang = Angle(-61.534, -126.098, -164.882)},
+    {pos = Vector(-1669.691406, 4030.333252, 48.593281), ang = Angle(57.175, 173.273, -12.060)},
+    {pos = Vector(-724.885986, 3514.568604, 48.604996), ang = Angle(-35.177, 68.342, 10.817)},
+    {pos = Vector(-3065.257080, 3074.691895, 0.541340), ang = Angle(-57.086, -66.165, -167.97)}
 }
 
 local areasByVector = {
@@ -113,7 +120,7 @@ local possibleTeleports = {
 		{pos = Vector(-2844.5, 297, -1663), ang = Angle(0, 0, 0), post = true}
 	}
 }
-local spawnTeleport = {pos = Vector(-2232, -1028, 2.75), ang = Angle(0, 106.75, 0)}
+local spawnTeleport = {pos = Vector(-2367, 12, 0), ang = Angle(0, 90, 0)}
 
 local zapRoomEffectLocations = {
     {
@@ -226,13 +233,13 @@ local battery = nzItemCarry:CreateCategory("battery")
 battery:Update()
 
 local key = nzItemCarry:CreateCategory("key")
-    key:SetIcon("spawnicons/")
+    key:SetIcon("spawnicons/models/zpprops/keychain.png")
     key:SetText("Press E to pick up the keys.")
     key:SetDropOnDowned(false)
     key:SetShowNotification(true)
     key:SetResetFunction(function(self)
 		local ent = ents.Create("nz_script_prop")
-        ent:SetModel("models/zpprops/keychain.md")
+        ent:SetModel("models/zpprops/keychain.mdl")
         ent:SetPos(Vector(-3075.5, 377.5, 32.5))
         ent:SetAngles(Angle(1.418, -47.206, 1.038))
         ent:Spawn()
@@ -314,26 +321,27 @@ function Electrify(ent)
 end
 
 --//Creates a never-ending lightning aura around the given ent
-function SetPermaElectrify(ent, enable) 
-	local function PermaElectrify(ent_)
-		if not game.active then --Find the appropriate variable/function return
-			return false
-		end
-		local effecttimer = 0
-		if effecttimer < CurTime() then
-			local effect = EffectData()
-			effect:SetScale(1)
-			effect:SetEntity(ent_)
-			util.Effect("lightning_aura", effect)
-			effecttimer = CurTime() + 0.5
-		end
-	end
+function SetPermaElectrify(ent, enable, scale)
+    electrifiedEnts = electrifiedEnts or {}
+    electrifiedScale = electrifiedScale or {}
+    electrifiedEnts[ent] = enable
+    electrifiedScale[ent] = scale or 1
 
-	if enable then
-		ent.Think = PermaElectrify --May not really work on the player class
-	else
-		ent.Think = function() end
-	end
+    local effecttimer = 0
+    hook.Add("Think", "PermaElectrifyEntities", function()
+        if effecttimer < CurTime() then
+            for k, v in pairs(electrifiedEnts) do
+                if v then
+                    local effect = EffectData()
+                    effect:SetScale(1) --Does nothing?
+                    effect:SetRadius(electrifiedScale[k])
+                    effect:SetEntity(k)
+                    util.Effect("lightning_aura", effect)
+                end
+            end
+            effecttimer = CurTime() + 0.5
+        end
+    end)
 end
 
 --This function is only ever ran with electricity being on
@@ -384,6 +392,10 @@ function ZapZombies(id, vec1, vec2, ply)
                         net.WriteString("misc/evilgiggle.ogg")
                     net.Broadcast()
 
+                    net.Start("UpdateChalkMessage")
+                        net.WriteString("msg5")
+                        net.WriteString("")
+                    net.Broadcast()
 				end
 			end)
 		end)
@@ -395,7 +407,7 @@ function SpecialTeleport(ply, pos, ang, delay)
 	ply:GodEnable()
     ply:Lock()
     ply:SetTargetPriority(TARGET_PRIORITY_NONE)
-	--SetPermaElectrify(ply, true)
+	SetPermaElectrify(ply, true)
 	timer.Simple(delay or 0, function()
         net.Start("RunTeleportOverlay")
         net.Send(ply)
@@ -404,7 +416,7 @@ function SpecialTeleport(ply, pos, ang, delay)
 	timer.Simple(2 + (delay or 0), function() --Delay the teleport for a bit to play sound & HUD effect
 		ply:SetNoDraw(true) --may also need to set their equipped weapons invisible
 		--ply:Freeze(true)
-		--SetPermaElectrify(ply, false)
+		SetPermaElectrify(ply, false)
 
         --Full length of the HUD effects should be 4 seconds
 		timer.Simple(2 - 1.4, function()
@@ -458,6 +470,18 @@ function GenerateRandomSet(maxNum, totalDesired)
     return throwawayTab
 end
 
+--Used by the dors leading to the ZapZombies buttons, zaps players for :Health() - 1 when used while electrified
+function ZapPlayer(ent, ply)
+    if !powerSwitchUsed then
+        ent:EmitSound("ambient/energy/zap" .. math.random(9) .. ".wav")
+        local insta = DamageInfo()
+        insta:SetAttacker(ent)
+        insta:SetDamageType(DMG_SHOCK) --Need to find an acceptable damage type, old was DMG_BLAST_SURFACE
+        insta:SetDamage(ply:Health() - 1)
+        ply:TakeDamageInfo(insta)
+    end
+end
+
 --[[    Mapscript functions    ]]
 
 function mapscript.OnGameBegin()
@@ -509,24 +533,28 @@ function mapscript.OnGameBegin()
     wallBlock:SetPos(Vector(-3600.7, 6482.8, 120.5))
     wallBlock:SetAngles(Angle(90, 90, 180))
     wallBlock:SetMaterial("models/props_combine/com_shield001a")
+    wallBlock:Spawn()
 
     --The combine console that enables the map-spawned consoles to remove the above ent blocking passage
     mapscript.onLockdown = true
     local comConsole = ents.Create("nz_script_prop")
-    comConsole:SetModel("")
-    comConsole:SetPos(Vector())
-    comConsole:SetAngles(Angle())
-    comConsole:SetNWString("Press E to begin rescinding building system lockdown.")
+    comConsole:SetModel("models/props_combine/combine_interface001.mdl")
+    comConsole:SetPos(Vector(-7224.5, 2712.6, -0.2))
+    comConsole:SetAngles(Angle(-0.0, 90.0, -0.0))
+    comConsole:SetNWString("NZText", "Press E to begin rescinding building system lockdown.")
+    comConsole:Spawn()
     comConsole.OnUsed = function()
         if mapscript.onLockdown and nzElec:IsOn() then
-            --Do some button-pressing sound
+            comConsole:EmitSound("buttons/combine_button1.wav")
             mapscript.onLockdown = false
+            comConsole:SetNWString("NZText", "")
             for k, v in ipairs(mapscript.consoleButtons) do
-                ents.GetMapCreatedEntity(v):SetNWString("Press E to further rescind building system lockdown.")
+                ents.GetMapCreatedEntity(v):SetNWString("NZText", "Press E to further rescind building system lockdown.")
             end
         end
     end
 
+    --All the map-created entities that need to be locked/called/whatever
     --Lock & apply text to the basement elevator
     local elDoor1 = ents.GetMapCreatedEntity("1825")
     elDoor1:Fire("Lock")
@@ -538,16 +566,31 @@ function mapscript.OnGameBegin()
     elButton:Fire("Lock")
     elButton:SetNWString("NZText", "You must power the generator before calling the elevator")
     --Lock the bunker elevator
-    ents.GetMapCreatedEntity("1477"):Fire("Lock")
-    ents.GetMapCreatedEntity("1478"):Fire("Lock")
-    ents.GetMapCreatedEntity("1488"):Fire("Lock")
+    --ents.GetMapCreatedEntity("1907"):Fire("Use") --Inside elevator button
+    ents.GetMapCreatedEntity("1907"):Fire("Lock")
+    ents.GetMapCreatedEntity("1488"):Fire("Lock") --Main floor elevator button
+    ents.GetMapCreatedEntity("1493"):Fire("Lock") --Elevator ent
+    ents.GetMapCreatedEntity("1478"):SetPos(Vector(-2394, 1280, 64)) --Left door (closed position: Vector(-2394, 1280, 64))
+    ents.GetMapCreatedEntity("1477"):SetPos(Vector(-2341, 1280, 64)) --Right door (closed position: Vector(-2341, 1280, 64))
     --Open the jail door in front of power generator room
     ents.GetMapCreatedEntity("2778"):Fire("Use")
     --Locks the door the padlock is "attached" to
     ents.GetMapCreatedEntity("1567"):Fire("Lock")
+    --Sets some flavor text for the destructable wall
+    ents.GetMapCreatedEntity("1563"):SetNWString("NZText", "This part of the wall looks oddly destructable...")
+    --Door to the power room, that doesn't seem to want to lock via door buy settings
+    ents.GetMapCreatedEntity("1746"):Fire("Lock")
+    --Electrify and lock the 2 doors leading to the ZapZombies buttons
+    local doors = {"1743", "1564"}
+    for k, v in pairs(doors) do
+        local lock = ents.GetMapCreatedEntity(v)
+        lock:Fire("Lock")
+        lock.OnUsed = ZapPlayer
+        SetPermaElectrify(lock, true, 2)
+    end
 
     --Creates the padlock required to unlock to access power & zap rooms
-    local padlock = ents.Create("nz_script_prop")
+    local padlock = ents.Create("prop_physics")
     padlock:SetPos(Vector(-1066.5, 2811.75, 38.9))
     padlock:SetAngles(Angle(0, 180, 0))
     padlock:SetModel("models/props_wasteland/prison_padlock001a.mdl")
@@ -556,6 +599,7 @@ function mapscript.OnGameBegin()
     padlock:SetNWString("NZHasText", "Press E to unlock the padlock")
     padlock:Spawn()
     padlock:Activate()
+    padlock:GetPhysicsObject():EnableMotion(false)
     padlock.OnUsed = function(ent, ply)
         if ply:HasCarryItem("key") then
             ply:RemoveCarryItem("key")
@@ -645,8 +689,21 @@ function mapscript.OnGameBegin()
     newPowerSwitch.OnUsed = function(but, ply)
         if powerSwitchDelay or !ply then return end
 
+        if !powerSwitchUsed then
+            powerSwitchUsed = true
+            local doors = {"1743", "1564"}
+            for k, v in pairs(doors) do
+                local lock = ents.GetMapCreatedEntity(v)
+                lock.OnUsed = function() 
+                    lock:Fire("Lock")
+                end
+                SetPermaElectrify(lock, false)
+                lock:Fire("Unlock")
+            end
+        end
+
         powerSwitchDelay = true
-        SetPermaElectrify(but, true)
+        SetPermaElectrify(but, true, 0.5)
         Electrify(ply)
         timer.Simple(30, function() powerSwitchDelay = false SetPermaElectrify(but, false) end)
 
@@ -659,7 +716,7 @@ function mapscript.OnGameBegin()
             insta:SetDamage(ply:Health() - 1)
             ply:TakeDamageInfo(insta)
 
-            timer.Simple(2, function()
+            timer.Simple(4, function()
                 ents.GetMapCreatedEntity("2767"):Fire("Use")
             end)
         else
@@ -687,15 +744,17 @@ function mapscript.OnGameBegin()
             teleportAgain = bothFlippedOption.post
         end
         
+        print("Checking for teleportAgain: ", teleportAgain)
+        print("All teleportAgains: ", sparkFlippedOption.post, nonSparkFlippedOption.post, bothFlippedOption.post)
         if teleportAgain then
             teleportTimers = teleportTimers or {}
-            teleportTimers[ply:SteamID()] = math.random(30, 60)
+            teleportTimers[ply:SteamID()] = math.random(45, 75)
             net.Start("StartTeleportTimer")
                 net.WriteInt(teleportTimers[ply:SteamID()], 16)
             net.Send(ply)
 
             timer.Create(ply:SteamID() .. "TeleportTimer", 1, 0, function()
-                if !teleportTimers[ply:SteamID()] or !IsValid(ply) then 
+                if !IsValid(ply) or !teleportTimers[ply:SteamID()] then 
                     timer.Remove(ply:SteamID() .. "TeleportTimer")
                 end
                 if teleportTimers[ply:SteamID()] == 0 or !ply:GetNotDowned() then
@@ -793,15 +852,21 @@ function mapscript.OnGameBegin()
     mapscript.consoleButtons = {"1455", "2056", "1359", pressed = 0}
     for k, v in ipairs(mapscript.consoleButtons) do --Doesn't loop through [pressed] as it's not indexed numerically
         local console = ents.GetMapCreatedEntity(v)
-        console:SetNWString("Currently in system lockdown.")
+        console:SetNWString("NZText", "Currently in system lockdown.")
         console.OnUsed = function()
             if !mapscript.onLockdown and !tab[v] then
                 tab[v] = true
                 mapscript.consoleButtons.pressed = mapscript.consoleButtons.pressed + 1
-                console:SetNWString("")
-                if pressed == 3 then
-                    --Play sound/effect or something?
-                    wallBlock:Remove()
+                console:SetNWString("NZText", "")
+                console:EmitSound("buttons/button4.wav")
+                if mapscript.consoleButtons.pressed == 3 then
+                    timer.Simple(1, function()
+                        local throwawayTab = {1, 3, 4}
+                        net.Start("RunSound")
+                            net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
+                        net.Broadcast()
+                        wallBlock:Remove()
+                    end)
                 end
             end
         end
@@ -865,6 +930,14 @@ function mapscript.OnRoundStart()
     ent.charge = math.random(25, 80)
     ent:SetNWString("NZRequiredItem", "battery")
     ent:SetNWString("NZHasText", "Press E to add battery to your flashlight.")
+
+    --Redundantly remove the text, if a player joins in after the step as been completed
+    if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
+        net.Start("UpdateChalkMessage")
+            net.WriteString("msg5")
+            net.WriteString("")
+        net.Broadcast()
+    end
 end
 
 function mapscript.ElectricityOn()
@@ -897,6 +970,7 @@ end
 
 --[[	Any hooks    ]]
 
+--This is used to check if players enter/leave areas zombies can't travel through, and will need to respawn
 hook.Add("Think", "CNavAreaChecking", function()
     if nzRound:GetState() == ROUND_CREATE then
         return
@@ -935,7 +1009,7 @@ hook.Add("Think", "CNavAreaChecking", function()
         end
     end
 
-    --Really ugly as 4 big-ass if statements
+    --Really ugly, as 4 big-ass if statements
     --I should call update() on the one spawner ent to force the change immediately, but it's done every 4 seconds anyway
     if area1 != mapscript.area1 then
         print("Player count mismatch in area 1, old value: " .. mapscript.area1 .. ", new value: " .. area1)
@@ -946,6 +1020,7 @@ hook.Add("Think", "CNavAreaChecking", function()
             end
             CleanupZombies(1)
         else
+            print("Enabling zombie spawns in area1")
             for k, v in pairs(allZombieSpawns[1]) do
                 v.disabled = false
             end
@@ -960,6 +1035,7 @@ hook.Add("Think", "CNavAreaChecking", function()
             end
             CleanupZombies(2)
         else
+            print("Enabling zombie spawns in area2")
             for k, v in pairs(allZombieSpawns[2]) do
                 v.disabled = false
             end
@@ -974,6 +1050,7 @@ hook.Add("Think", "CNavAreaChecking", function()
             end
             CleanupZombies(3)
         else
+            print("Enabling zombie spawns in area3")
             for k, v in pairs(allZombieSpawns[3]) do
                 v.disabled = false
             end
@@ -988,6 +1065,7 @@ hook.Add("Think", "CNavAreaChecking", function()
             end
             CleanupZombies(4)
         else
+            print("Enabling zombie spawns in area4")
             for k, v in pairs(allZombieSpawns[4]) do
                 v.disabled = false
             end
@@ -1001,7 +1079,7 @@ end)
 
 --[[    Overwritten Functions    ]]
 
---Overrides default function, enables the "disabling" of spawns, used when players enter a different area
+--Overwrites default function, enables the "disabling" of spawns, used when players enter a different area
 function Spawner:UpdateWeights()
 	local plys = player.GetAllTargetable()
 	for _, spawn in pairs(self.tSpawns) do
@@ -1015,42 +1093,43 @@ function Spawner:UpdateWeights()
                     weight = dist
                 end
             end
-            spawn:SetSpawnWeight(10000/weight)
+            spawn:SetSpawnWeight(10000 / weight)
         end
 	end
 end
 
 return mapscript
 
-/*
+--[[
 Test Effects:
-	util.Effect("lightning_prespawn", ) - Hellhound pre-spawn effect
-	util.Effect("lightning_strike", ) - Hellspawn spawn effect
-
-Puzzle Ideas:
-	- Melee some object? Imprisoned incorporated a custom melee weapon that can melee objects in the map
-	- Some kind of passcode in a keypad
-	- Blood for the blood god
-			Use the "power wing buttons" to electrify and kill a certain # of zombies
-			Power must be on, running the button shuts off the power
-				Normal power lever is still flipped, must turn power back on by flipping the generator switch
-					Generator switch will teleport the player to the inaccessible area for some length of time
-					then back to spawn - this inaccessible area has PaP & maybe other EE steps
-					Maybe under certain conditions it teleports to bunker area
-	- Messages should hint at easter egg steps, using chalk effect from wallbuys
-	- Simple key & lock puzzle?
-    - https://wiki.facepunch.com/gmod/navmesh
-    - https://wiki.facepunch.com/gmod/CNavArea
-
 Useful EE function:
 	nzNotifications:PlaySound("")
 	nzRound:Freeze(true) --Prevents switching and spawning
 
-Entity IDs:
-    Camera console: 1455
-    Jail door: 2778 - should auto-open on game start
-    Basement console: 2056
-    Bunker console: 1359
-    Destructable wall: 1563
-    Door to the "zap" rooms: 1567
-*/
+    Some notes:
+    Config work:
+    - Some walls, barricades, and props can be jumped over/on top of, need to finish placing wall blocks
+    - Fire, light, and fog entities are deleting themselves?????
+
+    Script work:
+    - Generator lever lights are inconsistent (I think it's not turning them back on after a player teleport with electricity on) (TO TEST)
+    - Bunker teleport didn't re-teleport the player
+    - Elevator needs polishing
+        - Doors should open/close when the elevator is called, need to override the use function
+        - Button in the elevator: 3206 (func_button) https://developer.valvesoftware.com/wiki/Func_button
+        - Elevator itself: 3207 (func_tracktrain) https://developer.valvesoftware.com/wiki/Func_tracktrain
+        - Basement door left: 2038
+        - Basement door right: 2039
+        - Top door left: 1826
+        - Top door right: 1825
+            They are func_door, call Fire("Toggle") https://developer.valvesoftware.com/wiki/Func_door
+            Additional resource: https://developer.valvesoftware.com/wiki/Func_movelinear#Inputs
+    - CleanupZombies works incorrectly if you leave & re-enter the same area ID (no it's not? Don't know why it didn't work before)
+
+    Nav work:
+    - Zombies get stuck in "shower"-like area
+
+    Theory work:
+    - Need more EE shit for after the long poison hallways
+        - Still haven't *really* done anything with the "blood god" part yet
+]]
