@@ -1,3 +1,9 @@
+hook.Add("InitPostEntity", "EnableNLHHClientEffects", function()
+    if engine.ActiveGamemode() == "nzombies" and game.GetMap() == "rp_neverlosehopehospital_v2u" then
+        enableHudEffects = true
+    end
+end)
+
 --Snagged off the gmod wiki
 function draw.Circle( x, y, radius, seg )
     local cir = {}
@@ -228,16 +234,16 @@ end)
 
 chalkMessages = {
     counter = {pos1 = Vector(-513.988129, 3552.188965, 161.082184), rot = Angle(0, 0, 0), num = 0, goal = 20},
-    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "Blood for the Blood God"},
-    msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   Arcs of Blue", "Make it True"}},
-    msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"Bring  Forth", "          the   Lambs", "               to     Slaughter"}},
-    msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"Without a Torch", "    a Soul is Lost"}},
-    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I Remain Yet Unsatisfied"}
+    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "I HUNGER"},
+    msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   ARCS OF BLUE", "MAKE IT TRUE"}},
+    msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"BRING FORTH", "          THE   LAMBS", "               TO     SLAUGHTER"}},
+    msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"WITHOUT A TORCH", "    A SOUL IS LOST"}},
+    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I REMAIN YET UNSATISFIED"}
 }
 
 --Draw the messages along the walls
 hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
-    if !drawMessages then return end
+    if !drawMessages or !enableHudEffects then return end
     
     for k, v in pairs(chalkMessages) do
         if !v.msg then text = v.num .. " dead"
@@ -262,6 +268,8 @@ end)
 
 --Set up battery drawing on the screen here
 hook.Add("HUDPaint", "BatteryDisplay", function() --HUDPaintBackground
+    if !enableHudEffects then return end
+
     local w, h = ScrW(), ScrH()
     local scale = ((w / 1920) + 1) / 2
     local drawW = w - (630 * scale) - (128 / 2) + 40
