@@ -105,7 +105,7 @@ local areasByVector = {
 local possibleTeleports = {
     { --Blocked-off area teleport (otherwise inaccessible)
       --Must default to this when neither switch has been flipped, so the player isn't teleported outside a purchased area
-		{pos = Vector(-6751.75, 3268.5, 0), ang = Angle(0, -1800, 0), post = true}
+		{pos = Vector(-6751.75, 3268.5, 0), ang = Angle(0, -180, 0), post = true}
 	},
 	{ --Basement teleport (essentially useless), 3 spots so it feels more genuinely random
 		{pos = Vector(-3064, 195, -3580), ang = Angle(0, -180, 0)},
@@ -208,7 +208,11 @@ local battery = nzItemCarry:CreateCategory("battery")
 				info.ent:Remove()
 				info.spawned = false
 			end
-		end
+        end
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("battery")
+        end
+        mapscript.batteryLevels = {}
 	end)
 	battery:SetPickupFunction(function(self, ply, ent)
 		ply:GiveCarryItem(self.id)
@@ -245,6 +249,9 @@ local key = nzItemCarry:CreateCategory("key")
         ent:SetAngles(Angle(1.418, -47.206, 1.038))
         ent:Spawn()
         self:RegisterEntity(ent)
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("key")
+        end
 	end)
 	key:SetPickupFunction(function(self, ply, ent)
 		ply:GiveCarryItem(self.id)
@@ -340,7 +347,7 @@ function SetPermaElectrify(ent, enable, scale)
                     util.Effect("lightning_aura", effect)
                 end
             end
-            effecttimer = CurTime() + 0.5
+            effecttimer = CurTime() + 0.4
         end
     end)
 end
@@ -436,7 +443,7 @@ function SpecialTeleport(ply, pos, ang, delay)
 
             timer.Simple(1.4, function()
                 ply:SetPos(pos)
-                ply:SetAngles(ang)
+                ply:SetEyeAngles(ang)
         
 				effectData = EffectData()
 				effectData:SetStart( ply:GetPos() + Vector(0, 0, 1000) )
@@ -663,9 +670,11 @@ function mapscript.OnGameBegin()
         end
 
         local throwawayTab = {1, 3, 4} --Have to do this stupid work-around since these are hl2 sounds and there's no teleport2.wav
-        net.Start("RunSound")
-            net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
-        net.Broadcast()
+        timer.Simple(1, function()
+            net.Start("RunSound")
+                net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
+            net.Broadcast()
+        end)
 	end
 	local nonSparkLever = ents.GetMapCreatedEntity("1920")
 	nonSparkLever.OnUsed = function(but, ply)
@@ -676,9 +685,11 @@ function mapscript.OnGameBegin()
         end
         
 		local throwawayTab = {1, 3, 4}
-        net.Start("RunSound")
-            net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
-        net.Broadcast()
+        timer.Simple(1, function()
+            net.Start("RunSound")
+                net.WriteString("ambient/machines/teleport" .. throwawayTab[math.random(#throwawayTab)] .. ".wav")
+            net.Broadcast()
+        end)
 	end
 
     --Randomizes the teleport possibilities when the generator switch is flipped, both unflipped remains the same always
@@ -863,8 +874,8 @@ function mapscript.OnGameBegin()
         local console = ents.GetMapCreatedEntity(v)
         console:SetNWString("NZText", "Currently in system lockdown.")
         console.OnUsed = function()
-            if !mapscript.onLockdown and !tab[v] then
-                tab[v] = true
+            if !mapscript.onLockdown and !mapscript.consoleButtons[v] then
+                mapscript.consoleButtons[v] = true
                 mapscript.consoleButtons.pressed = mapscript.consoleButtons.pressed + 1
                 console:SetNWString("NZText", "")
                 console:EmitSound("buttons/button4.wav")
@@ -1117,6 +1128,7 @@ Useful EE function:
     Config work:
     - Some walls, barricades, and props can be jumped over/on top of, need to finish placing wall blocks
     - Fire, light, and fog entities are deleting themselves?????
+    - No dog spawns in second area
 
     Script work:
     - Generator lever lights are inconsistent (I think it's not turning them back on after a player teleport with electricity on) (TO TEST)
@@ -1132,6 +1144,10 @@ Useful EE function:
             They are func_door, call Fire("Toggle") https://developer.valvesoftware.com/wiki/Func_door
             Additional resource: https://developer.valvesoftware.com/wiki/Func_movelinear#Inputs
     - CleanupZombies works incorrectly if you leave & re-enter the same area ID (no it's not? Don't know why it didn't work before)
+    - Basement levers should play their sound ~1 second after being pressed, maybe 1.5 s
+    - wallBlock is a a GAMEMODE wallblock ent because of the model chosen. Either enable nocollide or choose a different model
+    - Generator doesn't "turn off" after a new game
+            A lot doesn't properly reset after a game end, like zapdooors
 
     Nav work:
     - Zombies get stuck in "shower"-like area
