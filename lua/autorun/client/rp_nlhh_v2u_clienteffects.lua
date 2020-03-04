@@ -183,10 +183,10 @@ end)
 
 drawMessages = false
 net.Receive("StartBloodCount", function()
-    print("CLIENT received net message StartBloodCount")
     drawMessages = true
 end)
 
+--When we need to update the blood god ee kill count
 net.Receive("UpdateBloodCount", function()
     local updateTo = net.ReadInt(16)
     if updateTo != chalkMessages.counter.num then --Only because I want the bell to play when kills have been added
@@ -195,18 +195,28 @@ net.Receive("UpdateBloodCount", function()
     end
 end)
 
+--Updates an individual message, only supports single string messages
 net.Receive("UpdateChalkMessage", function()
     local index = net.ReadString()
     local newMsg = net.ReadString()
     chalkMessages[index].msg = newMsg
 end)
 
+--Converts all chalk messages to RUN, COWARD for extra sp00kiness
+net.Receive("RunCoward", function()
+    for k, v in pairs(chalkMessages) do
+        v.msg = "RUN, COWARD"
+    end
+end)
+
+--Starts drawing the HUD timer-circle-thing
 net.Receive("StartTeleportTimer", function()
     totalTime = net.ReadInt(16)
     drawTimer = true
     timeLeft = 0
 end)
 
+--Received every second while LocalPlayer is going to be teleported
 net.Receive("UpdateTeleportTimer", function()
     local updateTo = net.ReadInt(16)
     timeLeft = math.Round((totalTime - math.Clamp(updateTo, 0, totalTime)) / totalTime * 360)
@@ -217,6 +227,7 @@ end)
 
 batteryLevel = 0
 batteryIMG = Material("hud/flashlight.png")
+--Received every second while LocalPLayer has his flashlight on
 net.Receive("SendBatteryLevel", function()
     local newLevel = net.ReadInt(16)
     if newLevel > batteryLevel then
@@ -228,15 +239,16 @@ end)
 
 chalkMessages = {
     counter = {pos1 = Vector(-513.988129, 3552.188965, 161.082184), rot = Angle(0, 0, 0), num = 0, goal = 20},
-    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "Blood for the Blood God"},
+    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "I HUNGER"},
     msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   Arcs of Blue", "Make it True"}},
     msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"Bring  Forth", "          the   Lambs", "               to     Slaughter"}},
     msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"Without a Torch", "    a Soul is Lost"}},
-    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I Remain Yet Unsatisfied"}
+    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I Remain Yet Unsatisfied"},
+    --msg6 = {pos1 = Vector(), rot = Angle(0, 90, 0), msg = {"RUN,", "   COWARD"}}
 }
 
 --Draw the messages along the walls
-hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
+hook.Add("PostDrawTranslucentRenderables", "DrawChalkMessages", function() --PostDrawOpaqueRenderables
     if !drawMessages then return end
     
     for k, v in pairs(chalkMessages) do

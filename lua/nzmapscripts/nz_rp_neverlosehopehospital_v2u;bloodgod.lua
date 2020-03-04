@@ -8,6 +8,7 @@ util.AddNetworkString("RunSound")
 util.AddNetworkString("StartTeleportTimer")
 util.AddNetworkString("UpdateTeleportTimer")
 util.AddNetworkString("UpdateChalkMessage")
+util.AddNetworkString("RunCoward")
 
 --[[    Post script-load work    ]]
 
@@ -388,18 +389,25 @@ function ZapZombies(id, vec1, vec2, ply)
 				net.Broadcast()
 
 				if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
-					net.Start("RunSound")
-                        net.WriteString("misc/evilgiggle.ogg")
-                    net.Broadcast()
-
-                    net.Start("UpdateChalkMessage")
-                        net.WriteString("msg5")
-                        net.WriteString("")
-                    net.Broadcast()
+                    timer.Simple(5, function()
+                        CompletedBloodGod()
+                    end)
 				end
 			end)
 		end)
 	end)
+end
+
+--Runs special logic when the blood god easter egg is finished
+function CompletedBloodGod()
+    net.Start("RunSound")
+        net.WriteString("misc/evilgiggle.ogg")
+    net.Broadcast()
+
+    net.Start("RunCoward")
+    net.Broadcast()
+
+    --Probably wanna spawn some enemy
 end
 
 --This function teleports the player to the given pos with the given angle after a possible delay, and plays HUD and sound effects on the client
@@ -523,7 +531,7 @@ function mapscript.OnGameBegin()
         local sounds = {"numbers", "numbers2", "numbers3", "static", "static1", "static2", "whispers"}
 		local soundToPlay = "radio sounds/" .. sounds[math.random(#sounds)] .. ".ogg"
 		for k, v in pairs(radiosByID) do
-			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay, 90) --ent:EmitSound(soundName, soundLevel=75, pitchPercent=100, volume=1, channel=CHAN_AUTO)
+			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay, 90)
 		end
     end)
 
@@ -544,7 +552,7 @@ function mapscript.OnGameBegin()
     comConsole:SetNWString("NZText", "Press E to begin rescinding building system lockdown.")
     comConsole:Spawn()
     comConsole.OnUsed = function()
-        if mapscript.onLockdown and nzElec:IsOn() then
+        if mapscript.onLockdown then
             comConsole:EmitSound("buttons/combine_button1.wav")
             mapscript.onLockdown = false
             comConsole:SetNWString("NZText", "")
@@ -691,6 +699,7 @@ function mapscript.OnGameBegin()
 
         if !powerSwitchUsed then
             powerSwitchUsed = true
+            --Unlock the doors leading to the ZapZombies buttons, they should lock themselves after being opened
             local doors = {"1743", "1564"}
             for k, v in pairs(doors) do
                 local lock = ents.GetMapCreatedEntity(v)
@@ -848,9 +857,9 @@ function mapscript.OnGameBegin()
         end
     end
 
-    --Sets up the map-spawned consoles to disable the combine wall, after the long corridors
+    --Sets up the map-spawned consoles to disable the combine wall after the long corridors
     mapscript.consoleButtons = {"1455", "2056", "1359", pressed = 0}
-    for k, v in ipairs(mapscript.consoleButtons) do --Doesn't loop through [pressed] as it's not indexed numerically
+    for k, v in ipairs(mapscript.consoleButtons) do --Doesn't loop through .pressed as it's not indexed numerically
         local console = ents.GetMapCreatedEntity(v)
         console:SetNWString("NZText", "Currently in system lockdown.")
         console.OnUsed = function()
@@ -933,9 +942,7 @@ function mapscript.OnRoundStart()
 
     --Redundantly remove the text, if a player joins in after the step as been completed
     if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
-        net.Start("UpdateChalkMessage")
-            net.WriteString("msg5")
-            net.WriteString("")
+        net.Start("RunCoward")
         net.Broadcast()
     end
 end
@@ -1131,5 +1138,4 @@ Useful EE function:
 
     Theory work:
     - Need more EE shit for after the long poison hallways
-        - Still haven't *really* done anything with the "blood god" part yet
 ]]
