@@ -7,7 +7,7 @@ util.AddNetworkString("SendBatteryLevel")
 util.AddNetworkString("RunSound")
 util.AddNetworkString("StartTeleportTimer")
 util.AddNetworkString("UpdateTeleportTimer")
-util.AddNetworkString("UpdateChalkMessage")
+util.AddNetworkString("ResetChalkMessages")
 util.AddNetworkString("RunCoward")
 
 --[[    Post script-load work    ]]
@@ -215,6 +215,7 @@ local battery = nzItemCarry:CreateCategory("battery")
         mapscript.batteryLevels = {}
 	end)
 	battery:SetPickupFunction(function(self, ply, ent)
+        --Play some extra sound? EE object pickup sound doesn't play if you already have the object
 		ply:GiveCarryItem(self.id)
 		ply:AllowFlashlight(true)
 		mapscript.flashlightStatuses[ply] = true
@@ -347,7 +348,7 @@ function SetPermaElectrify(ent, enable, scale)
                     util.Effect("lightning_aura", effect)
                 end
             end
-            effecttimer = CurTime() + 0.4
+            effecttimer = CurTime() + 0.3
         end
     end)
 end
@@ -387,8 +388,11 @@ function ZapZombies(id, vec1, vec2, ply)
         
 		timer.Simple(2, function()
 			nzElec:Reset()
-			ents.GetMapCreatedEntity("2767"):Fire("Use")
+			ents.GetMapCreatedEntity("2767"):Fire("Use") --Turn generator room lights off
 			--Play some "backup power enabled" sound? Should explain why there's lights
+            for k, v in pairs(player.GetAll()) do
+                v:ChatPrint("Building power disabled, enabling auxillary power...")
+            end
 
 			timer.Simple(2, function()
 				net.Start("UpdateBloodCount")
@@ -521,7 +525,7 @@ function mapscript.OnGameBegin()
             ent.charge = math.random(25, 80)
 
             ent:SetNWString("NZRequiredItem", "battery")
-            ent:SetNWString("NZHasText", "Press E to add battery to your flashlight.")
+            ent:SetNWString("NZHasText", "Press E to add the battery to your flashlight.")
         end
     end
 
@@ -543,12 +547,13 @@ function mapscript.OnGameBegin()
     end)
 
     --The ent blocking passage after the long hallways
-    local wallBlock = ents.Create("nz_script_prop")
+    local wallBlock = ents.Create("prop_physics")
     wallBlock:SetModel("models/hunter/plates/plate3x3.mdl")
     wallBlock:SetPos(Vector(-3600.7, 6482.8, 120.5))
     wallBlock:SetAngles(Angle(90, 90, 180))
     wallBlock:SetMaterial("models/props_combine/com_shield001a")
     wallBlock:Spawn()
+    wallBlock:GetPhysicsObject():EnableMotion(false)
 
     --The combine console that enables the map-spawned consoles to remove the above ent blocking passage
     mapscript.onLockdown = true
@@ -741,6 +746,9 @@ function mapscript.OnGameBegin()
             end)
         else
             timer.Simple(1, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:ChatPrint("Building power enabled, disabling auxillary power...")
+                end
                 nzElec:Activate()
             end)
         end
@@ -753,19 +761,17 @@ function mapscript.OnGameBegin()
         elseif sparkFlipped and !nonSparkFlipped then
             randomValue = math.random(#sparkFlippedOption)
 			SpecialTeleport(ply, sparkFlippedOption[randomValue].pos, sparkFlippedOption[randomValue].ang, 1)
-            teleportAgain = sparkFlippedOption.post
+            teleportAgain = sparkFlippedOption[randomValue].post
         elseif !sparkFlipped and nonSparkFlipped then
             randomValue = math.random(#nonSparkFlippedOption)
             SpecialTeleport(ply, nonSparkFlippedOption[randomValue].pos, nonSparkFlippedOption[randomValue].ang, 1)
-            teleportAgain = nonSparkFlippedOption.post
+            teleportAgain = nonSparkFlippedOption[randomValue].post
         else
             randomValue = math.random(#bothFlippedOption)
             SpecialTeleport(ply, bothFlippedOption[randomValue].pos, bothFlippedOption[randomValue].ang, 1)
-            teleportAgain = bothFlippedOption.post
+            teleportAgain = bothFlippedOption[randomValue].post
         end
         
-        print("Checking for teleportAgain: ", teleportAgain)
-        print("All teleportAgains: ", sparkFlippedOption.post, nonSparkFlippedOption.post, bothFlippedOption.post)
         if teleportAgain then
             teleportTimers = teleportTimers or {}
             teleportTimers[ply:SteamID()] = math.random(45, 75)
@@ -795,7 +801,7 @@ function mapscript.OnGameBegin()
 	end
 
     --Creates the elevator generator
-    local gasLevel = 0
+    local gasLevel, generatorPowered = 0, false
     local gen = ents.Create("nz_script_prop")
     gen:SetPos(Vector(-2723, 1790, 27.5))
     gen:SetAngles(Angle(0, -90, 0))
@@ -873,6 +879,7 @@ function mapscript.OnGameBegin()
     for k, v in ipairs(mapscript.consoleButtons) do --Doesn't loop through .pressed as it's not indexed numerically
         local console = ents.GetMapCreatedEntity(v)
         console:SetNWString("NZText", "Currently in system lockdown.")
+        mapscript.consoleButtons[v] = false
         console.OnUsed = function()
             if !mapscript.onLockdown and !mapscript.consoleButtons[v] then
                 mapscript.consoleButtons[v] = true
@@ -890,6 +897,15 @@ function mapscript.OnGameBegin()
                 end
             end
         end
+    end
+
+    --Reset chalk messages, just in case we're playing again after the EE step that changes them
+    net.Start("ResetChalkMessages")
+    net.Broadcast()
+
+    --Reset possible battery levels after a new game
+    for k, v in pairs(player.GetAll()) do
+        mapscript.batteryLevels[v:SteamID()] = 0
     end
 
 	--Timer for checking battery levels
@@ -947,9 +963,10 @@ function mapscript.OnRoundStart()
     ent:Spawn()
     battery:RegisterEntity(ent)
     batteries[newBat[2]].ent = ent
+    batteries[newBat[2]].spawned = true
     ent.charge = math.random(25, 80)
     ent:SetNWString("NZRequiredItem", "battery")
-    ent:SetNWString("NZHasText", "Press E to add battery to your flashlight.")
+    ent:SetNWString("NZHasText", "Press E to add the battery to your flashlight.")
 
     --Redundantly remove the text, if a player joins in after the step as been completed
     if mapscript.bloodGodKills >= mapscript.bloodGodKillsGoal then
@@ -959,19 +976,23 @@ function mapscript.OnRoundStart()
 end
 
 function mapscript.ElectricityOn()
+    for k, v in pairs(player.GetAll()) do
+        v:ChatPrint("Building power enabled, disabling auxillary power...")
+    end
+
     if !postFirstActivation then
         local colorEditor = ents.FindByClass("edit_color")[1]
         local contrastScale = 0.5 --This is the value it's set to in the config, we scale this value up here
         timer.Create("RemoveGrayscale", 0.5, 10, function()
             contrastScale = contrastScale + 0.05
-            colorEditor:SetContrast(contrastScale) --is erroring?
+            colorEditor:SetContrast(contrastScale)
         end)
 
         ents.GetMapCreatedEntity("2767"):Fire("Use")
 
 		timer.Simple(5, function()
             local fakeSwitch, fakeLever = ents.Create("nz_script_prop"), ents.Create("nz_script_prop")
-            --Do more
+            --Move the power lever and replace it with a fake one
 
             --ents.FindByClass("power_box")[1]:SetPos()
 		end)
@@ -1128,29 +1149,18 @@ Useful EE function:
     Config work:
     - Some walls, barricades, and props can be jumped over/on top of, need to finish placing wall blocks
     - Fire, light, and fog entities are deleting themselves?????
-    - No dog spawns in second area
+    - No dog spawns in second, generator area
 
     Script work:
-    - Generator lever lights are inconsistent (I think it's not turning them back on after a player teleport with electricity on) (TO TEST)
-    - Bunker teleport didn't re-teleport the player
-    - Elevator needs polishing
-        - Doors should open/close when the elevator is called, need to override the use function
-        - Button in the elevator: 3206 (func_button) https://developer.valvesoftware.com/wiki/Func_button
-        - Elevator itself: 3207 (func_tracktrain) https://developer.valvesoftware.com/wiki/Func_tracktrain
-        - Basement door left: 2038
-        - Basement door right: 2039
-        - Top door left: 1826
-        - Top door right: 1825
-            They are func_door, call Fire("Toggle") https://developer.valvesoftware.com/wiki/Func_door
-            Additional resource: https://developer.valvesoftware.com/wiki/Func_movelinear#Inputs
+    - Bunker teleport didn't re-teleport the player (TO TEST)
+    - Either need to block elevator doors when the elevator leaves, or have a death zone at the bottom of the elevator shaft
     - CleanupZombies works incorrectly if you leave & re-enter the same area ID (no it's not? Don't know why it didn't work before)
-    - Basement levers should play their sound ~1 second after being pressed, maybe 1.5 s
-    - wallBlock is a a GAMEMODE wallblock ent because of the model chosen. Either enable nocollide or choose a different model
-    - Generator doesn't "turn off" after a new game
-            A lot doesn't properly reset after a game end, like zapdooors
+    - wallBlock is a a GAMEMODE wallblock ent because of the model chosen. (TO TEST)
 
     Nav work:
     - Zombies get stuck in "shower"-like area
+    - Large groups of zombies getting consistently stuck in doorways
+        - Might be worth it to force zombie nocollide?
 
     Theory work:
     - Need more EE shit for after the long poison hallways
