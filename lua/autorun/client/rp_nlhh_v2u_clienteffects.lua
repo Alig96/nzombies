@@ -183,8 +183,10 @@ net.Receive("StopOverlay", function()
 end)
 
 net.Receive("RunSound", function()
-    soundToRun = net.ReadString()
-    surface.PlaySound(tostring(soundToRun))
+    local soundToRun = tostring(net.ReadString())
+    local soundLevel = net.ReadInt(16)
+    --surface.PlaySound(tostring(soundToRun))
+    LocalPlayer():EmitSound(soundToRun, soundLevel or 75)
 end)
 
 drawMessages = false
@@ -247,7 +249,8 @@ chalkMessages = {
     msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   ARCS OF BLUE", "MAKE IT TRUE"}},
     msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"BRING FORTH", "          THE   LAMBS", "               TO     SLAUGHTER"}},
     msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"WITHOUT A TORCH", "    A SOUL IS LOST"}},
-    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I REMAIN YET UNSATISFIED"}
+    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I REMAIN YET UNSATISFIED"},
+    msg6 = {pos1 = Vector(-320.598755, 3618.671143, 112.714233), rot = Angle(0, 90, 0), msg = {"THE     STRAIN", "  BRINGS", "  IT DOWN"}}
 }
 chalkBackup = table.Copy(chalkMessages)
 
@@ -263,6 +266,7 @@ hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
             draw.NoTexture()
             surface.SetFont("nz.display.hud.main")
             surface.SetDrawColor(255, 255, 255)
+            surface.SetTextColor(255, 255, 255)
             if istable(v.msg) then
                 for k, v in pairs(v.msg) do
                     surface.SetTextPos(0, 48 * (k - 1))
