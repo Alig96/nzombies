@@ -423,6 +423,7 @@ end
 function SpecialTeleport(ply, pos, ang, delay)
 	ply:GodEnable()
     ply:Lock()
+    local oldPriority = ply:GetTargetPriority()
     ply:SetTargetPriority(TARGET_PRIORITY_NONE)
 	SetElectrify(ply, true)
 	timer.Simple(delay or 0, function()
@@ -448,18 +449,18 @@ function SpecialTeleport(ply, pos, ang, delay)
                 ply:SetEyeAngles(ang)
         
 				effectData = EffectData()
-				effectData:SetStart( ply:GetPos() + Vector(0, 0, 1000) )
-				effectData:SetOrigin( ply:GetPos() )
-				effectData:SetMagnitude( 0.75 )
+				effectData:SetStart(ply:GetPos() + Vector(0, 0, 1000))
+				effectData:SetOrigin(ply:GetPos())
+				effectData:SetMagnitude(0.75)
 				util.Effect("lightning_strike", effectData)
 
 				ply:SetNoDraw(false)
 				ply:GodDisable()
                 ply:UnLock()
-                ply:SetTargetPriority(TARGET_PRIORITY_PLAYER)
+                ply:SetTargetPriority(oldPriority)
                 --Alternative idea to changing the collision group, we could also just kill the zombies in a box around it
 				timer.Simple(1, function() --We don't want the player spawning inside a zombie and not being able to move
-					ply:SetCollisionGroup(COLLISION_GROUP_NONE) --TO CHECK
+					ply:SetCollisionGroup(COLLISION_GROUP_NONE)
 					timer.Simple(1, function()
 						ply:SetCollisionGroup(COLLISION_GROUP_PLAYER) --Change back
 					end)
@@ -487,14 +488,14 @@ function GenerateRandomSet(maxNum, totalDesired)
     return throwawayTab
 end
 
---Used by the dors leading to the ZapZombies buttons, zaps players for :Health() - 1 when used while electrified
+--Used by the dors leading to the ZapZombies buttons, zaps players for :GetMaxHealth() - 1 when used while electrified
 function ZapPlayer(ent, ply)
     if !powerSwitchUsed then
         ent:EmitSound("ambient/energy/zap" .. math.random(9) .. ".wav")
         local insta = DamageInfo()
         insta:SetAttacker(ent)
         insta:SetDamageType(DMG_SHOCK) --Need to find an acceptable damage type, old was DMG_BLAST_SURFACE
-        insta:SetDamage(ply:Health() - 1)
+        insta:SetDamage(ply:GetMaxHealth() - 1)
         ply:TakeDamageInfo(insta)
     end
 end
@@ -581,9 +582,6 @@ function mapscript.OnGameBegin()
     wallBlock:SetPos(Vector(-3600.7, 6482.8, 120.5))
     wallBlock:SetAngles(Angle(90, 90, 180))
     wallBlock:SetMaterial("models/props_combine/com_shield001a")
-    --[[wallBlock:SetModel("models/props/cs_militia/bathroomwallhole01_wood_broken.mdl")
-    wallBlock:SetPos(Vector(-3606.9375, 6479.9375, 126.125))
-    wallBlock:SetAngles(Angle(0, -90, 0))]]
     wallBlock:Spawn()
     wallBlock:GetPhysicsObject():EnableMotion(false)
     wallBlock:StartLoopingSound("ambient/machines/combine_shield_loop3.wav")
@@ -732,14 +730,9 @@ function mapscript.OnGameBegin()
 
     --Randomizes the teleport possibilities when the generator switch is flipped, both unflipped remains the same always
 	local neitherFlippedOption = table.Copy(possibleTeleports[1])
-	table.remove(possibleTeleports, 1)
-	local randValue = math.random(1, 3)
-	local bothFlippedOption = table.Copy(possibleTeleports[randValue])
-	table.remove(possibleTeleports, randValue)
-	randValue = math.random(1, 2)
-	local nonSparkFlippedOption = table.Copy(possibleTeleports[randValue])
-	table.remove(possibleTeleports, randValue)
-	local sparkFlippedOption = table.Copy(possibleTeleports[1])
+    local bothFlippedOption = table.Copy(possibleTeleports[4])
+	local nonSparkFlippedOption = table.Copy(possibleTeleports[3])
+	local sparkFlippedOption = table.Copy(possibleTeleports[2])
 
 	--The generator power switch that teleports the player
     newPowerSwitch = ents.GetMapCreatedEntity("2767")
@@ -749,16 +742,6 @@ function mapscript.OnGameBegin()
 
         if !powerSwitchUsed then
             powerSwitchUsed = true
-            
-            --[[local doors = {"1743", "1564"}
-            for k, v in pairs(doors) do
-                local lock = ents.GetMapCreatedEntity(v)
-                lock.OnUsed = function() 
-                    lock:Fire("Lock")
-                end
-                SetElectrify(lock, false)
-                lock:Fire("Unlock")
-            end]]
         end
 
         newPowerSwitch.powerSwitchDelay = true
@@ -772,7 +755,7 @@ function mapscript.OnGameBegin()
             local insta = DamageInfo()
             insta:SetAttacker(button)
             insta:SetDamageType(DMG_SHOCK)
-            insta:SetDamage(ply:Health() - 1)
+            insta:SetDamage(ply:GetMaxHealth() - 1)
             ply:TakeDamageInfo(insta)
 
             timer.Simple(4, function()
@@ -780,10 +763,10 @@ function mapscript.OnGameBegin()
             end)
         else
             timer.Simple(1, function()
-                for k, v in pairs(player.GetAll()) do
+                --[[for k, v in pairs(player.GetAll()) do
                     v:ChatPrint("Building power enabled, disabling backup generators...")
                 end
-                nzElec:Activate()
+                nzElec:Activate()]]
                 StartGeneratorHumm()
             end)
         end
@@ -944,7 +927,7 @@ function mapscript.OnGameBegin()
     end
 
 	--Timer for checking battery levels
-	timer.Create("BatteryChecks", 1, 0, function()
+	timer.Create("BatteryChecks", 2, 0, function()
 		for k, v in pairs(player.GetAll()) do
 			if v:Alive() and mapscript.batteryLevels[v:SteamID()] then
 				if mapscript.batteryLevels[v:SteamID()] == 0 then
@@ -1214,6 +1197,7 @@ Useful EE function:
     - Should have players turn on the generator BEFORE turning on power, they find the keys in the teleport room, but the combine console is disabled because power's off
         - Generator humm? 
     - Combine doorway should emit a sound on loop: ambient/machines/combine_shield_loop3.wav
+    - Lightning effect may not work properly on MAP-SPAWNED entities, potential work-around: just use the ent's position and don't set an ent, or recreate the ent but set it invisible
 
     Nav work:
     - Zombies get stuck in "shower"-like area
