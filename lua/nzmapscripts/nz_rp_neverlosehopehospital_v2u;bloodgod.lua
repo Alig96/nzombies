@@ -8,6 +8,7 @@ util.AddNetworkString("RunSound")
 util.AddNetworkString("StartTeleportTimer")
 util.AddNetworkString("UpdateTeleportTimer")
 util.AddNetworkString("ResetChalkMessages")
+util.AddNetworkString("DeleteChalkMessages")
 util.AddNetworkString("RunCoward")
 
 --[[    Post script-load work    ]]
@@ -142,9 +143,21 @@ end
 
 local radiosByID = {"1456", "2144", "1403"}
 
+local carbatteryspawns = {
+    {pos = Vector(-2901.3, 1491.2, -3578), ang = Angle(-0.298, -7.827, -0.088)},
+    {pos = Vector(-2892.7, 76.7, -3578), ang = Angle(-0.300, 16.855, -0.049)},
+    {pos = Vector(-5198.2, 729.8, -3578), ang = Angle(-0.493, -155.484, -0.084)},
+}
+
+local combinebatteryspawns = {
+    {pos = Vector(-4523.8, 5373.8, 77.4), ang = Angle(-1.443, 47.361, 91.156)},
+    {pos = Vector(-4733.6, 7696.6, 111.1), ang = Angle(0.864, 66.956, -90.419)},
+    {pos = Vector(-5544.6, 7202.0, 99.9), ang = Angle(1.856, -0.262, -8.516)},
+}
+
 local gascans = nzItemCarry:CreateCategory("gascan")
 	gascans:SetIcon("spawnicons/models/props_junk/metalgascan.png") --spawnicons/models/props_junk/gascan001a.png
-	gascans:SetText("Press E to pick up the gas can.")
+	gascans:SetText("Press E to pick up the gas can")
 	gascans:SetDropOnDowned(false)
 	gascans:SetShowNotification(true)
 	gascans:SetResetFunction(function(self)
@@ -199,7 +212,7 @@ gascans:Update()
 --Batteries are only created on round & game start, you'll find code for spawning them in mapscript.OnRoundStart and mapscript.OnGameBegin
 local battery = nzItemCarry:CreateCategory("battery")
 	battery:SetIcon("spawnicons/models/zworld_equipment/zpile.png")
-    battery:SetText("Press E to insert battery into flashlight.")
+    battery:SetText("Press E to insert battery into your flashlight")
 	battery:SetDropOnDowned(false)
 	battery:SetShowNotification(true)
 	battery:SetResetFunction(function(self)
@@ -215,7 +228,6 @@ local battery = nzItemCarry:CreateCategory("battery")
         mapscript.batteryLevels = {}
 	end)
 	battery:SetPickupFunction(function(self, ply, ent)
-        --Play some extra sound? EE object pickup sound doesn't play if you already have the object
 		ply:GiveCarryItem(self.id)
 		ply:AllowFlashlight(true)
 		mapscript.flashlightStatuses[ply] = true
@@ -232,15 +244,21 @@ local battery = nzItemCarry:CreateCategory("battery")
 				break
 			end
 		end
+
+        timer.Simple(2, function()
+            if ply and ply:IsValid() and ply:Alive() and ply:HasCarryItem(self.id) then
+                ply:RemoveCarryItem(self.id)
+            end
+        end)
 	end)
 	battery:SetCondition( function(self, ply)
-		return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 100)
+		return (!ply:HasCarryItem("battery") or mapscript.batteryLevels[ply:SteamID()] < 90)
 	end)
 battery:Update()
 
 local key = nzItemCarry:CreateCategory("key")
     key:SetIcon("spawnicons/models/zpprops/keychain.png")
-    key:SetText("Press E to pick up the keys.")
+    key:SetText("Press E to pick up the keys")
     key:SetDropOnDowned(false)
     key:SetShowNotification(true)
     key:SetResetFunction(function(self)
@@ -262,6 +280,108 @@ local key = nzItemCarry:CreateCategory("key")
 		return !ply:HasCarryItem("key")
 	end)
 key:Update()
+
+local carbatt = nzItemCarry:CreateCategory("carbatt") --models/items/car_battery01.mdl
+    carbatt:SetIcon("spawnicons/models/items/car_battery01.mdl")
+    carbatt:SetText("Press E to pick up the discharged car battery")
+    carbatt:SetDropOnDowned(false)
+    carbatt:SetShowNotification(true)
+    carbatt:SetResetFunction(function(self)
+        local randomchoice = math.random(#carbatteryspawns)
+		local ent = ents.Create("nz_script_prop")
+        ent:SetModel("models/items/car_battery01.mdl")
+        ent:SetPos(carbatteryspawns[randomchoice].pos)
+        ent:SetAngles(carbatteryspawns[randomchoice].ang)
+        ent:Spawn()
+        self:RegisterEntity(ent)
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("carbatt")
+        end
+	end)
+	carbatt:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+        ent:Remove()
+	end)
+	carbatt:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("carbatt")
+	end)
+carbatt:Update()
+
+local ccarbatt = nzItemCarry:CreateCategory("ccarbatt") --models/items/car_battery01.mdl
+    ccarbatt:SetIcon("spawnicons/models/items/car_battery01.mdl")
+    ccarbatt:SetText("Press E to pick up the charged car battery")
+    ccarbatt:SetDropOnDowned(false)
+    ccarbatt:SetShowNotification(true)
+    ccarbatt:SetResetFunction(function(self)
+		local ent = ents.Create("nz_script_prop")
+        ent:SetModel("models/items/car_battery01.mdl")
+        ent:SetPos(Vector(-3587.8, 705.5, -3552.9))
+        ent:SetAngles(Angle(0, 0, 0))
+        ent:Spawn()
+        self:RegisterEntity(ent)
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("ccarbatt")
+        end
+	end)
+	ccarbatt:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+        ent:Remove()
+	end)
+	ccarbatt:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("ccarbatt")
+	end)
+ccarbatt:Update()
+
+local combatt = nzItemCarry:CreateCategory("combatt") --models/items/battery.mdl
+    combatt:SetIcon("spawnicons/models/items/battery.mdl")
+    combatt:SetText("Press E to pick up the discharged combine battery")
+    combatt:SetDropOnDowned(false)
+    combatt:SetShowNotification(true)
+    combatt:SetResetFunction(function(self)
+        local randomchoice = math.random(#combinebatteryspawns)
+		local ent = ents.Create("nz_script_prop")
+        ent:SetModel("models/items/battery.mdl")
+        ent:SetPos(combinebatteryspawns[randomchoice].pos)
+        ent:SetAngles(combinebatteryspawns[randomchoice].ang)
+        ent:Spawn()
+        self:RegisterEntity(ent)
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("combatt")
+        end
+	end)
+	combatt:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+        ent:Remove()
+	end)
+	combatt:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("combatt")
+	end)
+combatt:Update()
+
+local ccombatt = nzItemCarry:CreateCategory("ccombatt") --models/items/battery.mdl
+    ccombatt:SetIcon("spawnicons/models/items/battery.mdl")
+    ccombatt:SetText("Press E to pick up the dead combine battery")
+    ccombatt:SetDropOnDowned(false)
+    ccombatt:SetShowNotification(true)
+    ccombatt:SetResetFunction(function(self)
+		local ent = ents.Create("nz_script_prop")
+        ent:SetModel("models/items/battery.mdl")
+        ent:SetPos(Vector(-3587.0, 699.5, -3564.5))
+        ent:SetAngles(Angle(90, -90, 180))
+        ent:Spawn()
+        self:RegisterEntity(ent)
+        for k, v in pairs(player.GetAll()) do
+            v:RemoveCarryItem("ccombatt")
+        end
+	end)
+	ccombatt:SetPickupFunction(function(self, ply, ent)
+		ply:GiveCarryItem(self.id)
+        ent:Remove()
+	end)
+	ccombatt:SetCondition( function(self, ply)
+		return !ply:HasCarryItem("ccombatt")
+	end)
+ccombatt:Update()
 
 --[[    Non-mapscript functions    ]]
 
@@ -326,7 +446,7 @@ function Electrify(ent)
 	local effect = EffectData()
 	effect:SetScale(1)
 	effect:SetEntity(ent)
-	util.Effect("lightning_aura", effect)
+	--util.Effect("lightning_aura", effect)
 end
 
 --//Creates a never-ending lightning aura around the given ent
@@ -345,7 +465,7 @@ function SetElectrify(ent, enable, scale)
                     effect:SetScale(1) --Does nothing?
                     effect:SetRadius(electrifiedScale[k])
                     effect:SetEntity(k)
-                    util.Effect("lightning_aura", effect)
+                    --util.Effect("lightning_aura", effect)
                 end
             end
             effecttimer = CurTime() + 0.3
@@ -503,8 +623,9 @@ end
 function StartGeneratorHumm()
     if !generatorSoundEmitter then
         generatorSoundEmitter = ents.Create("nz_script_prop")
-        generatorSoundEmitter:SetPos(4761, 4497.5, -73.0)
-        --generatorSoundEmitter:SetModel() --can I create an ent with no model?
+        generatorSoundEmitter:SetPos(Vector(4761, 4497.5, -73.0))
+        generatorSoundEmitter:SetAngles(Angle(0, 0, 0))
+        generatorSoundEmitter:SetModel("models/hunter/blocks/cube025x025x025.mdl") --can I create an ent with no model?
         generatorSoundEmitter:Spawn()
     end
     
@@ -568,13 +689,106 @@ function mapscript.OnGameBegin()
     end )
 
     --Creates spooky noises to play from radios
-    timer.Create("RadioSounds", math.random(20, 50), 0, function()
+    timer.Create("RadioSounds", math.random(25, 50), 0, function()
         local sounds = {"numbers", "numbers2", "numbers3", "static", "static1", "static2", "whispers"}
 		local soundToPlay = "radio sounds/" .. sounds[math.random(#sounds)] .. ".ogg"
 		for k, v in pairs(radiosByID) do
 			ents.GetMapCreatedEntity(v):EmitSound(soundToPlay, 90)
 		end
     end)
+
+    --Basement soul catcher
+    local soulcatcher = ents.Create("nz_script_soulcatcher")
+    soulcatcher:SetNoDraw(true)
+    soulcatcher:SetPos(Vector(-3586, 717, -3570.5))
+    soulcatcher:SetAngles(Angle(-90, -90, 180))
+    soulcatcher:SetModel("models/props_combine/combine_smallmonitor001.mdl") --models/hunter/blocks/cube025x025x025.mdl
+    soulcatcher:Spawn() -- Spawn before setting variables or they'll become the default
+    soulcatcher:SetTargetAmount(20)
+    soulcatcher:SetRange(500)
+    soulcatcher:SetReleaseOverride(function(self, z)
+        if self.CurrentAmount >= self.TargetAmount then return end
+        
+        local e = EffectData()
+        e:SetOrigin(self:GetPos())
+        e:SetStart(z:GetPos())
+        e:SetMagnitude(0.3)
+        util.Effect("lightning_strike", e)
+        self.CurrentAmount = self.CurrentAmount + 1
+        self:CollectSoul()
+    end)
+    soulcatcher:SetCompleteFunction(function(self)
+        soulcatcher.ent:Remove()
+        local ent = ents.Create("nz_script_prop")
+
+        if soulcatcher.type == "carbatt" then
+            ent:SetModel("models/items/car_battery01.mdl")
+            ent:SetPos(Vector(-3587.8, 705.5, -3552.9))
+            ent:SetAngles(Angle(0, 0, 0))
+            ent:Spawn()
+            carbatt:RegisterEntity(ent)
+        else
+            ent:SetModel("models/items/battery.mdl")
+            ent:SetPos(Vector(-3587.0, 699.5, -3564.5))
+            ent:SetAngles(Angle(90, -90, 180))
+            ent:Spawn()
+            combatt:RegisterEntity(ent)
+        end
+
+        ent.OnUsed = function(but, ply)
+            soulcatcher.active = false
+            soulcatcher.type = ""
+
+            soulcatcher:SetNWString("NZText", "Consumes souls of the damned")
+            soulcatcher:SetNWString("NZHasText", "Press E to insert car battery")
+            soulcatcher:SetNWString("NZHas2Text", "Press E to insert combine battery")
+        end
+        
+        soulcatcher:SetEnabled(false)
+        soulcatcher.CurrentAmount = 0
+    end)
+    soulcatcher:SetCondition(function(self, z, dmg)
+        return self.Active or false
+    end)
+    soulcatcher:SetEnabled(false)
+    soulcatcher:SetNWString("NZText", "Consumes souls of the damned")
+    soulcatcher:SetNWString("NZRequiredItem", "carbatt")
+    soulcatcher:SetNWString("NZHasText", "Press E to insert car battery")
+    soulcatcher:SetNWString("NZRequiredItem2", "combatt")
+    soulcatcher:SetNWString("NZHas2Text", "Press E to insert combine battery")
+    soulcatcher.OnUsed = function(self, ply)
+        if soulcatcher.active then return end
+
+        if ply:HasCarryItem("carbatt") then
+            local ent = ents.Create("nz_script_prop")
+            ent:SetModel("models/items/car_battery01.mdl")
+            ent:SetPos(Vector(-3587.8, 705.5, -3552.9))
+            ent:SetAngles(Angle(0, 0, 0))
+            ent:Spawn()
+            
+            self:SetEnabled(true)
+            soulcatcher.active = true
+            soulcatcher.type = "carbatt"
+            soulcatcher.ent = ent
+            ply:RemoveCarryItem("carbatt")
+        elseif ply:HasCarryItem("combatt") then
+            local ent = ents.Create("nz_script_prop")
+            ent:SetModel("models/items/battery.mdl")
+            ent:SetPos(Vector(-3587.0, 699.5, -3564.5))
+            ent:SetAngles(Angle(90, -90, 180))
+            ent:Spawn()
+            
+            self:SetEnabled(true)
+            soulcatcher.active = true
+            soulcatcher.type = "combatt"
+            soulcatcher.ent = ent
+            ply:RemoveCarryItem("combatt")
+        end
+
+        soulcatcher:SetNWString("NZText", "")
+        soulcatcher:SetNWString("NZHasText", "")
+        soulcatcher:SetNWString("NZHas2Text", "")
+    end
 
     --The ent blocking passage after the long hallways
     local wallBlock = ents.Create("prop_physics")
@@ -596,16 +810,68 @@ function mapscript.OnGameBegin()
     comConsole:SetNWString("NZText", "Power must be on")
     comConsole:Spawn()
     comConsole.OnUsed = function()
-        if mapscript.onLockdown then
+        if mapscript.onLockdown and nzElec:IsOn() then
             comConsole:EmitSound("buttons/combine_button1.wav")
             mapscript.onLockdown = false
             comConsole:SetNWString("NZText", "")
             for k, v in ipairs(mapscript.consoleButtons) do
                 ents.GetMapCreatedEntity(v):SetNWString("NZText", "Press E to further rescind building system lockdown")
             end
+        else
+            --Play failed sound
         end
     end
     mapscript.CombineConsole = comConsole
+
+    --Combine console after the poison hall
+    ents.GetMapCreatedEntity(2956):Fire("Lock")
+    ents.GetMapCreatedEntity(2957):Fire("Lock")
+    local comConsole2 = ents.Create("nz_script_prop")
+    comConsole2:SetModel("models/props_combine/combine_interface002.mdl")
+    comConsole2:SetPos(Vector(-6316.681641, 8991.398438, 64.343864))
+    comConsole2:SetAngles(Angle(0.000, -90.000, 0.000))
+    comConsole2:SetNWString("NZText", "Interface console missing power source")
+    comConsole2:Spawn()
+    comConsole2.OnUsed = function()
+        if comConsole2.canuse then
+            nzDoors:OpenLinkedDoors("b7")
+            --Play some sound
+            ents.GetMapCreatedEntity(2956):Fire("Unlock")
+            ents.GetMapCreatedEntity(2957):Fire("Unlock")
+            ents.GetMapCreatedEntity(2956):Fire("Use")
+            ents.GetMapCreatedEntity(2957):Fire("Use")
+            timer.Simple(0.1, function()
+                ents.GetMapCreatedEntity(2956):Fire("Lock")
+                ents.GetMapCreatedEntity(2957):Fire("Lock")
+            end)
+        end
+    end
+
+    --"Battery accepter" part of the combine console, where ccombatt gets placed
+    local cc2power = ents.Create("nz_script_prop")
+    cc2power:SetModel("models/props_combine/combine_emitter01.mdl")
+    cc2power:SetPos(Vector(-6250.773438, 9016.844727, 118.433113))
+    cc2power:SetAngles(Angle(-90.000, -90.000, 180.000))
+    cc2power:SetNWString("NZText", "Attach a power source here")
+    cc2power:SetNWString("NZRequiredItem", "ccombatt")
+    cc2power:SetNWString("NZHasText", "Press E to attach power source")
+    cc2power:Spawn()
+    cc2power.OnUsed = function(self, ply)
+        if ply:HasCarryItem("ccombatt") then
+            --Play some sound
+            ply:RemoveCarryItem("ccombatt")
+
+            local ent = ents.Create("nz_script_prop")
+            ent:SetModel("models/items/battery.mdl")
+            ent:SetPos(Vector(-6250.675781, 8991.291992, 122.254921))
+            ent:SetAngles(Angle(-90.000, 90.000, 180.000))
+            ent:Spawn()
+
+            comConsole2.canuse = true
+            comConsole2:SetNWString("NZText", "Press E to open the adjacent doors")
+            cc2power:SetNWString("NZText", "")
+        end
+    end
 
     --All the map-created entities that need to be locked/called/whatever
     --Lock & apply text to the basement elevator
@@ -630,7 +896,7 @@ function mapscript.OnGameBegin()
     --Locks the door the padlock is "attached" to
     ents.GetMapCreatedEntity("1567"):Fire("Lock")
     --Sets some flavor text for the destructable wall
-    ents.GetMapCreatedEntity("1563"):SetNWString("NZText", "This part of the wall looks oddly destructable...")
+    ents.GetMapCreatedEntity("1563"):SetNWString("NZText", "This part of the wall is awfully crumbling...")
     --Door to the power room, that doesn't seem to want to lock via door buy settings
     ents.GetMapCreatedEntity("1746"):Fire("Lock")
     --Electrify and lock the 2 doors leading to the ZapZombies buttons
@@ -696,7 +962,7 @@ function mapscript.OnGameBegin()
 
     --Sets up the special functionality for the levers in the basement
     local sparkLever = ents.GetMapCreatedEntity("1921")
-    SetElectrify(sparkLever, true)
+    --SetElectrify(sparkLever, true)
 	sparkLever.OnUsed = function(but, ply)
 		if !sparkFlipped then
 			sparkFlipped = true
@@ -712,7 +978,7 @@ function mapscript.OnGameBegin()
         end)
 	end
     local nonSparkLever = ents.GetMapCreatedEntity("1920")
-    SetElectrify(nonSparkLever, true)
+    --SetElectrify(nonSparkLever, true)
 	nonSparkLever.OnUsed = function(but, ply)
 		if !nonSparkFlipped then
 			nonSparkFlipped = true
@@ -1143,6 +1409,13 @@ hook.Add("PlayerUse", "PreventPull", function(ply, button)
     end
 end)
 
+hook.Add("OnZombieKilled", "OnBossDeath", function()
+    --probably gonna need to do a bunch more stuff here
+
+    net.Start("DeleteChalkMessages")
+    net.Broadcast()
+end)
+
 --[[    Overwritten Functions    ]]
 
 --Overwrites default function, enables the "disabling" of spawns, used when players enter a different area
@@ -1198,6 +1471,7 @@ Useful EE function:
         - Generator humm? 
     - Combine doorway should emit a sound on loop: ambient/machines/combine_shield_loop3.wav
     - Lightning effect may not work properly on MAP-SPAWNED entities, potential work-around: just use the ent's position and don't set an ent, or recreate the ent but set it invisible
+        Or maybe scale needs to be -1? Check zet's code...
 
     Nav work:
     - Zombies get stuck in "shower"-like area

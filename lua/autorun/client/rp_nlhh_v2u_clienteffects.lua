@@ -166,8 +166,9 @@ net.Receive("RunTeleportOverlay", function()
             
             for k, v in pairs(funcCalls) do
                 --funcCalls[k] = math.Approach(v, 1, 0.01)
-                surface.SetTexture(surface.GetTextureID("models/props_combine/com_shield001a"))
                 surface.SetDrawColor(255, 255, 255, 255)
+                draw.Circle(overlayPanel2:GetWide() / 2, overlayPanel2:GetTall() / 2, math.sin(v) * 1920, 128)
+                surface.SetTexture(surface.GetTextureID("models/props_combine/com_shield001a"))
                 draw.Circle(overlayPanel2:GetWide() / 2, overlayPanel2:GetTall() / 2, math.sin(v) * 1920, 128)
             end
         end
@@ -215,6 +216,10 @@ net.Receive("RunCoward", function()
     end
 end)
 
+net.Receive("DeleteChalkMessages", function()
+    table.Empty(chalkMessages)
+end)
+
 --Starts drawing the HUD timer-circle-thing
 net.Receive("StartTeleportTimer", function()
     totalTime = net.ReadInt(16)
@@ -244,13 +249,15 @@ net.Receive("SendBatteryLevel", function()
 end)
 
 chalkMessages = {
-    counter = {pos1 = Vector(-513.988129, 3552.188965, 161.082184), rot = Angle(0, 0, 0), num = 0, goal = 20},
-    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "I HUNGER"},
+    counter = {pos1 = Vector(-513.988129, 3552.188965, 161.082184), rot = Angle(0, 0, 0), num = 0, goal = 10},
+    msg1 = {pos1 = Vector(-1664.031250, 2424.160400, 112.724030), rot = Angle(0, 270, 0), msg = "DRAW CLOSER"},
     msg2 = {pos1 = Vector(-1160.546265, 2368.251465, 138.644363), rot = Angle(0, 180, 0), msg = {"   ARCS OF BLUE", "MAKE IT TRUE"}},
     msg3 = {pos1 = Vector(-1216.598877, 2771.254150, 137.531754), rot = Angle(0, 90, 0), msg = {"BRING FORTH", "          THE   LAMBS", "               TO     SLAUGHTER"}},
     msg4 = {pos1 = Vector(-4039.113037, 1984.031250, 122.161331), rot = Angle(0, 180, 0), msg = {"WITHOUT A TORCH", "    A SOUL IS LOST"}},
-    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I REMAIN YET UNSATISFIED"},
-    msg6 = {pos1 = Vector(-320.598755, 3618.671143, 112.714233), rot = Angle(0, 90, 0), msg = {"THE     STRAIN", "  BRINGS", "  IT DOWN"}}
+    msg5 = {pos1 = Vector(-3071.968750, 1413.312500, 109.798767), rot = Angle(0, 90, 0), msg = "I HUNGER"},
+    msg6 = {pos1 = Vector(-320.598755, 3618.671143, 112.714233), rot = Angle(0, 90, 0), msg = {"THE     STRAIN", "  BRINGS", "  US DOWN"}},
+    msg7 = {pos1 = Vector(-4494.650391, 6457.968750, 173.936066), rot = Angle(0, 0, 0), msg = "RELEASE ME"},
+    msg8 = {pos1 = Vector(-5363.580566, 7673.968750, 145.124252), rot = Angle(0, 0, 0), msg = "YOU ARE NEXT"}
 }
 chalkBackup = table.Copy(chalkMessages)
 
@@ -276,6 +283,7 @@ hook.Add("PostDrawOpaqueRenderables", "DrawChalkMessages", function()
                 surface.SetTextPos(0, 0)
                 surface.DrawText(text)
             end
+            draw.NoTexture()
         cam.End3D2D()
     end
 end)
