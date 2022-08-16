@@ -175,12 +175,15 @@ local function GetText( ent )
 	local class = ent:GetClass()
 	local text = ""
 
-	local neededcategory, deftext, hastext = ent:GetNWString("NZRequiredItem"), ent:GetNWString("NZText"), ent:GetNWString("NZHasText")
+	local neededcategory, neededcategory2, deftext, hastext, has2text = ent:GetNWString("NZRequiredItem"), ent:GetNWString("NZRequiredItem2"), ent:GetNWString("NZText"), ent:GetNWString("NZHasText"), ent:GetNWString("NZHas2Text")
 	local itemcategory = ent:GetNWString("NZItemCategory")
 
 	if neededcategory != "" then
 		local hasitem = LocalPlayer():HasCarryItem(neededcategory)
-		text = hasitem and hastext != "" and hastext or deftext
+        text = hasitem and hastext != "" and hastext or deftext
+    elseif neededcategory2 != "" then
+        local hasitem = LocalPlayer():HasCarryItem(neededcategory)
+        text = hasitem and has2text != "" and has2text or deftext
 	elseif deftext != "" then
 		text = deftext
 	elseif itemcategory != "" then
