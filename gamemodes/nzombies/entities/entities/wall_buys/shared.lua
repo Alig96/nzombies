@@ -20,7 +20,7 @@ local normalscale = Vector(0.01, 1.5, 1.5) 	-- based on the bool self:GetFlipped
 
 CreateClientConVar("nz_outlinedetail", "4", true) -- Controls the outline creation
 
-chalkmaterial = Material("chalk.png", "unlitgeneric smooth")
+chalkmaterial = "chalk.png" --= Material("chalk.png", "unlitgeneric smooth")
 
 function ENT:Initialize()
 	if SERVER then
