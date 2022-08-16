@@ -920,7 +920,7 @@ end
 
 local function ReturnUseFunction( ent )
 	for k, v in pairs( UseFunctions ) do
-		if v[ 1 ] = ent then
+		if v[ 1 ] == ent then
 			ent.OnUsed = v[ 2 ]
 			v = nil
 			break
@@ -1205,7 +1205,7 @@ function mapscript.OnGameBegin()
 		breen:Activate()
 		breen.OnUsed = function()
 			--The first and second breen consoles (which are both on the roof) require their battery outlet be plugged in above it to operate
-			if ( k == 1 or k == 2 ) and not insertedplugs[ k ] or activatedconsole[ k ] then return end
+			if ( k == 1 or k == 2 ) and not insertedplugs[ k ] or activatedconsoles[ k ] then return end
 			activatedconsoles[ k ] = true
 			breen:EmitSound( "buttons/combine_button1.wav" )
 			breen:SetNWString( "NZText", "This powernode has been activated." )
@@ -1259,7 +1259,7 @@ function mapscript.OnGameBegin()
 			timer.Simple( 2, function()
 				PrintMessage( HUD_PRINTTALK, "[COMBINE SECURITY] RE-ENABLE FACILITY POWERNODES TO RESUME DOOR FUNCTIONS." )
 			end )
-			timer.Create( "sideroomtimer", 3, 1 function()
+			timer.Create( "sideroomtimer", 3, 1, function()
 				timer.Destroy( "sideroomtimer" )
 				sideroomopener:SetNWString( "NZText", "ERROR" )
 			end )
